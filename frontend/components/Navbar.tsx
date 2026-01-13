@@ -26,8 +26,9 @@ export default function Navbar() {
                         href="/"
                         className="flex items-center gap-2 text-white font-bold text-xl md:text-2xl tracking-tight"
                     >
-                        <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">
-                            PP7IA
+                        <span className="inline-flex">
+                        <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">PP7IA</span>
+                        <span className="text-white tracking-normal ">.portal</span>
                         </span>
                     </a>
 
