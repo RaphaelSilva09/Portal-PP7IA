@@ -1,4 +1,4 @@
-import { BentoGrid, Footer, HeroSection, Navbar, TechStack } from "@/components";
+import { BentoGrid, Footer, HeroSection, Navbar } from "@/components";
 
 export default function Home() {
     return (
@@ -11,9 +11,6 @@ export default function Home() {
 
             {/* Bento Grid com 7 blocos de conteúdo */}
             <BentoGrid />
-
-            {/* Tech Stack com 7 tecnologias */}
-            <TechStack />
 
             {/* Footer com 7 links sociais e 7 links legais */}
             <Footer />

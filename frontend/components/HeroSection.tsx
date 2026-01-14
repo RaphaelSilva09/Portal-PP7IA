@@ -6,20 +6,6 @@ import HeroTitle from "./HeroTitle";
 export default function HeroSection() {
     return (
         <section className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-            {/* Background Effects */}
-            <div className="bg-bg-primary">
-                {/* Gradient Orbs */}
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-blue/10 rounded-full blur-3xl animate-float" />
-                <div
-                    className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-purple/10 rounded-full blur-3xl animate-float"
-                    style={{ animationDelay: "1.5s" }}
-                />
-                <div
-                    className="absolute top-1/2 left-1/2 w-64 h-64 bg-brand-orange/5 rounded-full blur-3xl animate-float"
-                    style={{ animationDelay: "3s" }}
-                />
-            </div>
-
             {/* Grid Pattern Overlay */}
             <div
                 className="inset-0 opacity-[0.02]"
@@ -63,7 +49,7 @@ export default function HeroSection() {
 
                 {/* Description */}
                 <p
-                    className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed animate-fade-in-up"
+                    className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.3s" }}
                 >
                     Traduzimos e simplificamos o que é complexo, com menos ruído e mais clareza.

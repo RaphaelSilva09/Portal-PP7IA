@@ -93,18 +93,18 @@ export default function BentoGrid() {
                                         Curadoria Humana + Inteligência Artificial
                                     </span>
                                 </h3>
-                                <p className="text-gray-400 text-lg sm:text-xl leading-relaxed tracking-tight">
+                                <p className="text-gray-400 text-base sm:text-2xl leading-relaxed tracking-tight">
                                     Traduzimos e simplificamos o que é complexo, com menos ruído e mais clareza.
                                 </p>
                             </div>
 
                             {/* Bottom */}
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-                                <button className="flex items-center justify-center gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 group/btn w-auto">
+                                <button className="flex items-center justify-center gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium text-base sm:text-2xl transition-all duration-300 group/btn w-auto">
                                     <span className="tracking-tight">Última edição</span>
                                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                                 </button>
-                                <button className="flex items-center justify-center gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 group/btn w-auto">
+                                <button className="flex items-center justify-center gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium text-base sm:text-2xl transition-all duration-300 group/btn w-auto">
                                     <span className="tracking-tight">Explorar edições passadas</span>
                                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                                 </button>
@@ -131,7 +131,7 @@ export default function BentoGrid() {
                                 <h4 className="text-xl sm:text-2xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Newsletter
                                 </h4>
-                                <p className="text-gray-400 text-sm sm:text-base tracking-tight">
+                                <p className="text-gray-400 text-base sm:text-2xl tracking-tight">
                                     Análises aprofundadas entregues diretamente no seu email toda semana.
                                 </p>
                             </div>
@@ -155,7 +155,7 @@ export default function BentoGrid() {
                                 <h4 className="text-xl sm:text-2xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Radar
                                 </h4>
-                                <p className="text-gray-400 text-sm sm:text-base tracking-tight">
+                                <p className="text-gray-400 text-base sm:text-2xl tracking-tight">
                                     Monitoramento de sinais e tendências emergentes do mercado de IA.
                                 </p>
                             </div>
@@ -179,7 +179,7 @@ export default function BentoGrid() {
                                 <h4 className="text-xl sm:text-2xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Biblioteca
                                 </h4>
-                                <p className="text-gray-400 text-sm sm:text-base tracking-tight">
+                                <p className="text-gray-400 text-base sm:text-2xl tracking-tight">
                                     Acervo curado de prompts, ferramentas e recursos práticos.
                                 </p>
                             </div>
@@ -208,7 +208,7 @@ export default function BentoGrid() {
                                 <h4 className="text-xl sm:text-2xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Biblioteca
                                 </h4>
-                                <p className="text-gray-400 text-sm sm:text-base tracking-tight">
+                                <p className="text-gray-400 text-base sm:text-2xl tracking-tight">
                                     Acervo curado de prompts, ferramentas e recursos práticos.
                                 </p>
                             </div>
@@ -232,7 +232,7 @@ export default function BentoGrid() {
                                 <h4 className="text-xl sm:text-2xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Radar
                                 </h4>
-                                <p className="text-gray-400 text-sm sm:text-base tracking-tight">
+                                <p className="text-gray-400 text-base sm:text-2xl tracking-tight">
                                     Monitoramento de sinais e tendências emergentes do mercado de IA.
                                 </p>
                             </div>
@@ -256,7 +256,7 @@ export default function BentoGrid() {
                                 <h4 className="text-xl sm:text-2xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Newsletter
                                 </h4>
-                                <p className="text-gray-400 text-sm sm:text-base tracking-tight">
+                                <p className="text-gray-400 text-base sm:text-2xl tracking-tight">
                                     Análises aprofundadas entregues diretamente no seu email toda semana.
                                 </p>
                             </div>

@@ -40,7 +40,7 @@ export default function Footer() {
                         >
                             Pp7ia
                         </a>
-                        <p className="text-text-secondary text-sm sm:text-base max-w-md mb-6">
+                        <p className="text-text-secondary text-base sm:text-2xl max-w-md mb-6">
                             Traduzimos e simplificamos o que é complexo, com menos ruído e mais clareza. Curadoria
                             humana de IA para líderes e inovadores.
                         </p>
@@ -71,7 +71,7 @@ export default function Footer() {
                                 <li key={item}>
                                     <a
                                         href={`#${item.toLowerCase()}`}
-                                        className="text-text-secondary hover:text-white transition-colors duration-200 text-sm sm:text-base"
+                                        className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
                                     >
                                         {item}
                                     </a>
@@ -88,7 +88,7 @@ export default function Footer() {
                                 <li key={item.label}>
                                     <a
                                         href={item.href}
-                                        className="text-text-secondary hover:text-white transition-colors duration-200 text-sm sm:text-base"
+                                        className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
                                     >
                                         {item.label}
                                     </a>
@@ -105,7 +105,7 @@ export default function Footer() {
                             <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
                                 Receba nossa curadoria semanal
                             </h3>
-                            <p className="text-text-secondary text-sm sm:text-base">
+                            <p className="text-text-secondary text-base sm:text-2xl">
                                 7 insights essenciais toda semana, direto no seu email.
                             </p>
                         </div>
@@ -124,7 +124,7 @@ export default function Footer() {
 
                 {/* Bottom Section */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border-glass">
-                    <p className="text-text-secondary text-sm text-center sm:text-left">
+                    <p className="text-text-secondary text-base sm:text-2xl text-center sm:text-left">
                         © {currentYear} Pp7ia. Todos os direitos reservados.
                     </p>
 
@@ -134,7 +134,7 @@ export default function Footer() {
                             <a
                                 key={item.label}
                                 href={item.href}
-                                className="text-text-secondary hover:text-white transition-colors duration-200 text-xs sm:text-sm"
+                                className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
                             >
                                 {item.label}
                             </a>
