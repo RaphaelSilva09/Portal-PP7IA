@@ -17,9 +17,6 @@ export default function BentoGrid() {
             <div className="max-w-7xl mx-auto">
                 {/* Section Header */}
                 <div className="text-center flex flex-col gap-6 sm:gap-8">
-                    <span className="mx-auto px-4 text-base font-semibold text-brand-blue bg-brand-blue/10 rounded-full py-1 w-fit">
-                        ECOSSISTEMA
-                    </span>
 
                     {/* AI Tools Badge - Responsivo */}
                     <div className="flex items-center justify-center px-2">
