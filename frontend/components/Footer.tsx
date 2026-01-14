@@ -97,30 +97,6 @@ export default function Footer() {
                     </div>
                 </div>
 
-                {/* Newsletter CTA */}
-                <div className="glass-card rounded-2xl p-6 sm:p-8 mb-12">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                        <div>
-                            <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                                Receba nossa curadoria semanal
-                            </h3>
-                            <p className="text-text-secondary text-base sm:text-2xl">
-                                7 insights essenciais toda semana, direto no seu email.
-                            </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                            <input
-                                type="email"
-                                placeholder="seu@email.com"
-                                className="flex-1 sm:w-64 px-4 py-3 bg-bg-primary border border-border-glass rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target"
-                            />
-                            <button className="px-6 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-glow-green hover:scale-105 active:scale-95 transition-transform duration-200 touch-target whitespace-nowrap">
-                                Inscrever-se
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Bottom Section */}
                 <div className="flex flex-col items-center justify-center gap-4 pt-8 border-t border-border-glass">
                     <p className="text-text-secondary text-base sm:text-2xl text-center">

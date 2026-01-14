@@ -3,6 +3,9 @@
 import { ArrowRight, FileText } from "lucide-react";
 import HeroTitle from "./HeroTitle";
 
+// Lista de ferramentas do ecossistema de IA
+const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.ai"];
+
 export default function HeroSection() {
     return (
         <section className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -53,7 +56,7 @@ export default function HeroSection() {
 
                 {/* Document Buttons - Attention Grabbing */}
                 <div
-                    className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in-up"
+                    className="mb-6 sm:mb-7 md:mb-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in-up"
                     style={{ animationDelay: "0.4s" }}
                 >
                     {/* Carta ao Leitor */}
@@ -98,6 +101,21 @@ export default function HeroSection() {
                         </div>
                         <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-brand-purple group-hover:translate-x-1 transition-all" />
                     </a>
+                </div>
+
+
+                {/* AI Tools Badge - Responsivo */}
+                <div className="flex items-center justify-center px-2 ">
+                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium transition-all duration-300 max-w-full">
+                        {AI_TOOLS.map((tool, index) => (
+                            <div key={tool} className="flex items-center gap-1.5 sm:gap-2">
+                                <span className="tracking-tight text-base sm:text-1xl">{tool}</span>
+                                {index < AI_TOOLS.length - 1 && (
+                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white/60" />
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>

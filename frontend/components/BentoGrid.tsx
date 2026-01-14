@@ -8,30 +8,12 @@ import { ArrowRight, BookOpen, GraduationCap, Heart, Library, Search, Sparkles, 
  * Regra de Negócio: O número 7
  */
 
-// Lista de ferramentas do ecossistema de IA
-const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.ai"];
-
 export default function BentoGrid() {
     return (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 {/* Section Header */}
                 <div className="text-center flex flex-col gap-6 sm:gap-8">
-
-                    {/* AI Tools Badge - Responsivo */}
-                    <div className="flex items-center justify-center px-2">
-                        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium transition-all duration-300 max-w-full">
-                            {AI_TOOLS.map((tool, index) => (
-                                <div key={tool} className="flex items-center gap-1.5 sm:gap-2">
-                                    <span className="tracking-tight text-base sm:text-1xl">{tool}</span>
-                                    {index < AI_TOOLS.length - 1 && (
-                                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white/60" />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Títulos e Descrição */}
                     <div className="flex flex-col items-center gap-1 pb-16 sm:pb-20 md:pb-24">
                         <h2 className="text-1xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">
@@ -289,6 +271,30 @@ export default function BentoGrid() {
 
                             {/* Accent Line */}
                             <div className="absolute bottom-0 left-0 right-0 h-2 bg-linear-to-r from-pink-500 to-rose-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Newsletter CTA */}
+                <div className="glass-card rounded-2xl p-6 sm:p-8 mt-12">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div>
+                            <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                                Receba nossa curadoria semanal
+                            </h3>
+                            <p className="text-text-secondary text-base sm:text-2xl">
+                                7 insights essenciais toda semana, direto no seu email.
+                            </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+                            <input
+                                type="email"
+                                placeholder="seu@email.com"
+                                className="flex-1 sm:w-64 px-4 py-3 bg-bg-primary border border-border-glass rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target"
+                            />
+                            <button className="px-6 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-glow-green hover:scale-105 active:scale-95 transition-transform duration-200 touch-target whitespace-nowrap">
+                                Inscrever-se
+                            </button>
                         </div>
                     </div>
                 </div>
