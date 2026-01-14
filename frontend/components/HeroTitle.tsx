@@ -4,7 +4,7 @@ export default function HeroTitle() {
     return (
         <div className="flex items-center justify-center gap-2 md:gap-4">
             {/* Container de Texto com a Fonte Configurada */}
-            <h1 className="flex items-center text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter select-none font-(family-name:--font-inter)">
+            <h1 className="flex items-center text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter select-none font-sans">
                 {/* Parte 1: PP (Azul com Glow) */}
                 <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">PP</span>
 

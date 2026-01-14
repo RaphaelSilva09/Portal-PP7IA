@@ -5,9 +5,9 @@ import HeroTitle from "./HeroTitle";
 
 export default function HeroSection() {
     return (
-        <section className="relative min-h-screen flex items-center justify-center pt-20 pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <section className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
             {/* Background Effects */}
-            <div className="absolute inset-0 bg-bg-primary">
+            <div className="bg-bg-primary">
                 {/* Gradient Orbs */}
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-blue/10 rounded-full blur-3xl animate-float" />
                 <div
@@ -22,40 +22,40 @@ export default function HeroSection() {
 
             {/* Grid Pattern Overlay */}
             <div
-                className="absolute inset-0 opacity-[0.02]"
+                className="inset-0 opacity-[0.02]"
                 style={{
-                    backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-          `,
-                    backgroundSize: "50px 50px",
+                    backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                    backgroundSize: "20px 20px",
+                    backgroundPosition: "center center",
                 }}
             />
             {/* Content */}
-            <div className="relative z-10 max-w-5xl mx-auto text-center">
+            <div className="relative z-10 max-w-4xl mx-auto text-center px-2 sm:px-4">
                 {/* Badge - Clickable to scroll to BentoGrid */}
-                <br />
                 <a
                     href="#blocos"
-                    className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-yellow-500/10 border border-yellow-500/20 rounded-full animate-fade-in-up hover:bg-yellow-500/20 hover:border-yellow-500/40 hover:scale-105 transition-all duration-300 cursor-pointer group"
+                    className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-5 md:mb-6 bg-yellow-500/10 border border-yellow-500/20 rounded-full animate-fade-in-up hover:bg-yellow-500/20 hover:border-yellow-500/40 hover:scale-105 transition-all duration-300 cursor-pointer group"
                 >
+                    <span className="text-yellow-500 text-sm font-medium group-hover:text-yellow-400 transition-colors">
+                        Última Edição #004
+                    </span>
                     <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" />
                     </span>
                     <span className="text-yellow-500 text-sm font-medium group-hover:text-yellow-400 transition-colors">
-                        Última Edição #128
+                        Atualizada em 13/01/2025
                     </span>
                 </a>
 
                 {/* Main Title */}
-                <div className="mb-6 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+                <div className="mb-3 sm:mb-4 md:mb-5 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
                     <HeroTitle />
                 </div>
 
                 {/* Subtitle */}
                 <p
-                    className="text-lg sm:text-xl md:text-2xl text-brand-blue font-medium mb-6 animate-fade-in-up"
+                    className="text-lg sm:text-xl md:text-2xl text-brand-blue font-medium mb-3 sm:mb-4 md:mb-5 animate-fade-in-up"
                     style={{ animationDelay: "0.2s" }}
                 >
                     Para Líderes, Inovadores e Profissionais Estratégicos
@@ -63,7 +63,7 @@ export default function HeroSection() {
 
                 {/* Description */}
                 <p
-                    className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up"
+                    className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.3s" }}
                 >
                     Traduzimos e simplificamos o que é complexo, com menos ruído e mais clareza.
@@ -71,7 +71,7 @@ export default function HeroSection() {
 
                 {/* Document Buttons - Attention Grabbing */}
                 <div
-                    className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up"
+                    className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in-up"
                     style={{ animationDelay: "0.4s" }}
                 >
                     {/* Carta ao Leitor */}
@@ -79,19 +79,19 @@ export default function HeroSection() {
                         href="/CARTA-AO-LEITOR-COMPLETA.pdf"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group relative w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-brand-purple/10 border border-brand-purple/30 hover:bg-brand-purple/20 hover:border-brand-purple/50 rounded-2xl transition-all duration-300 touch-target hover:scale-105 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
+                        className="group relative w-auto sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 bg-brand-purple/10 border border-brand-purple/30 hover:bg-brand-purple/20 hover:border-brand-purple/50 rounded-2xl transition-all duration-300 touch-target hover:scale-105 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
                     >
                         {/* Pulse ring effect */}
                         <span className="absolute inset-0 rounded-2xl animate-pulse-ring border-2 border-brand-purple/40" />
 
-                        <div className="relative w-12 h-12 rounded-xl bg-brand-purple/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <FileText className="relative w-6 h-6 text-brand-purple" />
+                        <div className="relative w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl bg-brand-purple/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FileText className="relative w-5 h-5 md:w-6 md:h-6 text-brand-purple" />
                         </div>
                         <div className="text-left">
-                            <span className="block text-base font-bold text-white">Carta ao Leitor</span>
+                            <span className="block text-sm sm:text-base font-bold text-white">Carta ao Leitor</span>
                             <span className="block text-xs text-brand-purple/80">A nossa proposta</span>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-brand-purple group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-brand-purple group-hover:translate-x-1 transition-all" />
                     </a>
 
                     {/* Por que o 7? */}
@@ -99,7 +99,7 @@ export default function HeroSection() {
                         href="/Pp7ia-pq 7.pdf"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group relative w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-brand-purple/10 border border-brand-purple/30 hover:bg-brand-purple/20 hover:border-brand-purple/50 rounded-2xl transition-all duration-300 touch-target hover:scale-105 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
+                        className="group relative w-auto sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 bg-brand-purple/10 border border-brand-purple/30 hover:bg-brand-purple/20 hover:border-brand-purple/50 rounded-2xl transition-all duration-300 touch-target hover:scale-105 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
                     >
                         {/* Pulse ring effect */}
                         <span
@@ -107,14 +107,14 @@ export default function HeroSection() {
                             style={{ animationDelay: "0.5s" }}
                         />
 
-                        <div className="relative w-12 h-12 rounded-xl bg-brand-purple/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <FileText className="relative w-6 h-6 text-brand-purple" />
+                        <div className="relative w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl bg-brand-purple/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <FileText className="relative w-5 h-5 md:w-6 md:h-6 text-brand-purple" />
                         </div>
                         <div className="text-left">
-                            <span className="block text-base font-bold text-white">Por que o 7?</span>
+                            <span className="block text-sm sm:text-base font-bold text-white">Por que o 7?</span>
                             <span className="block text-xs text-brand-purple/80">A filosofia por trás</span>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-brand-purple group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-brand-purple group-hover:translate-x-1 transition-all" />
                     </a>
                 </div>
             </div>

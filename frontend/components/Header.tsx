@@ -18,7 +18,7 @@ export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 glass-navbar safe-area-top">
+        <header className="sticky top-0 left-0 right-0 z-50 glass-navbar safe-area-top">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
@@ -27,13 +27,18 @@ export default function Navbar() {
                         className="flex items-center gap-2 text-white font-bold text-xl md:text-2xl tracking-tight"
                     >
                         <span className="inline-flex">
-                        <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">PP7IA</span>
-                        <span className="text-white tracking-normal ">.portal</span>
+                            <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">
+                                PP7IA
+                            </span>
+                            <span className="text-white tracking-normal">.portal</span>
                         </span>
                     </a>
 
                     {/* Desktop Navigation - 7 Links (Centered) */}
-                    <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+                    <nav
+                        className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2"
+                        aria-label="Navegação principal"
+                    >
                         {navItems.map(item => (
                             <a
                                 key={item.label}
@@ -43,7 +48,7 @@ export default function Navbar() {
                                 {item.label}
                             </a>
                         ))}
-                    </div>
+                    </nav>
 
                     {/* CTA Button */}
                     <div className="hidden md:flex items-center gap-4">
@@ -70,7 +75,10 @@ export default function Navbar() {
                     isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
                 }`}
             >
-                <div className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass">
+                <nav
+                    className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"
+                    aria-label="Navegação mobile"
+                >
                     {navItems.map((item, index) => (
                         <a
                             key={item.label}
@@ -91,8 +99,8 @@ export default function Navbar() {
                             <span>Quero Fazer Parte</span>
                         </button>
                     </div>
-                </div>
+                </nav>
             </div>
-        </nav>
+        </header>
     );
 }

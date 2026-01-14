@@ -36,7 +36,7 @@ export default function Footer() {
                     <div className="lg:col-span-2">
                         <a
                             href="/"
-                            className="inline-block text-2xl sm:text-3xl font-bold bg-gradient-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent mb-4"
+                            className="inline-block text-2xl sm:text-3xl font-bold bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent mb-4"
                         >
                             Pp7ia
                         </a>
