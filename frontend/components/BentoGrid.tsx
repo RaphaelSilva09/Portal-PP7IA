@@ -26,7 +26,7 @@ export default function BentoGrid() {
                         <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium transition-all duration-300 max-w-full">
                             {AI_TOOLS.map((tool, index) => (
                                 <div key={tool} className="flex items-center gap-1.5 sm:gap-2">
-                                    <span className="tracking-tight text-xs sm:text-sm">{tool}</span>
+                                    <span className="tracking-tight text-base sm:text-2xl">{tool}</span>
                                     {index < AI_TOOLS.length - 1 && (
                                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white/60" />
                                     )}
