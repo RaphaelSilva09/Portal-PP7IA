@@ -19,23 +19,23 @@ export default function HeroSection() {
             <div className="relative z-10 max-w-4xl mx-auto text-center px-2 sm:px-4">
                 {/* Badge - Clickable to scroll to BentoGrid */}
                 <a
-                    href="#blocos"
+                    href="#newsletter"
                     className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-5 md:mb-6 bg-yellow-500/10 border border-yellow-500/20 rounded-full animate-fade-in-up hover:bg-yellow-500/20 hover:border-yellow-500/40 hover:scale-105 transition-all duration-300 cursor-pointer group"
                 >
                     <span className="text-yellow-500 text-sm font-medium group-hover:text-yellow-400 transition-colors">
-                        Última Edição #004
+                        Newsletter #004
                     </span>
                     <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" />
                     </span>
                     <span className="text-yellow-500 text-sm font-medium group-hover:text-yellow-400 transition-colors">
-                        Atualizada em 13/01/2025
+                        Atualizada 13/01/2025
                     </span>
                 </a>
 
                 {/* Main Title */}
-                <div className="mb-3 sm:mb-4 md:mb-5 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+                <div id="manifesto" className="mb-3 sm:mb-4 md:mb-5 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
                     <HeroTitle />
                 </div>
 

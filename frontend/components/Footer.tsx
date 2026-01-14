@@ -10,7 +10,6 @@ const socialLinks = [
     { icon: Youtube, href: "#", label: "YouTube" },
     { icon: Github, href: "#", label: "GitHub" },
     { icon: Mail, href: "#", label: "Email" },
-    { icon: Heart, href: "#", label: "Apoie" },
 ];
 
 // 7 links legais/informacionais
@@ -38,7 +37,7 @@ export default function Footer() {
                             href="/"
                             className="inline-block text-2xl sm:text-3xl font-bold bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent mb-4"
                         >
-                            Pp7ia
+                            PP7IA
                         </a>
                         <p className="text-text-secondary text-base sm:text-2xl max-w-md mb-6">
                             Traduzimos e simplificamos o que é complexo, com menos ruído e mais clareza. Curadoria
@@ -115,7 +114,7 @@ export default function Footer() {
                                 placeholder="seu@email.com"
                                 className="flex-1 sm:w-64 px-4 py-3 bg-bg-primary border border-border-glass rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target"
                             />
-                            <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-glow-green hover:scale-105 active:scale-95 transition-transform duration-200 touch-target whitespace-nowrap">
+                            <button className="px-6 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-glow-green hover:scale-105 active:scale-95 transition-transform duration-200 touch-target whitespace-nowrap">
                                 Inscrever-se
                             </button>
                         </div>
@@ -125,7 +124,7 @@ export default function Footer() {
                 {/* Bottom Section */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border-glass">
                     <p className="text-text-secondary text-base sm:text-2xl text-center sm:text-left">
-                        © {currentYear} Pp7ia. Todos os direitos reservados.
+                        © {currentYear} PP7IA. Todos os direitos reservados.
                     </p>
 
                     {/* Legal Links Bottom - 7 items */}

@@ -5,13 +5,13 @@ import { useState } from "react";
 
 // 7 itens de navegação seguindo a regra de negócio
 const navItems = [
-    { label: "Manifesto", href: "#manifesto" },
-    { label: "Radar", href: "#radar" },
-    { label: "Biblioteca", href: "#biblioteca" },
     { label: "Newsletter", href: "#newsletter" },
-    { label: "Stack", href: "#stack" },
-    { label: "Comunidade", href: "#comunidade" },
-    { label: "Contato", href: "#contato" },
+    { label: "Especial", href: "#especial" },
+    { label: "Radar", href: "#radar" },
+    { label: "Mini-Livros", href: "#mini-livros" },
+    { label: "Biblioteca", href: "#biblioteca" },
+    { label: "Estudar", href: "#estudar" },
+    { label: "Patrocínio", href: "#patrocinio" },
 ];
 
 export default function Navbar() {
