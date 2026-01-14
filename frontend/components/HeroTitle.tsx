@@ -36,11 +36,10 @@ export default function HeroTitle() {
                         className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-purple-400 animate-pulse shadow-[0_0_10px_rgba(192,132,252,0.8)]"
                         style={{ animationDelay: "75ms" }}
                     ></div>
-                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-blue-400 animate-pulse shadow-[0_0_10px_rgba(96,165,250,0.8)]"></div>
                 </div>
 
                 {/* Parte 3: IAS (Azul com Glow) */}
-                <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">IA</span>
+                <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">IAS</span>
             </h1>
         </div>
     );

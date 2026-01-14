@@ -4,7 +4,7 @@ import { ArrowRight, FileText } from "lucide-react";
 import HeroTitle from "./HeroTitle";
 
 // Lista de ferramentas do ecossistema de IA
-const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.ai"];
+const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "adapta.org"];
 
 export default function HeroSection() {
     return (
@@ -30,11 +30,15 @@ export default function HeroSection() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-green-500 text-sm font-medium">Última Edição</span>
+                    <span className="text-green-500 text-sm font-medium">Nova Edição Lançada</span>
                 </a>
 
                 {/* Main Title */}
-                <div id="manifesto" className="mb-3 sm:mb-4 md:mb-5 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+                <div
+                    id="manifesto"
+                    className="mb-3 sm:mb-4 md:mb-5 animate-fade-in-up"
+                    style={{ animationDelay: "0.1s" }}
+                >
                     <HeroTitle />
                 </div>
 
@@ -51,7 +55,7 @@ export default function HeroSection() {
                     className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.3s" }}
                 >
-                    Traduzimos e simplificamos o que é complexo, com menos ruído e mais clareza.
+                    Menos ruído, mais clareza. Conhecimento e IA acessível para todos.
                 </p>
 
                 {/* Document Buttons - Attention Grabbing */}
@@ -102,7 +106,6 @@ export default function HeroSection() {
                         <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-brand-purple group-hover:translate-x-1 transition-all" />
                     </a>
                 </div>
-
 
                 {/* AI Tools Badge - Responsivo */}
                 <div className="flex items-center justify-center px-2 ">
