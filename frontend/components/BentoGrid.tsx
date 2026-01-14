@@ -17,9 +17,9 @@ export default function BentoGrid() {
                     {/* Títulos e Descrição */}
                     <div className="flex flex-col items-center gap-1 pb-16 sm:pb-20 md:pb-24">
                         <h2 className="text-1xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">
-                            7 Blocos de{" "}
+                            Sobre os{" "}
                             <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">
-                                Conhecimento
+                                7 Blocos
                             </span>
                         </h2>
                         <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto tracking-tight px-4">
@@ -36,7 +36,8 @@ export default function BentoGrid() {
                     ============================================ */}
                     <div
                         id="newsletter"
-                        className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-100 cursor-pointer transition-all duration-500 hover:scale-[1.01]"
+                        className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 cursor-pointer transition-all duration-500 hover:scale-[1.01]"
+                        style={{ scrollMarginTop: "100px" }}
                     >
                         {/* Gradient Background */}
                         <div
@@ -62,17 +63,16 @@ export default function BentoGrid() {
                                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full mb-6">
                                     <Sparkles className="w-4 h-4 text-brand-blue" />
                                     <span className="text-xs font-medium text-gray-300 tracking-tight">
-                                        Novas Atualizações
+                                        Quem Somos, O Autor, Propósitos, Disclosures, Instruções e Contatos
                                     </span>
                                 </div>
                             </div>
 
                             {/* Center */}
                             <div className="max-w-5xl">
-                                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight">
-                                    Newsletter PP7IA <br />
+                                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-1 tracking-tight leading-tight">
                                     <span className="bg-linear-to-r from-brand-blue via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                                        4 Edições por Mês
+                                        Newsletter PP7+IAS
                                     </span>
                                 </h3>
                                 <p className="text-gray-400 text-base sm:text-1xl leading-relaxed tracking-tight">
@@ -110,8 +110,9 @@ export default function BentoGrid() {
                     <div
                         id="especial"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)]"
+                        style={{ scrollMarginTop: "100px" }}
                     >
-                        <div className="relative z-10 flex flex-col p-6 sm:p-8 gap-8">
+                        <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
                             {/* Icon */}
                             <div className="w-16 h-16 rounded-2xl bg-yellow-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                 <Star className="w-8 h-8 text-yellow-400" />
@@ -137,8 +138,9 @@ export default function BentoGrid() {
                     <div
                         id="radar"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)]"
+                        style={{ scrollMarginTop: "100px" }}
                     >
-                        <div className="relative z-10 flex flex-col p-6 sm:p-8 gap-8">
+                        <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
                             {/* Icon */}
                             <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                 <Search className="w-8 h-8 text-orange-400" />
@@ -164,8 +166,9 @@ export default function BentoGrid() {
                     <div
                         id="mini-livros"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
+                        style={{ scrollMarginTop: "100px" }}
                     >
-                        <div className="relative z-10 flex flex-col p-6 sm:p-8 gap-8">
+                        <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
                             {/* Icon */}
                             <div className="w-16 h-16 rounded-2xl bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                 <BookOpen className="w-8 h-8 text-green-400" />
@@ -178,8 +181,8 @@ export default function BentoGrid() {
                                     Mini-Livros
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    Mini-guias mensais sobre decisão, liderança e IA prática (5 a 40 minutos de
-                                    leitura).
+                                    Mini-guias mensais sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
+                                    21 min.
                                 </p>
                             </div>
 
@@ -197,8 +200,9 @@ export default function BentoGrid() {
                     <div
                         id="biblioteca"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
+                        style={{ scrollMarginTop: "100px" }}
                     >
-                        <div className="relative z-10 flex flex-col p-6 sm:p-8 gap-8">
+                        <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
                             {/* Icon */}
                             <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                 <Library className="w-8 h-8 text-purple-400" />
@@ -224,8 +228,9 @@ export default function BentoGrid() {
                     <div
                         id="estudar"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]"
+                        style={{ scrollMarginTop: "100px" }}
                     >
-                        <div className="relative z-10 flex flex-col p-6 sm:p-8 gap-8">
+                        <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
                             {/* Icon */}
                             <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                 <GraduationCap className="w-8 h-8 text-blue-400" />
@@ -235,7 +240,7 @@ export default function BentoGrid() {
                             <div>
                                 <span className="text-xs mb-2 font-mono text-gray-500 tracking-tight">BLOCO 06</span>
                                 <h4 className="text-xl sm:text-1xl font-bold text-white mt-1 mb-2 tracking-tight">
-                                    Estudar — Aprender
+                                    Estudar
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
                                     Guias, tutoriais e aulas sobre IA, Tecnologia, Apple, Saúde, Startups e Finanças.
@@ -249,10 +254,11 @@ export default function BentoGrid() {
 
                     {/* Card: Patrocínio de Estudos */}
                     <div
-                        id="patrocinio"
+                        id="ensinar"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-pink-500/30 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)]"
+                        style={{ scrollMarginTop: "100px" }}
                     >
-                        <div className="relative z-10 flex flex-col p-6 sm:p-8 gap-8">
+                        <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
                             {/* Icon */}
                             <div className="w-16 h-16 rounded-2xl bg-pink-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                 <Heart className="w-8 h-8 text-pink-400" />
@@ -262,10 +268,10 @@ export default function BentoGrid() {
                             <div>
                                 <span className="text-xs mb-2 font-mono text-gray-500 tracking-tight">BLOCO 07</span>
                                 <h4 className="text-xl sm:text-1xl font-bold text-white mt-1 mb-2 tracking-tight">
-                                    Patrocínio de Estudos
+                                    Ensinar
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    Modelo híbrido para apoiar aprendizado. Lançamento: 7 de abril de 2026.
+                                    Para líderes, inovadores, profissionais e iniciantes.
                                 </p>
                             </div>
 
@@ -292,7 +298,7 @@ export default function BentoGrid() {
                                 placeholder="seu@email.com"
                                 className="flex-1 sm:w-64 px-4 py-3 bg-bg-primary border border-border-glass rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target"
                             />
-                            <button className="px-6 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-glow-green hover:scale-105 active:scale-95 transition-transform duration-200 touch-target whitespace-nowrap">
+                            <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 active:scale-95 transition-all duration-200 touch-target whitespace-nowrap">
                                 Inscrever-se
                             </button>
                         </div>
