@@ -10,14 +10,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    title: "Pp7ia Portal - Curadoria Humana para Líderes e Inovadores",
-    description:
-        "Traduzimos e simplificamos o que é complexo, com menos ruído e mais clareza. Curadoria humana de IA para líderes, inovadores e profissionais estratégicos.",
+    title: "Pp7+ias Portal - Curadoria Humana para Líderes e Inovadores",
+    description: "Menos ruído, mais clareza. Conhecimento e IA acessível para todos.",
     keywords: ["curadoria", "inteligência artificial", "IA", "liderança", "inovação", "newsletter", "tecnologia"],
     authors: [{ name: "Pp7ia" }],
     openGraph: {
-        title: "Pp7ia Portal - Curadoria Humana",
-        description: "Menos ruído. Mais clareza.",
+        title: "Pp7+ias Portal - Curadoria Humana",
+        description: "Menos ruído, mais clareza. Conhecimento e IA acessível para todos.",
         type: "website",
         locale: "pt_BR",
     },

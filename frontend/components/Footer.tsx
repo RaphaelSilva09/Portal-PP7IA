@@ -37,11 +37,10 @@ export default function Footer() {
                             href="/"
                             className="inline-block text-2xl sm:text-3xl font-bold bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent mb-4"
                         >
-                            PP7IA
+                            PP7+IAS
                         </a>
                         <p className="text-text-secondary text-base sm:text-2xl max-w-md mb-6">
-                            Traduzimos e simplificamos o que é complexo, com menos ruído e mais clareza. Curadoria
-                            humana de IA para líderes e inovadores.
+                            Menos ruído, mais clareza. Conhecimento e IA acessível para todos.
                         </p>
 
                         {/* Social Links - 7 items */}
@@ -100,7 +99,7 @@ export default function Footer() {
                 {/* Bottom Section */}
                 <div className="flex flex-col items-center justify-center gap-4 pt-8 border-t border-border-glass">
                     <p className="text-text-secondary text-base sm:text-2xl text-center">
-                        © {currentYear} PP7IA. Todos os direitos reservados.
+                        © {currentYear} PP7+IAS. Todos os direitos reservados.
                     </p>
                 </div>
 
