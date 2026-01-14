@@ -20,18 +20,14 @@ export default function HeroSection() {
                 {/* Badge - Clickable to scroll to BentoGrid */}
                 <a
                     href="#newsletter"
-                    className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-5 md:mb-6 bg-yellow-500/10 border border-yellow-500/20 rounded-full animate-fade-in-up hover:bg-yellow-500/20 hover:border-yellow-500/40 hover:scale-105 transition-all duration-300 cursor-pointer group"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full mb-6"
                 >
-                    <span className="text-yellow-500 text-sm font-medium group-hover:text-yellow-400 transition-colors">
-                        Newsletter #004
-                    </span>
+                    {/* Badge */}
                     <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" />
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-yellow-500 text-sm font-medium group-hover:text-yellow-400 transition-colors">
-                        Atualizada 13/01/2025
-                    </span>
+                    <span className="text-green-500 text-sm font-medium">Última Edição</span>
                 </a>
 
                 {/* Main Title */}

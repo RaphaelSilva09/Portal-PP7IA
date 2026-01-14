@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Heart, Instagram, Linkedin, Mail, Twitter, Youtube } from "lucide-react";
+import { Github, Instagram, Linkedin, Mail, Twitter, Youtube } from "lucide-react";
 
 // 7 links de redes sociais seguindo a regra de negócio
 const socialLinks = [
@@ -122,29 +122,16 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom Section */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border-glass">
-                    <p className="text-text-secondary text-base sm:text-2xl text-center sm:text-left">
+                <div className="flex flex-col items-center justify-center gap-4 pt-8 border-t border-border-glass">
+                    <p className="text-text-secondary text-base sm:text-2xl text-center">
                         © {currentYear} PP7IA. Todos os direitos reservados.
                     </p>
-
-                    {/* Legal Links Bottom - 7 items */}
-                    <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-                        {legalLinks.map((item, index) => (
-                            <a
-                                key={item.label}
-                                href={item.href}
-                                className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
-                            >
-                                {item.label}
-                            </a>
-                        ))}
-                    </div>
                 </div>
 
                 {/* Credits */}
                 <div className="mt-8 text-center">
                     <p className="text-text-secondary/50 text-xs flex items-center justify-center gap-1">
-                        Feito com <Heart className="w-3 h-3 text-red-500" /> por humanos, potencializado por IA
+                        Feito por Raphael Silva
                     </p>
                 </div>
             </div>
