@@ -2,20 +2,22 @@
 
 import { Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import SearchModal from "./SearchModal";
 
 // 7 itens de navegação seguindo a regra de negócio
 const navItems = [
-    { label: "Newsletter", href: "#newsletter" },
-    { label: "Especial", href: "#especial" },
-    { label: "Radar", href: "#radar" },
-    { label: "Mini-Livros", href: "#mini-livros" },
-    { label: "Biblioteca", href: "#biblioteca" },
-    { label: "Estudar", href: "#estudar" },
-    { label: "Patrocínio", href: "#patrocinio" },
+    { label: "Quem Somos", href: "/#quemsomos" },
+    { label: "O Autor", href: "/#autor" },
+    { label: "Propósito", href: "/#proposito" },
+    { label: "Divulgação", href: "/#divulgacao" },
+    { label: "Instruções", href: "/#instrucoes" },
+    { label: "Ensinar", href: "/#ensinar" },
+    { label: "Pesquisar", href: "#", isModal: true },
 ];
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
     return (
         <header className="sticky top-0 left-0 right-0 z-50 glass-navbar safe-area-top">
@@ -28,7 +30,7 @@ export default function Navbar() {
                     >
                         <span className="inline-flex">
                             <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">
-                                PP7IA
+                                PP7+IAS
                             </span>
                             <span className="text-white tracking-normal">.portal</span>
                         </span>
@@ -36,23 +38,33 @@ export default function Navbar() {
 
                     {/* Desktop Navigation - 7 Links (Centered) */}
                     <nav
-                        className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2"
+                        className="hidden lg:flex items-center gap-2 absolute left-1/2 -translate-x-1/2"
                         aria-label="Navegação principal"
                     >
-                        {navItems.map(item => (
-                            <a
-                                key={item.label}
-                                href={item.href}
-                                className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5"
-                            >
-                                {item.label}
-                            </a>
-                        ))}
+                        {navItems.map(item =>
+                            item.isModal ? (
+                                <button
+                                    key={item.label}
+                                    onClick={() => setIsSearchModalOpen(true)}
+                                    className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                >
+                                    {item.label}
+                                </button>
+                            ) : (
+                                <a
+                                    key={item.label}
+                                    href={item.href}
+                                    className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                >
+                                    {item.label}
+                                </a>
+                            )
+                        )}
                     </nav>
 
                     {/* CTA Button */}
                     <div className="hidden md:flex items-center gap-4">
-                        <button className="flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold text-sm rounded-full shadow-glow-green hover:scale-105 transition-transform duration-200 touch-target">
+                        <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200 touch-target">
                             <Sparkles className="w-4 h-4" />
                             <span>Quero Fazer Parte</span>
                         </button>
@@ -79,28 +91,46 @@ export default function Navbar() {
                     className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"
                     aria-label="Navegação mobile"
                 >
-                    {navItems.map((item, index) => (
-                        <a
-                            key={item.label}
-                            href={item.href}
-                            onClick={() => setIsMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
-                            style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                            <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
-                            <span className="font-medium">{item.label}</span>
-                        </a>
-                    ))}
+                    {navItems.map((item, index) =>
+                        item.isModal ? (
+                            <button
+                                key={item.label}
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    setIsSearchModalOpen(true);
+                                }}
+                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target w-full"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                                <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
+                                <span className="font-medium">{item.label}</span>
+                            </button>
+                        ) : (
+                            <a
+                                key={item.label}
+                                href={item.href}
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                                <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
+                                <span className="font-medium">{item.label}</span>
+                            </a>
+                        )
+                    )}
 
                     {/* Mobile CTA */}
                     <div className="pt-4 px-4">
-                        <button className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold text-sm rounded-full shadow-glow-green active:scale-95 transition-transform duration-200 touch-target">
+                        <button className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-all duration-200 touch-target">
                             <Sparkles className="w-4 h-4" />
                             <span>Quero Fazer Parte</span>
                         </button>
                     </div>
                 </nav>
             </div>
+
+            {/* Search Modal */}
+            <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
         </header>
     );
 }
