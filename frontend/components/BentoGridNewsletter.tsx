@@ -1,6 +1,7 @@
 "use client";
 
 import { FileText, Globe } from "lucide-react";
+import NewsletterCTA from "./NewsletterCTA";
 
 /**
  * BentoGridNewsletter Component
@@ -10,39 +11,31 @@ import { FileText, Globe } from "lucide-react";
 // Dados das newsletters (mock - substituir por dados reais)
 const newsletters = [
     {
-        id: 4,
-        title: "PP-News #000 - O Início de uma Nova Era",
-        htmlUrl: "/newsletters/004.html",
-        pdfUrl: "/newsletters/004.pdf",
-        date: "13/01/2026",
-    },
-    {
-        id: 3,
-        title: "Transformação Digital: Cases de Sucesso",
+        id: 2,
+        title: "PP-News #002  - IA Curada com Inteligência",
         htmlUrl: "/newsletters/003.html",
         pdfUrl: "/newsletters/003.pdf",
         date: "06/01/2026",
-    },
-    {
-        id: 2,
-        title: "Machine Learning na Prática",
-        htmlUrl: "/newsletters/002.html",
-        pdfUrl: "/newsletters/002.pdf",
-        date: "30/12/2025",
+        htmlAvailable: true,
+        pdfAvailable: true,
     },
     {
         id: 1,
-        title: "Introdução à Curadoria de IA",
-        htmlUrl: "/newsletters/001.html",
-        pdfUrl: "/newsletters/001.pdf",
-        date: "23/12/2025",
+        title: "PP-News #001 - O Início de uma Nova Era",
+        htmlUrl: "/newsletters/002.html",
+        pdfUrl: "/newsletters/002.pdf",
+        date: "30/12/2025",
+        htmlAvailable: true,
+        pdfAvailable: false,
     },
     {
         id: 0,
-        title: "Bem-vindo ao PP7+IAS",
-        htmlUrl: "/newsletters/000.html",
-        pdfUrl: "/newsletters/000.pdf",
-        date: "16/12/2025",
+        title: "PP-News #000 - Edição Piloto",
+        htmlUrl: "/newsletters/001.html",
+        pdfUrl: "/newsletters/001.pdf",
+        date: "23/12/2025",
+        htmlAvailable: true,
+        pdfAvailable: false,
     },
 ];
 
@@ -105,24 +98,44 @@ export default function BentoGridNewsletter() {
 
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                                <a
-                                    href={latestNewsletter.htmlUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/20 hover:bg-brand-blue/30 border border-brand-blue/30 hover:border-brand-blue/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
-                                >
-                                    <Globe className="w-5 h-5" />
-                                    <span>Ver HTML</span>
-                                </a>
-                                <a
-                                    href={latestNewsletter.pdfUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/30 hover:border-brand-purple/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
-                                >
-                                    <FileText className="w-5 h-5" />
-                                    <span>Baixar PDF</span>
-                                </a>
+                                {latestNewsletter.htmlAvailable ? (
+                                    <a
+                                        href={latestNewsletter.htmlUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/20 hover:bg-brand-blue/30 border border-brand-blue/30 hover:border-brand-blue/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                    >
+                                        <Globe className="w-5 h-5" />
+                                        <span>Ver HTML</span>
+                                    </a>
+                                ) : (
+                                    <button
+                                        disabled
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-[160px] opacity-50"
+                                    >
+                                        <Globe className="w-5 h-5" />
+                                        <span>Indisponível</span>
+                                    </button>
+                                )}
+                                {latestNewsletter.pdfAvailable ? (
+                                    <a
+                                        href={latestNewsletter.pdfUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/30 hover:border-brand-purple/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                        <span>Baixar PDF</span>
+                                    </a>
+                                ) : (
+                                    <button
+                                        disabled
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-[160px] opacity-50"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                        <span>Indisponível</span>
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -151,24 +164,44 @@ export default function BentoGridNewsletter() {
 
                                 {/* Action Buttons */}
                                 <div className="flex flex-col w-full gap-2 mt-auto">
-                                    <a
-                                        href={newsletter.htmlUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 hover:border-brand-blue/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
-                                    >
-                                        <Globe className="w-4 h-4" />
-                                        <span>HTML</span>
-                                    </a>
-                                    <a
-                                        href={newsletter.pdfUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/20 hover:border-brand-purple/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
-                                    >
-                                        <FileText className="w-4 h-4" />
-                                        <span>PDF</span>
-                                    </a>
+                                    {newsletter.htmlAvailable ? (
+                                        <a
+                                            href={newsletter.htmlUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 hover:border-brand-blue/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
+                                        >
+                                            <Globe className="w-4 h-4" />
+                                            <span>HTML</span>
+                                        </a>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-500/10 border border-gray-500/20 rounded-lg text-gray-500 text-sm font-medium cursor-not-allowed opacity-50"
+                                        >
+                                            <Globe className="w-4 h-4" />
+                                            <span>Indisponível</span>
+                                        </button>
+                                    )}
+                                    {newsletter.pdfAvailable ? (
+                                        <a
+                                            href={newsletter.pdfUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/20 hover:border-brand-purple/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            <span>PDF</span>
+                                        </a>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-500/10 border border-gray-500/20 rounded-lg text-gray-500 text-sm font-medium cursor-not-allowed opacity-50"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            <span>Indisponível</span>
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* Accent Line */}
@@ -178,29 +211,7 @@ export default function BentoGridNewsletter() {
                     ))}
                 </div>
 
-                {/* Newsletter CTA */}
-                <div className="glass-card rounded-2xl p-6 sm:p-8 mt-12">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                        <div>
-                            <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                                Receba nossa curadoria semanal
-                            </h3>
-                            <p className="text-text-secondary text-base sm:text-2xl">
-                                7 insights essenciais toda semana, direto no seu email.
-                            </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                            <input
-                                type="email"
-                                placeholder="seu@email.com"
-                                className="flex-1 sm:w-64 px-4 py-3 bg-bg-primary border border-border-glass rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target"
-                            />
-                            <button className="px-6 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-glow-green hover:scale-105 active:scale-95 transition-transform duration-200 touch-target whitespace-nowrap">
-                                Inscrever-se
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <NewsletterCTA />
             </div>
         </section>
     );

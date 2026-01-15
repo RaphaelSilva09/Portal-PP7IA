@@ -11,6 +11,7 @@ import {
     Sparkles,
     Star,
 } from "lucide-react";
+import NewsletterCTA from "./NewsletterCTA";
 
 /**
  * BentoGrid Component - Layout "1x3x3 Hierarchy"
@@ -94,17 +95,10 @@ export default function BentoGrid() {
                             {/* Bottom */}
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
                                 <a
-                                    href="#last-newsletter"
-                                    className="flex items-center justify-center gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium text-base transition-all duration-300 group/btn w-auto"
-                                >
-                                    <span className="tracking-tight">Última edição</span>
-                                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                                </a>
-                                <a
                                     href="/newsletter"
                                     className="flex items-center justify-center gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium text-base transition-all duration-300 group/btn w-auto"
                                 >
-                                    <span className="tracking-tight">Explorar edições passadas</span>
+                                    <span className="tracking-tight">Última edição</span>
                                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                                 </a>
                             </div>
@@ -327,29 +321,7 @@ export default function BentoGrid() {
                     </a>
                 </div>
 
-                {/* Newsletter CTA */}
-                <div className="glass-card rounded-2xl p-6 sm:p-8 mt-12">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                        <div>
-                            <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                                Receba nossa curadoria semanal
-                            </h3>
-                            <p className="text-text-secondary text-base sm:text-2xl">
-                                7 insights essenciais toda semana, direto no seu email.
-                            </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                            <input
-                                type="email"
-                                placeholder="seu@email.com"
-                                className="flex-1 sm:w-64 px-4 py-3 bg-bg-primary border border-border-glass rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target"
-                            />
-                            <button className="px-6 py-3 bg-linear-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 active:scale-95 transition-all duration-200 touch-target whitespace-nowrap">
-                                Inscrever-se
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <NewsletterCTA />
             </div>
         </section>
     );

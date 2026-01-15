@@ -1,6 +1,7 @@
 "use client";
 
 import { FileText, Globe } from "lucide-react";
+import NewsletterCTA from "./NewsletterCTA";
 
 /**
  * BentoGridMiniLivros Component
@@ -16,6 +17,8 @@ const miniLivros = [
         pdfUrl: "/mini-livros/002.pdf",
         date: "13/10/2025",
         readTime: "14 min",
+        htmlAvailable: true,
+        pdfAvailable: true,
     },
     {
         id: 0,
@@ -24,6 +27,8 @@ const miniLivros = [
         pdfUrl: "/mini-livros/001.pdf",
         date: "13/09/2025",
         readTime: "14 min",
+        htmlAvailable: true,
+        pdfAvailable: false,
     },
 ];
 
@@ -88,24 +93,44 @@ export default function BentoGridMiniLivros() {
 
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                                <a
-                                    href={latestMiniLivro.htmlUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
-                                >
-                                    <Globe className="w-5 h-5" />
-                                    <span>Ver HTML</span>
-                                </a>
-                                <a
-                                    href={latestMiniLivro.pdfUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
-                                >
-                                    <FileText className="w-5 h-5" />
-                                    <span>Baixar PDF</span>
-                                </a>
+                                {latestMiniLivro.htmlAvailable ? (
+                                    <a
+                                        href={latestMiniLivro.htmlUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                    >
+                                        <Globe className="w-5 h-5" />
+                                        <span>Ver HTML</span>
+                                    </a>
+                                ) : (
+                                    <button
+                                        disabled
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-[160px] opacity-50"
+                                    >
+                                        <Globe className="w-5 h-5" />
+                                        <span>Indisponível</span>
+                                    </button>
+                                )}
+                                {latestMiniLivro.pdfAvailable ? (
+                                    <a
+                                        href={latestMiniLivro.pdfUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                        <span>Baixar PDF</span>
+                                    </a>
+                                ) : (
+                                    <button
+                                        disabled
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-[160px] opacity-50"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                        <span>Indisponível</span>
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -137,24 +162,44 @@ export default function BentoGridMiniLivros() {
 
                                 {/* Action Buttons */}
                                 <div className="flex flex-col w-full gap-2 mt-auto">
-                                    <a
-                                        href={miniLivro.htmlUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
-                                    >
-                                        <Globe className="w-4 h-4" />
-                                        <span>HTML</span>
-                                    </a>
-                                    <a
-                                        href={miniLivro.pdfUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
-                                    >
-                                        <FileText className="w-4 h-4" />
-                                        <span>PDF</span>
-                                    </a>
+                                    {miniLivro.htmlAvailable ? (
+                                        <a
+                                            href={miniLivro.htmlUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
+                                        >
+                                            <Globe className="w-4 h-4" />
+                                            <span>HTML</span>
+                                        </a>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-500/10 border border-gray-500/20 rounded-lg text-gray-500 text-sm font-medium cursor-not-allowed opacity-50"
+                                        >
+                                            <Globe className="w-4 h-4" />
+                                            <span>Indisponível</span>
+                                        </button>
+                                    )}
+                                    {miniLivro.pdfAvailable ? (
+                                        <a
+                                            href={miniLivro.pdfUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            <span>PDF</span>
+                                        </a>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-500/10 border border-gray-500/20 rounded-lg text-gray-500 text-sm font-medium cursor-not-allowed opacity-50"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            <span>Indisponível</span>
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* Accent Line */}
@@ -164,29 +209,10 @@ export default function BentoGridMiniLivros() {
                     ))}
                 </div>
 
-                {/* Newsletter CTA */}
-                <div className="glass-card rounded-2xl p-6 sm:p-8 mt-12">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                        <div>
-                            <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                                Seja notificado de novos mini-livros
-                            </h3>
-                            <p className="text-text-secondary text-base sm:text-2xl">
-                                Publicações mensais sobre pessoas, liderança e IA prática.
-                            </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-                            <input
-                                type="email"
-                                placeholder="seu@email.com"
-                                className="flex-1 sm:w-64 px-4 py-3 bg-bg-primary border border-border-glass rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-green-500 transition-colors touch-target"
-                            />
-                            <button className="px-6 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)] hover:scale-105 active:scale-95 transition-all duration-200 touch-target whitespace-nowrap">
-                                Inscrever-se
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <NewsletterCTA
+                    title="Seja notificado de novos mini-livros"
+                    description="Publicações mensais sobre pessoas, liderança e IA prática."
+                />
             </div>
         </section>
     );
