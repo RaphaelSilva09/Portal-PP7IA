@@ -11,7 +11,7 @@ import { FileText, Globe } from "lucide-react";
 const newsletters = [
     {
         id: 4,
-        title: "O Futuro da IA Generativa em 2026",
+        title: "PP-News #000 - O Início de uma Nova Era",
         htmlUrl: "/newsletters/004.html",
         pdfUrl: "/newsletters/004.pdf",
         date: "13/01/2026",

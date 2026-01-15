@@ -4,7 +4,7 @@ import { ArrowRight, FileText } from "lucide-react";
 import HeroTitle from "./HeroTitle";
 
 // Lista de ferramentas do ecossistema de IA
-const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "adapta.org"];
+const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.org"];
 
 export default function HeroSection() {
     return (
