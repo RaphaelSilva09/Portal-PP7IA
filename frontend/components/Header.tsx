@@ -19,6 +19,23 @@ export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
+    const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        if (!href.startsWith("/#")) return;
+
+        e.preventDefault();
+        const element = document.getElementById(href.slice(2));
+
+        if (element) {
+            const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
+            const offset = window.innerWidth < 768 ? 16 : 0;
+
+            window.scrollTo({
+                top: element.getBoundingClientRect().top + window.scrollY - headerHeight - offset,
+                behavior: "smooth",
+            });
+        }
+    };
+
     return (
         <header className="sticky top-0 left-0 right-0 z-50 glass-navbar backdrop-blur-[20px] bg-bg-primary/90 safe-area-top">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,6 +71,7 @@ export default function Navbar() {
                                 <a
                                     key={item.label}
                                     href={item.href}
+                                    onClick={e => scrollToSection(e, item.href)}
                                     className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
                                 >
                                     {item.label}
@@ -109,7 +127,10 @@ export default function Navbar() {
                             <a
                                 key={item.label}
                                 href={item.href}
-                                onClick={() => setIsMenuOpen(false)}
+                                onClick={e => {
+                                    setIsMenuOpen(false);
+                                    scrollToSection(e, item.href);
+                                }}
                                 className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
                                 style={{ animationDelay: `${index * 50}ms` }}
                             >
