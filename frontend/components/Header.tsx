@@ -20,7 +20,7 @@ export default function Navbar() {
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 left-0 right-0 z-50 glass-navbar safe-area-top">
+        <header className="sticky top-0 left-0 right-0 z-50 glass-navbar backdrop-blur-[20px] bg-bg-primary/90 safe-area-top">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
@@ -46,7 +46,7 @@ export default function Navbar() {
                                 <button
                                     key={item.label}
                                     onClick={() => setIsSearchModalOpen(true)}
-                                    className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                    className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </button>
@@ -64,7 +64,7 @@ export default function Navbar() {
 
                     {/* CTA Button */}
                     <div className="hidden md:flex items-center gap-4">
-                        <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200 touch-target">
+                        <button className="flex items-center gap-2 px-5 py-2.5 cursor-pointer bg-linear-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200 touch-target">
                             <Sparkles className="w-4 h-4" />
                             <span>Quero Fazer Parte</span>
                         </button>
