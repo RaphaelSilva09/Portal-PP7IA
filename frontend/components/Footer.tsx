@@ -30,9 +30,9 @@ export default function Footer() {
         <footer className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-bg-secondary border-t border-border-glass">
             <div className="max-w-7xl mx-auto">
                 {/* Top Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12">
+                <div className="flex flex-col gap-8 sm:gap-12 mb-12">
                     {/* Brand */}
-                    <div className="lg:col-span-2">
+                    <div className="w-full">
                         <a
                             href="/"
                             className="inline-block text-2xl sm:text-3xl font-bold bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent mb-4"
@@ -61,38 +61,41 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Links */}
-                    <div>
-                        <h4 className="text-white font-semibold mb-4">Navegação</h4>
-                        <ul className="space-y-2">
-                            {["Manifesto", "Radar", "Biblioteca", "Newsletter"].map(item => (
-                                <li key={item}>
-                                    <a
-                                        href={`#${item.toLowerCase()}`}
-                                        className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
-                                    >
-                                        {item}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    {/* Links Grid - Lado a lado no mobile */}
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                        {/* Links */}
+                        <div>
+                            <h4 className="text-white font-semibold mb-4">Navegação</h4>
+                            <ul className="space-y-2">
+                                {["Quem Somos", "O Autor", "Propósito", "Divulgação", "Instruções", "Ensinar", "Pesquisar" ].map(item => (
+                                    <li key={item}>
+                                        <a
+                                            href={`#${item.toLowerCase()}`}
+                                            className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
+                                        >
+                                            {item}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
 
-                    {/* Legal */}
-                    <div>
-                        <h4 className="text-white font-semibold mb-4">Legal</h4>
-                        <ul className="space-y-2">
-                            {legalLinks.slice(0, 4).map(item => (
-                                <li key={item.label}>
-                                    <a
-                                        href={item.href}
-                                        className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
-                                    >
-                                        {item.label}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
+                        {/* Legal */}
+                        <div>
+                            <h4 className="text-white font-semibold mb-4">Legal</h4>
+                            <ul className="space-y-2">
+                                {legalLinks.slice(0, 4).map(item => (
+                                    <li key={item.label}>
+                                        <a
+                                            href={item.href}
+                                            className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
+                                        >
+                                            {item.label}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
