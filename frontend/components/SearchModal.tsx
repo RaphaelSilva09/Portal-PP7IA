@@ -15,17 +15,23 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const [activeFilter, setActiveFilter] = useState<FilterType>("all");
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-    // Desabilitar scroll do body quando modal está aberto
+    // Desabilitar scroll do body quando modal está aberto (iOS-friendly)
     useEffect(() => {
         if (isOpen) {
+            const scrollY = window.scrollY;
+            document.body.style.position = "fixed";
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = "100%";
             document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
-        }
 
-        return () => {
-            document.body.style.overflow = "unset";
-        };
+            return () => {
+                document.body.style.position = "";
+                document.body.style.top = "";
+                document.body.style.width = "";
+                document.body.style.overflow = "";
+                window.scrollTo(0, scrollY);
+            };
+        }
     }, [isOpen]);
 
     const filters = [
@@ -55,7 +61,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-[2vh] sm:p-[2vw]" onClick={onClose}>
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-[2vh] sm:p-[2vw]"
+            onClick={onClose}
+            style={{ touchAction: "none" }}
+        >
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" />
 
@@ -85,7 +95,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                 value={searchQuery}
                                 onChange={handleInputChange}
                                 placeholder="Pesquise pelo material desejado"
-                                className="w-full px-6 py-4 pr-14 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-gray-500 focus:outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200"
+                                className="w-full px-6 py-4 pr-14 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-gray-500 outline-none focus:outline-none focus:ring-0 focus:border-white focus:bg-white/[0.07] transition-all duration-200"
                                 autoFocus
                             />
                             <button
@@ -121,9 +131,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
                                 {/* Lista de Filtros */}
                                 <div
-                                    className={`space-y-2 max-h-75 hover-scroll overflow-y-auto ${
-                                        isFiltersOpen ? "block" : "hidden lg:block"
+                                    className={`space-y-2 max-h-75 hover-scroll overflow-y-auto transition-all duration-500 ${
+                                        isFiltersOpen
+                                            ? "block mt-4 opacity-100"
+                                            : "hidden opacity-0 lg:block lg:opacity-100"
                                     }`}
+                                    style={{ WebkitOverflowScrolling: "touch" }}
                                 >
                                     {filters.map(filter => {
                                         const Icon = filter.icon;
@@ -186,7 +199,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                         </div>
 
                                         {/* Grid de Resultados com Scroll Interno */}
-                                        <div className="flex-1 overflow-y-auto hover-scroll -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+                                        <div
+                                            className="flex-1 overflow-y-auto hover-scroll -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
+                                            style={{ WebkitOverflowScrolling: "touch" }}
+                                        >
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {/* TODO: Mapear resultados reais aqui */}
                                                 {/* Placeholder para demonstração */}
