@@ -71,7 +71,7 @@ export default function BentoGridMiniLivros() {
 
                             {/* Mini-Livro Number */}
                             <p className="text-green-400 text-base sm:text-lg font-mono mb-2">
-                                Mini-Livro #{latestMiniLivro.id.toString().padStart(3, "0")}
+                                Mini-Livro #{(latestMiniLivro.id + 1).toString().padStart(3, "0")}
                             </p>
 
                             {/* Title */}
@@ -125,7 +125,7 @@ export default function BentoGridMiniLivros() {
                                 </span>
 
                                 {/* Title */}
-                                <h4 className="text-4xl sm:text-4xl md:text-4xl font-bold text-white mb-3 tracking-tight line-clamp-2 flex-grow">
+                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     {miniLivro.title}
                                 </h4>
 

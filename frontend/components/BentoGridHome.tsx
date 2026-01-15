@@ -137,7 +137,7 @@ export default function BentoGrid() {
                             {/* Content */}
                             <div>
                                 <span className="text-xs mb-2 font-mono text-gray-500 tracking-tight">BLOCO 02</span>
-                                <h4 className="text-xl sm:text-1xl font-bold text-white mt-1 mb-2 tracking-tight">
+                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Especial da Semana
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
@@ -171,7 +171,7 @@ export default function BentoGrid() {
                             {/* Content */}
                             <div>
                                 <span className="text-xs mb-2 font-mono text-gray-500 tracking-tight">BLOCO 03</span>
-                                <h4 className="text-xl sm:text-1xl font-bold text-white mt-1 mb-2 tracking-tight">
+                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Radar de Oportunidades
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
@@ -205,7 +205,7 @@ export default function BentoGrid() {
                             {/* Content */}
                             <div>
                                 <span className="text-xs mb-2 font-mono text-gray-500 tracking-tight">BLOCO 04</span>
-                                <h4 className="text-xl sm:text-1xl font-bold text-white mt-1 mb-2 tracking-tight">
+                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Mini-Livros
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
@@ -245,7 +245,7 @@ export default function BentoGrid() {
                             {/* Content */}
                             <div>
                                 <span className="text-xs mb-2 font-mono text-gray-500 tracking-tight">BLOCO 05</span>
-                                <h4 className="text-xl sm:text-1xl font-bold text-white mt-1 mb-2 tracking-tight">
+                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Biblioteca
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
@@ -260,7 +260,7 @@ export default function BentoGrid() {
 
                     {/* Card: Estudar — Aprender — Referências */}
                     <a
-                        href="/estudar"
+                        // href="/estudar"
                         id="estudar"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] block min-h-80"
                         style={{ scrollMarginTop: "100px" }}
@@ -279,7 +279,7 @@ export default function BentoGrid() {
                             {/* Content */}
                             <div>
                                 <span className="text-xs mb-2 font-mono text-gray-500 tracking-tight">BLOCO 06</span>
-                                <h4 className="text-xl sm:text-1xl font-bold text-white mt-1 mb-2 tracking-tight">
+                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Estudar
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
@@ -294,7 +294,7 @@ export default function BentoGrid() {
 
                     {/* Card: Patrocínio de Estudos */}
                     <a
-                        href="/ensinar"
+                        // href="/ensinar"
                         id="ensinar"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-pink-500/30 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] block min-h-80"
                         style={{ scrollMarginTop: "100px" }}
@@ -313,7 +313,7 @@ export default function BentoGrid() {
                             {/* Content */}
                             <div>
                                 <span className="text-xs mb-2 font-mono text-gray-500 tracking-tight">BLOCO 07</span>
-                                <h4 className="text-xl sm:text-1xl font-bold text-white mt-1 mb-2 tracking-tight">
+                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     Ensinar
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">

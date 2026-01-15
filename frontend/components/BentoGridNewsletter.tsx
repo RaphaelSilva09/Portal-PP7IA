@@ -142,7 +142,7 @@ export default function BentoGridNewsletter() {
                                 </span>
 
                                 {/* Title */}
-                                <h4 className="text-lg sm:text-xl font-bold text-white mb-3 tracking-tight line-clamp-2 flex-grow">
+                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
                                     {newsletter.title}
                                 </h4>
 
