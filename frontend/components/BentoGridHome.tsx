@@ -112,7 +112,7 @@ export default function BentoGrid() {
 
                     {/* Card: Especial da Semana */}
                     <a
-                        href="/especial"
+                        // href="/especial"
                         id="especial"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] block min-h-80"
                         style={{ scrollMarginTop: "100px" }}
@@ -146,7 +146,7 @@ export default function BentoGrid() {
 
                     {/* Card: Radar de Oportunidades */}
                     <a
-                        href="/radar"
+                        // href="/radar"
                         id="radar"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] block min-h-80"
                         style={{ scrollMarginTop: "100px" }}
