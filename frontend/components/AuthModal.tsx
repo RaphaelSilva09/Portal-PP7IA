@@ -226,96 +226,96 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
     return (
         <Portal>
             <div
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4"
                 onClick={onClose}
             >
             {/* Backdrop com glassmorphism */}
             <div 
-                className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" 
+                className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
                 onClick={onClose}
             />
 
             {/* Modal Container */}
             <div
-                className="relative w-full max-w-md my-auto bg-bg-primary/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl animate-scale-in"
+                className="relative w-full max-w-md bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header com Close Button */}
-                <div className="flex items-center justify-between p-6 pb-0">
+                <div className="flex items-center justify-between p-4 pb-0">
                     <div className="flex items-center gap-2">
                         {isLoginMode ? (
-                            <LogIn className="w-6 h-6 text-brand-blue" />
+                            <LogIn className="w-5 h-5 text-brand-blue" />
                         ) : (
-                            <UserPlus className="w-6 h-6 text-brand-green" />
+                            <UserPlus className="w-5 h-5 text-brand-green" />
                         )}
-                        <h2 className="text-2xl font-bold text-white">{title}</h2>
+                        <h2 className="text-xl font-bold text-white">{title}</h2>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 text-text-secondary hover:text-white bg-bg-primary/80 hover:bg-white/10 rounded-full transition-all duration-200 border border-white/10"
+                        className="p-1.5 text-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
                         aria-label="Fechar modal"
                     >
-                        <X className="w-5 h-5" />
+                        <X className="w-4 h-4" />
                     </button>
                 </div>
 
                 {/* Subtitle */}
-                <p className="px-6 pt-2 text-sm text-text-secondary">{subtitle}</p>
+                <p className="px-4 pt-1.5 text-xs text-text-secondary">{subtitle}</p>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="p-4 space-y-3">
                     {/* Nome - Apenas no modo Cadastro */}
                     {!isLoginMode && (
-                        <div className="space-y-2">
-                            <label htmlFor="nome" className="block text-sm font-medium text-text-primary">
+                        <div className="space-y-1">
+                            <label htmlFor="nome" className="block text-xs font-medium text-text-primary">
                                 Nome Completo
                             </label>
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                 <input
                                     id="nome"
                                     type="text"
                                     value={formData.nome}
                                     onChange={handleInputChange("nome")}
                                     placeholder="Digite seu nome completo"
-                                    className={`w-full pl-11 pr-4 py-3 bg-white/5 border ${
-                                        errors.nome ? "border-red-500" : "border-white/10"
-                                    } rounded-xl text-white placeholder:text-gray-500 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
+                                    className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
+                                        errors.nome ? "border-red-500" : "border-border-glass"
+                                    } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
                                 />
                             </div>
-                            {errors.nome && <p className="text-sm text-red-500">{errors.nome}</p>}
+                            {errors.nome && <p className="text-xs text-red-500">{errors.nome}</p>}
                         </div>
                     )}
 
                     {/* Email */}
-                    <div className="space-y-2">
-                        <label htmlFor="email" className="block text-sm font-medium text-text-primary">
+                    <div className="space-y-1">
+                        <label htmlFor="email" className="block text-xs font-medium text-text-primary">
                             Email
                         </label>
                         <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                             <input
                                 id="email"
                                 type="email"
                                 value={formData.email}
                                 onChange={handleInputChange("email")}
                                 placeholder="seu@email.com"
-                                className={`w-full pl-11 pr-4 py-3 bg-white/5 border ${
-                                    errors.email ? "border-red-500" : "border-white/10"
-                                } rounded-xl text-white placeholder:text-gray-500 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
+                                className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
+                                    errors.email ? "border-red-500" : "border-border-glass"
+                                } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
                             />
                         </div>
-                        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                        {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
                     </div>
 
                     {/* Celular - Apenas no modo Cadastro */}
                     {!isLoginMode && (
-                        <div className="space-y-2">
-                            <label htmlFor="celular" className="block text-sm font-medium text-text-primary">
+                        <div className="space-y-1">
+                            <label htmlFor="celular" className="block text-xs font-medium text-text-primary">
                                 Celular
                             </label>
                             <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                 <input
                                     id="celular"
                                     type="tel"
@@ -323,18 +323,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
                                     onChange={handleInputChange("celular")}
                                     placeholder="(00) 00000-0000"
                                     maxLength={15}
-                                    className={`w-full pl-11 pr-4 py-3 bg-white/5 border ${
-                                        errors.celular ? "border-red-500" : "border-white/10"
-                                    } rounded-xl text-white placeholder:text-gray-500 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
+                                    className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
+                                        errors.celular ? "border-red-500" : "border-border-glass"
+                                    } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
                                 />
                             </div>
-                            {errors.celular && <p className="text-sm text-red-500">{errors.celular}</p>}
+                            {errors.celular && <p className="text-xs text-red-500">{errors.celular}</p>}
                         </div>
                     )}
 
                     {/* Senha */}
-                    <div className="space-y-2">
-                        <label htmlFor="senha" className="block text-sm font-medium text-text-primary">
+                    <div className="space-y-1">
+                        <label htmlFor="senha" className="block text-xs font-medium text-text-primary">
                             Senha
                         </label>
                         <div className="relative">
@@ -344,9 +344,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
                                 value={formData.senha}
                                 onChange={handleInputChange("senha")}
                                 placeholder="Mínimo 6 caracteres"
-                                className={`w-full px-4 pr-11 py-3 bg-white/5 border ${
-                                    errors.senha ? "border-red-500" : "border-white/10"
-                                } rounded-xl text-white placeholder:text-gray-500 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
+                                className={`w-full px-3 pr-10 py-2 bg-white/5 border ${
+                                    errors.senha ? "border-red-500" : "border-border-glass"
+                                } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
                             />
                             <button
                                 type="button"
@@ -354,28 +354,28 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white transition-colors"
                                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                             >
-                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
                         </div>
-                        {errors.senha && <p className="text-sm text-red-500">{errors.senha}</p>}
+                        {errors.senha && <p className="text-xs text-red-500">{errors.senha}</p>}
                     </div>
 
                     {/* Submit Button */}
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`w-full px-6 py-3 ${
+                        className={`w-full px-5 py-2.5 ${
                             isLoginMode
-                                ? "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
-                                : "bg-linear-to-r from-green-500 to-emerald-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
-                        } text-white font-semibold rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+                                ? "bg-gradient-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
+                                : "bg-gradient-to-r from-green-500 to-emerald-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
+                        } text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                     >
                         {isSubmitting ? "Processando..." : submitButtonText}
                     </button>
 
                     {/* Toggle Mode */}
-                    <div className="pt-4 text-center border-t border-white/10">
-                        <p className="text-sm text-text-secondary">
+                    <div className="pt-3 text-center border-t border-border-glass">
+                        <p className="text-xs text-text-secondary">
                             {toggleText}{" "}
                             <button
                                 type="button"
