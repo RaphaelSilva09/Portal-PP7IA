@@ -7,7 +7,7 @@ import Portal from "./Portal";
 /**
  * AuthModal Component
  * Modal de autenticação que alterna entre Login e Cadastro
- * 
+ *
  * Princípios aplicados:
  * - SRP: Componente focado exclusivamente em autenticação
  * - OCP: Aberto para extensão via props, fechado para modificação
@@ -225,172 +225,169 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
 
     return (
         <Portal>
-            <div
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4"
-                onClick={onClose}
-            >
-            {/* Backdrop com glassmorphism */}
-            <div 
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
-                onClick={onClose}
-            />
+            <div className="fixed inset-0 z-9999 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
+                {/* Backdrop com glassmorphism */}
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
 
-            {/* Modal Container */}
-            <div
-                className="relative w-full max-w-md bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl"
-                onClick={e => e.stopPropagation()}
-            >
-                {/* Header com Close Button */}
-                <div className="flex items-center justify-between p-4 pb-0">
-                    <div className="flex items-center gap-2">
-                        {isLoginMode ? (
-                            <LogIn className="w-5 h-5 text-brand-blue" />
-                        ) : (
-                            <UserPlus className="w-5 h-5 text-brand-green" />
+                {/* Modal Container */}
+                <div
+                    className="relative w-full max-w-md max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl overflow-hidden"
+                    onClick={e => e.stopPropagation()}
+                >
+                    {/* Header com Close Button */}
+                    <div className="flex items-center justify-between p-4 pb-0">
+                        <div className="flex items-center gap-2">
+                            {isLoginMode ? (
+                                <LogIn className="w-5 h-5 text-blue-500" />
+                            ) : (
+                                <UserPlus className="w-5 h-5 text-blue-500" />
+                            )}
+                            <h2 className="text-xl font-bold text-white">{title}</h2>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="p-1.5 text-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
+                            aria-label="Fechar modal"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    {/* Subtitle */}
+                    <p className="px-4 pt-1.5 pb-2 text-xs text-text-secondary">{subtitle}</p>
+
+                    {/* Form Container com scroll interno */}
+                    <div className="flex-1 overflow-y-auto min-h-0">
+                        {/* Form */}
+                        <form onSubmit={handleSubmit} className="p-4 pt-0 space-y-3">
+                        {/* Nome - Apenas no modo Cadastro */}
+                        {!isLoginMode && (
+                            <div className="space-y-1">
+                                <label htmlFor="nome" className="block text-xs font-medium text-text-primary">
+                                    Nome Completo
+                                </label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+                                    <input
+                                        id="nome"
+                                        type="text"
+                                        value={formData.nome}
+                                        onChange={handleInputChange("nome")}
+                                        placeholder="Digite seu nome completo"
+                                        className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
+                                            errors.nome ? "border-red-500" : "border-border-glass"
+                                        } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
+                                    />
+                                </div>
+                                {errors.nome && <p className="text-xs text-red-500">{errors.nome}</p>}
+                            </div>
                         )}
-                        <h2 className="text-xl font-bold text-white">{title}</h2>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="p-1.5 text-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
-                        aria-label="Fechar modal"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
-                </div>
 
-                {/* Subtitle */}
-                <p className="px-4 pt-1.5 text-xs text-text-secondary">{subtitle}</p>
-
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-4 space-y-3">
-                    {/* Nome - Apenas no modo Cadastro */}
-                    {!isLoginMode && (
+                        {/* Email */}
                         <div className="space-y-1">
-                            <label htmlFor="nome" className="block text-xs font-medium text-text-primary">
-                                Nome Completo
+                            <label htmlFor="email" className="block text-xs font-medium text-text-primary">
+                                Email
                             </label>
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                 <input
-                                    id="nome"
-                                    type="text"
-                                    value={formData.nome}
-                                    onChange={handleInputChange("nome")}
-                                    placeholder="Digite seu nome completo"
+                                    id="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange("email")}
+                                    placeholder="seu@email.com"
                                     className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
-                                        errors.nome ? "border-red-500" : "border-border-glass"
-                                    } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
+                                        errors.email ? "border-red-500" : "border-border-glass"
+                                    } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
                                 />
                             </div>
-                            {errors.nome && <p className="text-xs text-red-500">{errors.nome}</p>}
+                            {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
                         </div>
-                    )}
 
-                    {/* Email */}
-                    <div className="space-y-1">
-                        <label htmlFor="email" className="block text-xs font-medium text-text-primary">
-                            Email
-                        </label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
-                            <input
-                                id="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleInputChange("email")}
-                                placeholder="seu@email.com"
-                                className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
-                                    errors.email ? "border-red-500" : "border-border-glass"
-                                } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
-                            />
-                        </div>
-                        {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
-                    </div>
+                        {/* Celular - Apenas no modo Cadastro */}
+                        {!isLoginMode && (
+                            <div className="space-y-1">
+                                <label htmlFor="celular" className="block text-xs font-medium text-text-primary">
+                                    Celular
+                                </label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+                                    <input
+                                        id="celular"
+                                        type="tel"
+                                        value={formData.celular}
+                                        onChange={handleInputChange("celular")}
+                                        placeholder="(00) 00000-0000"
+                                        maxLength={15}
+                                        className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
+                                            errors.celular ? "border-red-500" : "border-border-glass"
+                                        } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
+                                    />
+                                </div>
+                                {errors.celular && <p className="text-xs text-red-500">{errors.celular}</p>}
+                            </div>
+                        )}
 
-                    {/* Celular - Apenas no modo Cadastro */}
-                    {!isLoginMode && (
+                        {/* Senha */}
                         <div className="space-y-1">
-                            <label htmlFor="celular" className="block text-xs font-medium text-text-primary">
-                                Celular
+                            <label htmlFor="senha" className="block text-xs font-medium text-text-primary">
+                                Senha
                             </label>
                             <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                 <input
-                                    id="celular"
-                                    type="tel"
-                                    value={formData.celular}
-                                    onChange={handleInputChange("celular")}
-                                    placeholder="(00) 00000-0000"
-                                    maxLength={15}
-                                    className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
-                                        errors.celular ? "border-red-500" : "border-border-glass"
-                                    } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
+                                    id="senha"
+                                    type={showPassword ? "text" : "password"}
+                                    value={formData.senha}
+                                    onChange={handleInputChange("senha")}
+                                    placeholder="Mínimo 6 caracteres"
+                                    className={`w-full px-3 pr-10 py-2 bg-white/5 border ${
+                                        errors.senha ? "border-red-500" : "border-border-glass"
+                                    } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white transition-colors"
+                                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
                             </div>
-                            {errors.celular && <p className="text-xs text-red-500">{errors.celular}</p>}
+                            {errors.senha && <p className="text-xs text-red-500">{errors.senha}</p>}
                         </div>
-                    )}
 
-                    {/* Senha */}
-                    <div className="space-y-1">
-                        <label htmlFor="senha" className="block text-xs font-medium text-text-primary">
-                            Senha
-                        </label>
-                        <div className="relative">
-                            <input
-                                id="senha"
-                                type={showPassword ? "text" : "password"}
-                                value={formData.senha}
-                                onChange={handleInputChange("senha")}
-                                placeholder="Mínimo 6 caracteres"
-                                className={`w-full px-3 pr-10 py-2 bg-white/5 border ${
-                                    errors.senha ? "border-red-500" : "border-border-glass"
-                                } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white transition-colors"
-                                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                            >
-                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className={`w-full px-5 py-2.5 ${
+                                isLoginMode
+                                    ? "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
+                                    : "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
+                            } text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+                        >
+                            {isSubmitting ? "Processando..." : submitButtonText}
+                        </button>
+
+                        {/* Toggle Mode */}
+                        <div className="pt-3 text-center border-t border-border-glass">
+                            <p className="text-xs text-text-secondary">
+                                {toggleText}{" "}
+                                <button
+                                    type="button"
+                                    onClick={toggleMode}
+                                    className={`font-semibold ${
+                                        isLoginMode ? "text-blue-500" : "text-blue-500"
+                                    } hover:underline transition-colors`}
+                                >
+                                    {toggleButtonText}
+                                </button>
+                            </p>
                         </div>
-                        {errors.senha && <p className="text-xs text-red-500">{errors.senha}</p>}
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={`w-full px-5 py-2.5 ${
-                            isLoginMode
-                                ? "bg-gradient-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
-                                : "bg-gradient-to-r from-green-500 to-emerald-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
-                        } text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
-                    >
-                        {isSubmitting ? "Processando..." : submitButtonText}
-                    </button>
-
-                    {/* Toggle Mode */}
-                    <div className="pt-3 text-center border-t border-border-glass">
-                        <p className="text-xs text-text-secondary">
-                            {toggleText}{" "}
-                            <button
-                                type="button"
-                                onClick={toggleMode}
-                                className={`font-semibold ${
-                                    isLoginMode ? "text-brand-green" : "text-brand-blue"
-                                } hover:underline transition-colors`}
-                            >
-                                {toggleButtonText}
-                            </button>
-                        </p>
-                    </div>
-                </form>
+                    </form>
+          div>
+        </      </div>
             </div>
-        </div>
         </Portal>
     );
 }
