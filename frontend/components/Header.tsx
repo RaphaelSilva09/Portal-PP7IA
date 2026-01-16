@@ -27,7 +27,8 @@ export default function Navbar() {
 
         if (element) {
             const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
-            const offset = window.innerWidth < 768 ? 16 : 0;
+            // Adiciona padding adequado: 16px para mobile, 32px para desktop
+            const offset = window.innerWidth < 768 ? 16 : 32;
 
             window.scrollTo({
                 top: element.getBoundingClientRect().top + window.scrollY - headerHeight - offset,
@@ -82,10 +83,14 @@ export default function Navbar() {
 
                     {/* CTA Button */}
                     <div className="hidden md:flex items-center gap-4">
-                        <button className="flex items-center gap-2 px-5 py-2.5 cursor-pointer bg-linear-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200 touch-target">
+                        <a
+                            href="/#cta"
+                            onClick={e => scrollToSection(e, "/#cta")}
+                            className="flex items-center gap-2 px-5 py-2.5 cursor-pointer bg-linear-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200 touch-target"
+                        >
                             <Sparkles className="w-4 h-4" />
                             <span>Quero Fazer Parte</span>
-                        </button>
+                        </a>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -142,10 +147,17 @@ export default function Navbar() {
 
                     {/* Mobile CTA */}
                     <div className="pt-4 px-4">
-                        <button className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-all duration-200 touch-target">
+                        <a
+                            href="/#cta"
+                            onClick={e => {
+                                setIsMenuOpen(false);
+                                scrollToSection(e, "/#cta");
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-all duration-200 touch-target"
+                        >
                             <Sparkles className="w-4 h-4" />
                             <span>Quero Fazer Parte</span>
-                        </button>
+                        </a>
                     </div>
                 </nav>
             </div>
