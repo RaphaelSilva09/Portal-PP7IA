@@ -38,6 +38,45 @@ export default function BentoGridMiniLivros() {
 
     return (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
+            {/* Introdução Mini-livros */}
+            <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
+                {/* Título da Introdução */}
+                <h3
+                    id="titulo"
+                    className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto animate-fade-in-up"
+                    style={{ animationDelay: "0.3s" }}
+                >
+                    Mini-livros
+                </h3>
+
+                {/* Descrição Mini-livros */}
+                <p
+                    id="descricao"
+                    className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
+                    style={{ animationDelay: "0.4s" }}
+                >
+                    Em vez de um livro tradicional, publicarei uma série de textos curtos — MiniLivros — aqui mesmo,
+                    para vocês. Sendo eles o equivalente a capítulos de um livro.
+                </p>
+
+                {/* Nota do Autos sobre os Mini-livros */}
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
+                    <a
+                        href="/mini-livros/nota_do_autor_mini-livros.pdf"
+                        className="text-gray-400 text-base sm:text-1xl leading-relaxed tracking-tight underline md:no-underline md:hover:underline hover:text-gray-300 transition-colors duration-200 animate-fade-in-up"
+                        style={{ animationDelay: "0.5s" }}
+                    >
+                        Leia aqui as Notas do Autor
+                    </a>
+                </div>
+            </div>
+
+            {/* Linha divisória cinza */}
+            <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
+                <div className="border-t border-white/10"></div>
+            </div>
+
+            {/* Mini-livros */}
             <div className="max-w-7xl mx-auto">
                 {/* Bento Grid - 3 Columns Layout */}
                 <div id="last-mini-livro" className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
@@ -45,7 +84,7 @@ export default function BentoGridMiniLivros() {
                     MINI-LIVRO MAIS RECENTE - DESTAQUE
                     1 Card - col-span-3 - min-h-80
                     ============================================ */}
-                    <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 cursor-pointer transition-all duration-500 hover:scale-[1.01]">
+                    <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
                         {/* Gradient Background */}
                         <div
                             className="absolute inset-0"
@@ -141,7 +180,7 @@ export default function BentoGridMiniLivros() {
                     {olderMiniLivros.map(miniLivro => (
                         <div
                             key={miniLivro.id}
-                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
+                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Mini-Livro Number */}
