@@ -12,7 +12,7 @@ import NewsletterCTA from "./NewsletterCTA";
 const miniLivros = [
     {
         id: 1,
-        title: "Afinal, que talento é esse?",
+        title: "Mini-livro #002: Afinal, que talento é esse?",
         htmlUrl: "/mini-livros/002.html",
         pdfUrl: "/mini-livros/002.pdf",
         date: "13/10/2025",
@@ -22,7 +22,7 @@ const miniLivros = [
     },
     {
         id: 0,
-        title: "A Resposta é o Problema",
+        title: "Mini-livro #001-v2: A Resposta é o Problema",
         htmlUrl: "/mini-livros/001.html",
         pdfUrl: "/mini-livros/001.pdf",
         date: "13/09/2025",
