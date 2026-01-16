@@ -2,12 +2,12 @@
 
 import HeroTitle from "./HeroTitle";
 
-// Lista de ferramentas do ecossistema de IA
-const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.org"];
-
 export default function HeroSection() {
     return (
-        <section id="quemsomos" className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <section
+            id="quemsomos"
+            className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
+        >
             {/* Grid Pattern Overlay */}
             <div
                 className="inset-0 opacity-[0.02]"
@@ -19,7 +19,7 @@ export default function HeroSection() {
             />
             {/* Content */}
             <div className="relative z-10 max-w-4xl mx-auto text-center px-2 sm:px-4">
-                {/* Badge - Clickable to scroll to BentoGrid */}
+                {/* Badge - Última Atualização */}
                 <a
                     href="#newsletter"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full mb-6"
@@ -29,7 +29,7 @@ export default function HeroSection() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-green-500 text-sm font-medium">Nova Edição Lançada</span>
+                    <span className="text-green-500 text-sm font-medium">Última atualização: 14.01.2025</span>
                 </a>
 
                 {/* Main Title */}
@@ -54,22 +54,9 @@ export default function HeroSection() {
                     className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.3s" }}
                 >
-                    Menos ruído, mais clareza. Conhecimento e IA acessível para todos.
+                    Curadoria humana com inteligência artificial. Menos ruído, mais clareza. Conhecimento e IA acessível
+                    para todos.
                 </p>
-
-                {/* AI Tools Badge */}
-                <div className="flex items-center justify-center px-2">
-                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium transition-all duration-300 max-w-full">
-                        {AI_TOOLS.map((tool, index) => (
-                            <div key={tool} className="flex items-center gap-1.5 sm:gap-2">
-                                <span className="tracking-tight text-base sm:text-1xl">{tool}</span>
-                                {index < AI_TOOLS.length - 1 && (
-                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white/60" />
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </div>
         </section>
     );
