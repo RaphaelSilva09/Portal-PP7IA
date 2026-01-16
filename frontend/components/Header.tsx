@@ -2,6 +2,7 @@
 
 import { Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import AuthModal from "./AuthModal";
 import SearchModal from "./SearchModal";
 
 // 7 itens de navegação seguindo a regra de negócio
@@ -18,6 +19,7 @@ const navItems = [
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
         if (!href.startsWith("/#")) return;
@@ -83,6 +85,12 @@ export default function Navbar() {
 
                     {/* CTA Button */}
                     <div className="hidden md:flex items-center gap-4">
+                        <button
+                            onClick={() => setIsAuthModalOpen(true)}
+                            className="px-5 py-2.5 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200 touch-target"
+                        >
+                            Entrar
+                        </button>
                         <a
                             href="/#cta"
                             onClick={e => scrollToSection(e, "/#cta")}
@@ -146,7 +154,16 @@ export default function Navbar() {
                     )}
 
                     {/* Mobile CTA */}
-                    <div className="pt-4 px-4">
+                    <div className="pt-4 px-4 space-y-3">
+                        <button
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                setIsAuthModalOpen(true);
+                            }}
+                            className="w-full px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
+                        >
+                            Entrar
+                        </button>
                         <a
                             href="/#cta"
                             onClick={e => {
@@ -164,6 +181,9 @@ export default function Navbar() {
 
             {/* Search Modal */}
             <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
+
+            {/* Auth Modal */}
+            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialMode="signup" />
         </header>
     );
 }
