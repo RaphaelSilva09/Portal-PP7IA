@@ -198,11 +198,7 @@ export default function BentoGridBiblioteca() {
                         </div>
                     ))}
                 </div>
-
-                <NewsletterCTA
-                    title="Seja notificado de novas atualizações"
-                    description="7 categorias com 7 itens cada: prompts, ferramentas, atalhos, guias e referências."
-                />
+                <NewsletterCTA />
             </div>
         </section>
     );
