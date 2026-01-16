@@ -35,8 +35,8 @@ export default function HeroTitle() {
                     ></div>
                 </div>
 
-                {/* Parte 3: IAS S maiúsculo em azul) */}
-                <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">iAS</span>
+                {/* Parte 3: IAS) */}
+                <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">IAS</span>
             </h1>
         </div>
     );
