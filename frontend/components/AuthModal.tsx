@@ -2,6 +2,7 @@
 
 import { Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import Portal from "./Portal";
 
 /**
  * AuthModal Component
@@ -223,10 +224,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
     const toggleButtonText = isLoginMode ? "Criar conta" : "Entrar";
 
     return (
-        <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
-            onClick={onClose}
-        >
+        <Portal>
+            <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+                onClick={onClose}
+            >
             {/* Backdrop com glassmorphism */}
             <div 
                 className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" 
@@ -389,5 +391,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
                 </form>
             </div>
         </div>
+        </Portal>
     );
 }
