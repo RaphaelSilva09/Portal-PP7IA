@@ -234,7 +234,7 @@ export default function BentoGrid() {
                                     Biblioteca
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    7 categorias com 7 itens cada: prompts, ferramentas, atalhos, guias e referências.
+                                    7 categorias com 7 itens cada: prompts, ferramentas, atalhos, guias referências, dicas e outros.
                                 </p>
                             </div>
 
