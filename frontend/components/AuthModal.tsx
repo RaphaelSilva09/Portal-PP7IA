@@ -385,9 +385,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
                             </p>
                         </div>
                     </form>
-          div>
-        </      </div>
+                </div>
             </div>
+        </div>
         </Portal>
     );
 }
