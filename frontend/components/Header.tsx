@@ -58,7 +58,7 @@ export default function Navbar() {
 
                     {/* Desktop Navigation - 7 Links (Centered) */}
                     <nav
-                        className="hidden lg:flex items-center gap-2 absolute left-1/2 -translate-x-1/2"
+                        className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2"
                         aria-label="Navegação principal"
                     >
                         {navItems.map(item =>
@@ -66,7 +66,7 @@ export default function Navbar() {
                                 <button
                                     key={item.label}
                                     onClick={() => setIsSearchModalOpen(true)}
-                                    className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                    className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </button>
@@ -75,7 +75,7 @@ export default function Navbar() {
                                     key={item.label}
                                     href={item.href}
                                     onClick={e => scrollToSection(e, item.href)}
-                                    className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                    className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </a>
