@@ -224,16 +224,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
             onClick={onClose}
-            style={{ touchAction: "none" }}
         >
             {/* Backdrop com glassmorphism */}
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" />
+            <div 
+                className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" 
+                onClick={onClose}
+            />
 
             {/* Modal Container */}
             <div
-                className="relative w-full max-w-md bg-bg-primary/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl animate-scale-in"
+                className="relative w-full max-w-md my-auto bg-bg-primary/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl animate-scale-in"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header com Close Button */}
