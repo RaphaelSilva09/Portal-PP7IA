@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
+import { Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import Portal from "./Portal";
 
@@ -38,6 +38,7 @@ interface FormErrors {
     email?: string;
     celular?: string;
     senha?: string;
+    consent?: string;
 }
 
 export default function AuthModal({ isOpen, onClose, initialMode = "signup", initialData }: AuthModalProps) {
@@ -51,6 +52,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     });
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [acceptEmailUpdates, setAcceptEmailUpdates] = useState(false);
+    const [acceptWhatsAppUpdates, setAcceptWhatsAppUpdates] = useState(false);
 
     // Desabilita scroll do body quando modal está aberto (iOS-friendly)
     useEffect(() => {
@@ -82,6 +85,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
             });
             setErrors({});
             setShowPassword(false);
+            setAcceptEmailUpdates(false);
+            setAcceptWhatsAppUpdates(false);
         }
     }, [mode, isOpen, initialData]);
 
@@ -138,6 +143,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                 newErrors.celular = "Celular é obrigatório";
             } else if (!isValidPhone(formData.celular)) {
                 newErrors.celular = "Celular inválido";
+            }
+
+            if (!acceptEmailUpdates && !acceptWhatsAppUpdates) {
+                newErrors.consent = "Aceite pelo menos uma forma de receber atualizações";
             }
         }
 
@@ -197,7 +206,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
             if (mode === "login") {
                 console.log("Login:", { email: formData.email, senha: formData.senha });
             } else {
-                console.log("Cadastro:", formData);
+                console.log("Cadastro:", {
+                    ...formData,
+                    acceptEmailUpdates,
+                    acceptWhatsAppUpdates,
+                });
             }
 
             // Sucesso: fechar modal e limpar formulário
@@ -221,13 +234,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     if (!isOpen) return null;
 
     const isLoginMode = mode === "login";
-    const title = isLoginMode ? "Entrar" : "Criar Conta";
+    const title = isLoginMode ? "Entrar" : "Cadastrar";
     const subtitle = isLoginMode
         ? "Entre com suas credenciais para acessar sua conta"
         : "Crie sua conta para ter acesso completo ao portal";
-    const submitButtonText = isLoginMode ? "Entrar" : "Criar Conta";
+    const submitButtonText = isLoginMode ? "Entrar" : "Cadastrar";
     const toggleText = isLoginMode ? "Não tem uma conta?" : "Já tem uma conta?";
-    const toggleButtonText = isLoginMode ? "Criar conta" : "Entrar";
+    const toggleButtonText = isLoginMode ? "Cadastrar" : "Entrar";
 
     return (
         <Portal>
@@ -361,6 +374,54 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                 </div>
                                 {errors.senha && <p className="text-xs text-red-500">{errors.senha}</p>}
                             </div>
+
+                            {/* Checkboxes de Consentimento - Apenas no modo Cadastro */}
+                            {!isLoginMode && (
+                                <div className="space-y-2 pt-1">
+                                    <div className="space-y-2">
+                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                            <div
+                                                onClick={() => {
+                                                    const newValue = !acceptEmailUpdates;
+                                                    setAcceptEmailUpdates(newValue);
+                                                    if (errors.consent && (newValue || acceptWhatsAppUpdates)) {
+                                                        setErrors(prev => ({ ...prev, consent: undefined }));
+                                                    }
+                                                }}
+                                                className={`w-4 h-4 min-w-[1rem] min-h-[1rem] rounded border border-text-secondary flex items-center justify-center cursor-pointer transition-colors group-hover:border-text-primary ${
+                                                    acceptEmailUpdates ? "bg-text-secondary" : "bg-transparent"
+                                                }`}
+                                            >
+                                                {acceptEmailUpdates && <Check className="w-3 h-3 text-bg-primary" />}
+                                            </div>
+                                            <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors leading-4">
+                                                Aceito receber atualizações e novidades por e-mail
+                                            </span>
+                                        </label>
+
+                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                            <div
+                                                onClick={() => {
+                                                    const newValue = !acceptWhatsAppUpdates;
+                                                    setAcceptWhatsAppUpdates(newValue);
+                                                    if (errors.consent && (newValue || acceptEmailUpdates)) {
+                                                        setErrors(prev => ({ ...prev, consent: undefined }));
+                                                    }
+                                                }}
+                                                className={`w-4 h-4 min-w-[1rem] min-h-[1rem] rounded border border-text-secondary flex items-center justify-center cursor-pointer transition-colors group-hover:border-text-primary ${
+                                                    acceptWhatsAppUpdates ? "bg-text-secondary" : "bg-transparent"
+                                                }`}
+                                            >
+                                                {acceptWhatsAppUpdates && <Check className="w-3 h-3 text-bg-primary" />}
+                                            </div>
+                                            <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors leading-4">
+                                                Aceito receber atualizações e novidades via WhatsApp
+                                            </span>
+                                        </label>
+                                    </div>
+                                    {errors.consent && <p className="text-xs text-red-500">{errors.consent}</p>}
+                                </div>
+                            )}
 
                             {/* Submit Button */}
                             <button
