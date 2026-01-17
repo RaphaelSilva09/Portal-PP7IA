@@ -9,10 +9,10 @@ interface PortalProps {
 
 /**
  * Portal Component
- * 
+ *
  * Renderiza children diretamente no body, fora da hierarquia DOM do componente pai.
  * Essencial para modals, tooltips e elementos que precisam escapar do contexto de stacking (z-index).
- * 
+ *
  * @example
  * <Portal>
  *   <Modal />
