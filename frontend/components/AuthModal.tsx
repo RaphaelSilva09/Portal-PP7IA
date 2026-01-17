@@ -1,7 +1,8 @@
 "use client";
 
-import { Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
+import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "../presentation/hooks/useAuth";
 import Portal from "./Portal";
 
 /**
@@ -12,6 +13,7 @@ import Portal from "./Portal";
  * - SRP: Componente focado exclusivamente em autenticação
  * - OCP: Aberto para extensão via props, fechado para modificação
  * - Clean Code: Nomes reveladores de intenção, funções pequenas
+ * - Clean Architecture: Usa casos de uso via hook, não conhece infraestrutura
  */
 
 interface AuthModalProps {
@@ -51,9 +53,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
         senha: "",
     });
     const [errors, setErrors] = useState<FormErrors>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [acceptEmailUpdates, setAcceptEmailUpdates] = useState(false);
     const [acceptWhatsAppUpdates, setAcceptWhatsAppUpdates] = useState(false);
+
+    // Hook de autenticação (Clean Architecture)
+    const { signUp, signIn, isLoading, error: authError, clearError } = useAuth();
 
     // Desabilita scroll do body quando modal está aberto (iOS-friendly)
     useEffect(() => {
@@ -87,8 +91,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
             setShowPassword(false);
             setAcceptEmailUpdates(false);
             setAcceptWhatsAppUpdates(false);
+            clearError();
         }
-    }, [mode, isOpen, initialData]);
+    }, [mode, isOpen, initialData, clearError]);
 
     /**
      * Valida email usando regex padrão
@@ -188,7 +193,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
     /**
      * Handler para submit do formulário
-     * Separation of Concerns: Validação separada da submissão
+     * Clean Architecture: Usa casos de uso através do hook
      */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -197,29 +202,28 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
             return;
         }
 
-        setIsSubmitting(true);
-
         try {
-            // TODO: Implementar chamada à API
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simula chamada API
-
             if (mode === "login") {
-                console.log("Login:", { email: formData.email, senha: formData.senha });
+                await signIn({
+                    email: formData.email,
+                    password: formData.senha,
+                });
             } else {
-                console.log("Cadastro:", {
-                    ...formData,
+                await signUp({
+                    email: formData.email,
+                    password: formData.senha,
+                    nome: formData.nome,
+                    celular: formData.celular,
                     acceptEmailUpdates,
                     acceptWhatsAppUpdates,
                 });
             }
 
-            // Sucesso: fechar modal e limpar formulário
+            // Sucesso: fechar modal
             onClose();
         } catch (error) {
-            console.error("Erro ao processar:", error);
-            setErrors({ email: "Ocorreu um erro. Tente novamente." });
-        } finally {
-            setIsSubmitting(false);
+            // Erro já está sendo tratado pelo hook useAuth
+            console.error("Erro ao processar autenticação:", error);
         }
     };
 
@@ -274,6 +278,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
                     {/* Subtitle */}
                     <p className="px-4 pt-1.5 pb-2 text-xs text-text-secondary">{subtitle}</p>
+
+                    {/* Error Message from Auth */}
+                    {authError && (
+                        <div className="mx-4 mb-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-xs text-red-300">{authError}</p>
+                        </div>
+                    )}
 
                     {/* Form Container com scroll interno */}
                     <div className="flex-1 overflow-y-auto min-h-0">
@@ -426,14 +438,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                disabled={isSubmitting}
+                                disabled={isLoading}
                                 className={`w-full px-5 py-2.5 ${
                                     isLoginMode
                                         ? "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
                                         : "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
                                 } text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                             >
-                                {isSubmitting ? "Processando..." : submitButtonText}
+                                {isLoading ? "Processando..." : submitButtonText}
                             </button>
 
                             {/* Toggle Mode */}
