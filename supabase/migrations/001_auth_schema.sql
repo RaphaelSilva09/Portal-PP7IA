@@ -102,11 +102,11 @@ CREATE POLICY "Users can update own data"
     USING (auth.uid() = id)
     WITH CHECK (auth.uid() = id);
 
--- Policy: Sistema pode inserir novos usuários (via service_role)
-CREATE POLICY "Service role can insert users"
+-- Policy: Usuários autenticados podem criar seu próprio perfil
+CREATE POLICY "Users can insert own profile"
     ON public.users
     FOR INSERT
-    WITH CHECK (true);
+    WITH CHECK (auth.uid() = id);
 
 -- Policy: Usuários podem deletar seus próprios dados
 CREATE POLICY "Users can delete own data"
