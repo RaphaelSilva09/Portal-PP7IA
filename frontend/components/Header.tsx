@@ -84,19 +84,18 @@ export default function Navbar() {
                     </nav>
 
                     {/* CTA Button */}
-                    <div className="hidden md:flex items-center gap-3">
+                    <div className="hidden md:flex items-center gap-2">
                         <button
                             onClick={() => setIsAuthModalOpen(true)}
-                            className="px-5 py-2.5 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                            className="px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
                         >
                             Entrar
                         </button>
                         <a
                             href="/#cta"
                             onClick={e => scrollToSection(e, "/#cta")}
-                            className="flex items-center gap-2 px-5 py-2.5 cursor-pointer bg-linear-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
+                            className="flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
                         >
-                            <Sparkles className="w-4 h-4" />
                             <span>Quero Fazer Parte</span>
                         </a>
                     </div>
