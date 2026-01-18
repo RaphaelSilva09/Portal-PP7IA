@@ -31,7 +31,8 @@ export interface AuthResult {
     session: {
         accessToken: string;
         refreshToken: string;
-    };
+    } | null; // Null quando confirmação de email está habilitada
+    emailConfirmationRequired?: boolean; // True se usuário precisa confirmar email
 }
 
 /**
