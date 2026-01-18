@@ -22,7 +22,7 @@ interface UseAuthResult {
     isLoading: boolean;
     error: string | null;
     emailConfirmationRequired: boolean;
-    signUp: (params: SignUpParams) => Promise<void>;
+    signUp: (params: SignUpParams) => Promise<{ emailConfirmationRequired: boolean }>;
     signIn: (params: SignInParams) => Promise<void>;
     signOut: () => Promise<void>;
     getCurrentUser: () => Promise<void>;
@@ -67,9 +67,12 @@ export function useAuth(): UseAuthResult {
             setUser(result.user);
 
             // Se confirmação de email é necessária, marca estado
-            if (result.emailConfirmationRequired) {
+            const requiresConfirmation = result.emailConfirmationRequired ?? false;
+            if (requiresConfirmation) {
                 setEmailConfirmationRequired(true);
             }
+
+            return { emailConfirmationRequired: requiresConfirmation };
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao cadastrar. Tente novamente.";
             setError(errorMessage);
