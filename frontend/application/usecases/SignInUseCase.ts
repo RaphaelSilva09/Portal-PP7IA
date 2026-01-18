@@ -19,7 +19,7 @@ export interface SignInInput {
 
 export interface SignInOutput {
     user: User;
-    accessToken: string;
+    accessToken: string | null;
 }
 
 export class SignInUseCase {
@@ -43,7 +43,7 @@ export class SignInUseCase {
 
         return {
             user: result.user,
-            accessToken: result.session.accessToken,
+            accessToken: result.session?.accessToken ?? null,
         };
     }
 
