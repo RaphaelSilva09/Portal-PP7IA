@@ -31,10 +31,12 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
     /**
      * Cadastra novo usuário no Supabase
+     * O perfil em public.users é criado automaticamente via trigger
      */
     async signUp(params: SignUpParams): Promise<AuthResult> {
         try {
             // 1. Cria usuário no Supabase Auth
+            // O trigger handle_new_user() vai criar o perfil automaticamente
             const { data: authData, error: authError } = await this.supabase.auth.signUp({
                 email: params.email,
                 password: params.password,
@@ -56,31 +58,43 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 throw new UnknownAuthError("Falha ao criar usuário");
             }
 
-            // 2. Cria perfil do usuário na tabela users
-            const { error: profileError } = await this.supabase.from("users").insert({
-                id: authData.user.id,
-                email: params.email,
-                nome: params.nome,
-                celular: params.celular,
-                accept_email_updates: params.acceptEmailUpdates,
-                accept_whatsapp_updates: params.acceptWhatsAppUpdates,
-                created_at: new Date().toISOString(),
-            });
+            // 2. Busca o perfil criado pelo trigger
+            const { data: userData, error: userError } = await this.supabase
+                .from("users")
+                .select("*")
+                .eq("id", authData.user.id)
+                .single();
 
-            if (profileError) {
-                // Rollback: deleta usuário do Auth se falhar ao criar perfil
-                await this.supabase.auth.admin.deleteUser(authData.user.id);
-                throw new UnknownAuthError("Falha ao criar perfil do usuário");
+            if (userError || !userData) {
+                // Se não encontrou, pode ser que o trigger não tenha executado
+                console.error("Perfil não encontrado após signup:", userError);
+                // Usa os dados fornecidos mesmo assim
+                const user = this.mapToUser(authData.user.id, {
+                    email: params.email,
+                    nome: params.nome,
+                    celular: params.celular,
+                    acceptEmailUpdates: params.acceptEmailUpdates,
+                    acceptWhatsAppUpdates: params.acceptWhatsAppUpdates,
+                    createdAt: new Date(),
+                });
+
+                return {
+                    user,
+                    session: {
+                        accessToken: authData.session.access_token,
+                        refreshToken: authData.session.refresh_token,
+                    },
+                };
             }
 
-            // 3. Converte dados do Supabase para entidade de domínio
+            // 3. Converte dados do perfil para entidade de domínio
             const user = this.mapToUser(authData.user.id, {
-                email: params.email,
-                nome: params.nome,
-                celular: params.celular,
-                acceptEmailUpdates: params.acceptEmailUpdates,
-                acceptWhatsAppUpdates: params.acceptWhatsAppUpdates,
-                createdAt: new Date(),
+                email: userData.email,
+                nome: userData.nome,
+                celular: userData.celular,
+                acceptEmailUpdates: userData.accept_email_updates,
+                acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
+                createdAt: new Date(userData.created_at),
             });
 
             return {
