@@ -21,6 +21,7 @@ interface UseAuthResult {
     user: User | null;
     isLoading: boolean;
     error: string | null;
+    emailConfirmationRequired: boolean;
     signUp: (params: SignUpParams) => Promise<void>;
     signIn: (params: SignInParams) => Promise<void>;
     signOut: () => Promise<void>;
@@ -50,6 +51,7 @@ export function useAuth(): UseAuthResult {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(false);
 
     /**
      * Cadastra novo usuário
@@ -57,11 +59,17 @@ export function useAuth(): UseAuthResult {
     const signUp = useCallback(async (params: SignUpParams) => {
         setIsLoading(true);
         setError(null);
+        setEmailConfirmationRequired(false);
 
         try {
             const signUpUseCase = DIContainer.getSignUpUseCase();
             const result = await signUpUseCase.execute(params);
             setUser(result.user);
+
+            // Se confirmação de email é necessária, marca estado
+            if (result.emailConfirmationRequired) {
+                setEmailConfirmationRequired(true);
+            }
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao cadastrar. Tente novamente.";
             setError(errorMessage);
@@ -141,6 +149,7 @@ export function useAuth(): UseAuthResult {
         user,
         isLoading,
         error,
+        emailConfirmationRequired,
         signUp,
         signIn,
         signOut,
