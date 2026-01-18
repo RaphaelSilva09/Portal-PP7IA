@@ -54,9 +54,12 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 throw this.mapSupabaseError(authError);
             }
 
-            if (!authData.user || !authData.session) {
+            if (!authData.user) {
                 throw new UnknownAuthError("Falha ao criar usuário");
             }
+
+            // Se session é null, significa que confirmação de email está habilitada
+            const requiresEmailConfirmation = !authData.session;
 
             // 2. Busca o perfil criado pelo trigger
             const { data: userData, error: userError } = await this.supabase
@@ -66,9 +69,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 .single();
 
             if (userError || !userData) {
-                // Se não encontrou, pode ser que o trigger não tenha executado
-                console.error("Perfil não encontrado após signup:", userError);
-                // Usa os dados fornecidos mesmo assim
+                // Fallback: usa dados fornecidos se perfil não foi encontrado
                 const user = this.mapToUser(authData.user.id, {
                     email: params.email,
                     nome: params.nome,
@@ -80,10 +81,11 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
                 return {
                     user,
-                    session: {
+                    session: authData.session ? {
                         accessToken: authData.session.access_token,
                         refreshToken: authData.session.refresh_token,
-                    },
+                    } : null,
+                    emailConfirmationRequired: requiresEmailConfirmation,
                 };
             }
 
@@ -99,10 +101,11 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
             return {
                 user,
-                session: {
+                session: authData.session ? {
                     accessToken: authData.session.access_token,
                     refreshToken: authData.session.refresh_token,
-                },
+                } : null,
+                emailConfirmationRequired: requiresEmailConfirmation,
             };
         } catch (error) {
             if (error instanceof Error && "status" in error) {
