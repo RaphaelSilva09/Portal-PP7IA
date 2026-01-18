@@ -24,7 +24,8 @@ export interface SignUpInput {
 
 export interface SignUpOutput {
     user: User;
-    accessToken: string;
+    accessToken: string | null;
+    emailConfirmationRequired?: boolean;
 }
 
 /**
@@ -58,7 +59,8 @@ export class SignUpUseCase {
 
         return {
             user: result.user,
-            accessToken: result.session.accessToken,
+            accessToken: result.session?.accessToken ?? null,
+            emailConfirmationRequired: result.emailConfirmationRequired,
         };
     }
 
