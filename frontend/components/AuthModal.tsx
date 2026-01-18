@@ -58,7 +58,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Hook de autenticação (Clean Architecture)
-    const { signUp, signIn, isLoading, error: authError, emailConfirmationRequired, clearError } = useAuth();
+    const { signUp, signIn, isLoading, error: authError, clearError } = useAuth();
 
     // Desabilita scroll do body quando modal está aberto (iOS-friendly)
     useEffect(() => {
@@ -212,7 +212,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                 // Login bem-sucedido: fechar modal
                 onClose();
             } else {
-                await signUp({
+                const result = await signUp({
                     email: formData.email,
                     password: formData.senha,
                     nome: formData.nome,
@@ -222,7 +222,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                 });
 
                 // Cadastro bem-sucedido: verificar se precisa confirmar email
-                if (emailConfirmationRequired) {
+                if (result.emailConfirmationRequired) {
                     setSuccessMessage("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta.");
                 } else {
                     // Sessão criada automaticamente, fechar modal

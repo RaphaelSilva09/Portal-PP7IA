@@ -62,14 +62,11 @@ export class SupabaseAuthRepository implements IAuthRepository {
             const requiresEmailConfirmation = !authData.session;
 
             // 2. Busca o perfil criado pelo trigger
-            const { data: userData, error: userError } = await this.supabase
-                .from("users")
-                .select("*")
-                .eq("id", authData.user.id)
-                .single();
-
-            if (userError || !userData) {
-                // Fallback: usa dados fornecidos se perfil não foi encontrado
+            // Nota: Quando email confirmation está habilitado (session = null),
+            // não há sessão ativa e a política RLS bloqueia a query.
+            // Nesses casos, usamos os dados fornecidos diretamente.
+            if (requiresEmailConfirmation) {
+                // Email confirmation necessário: usa dados fornecidos
                 const user = this.mapToUser(authData.user.id, {
                     email: params.email,
                     nome: params.nome,
@@ -81,12 +78,24 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
                 return {
                     user,
-                    session: authData.session ? {
-                        accessToken: authData.session.access_token,
-                        refreshToken: authData.session.refresh_token,
-                    } : null,
-                    emailConfirmationRequired: requiresEmailConfirmation,
+                    session: null,
+                    emailConfirmationRequired: true,
                 };
+            }
+
+            // Sessão criada: busca perfil do banco
+            if (!authData.session) {
+                throw new UnknownAuthError("Sessão não criada inesperadamente");
+            }
+
+            const { data: userData, error: userError } = await this.supabase
+                .from("users")
+                .select("*")
+                .eq("id", authData.user.id)
+                .single();
+
+            if (userError || !userData) {
+                throw new UnknownAuthError("Falha ao recuperar perfil do usuário");
             }
 
             // 3. Converte dados do perfil para entidade de domínio
@@ -101,11 +110,11 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
             return {
                 user,
-                session: authData.session ? {
+                session: {
                     accessToken: authData.session.access_token,
                     refreshToken: authData.session.refresh_token,
-                } : null,
-                emailConfirmationRequired: requiresEmailConfirmation,
+                },
+                emailConfirmationRequired: false,
             };
         } catch (error) {
             if (error instanceof Error && "status" in error) {
