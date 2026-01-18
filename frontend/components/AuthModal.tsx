@@ -55,9 +55,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     const [errors, setErrors] = useState<FormErrors>({});
     const [acceptEmailUpdates, setAcceptEmailUpdates] = useState(false);
     const [acceptWhatsAppUpdates, setAcceptWhatsAppUpdates] = useState(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Hook de autenticação (Clean Architecture)
-    const { signUp, signIn, isLoading, error: authError, clearError } = useAuth();
+    const { signUp, signIn, isLoading, error: authError, emailConfirmationRequired, clearError } = useAuth();
 
     // Desabilita scroll do body quando modal está aberto (iOS-friendly)
     useEffect(() => {
@@ -208,6 +209,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                     email: formData.email,
                     password: formData.senha,
                 });
+                // Login bem-sucedido: fechar modal
+                onClose();
             } else {
                 await signUp({
                     email: formData.email,
@@ -217,10 +220,15 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                     acceptEmailUpdates,
                     acceptWhatsAppUpdates,
                 });
-            }
 
-            // Sucesso: fechar modal
-            onClose();
+                // Cadastro bem-sucedido: verificar se precisa confirmar email
+                if (emailConfirmationRequired) {
+                    setSuccessMessage("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta.");
+                } else {
+                    // Sessão criada automaticamente, fechar modal
+                    onClose();
+                }
+            }
         } catch (error) {
             // Erro já está sendo tratado pelo hook useAuth
             console.error("Erro ao processar autenticação:", error);
@@ -284,6 +292,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                         <div className="mx-4 mb-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2">
                             <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                             <p className="text-xs text-red-300">{authError}</p>
+                        </div>
+                    )}
+
+                    {/* Success Message - Email Confirmation */}
+                    {successMessage && (
+                        <div className="mx-4 mb-2 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-start gap-2">
+                            <Check className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-xs text-green-300">{successMessage}</p>
                         </div>
                     )}
 
