@@ -1,6 +1,8 @@
 "use client";
 
 import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sparkles, Star } from "lucide-react";
+import { useState } from "react";
+import AuthModal from "./AuthModal";
 import NewsletterCTA from "./NewsletterCTA";
 
 /**
@@ -10,6 +12,14 @@ import NewsletterCTA from "./NewsletterCTA";
  */
 
 export default function BentoGrid() {
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [authInitialData, setAuthInitialData] = useState<{ email?: string; celular?: string }>({});
+
+    const handleSubscribe = (email: string, celular: string) => {
+        setAuthInitialData({ email, celular });
+        setIsAuthModalOpen(true);
+    };
+
     return (
         <section className="py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
@@ -23,7 +33,7 @@ export default function BentoGrid() {
                                 7 Blocos
                             </span>
                         </h3>
-                        <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto tracking-tight px-4">
+                        <p className="text-gray-400 text-base sm:text-2xl max-w-2xl mx-auto tracking-tight px-4">
                             Cada bloco foi projetado e revisado para entregar valor específico e complementar.
                         </p>
                     </div>
@@ -234,7 +244,8 @@ export default function BentoGrid() {
                                     Biblioteca
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    7 categorias com 7 itens cada: prompts, ferramentas, atalhos, guias referências, dicas e outros.
+                                    7 categorias com 7 itens cada: prompts, ferramentas, atalhos, guias referências,
+                                    dicas e outros.
                                 </p>
                             </div>
 
@@ -311,8 +322,16 @@ export default function BentoGrid() {
                     </a>
                 </div>
 
-                <NewsletterCTA />
+                <NewsletterCTA onSubscribe={handleSubscribe} />
             </div>
+
+            {/* Auth Modal */}
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                initialMode="signup"
+                initialData={authInitialData}
+            />
         </section>
     );
 }

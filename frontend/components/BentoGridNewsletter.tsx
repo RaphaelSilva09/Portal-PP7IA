@@ -13,8 +13,8 @@ const newsletters = [
     {
         id: 2,
         title: "PP-News #002  - IA Curada com Inteligência",
-        htmlUrl: "/newsletters/003.html",
-        pdfUrl: "/newsletters/003.pdf",
+        htmlUrl: "/newsletters/002.html",
+        pdfUrl: "/newsletters/002.pdf",
         date: "16/12/2025",
         htmlAvailable: true,
         pdfAvailable: true,
