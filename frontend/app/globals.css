@@ -198,6 +198,56 @@ body {
     }
 }
 
+/* Author Section Animations */
+@keyframes fade-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes section-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-slide-up {
+    animation: fade-slide-up 0.6s ease-out forwards;
+}
+
+.animate-section-reveal {
+    animation: section-reveal 0.5s ease-out forwards;
+}
+
+/* Performance optimizations for Author section */
+@media (prefers-reduced-motion: no-preference) {
+    .author-timeline-line {
+        will-change: opacity, transform;
+    }
+
+    .author-section-card {
+        will-change: opacity, box-shadow, border-color;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-slide-up,
+    .animate-section-reveal {
+        animation: none;
+    }
+}
+
+
 .shimmer {
     background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
     background-size: 200% 100%;
