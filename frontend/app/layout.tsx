@@ -36,16 +36,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-<<<<<<< HEAD
         <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
                 {children}
-=======
-        <html lang="pt-BR" className={inter.variable}>
-            <body className="antialiased bg-bg-primary text-text-primary font-sans">
-                {children}
                 <Analytics />
->>>>>>> develop
             </body>
         </html>
     );

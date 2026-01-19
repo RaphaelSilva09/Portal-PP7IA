@@ -5,10 +5,12 @@ import TopoSvg from "@/public/topo.svg";
 
 export default function HeroSection() {
     return (
-<<<<<<< HEAD
-        <section id="quemsomos" className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <section
+            id="hero"
+            className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
+        >
             {/* SVG Background with Fade Effect */}
-            <div 
+            <div
                 className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.05]"
                 style={{
                     maskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 10%, transparent 100%)',
@@ -17,12 +19,6 @@ export default function HeroSection() {
             >
                 <TopoSvg className="w-full h-full" preserveAspectRatio="xMidYMax slice" />
             </div>
-=======
-        <section
-            id="quemsomos"
-            className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
-        >
->>>>>>> develop
             {/* Grid Pattern Overlay */}
             <div
                 className="inset-0 opacity-[0.02]"
