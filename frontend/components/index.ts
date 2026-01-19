@@ -1,6 +1,7 @@
 // PP7+IAS Portal - Components Index
 // Regra de Negócio: O número 7
 
+export { default as Author } from "./Author";
 export { default as AuthModal } from "./AuthModal";
 export { default as BentoGridBiblioteca } from "./BentoGridBiblioteca";
 export { default as BentoGrid } from "./BentoGridConteudo";

@@ -2,13 +2,27 @@
 
 import { ArrowRight, FileText } from "lucide-react";
 import HeroTitle from "./HeroTitle";
+import TopoSvg from "@/public/topo.svg";
+
+// Lista de ferramentas do ecossistema de IA
+const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.org"];
 
 export default function HeroSection() {
     return (
         <section
-            id="quemsomos"
+            id="hero"
             className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
         >
+            {/* SVG Background with Fade Effect */}
+            <div
+                className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.05]"
+                style={{
+                    maskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 10%, transparent 100%)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 50%, transparent 100%)',
+                }}
+            >
+                <TopoSvg className="w-full h-full" preserveAspectRatio="xMidYMax slice" />
+            </div>
             {/* Grid Pattern Overlay */}
             <div
                 className="inset-0 opacity-[0.02]"
@@ -55,8 +69,7 @@ export default function HeroSection() {
                     className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.3s" }}
                 >
-                    Curadoria humana com inteligência artificial. Menos ruído, mais clareza. Conhecimento e IA acessível
-                    para todos.
+                    Menos ruído, mais clareza. Conhecimento e IA acessível para todos.
                 </p>
 
                 {/* Document Buttons - Attention Grabbing */}
