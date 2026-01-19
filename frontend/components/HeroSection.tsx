@@ -5,7 +5,7 @@ import HeroTitle from "./HeroTitle";
 export default function HeroSection() {
     return (
         <section
-            id="quemsomos"
+            id="hero"
             className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
         >
             {/* Grid Pattern Overlay */}
