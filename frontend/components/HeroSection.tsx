@@ -1,6 +1,7 @@
 "use client";
 
 import HeroTitle from "./HeroTitle";
+import TopoSvg from "@/public/topo.svg";
 
 // Lista de ferramentas do ecossistema de IA
 const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.org"];
@@ -8,6 +9,16 @@ const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", 
 export default function HeroSection() {
     return (
         <section id="quemsomos" className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+            {/* SVG Background with Fade Effect */}
+            <div 
+                className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.05]"
+                style={{
+                    maskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 10%, transparent 100%)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 50%, transparent 100%)',
+                }}
+            >
+                <TopoSvg className="w-full h-full" preserveAspectRatio="xMidYMax slice" />
+            </div>
             {/* Grid Pattern Overlay */}
             <div
                 className="inset-0 opacity-[0.02]"
