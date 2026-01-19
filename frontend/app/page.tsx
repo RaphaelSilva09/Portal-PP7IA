@@ -1,4 +1,4 @@
-import { Author, BentoGrid, Footer, HeroSection, Navbar } from "@/components";
+import {  BentoGrid, Footer, HeroSection, Navbar } from "@/components";
 
 export default function Home() {
     return (
@@ -8,9 +8,6 @@ export default function Home() {
 
             {/* Hero Section */}
             <HeroSection />
-
-            {/* Author Section */}
-            <Author />
 
             {/* Bento Grid com 7 blocos de conteúdo */}
             <BentoGrid />
