@@ -2,6 +2,7 @@
 
 import { Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import AuthModal from "./AuthModal";
 import SearchModal from "./SearchModal";
 
 // 7 itens de navegação seguindo a regra de negócio
@@ -18,6 +19,8 @@ const navItems = [
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [authInitialMode, setAuthInitialMode] = useState<"login" | "signup">("login");
 
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
         if (!href.startsWith("/#")) return;
@@ -56,7 +59,7 @@ export default function Navbar() {
 
                     {/* Desktop Navigation - 7 Links (Centered) */}
                     <nav
-                        className="hidden lg:flex items-center gap-2 absolute left-1/2 -translate-x-1/2"
+                        className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2"
                         aria-label="Navegação principal"
                     >
                         {navItems.map(item =>
@@ -64,7 +67,7 @@ export default function Navbar() {
                                 <button
                                     key={item.label}
                                     onClick={() => setIsSearchModalOpen(true)}
-                                    className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                    className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </button>
@@ -73,7 +76,7 @@ export default function Navbar() {
                                     key={item.label}
                                     href={item.href}
                                     onClick={e => scrollToSection(e, item.href)}
-                                    className="px-2 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                    className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </a>
@@ -82,13 +85,21 @@ export default function Navbar() {
                     </nav>
 
                     {/* CTA Button */}
-                    <div className="hidden md:flex items-center gap-4">
+                    <div className="hidden md:flex items-center gap-2">
+                        <button
+                            onClick={() => {
+                                setAuthInitialMode("login");
+                                setIsAuthModalOpen(true);
+                            }}
+                            className="px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                        >
+                            Entrar
+                        </button>
                         <a
                             href="/#cta"
                             onClick={e => scrollToSection(e, "/#cta")}
-                            className="flex items-center gap-2 px-5 py-2.5 cursor-pointer bg-linear-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200 touch-target"
+                            className="flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
                         >
-                            <Sparkles className="w-4 h-4" />
                             <span>Quero Fazer Parte</span>
                         </a>
                     </div>
@@ -146,7 +157,17 @@ export default function Navbar() {
                     )}
 
                     {/* Mobile CTA */}
-                    <div className="pt-4 px-4">
+                    <div className="pt-4 px-4 space-y-3">
+                        <button
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                setAuthInitialMode("login");
+                                setIsAuthModalOpen(true);
+                            }}
+                            className="w-full px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
+                        >
+                            Entrar
+                        </button>
                         <a
                             href="/#cta"
                             onClick={e => {
@@ -164,6 +185,9 @@ export default function Navbar() {
 
             {/* Search Modal */}
             <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
+
+            {/* Auth Modal */}
+            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialMode={authInitialMode} />
         </header>
     );
 }
