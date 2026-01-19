@@ -23,7 +23,7 @@ export default function BentoGrid() {
                                 7 Blocos
                             </span>
                         </h3>
-                        <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto tracking-tight px-4">
+                        <p className="text-gray-400 text-base sm:text-2xl max-w-2xl mx-auto tracking-tight px-4">
                             Cada bloco foi projetado e revisado para entregar valor específico e complementar.
                         </p>
                     </div>
