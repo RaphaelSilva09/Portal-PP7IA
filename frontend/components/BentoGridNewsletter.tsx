@@ -22,8 +22,8 @@ const newsletters = [
     {
         id: 1,
         title: "PP-News #001 - O Início de uma Nova Era",
-        htmlUrl: "/newsletters/002.html",
-        pdfUrl: "/newsletters/002.pdf",
+        htmlUrl: "/newsletters/001.html",
+        pdfUrl: "/newsletters/001.pdf",
         date: "09/12/2025",
         htmlAvailable: true,
         pdfAvailable: false,
@@ -31,8 +31,8 @@ const newsletters = [
     {
         id: 0,
         title: "PP-News #000 - Edição Piloto",
-        htmlUrl: "/newsletters/001.html",
-        pdfUrl: "/newsletters/001.pdf",
+        htmlUrl: "/newsletters/000.html",
+        pdfUrl: "/newsletters/000.pdf",
         date: "02/12/2025",
         htmlAvailable: true,
         pdfAvailable: false,
