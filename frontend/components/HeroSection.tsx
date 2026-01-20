@@ -4,9 +4,6 @@ import { ArrowRight, FileText } from "lucide-react";
 import HeroTitle from "./HeroTitle";
 import TopoSvg from "@/public/topo.svg";
 
-// Lista de ferramentas do ecossistema de IA
-const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.org"];
-
 export default function HeroSection() {
     return (
         <section
@@ -71,20 +68,6 @@ export default function HeroSection() {
                 >
                     Menos ruído, mais clareza. Conhecimento e IA acessível para todos.
                 </p>
-
-                {/* AI Tools Badge */}
-                <div className="flex items-center justify-center px-2 mb-6 sm:mb-7 md:mb-8">
-                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-full text-white font-medium transition-all duration-300 max-w-full">
-                        {AI_TOOLS.map((tool, index) => (
-                            <div key={tool} className="flex items-center gap-1.5 sm:gap-2">
-                                <span className="tracking-tight text-base sm:text-1xl">{tool}</span>
-                                {index < AI_TOOLS.length - 1 && (
-                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white/60" />
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
 
                 {/* Document Buttons - Attention Grabbing */}
                 <div
