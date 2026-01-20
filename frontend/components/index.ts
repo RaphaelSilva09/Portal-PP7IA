@@ -13,3 +13,4 @@ export { default as HeroSection } from "./HeroSection";
 export { default as HeroTitle } from "./HeroTitle";
 export { default as NewsletterCTA } from "./NewsletterCTA";
 export { default as Portal } from "./Portal";
+export { default as QuemSomosContent } from "./QuemSomosContent";

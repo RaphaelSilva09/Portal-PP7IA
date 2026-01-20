@@ -407,15 +407,17 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             {!isLoginMode && (
                                 <div className="space-y-2 pt-1">
                                     <div className="space-y-2">
-                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                        <label
+                                            className="flex items-center gap-2 cursor-pointer group"
+                                            onClick={() => {
+                                                const newValue = !acceptEmailUpdates;
+                                                setAcceptEmailUpdates(newValue);
+                                                if (errors.consent && (newValue || acceptWhatsAppUpdates)) {
+                                                    setErrors(prev => ({ ...prev, consent: undefined }));
+                                                }
+                                            }}
+                                        >
                                             <div
-                                                onClick={() => {
-                                                    const newValue = !acceptEmailUpdates;
-                                                    setAcceptEmailUpdates(newValue);
-                                                    if (errors.consent && (newValue || acceptWhatsAppUpdates)) {
-                                                        setErrors(prev => ({ ...prev, consent: undefined }));
-                                                    }
-                                                }}
                                                 className={`w-4 h-4 min-w-[1rem] min-h-[1rem] rounded border border-text-secondary flex items-center justify-center cursor-pointer transition-colors group-hover:border-text-primary ${
                                                     acceptEmailUpdates ? "bg-text-secondary" : "bg-transparent"
                                                 }`}
@@ -427,15 +429,17 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                             </span>
                                         </label>
 
-                                        <label className="flex items-center gap-2 cursor-pointer group">
+                                        <label
+                                            className="flex items-center gap-2 cursor-pointer group"
+                                            onClick={() => {
+                                                const newValue = !acceptWhatsAppUpdates;
+                                                setAcceptWhatsAppUpdates(newValue);
+                                                if (errors.consent && (newValue || acceptEmailUpdates)) {
+                                                    setErrors(prev => ({ ...prev, consent: undefined }));
+                                                }
+                                            }}
+                                        >
                                             <div
-                                                onClick={() => {
-                                                    const newValue = !acceptWhatsAppUpdates;
-                                                    setAcceptWhatsAppUpdates(newValue);
-                                                    if (errors.consent && (newValue || acceptEmailUpdates)) {
-                                                        setErrors(prev => ({ ...prev, consent: undefined }));
-                                                    }
-                                                }}
                                                 className={`w-4 h-4 min-w-[1rem] min-h-[1rem] rounded border border-text-secondary flex items-center justify-center cursor-pointer transition-colors group-hover:border-text-primary ${
                                                     acceptWhatsAppUpdates ? "bg-text-secondary" : "bg-transparent"
                                                 }`}

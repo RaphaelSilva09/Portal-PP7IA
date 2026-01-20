@@ -4,9 +4,6 @@ import { ArrowRight, FileText } from "lucide-react";
 import HeroTitle from "./HeroTitle";
 import TopoSvg from "@/public/topo.svg";
 
-// Lista de ferramentas do ecossistema de IA
-const AI_TOOLS = ["Perplexity", "ChatGPT", "Gemini", "Claude", "Grok", "Manus", "Adapta.org"];
-
 export default function HeroSection() {
     return (
         <section
@@ -44,7 +41,7 @@ export default function HeroSection() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-green-500 text-sm font-medium">Última atualização: 14.01.2025</span>
+                    <span className="text-green-500 text-sm font-medium">Última atualização: 21.01.2026 • Versão Beta 001</span>
                 </a>
 
                 {/* Main Title */}
@@ -61,7 +58,7 @@ export default function HeroSection() {
                     className="text-lg sm:text-xl md:text-2xl text-brand-blue font-medium mb-3 sm:mb-4 md:mb-5 animate-fade-in-up"
                     style={{ animationDelay: "0.2s" }}
                 >
-                    Para Líderes, Inovadores e Profissionais Estratégicos
+                    Para Líderes, inovadores, profissionais e iniciantes
                 </p>
 
                 {/* Description */}
