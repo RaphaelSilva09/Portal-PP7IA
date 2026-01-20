@@ -61,7 +61,7 @@ export default function HeroSection() {
                     className="text-lg sm:text-xl md:text-2xl text-brand-blue font-medium mb-3 sm:mb-4 md:mb-5 animate-fade-in-up"
                     style={{ animationDelay: "0.2s" }}
                 >
-                    Para Líderes, Inovadores e Profissionais Estratégicos
+                    Para Líderes, inovadores, profissionais e iniciantes
                 </p>
 
                 {/* Description */}
