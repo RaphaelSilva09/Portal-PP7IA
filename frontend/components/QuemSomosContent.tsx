@@ -65,6 +65,9 @@ export default function QuemSomosContent() {
                                 <span className="text-brand-blue font-semibold">40+ anos de liderança executiva</span> com{" "}
                                 <span className="text-brand-purple font-semibold">7 inteligências artificiais</span>
                             </p>
+                            <p className="text-gray-400 text-base sm:text-xl max-w-2xl mx-auto tracking-tight px-4 mt-4">
+                                Conteúdo organizado em 7 blocos principais, publicando só o que foi testado e funciona
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -122,9 +125,17 @@ export default function QuemSomosContent() {
                                 {/* Title + Description */}
                                 <div className="text-center md:text-left">
                                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">As 7 IAs parceiras</h2>
-                                    <p className="text-gray-400 text-base sm:text-lg tracking-tight">
+                                    <p className="text-gray-400 text-base sm:text-lg tracking-tight mb-2">
                                         A IA amplifica; o julgamento editorial é humano.
                                     </p>
+                                    <a
+                                        href="/Resumo-7IAS-e-plataformas-que-usamos.pdf"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-cyan-400 text-sm sm:text-base tracking-tight underline md:no-underline md:hover:underline hover:text-cyan-300 transition-colors duration-200"
+                                    >
+                                        Saiba mais sobre os modelos usados
+                                    </a>
                                 </div>
                             </div>
 
