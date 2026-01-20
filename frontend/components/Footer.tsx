@@ -14,7 +14,7 @@ const socialLinks = [
 
 // 7 links legais/informacionais
 const legalLinks = [
-    { label: "Termos de Uso", href: "#termos" },
+    { label: "Termos de Uso", href: "/PP7IAS_Disclosures_Legal_Compliance.pdf" },
     { label: "Privacidade", href: "#privacidade" },
     { label: "Cookies", href: "#cookies" },
     { label: "FAQ", href: "#faq" },
