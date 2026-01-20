@@ -17,7 +17,7 @@ const miniLivros = [
         pdfUrl: "/mini-livros/002.pdf",
         date: "13/10/2025",
         readTime: "14 min",
-        htmlAvailable: true,
+        htmlAvailable: false,
         pdfAvailable: true,
     },
     {
