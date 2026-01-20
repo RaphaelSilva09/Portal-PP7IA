@@ -117,7 +117,7 @@ export const authorSections: AuthorSection[] = [
                         <span className="text-brand-purple text-xl leading-none">•</span>
                         <span className="text-base">
                             <span className="text-white font-medium">Propósito:</span> Deixar um legado de conhecimento
-                            para filhos, netos e novos talentos.
+                            para filhos, netos, novas gerações e quem mais tiver interesse.
                         </span>
                     </li>
                 </ul>
