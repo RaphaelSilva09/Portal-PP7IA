@@ -10,8 +10,8 @@ const navItems = [
     { label: "Quem Somos", href: "/#quemsomos" },
     { label: "O Autor", href: "/#autor" },
     { label: "Propósito", href: "/#proposito" },
-    { label: "Divulgação", href: "/#divulgacao" },
-    { label: "Instruções", href: "/#instrucoes" },
+    { label: "Divulgação", href: "/PP7IAS_Disclosures_Legal_Compliance.pdf", isExternal: true },
+    { label: "Instruções", href: "/PP7IAS_Instrucoes_Rapidas.pdf", isExternal: true },
     { label: "Ensinar", href: "/#ensinar" },
     { label: "Pesquisar", href: "#", isModal: true },
 ];
@@ -71,6 +71,16 @@ export default function Navbar() {
                                 >
                                     {item.label}
                                 </button>
+                            ) : item.isExternal ? (
+                                <a
+                                    key={item.label}
+                                    href={item.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                >
+                                    {item.label}
+                                </a>
                             ) : (
                                 <a
                                     key={item.label}
@@ -139,6 +149,19 @@ export default function Navbar() {
                                 <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
                                 <span className="font-medium">{item.label}</span>
                             </button>
+                        ) : item.isExternal ? (
+                            <a
+                                key={item.label}
+                                href={item.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                                <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
+                                <span className="font-medium">{item.label}</span>
+                            </a>
                         ) : (
                             <a
                                 key={item.label}
