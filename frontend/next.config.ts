@@ -3,10 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Empty turbopack config to acknowledge Turbopack and silence the error
   // while we continue using webpack for SVG handling
-  turbopack: {
-    // Set workspace root to silence the lockfile warning
-    root: '/home/baptela/pp/Portal-PP7IA/frontend',
-  },
+  turbopack: {},
   
   webpack(config) {
     // Grab the existing rule that handles SVG imports
