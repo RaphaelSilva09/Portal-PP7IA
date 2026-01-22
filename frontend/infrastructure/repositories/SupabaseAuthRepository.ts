@@ -58,6 +58,17 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 throw new UnknownAuthError("Falha ao criar usuário");
             }
 
+            // IMPORTANTE: Quando o Supabase tem confirmação de email habilitada
+            // e o usuário já existe, ele retorna success mas com:
+            // - session = null
+            // - user.identities = [] (array vazio)
+            // Isso indica que o usuário já existe, não que precisa confirmar email
+            const userAlreadyExists = authData.user.identities && authData.user.identities.length === 0;
+
+            if (userAlreadyExists) {
+                throw new UserAlreadyExistsError();
+            }
+
             // Se session é null, significa que confirmação de email está habilitada
             const requiresEmailConfirmation = !authData.session;
 
