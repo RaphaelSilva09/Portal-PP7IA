@@ -199,35 +199,31 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Bloqueia login - funcionalidade em desenvolvimento
+        if (mode === "login") {
+            return;
+        }
+
         if (!validateForm()) {
             return;
         }
 
         try {
-            if (mode === "login") {
-                await signIn({
-                    email: formData.email,
-                    password: formData.senha,
-                });
-                // Login bem-sucedido: fechar modal
-                onClose();
-            } else {
-                const result = await signUp({
-                    email: formData.email,
-                    password: formData.senha,
-                    nome: formData.nome,
-                    celular: formData.celular,
-                    acceptEmailUpdates,
-                    acceptWhatsAppUpdates,
-                });
+            const result = await signUp({
+                email: formData.email,
+                password: formData.senha,
+                nome: formData.nome,
+                celular: formData.celular,
+                acceptEmailUpdates,
+                acceptWhatsAppUpdates,
+            });
 
-                // Cadastro bem-sucedido: verificar se precisa confirmar email
-                if (result.emailConfirmationRequired) {
-                    setSuccessMessage("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta.");
-                } else {
-                    // Sessão criada automaticamente, fechar modal
-                    onClose();
-                }
+            // Cadastro bem-sucedido: verificar se precisa confirmar email
+            if (result.emailConfirmationRequired) {
+                setSuccessMessage("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta.");
+            } else {
+                // Sessão criada automaticamente, fechar modal
+                onClose();
             }
         } catch (error) {
             // Erro já está sendo tratado pelo hook useAuth
@@ -300,6 +296,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                         <div className="mx-4 mb-2 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-start gap-2">
                             <Check className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
                             <p className="text-xs text-green-300">{successMessage}</p>
+                        </div>
+                    )}
+
+                    {/* Warning Message - Login em Desenvolvimento */}
+                    {isLoginMode && (
+                        <div className="mx-4 mb-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-xs text-yellow-300">
+                                Funcionalidade de login em desenvolvimento. Por enquanto, apenas o cadastro está disponível.
+                            </p>
                         </div>
                     )}
 
@@ -458,14 +464,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={isLoading || isLoginMode}
                                 className={`w-full px-5 py-2.5 ${
                                     isLoginMode
                                         ? "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
                                         : "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
                                 } text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                             >
-                                {isLoading ? "Processando..." : submitButtonText}
+                                {isLoading ? "Processando..." : isLoginMode ? "Em breve..." : submitButtonText}
                             </button>
 
                             {/* Toggle Mode */}
