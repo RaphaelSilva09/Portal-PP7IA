@@ -89,6 +89,12 @@ CREATE TRIGGER set_updated_at
 -- Habilita RLS na tabela users
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
+-- Remove policies existentes (idempotência)
+DROP POLICY IF EXISTS "Users can read own data" ON public.users;
+DROP POLICY IF EXISTS "Users can update own data" ON public.users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can delete own data" ON public.users;
+
 -- Policy: Usuários podem ler seus próprios dados
 CREATE POLICY "Users can read own data"
     ON public.users
