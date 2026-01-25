@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Globe } from "lucide-react";
+import { FileText, Globe, Sparkles } from "lucide-react";
 import NewsletterCTA from "./NewsletterCTA";
 
 /**
@@ -55,13 +55,19 @@ export default function BentoGridBiblioteca() {
 
                         {/* Content */}
                         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-8 sm:p-12">
-                            {/* Badge */}
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full mb-6">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
-                                </span>
-                                <span className="text-purple-500 text-sm font-medium">Última Atualização</span>
+                            {/* Badges */}
+                            <div className="flex items-center gap-2 mb-6">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
+                                    </span>
+                                    <span className="text-purple-500 text-sm font-medium">Última Atualização</span>
+                                </div>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                                    <span className="text-emerald-400 text-sm font-medium">Gratuito</span>
+                                </div>
                             </div>
 
                             {/* Biblioteca Number */}
@@ -86,8 +92,6 @@ export default function BentoGridBiblioteca() {
                                 {latestItem.htmlAvailable ? (
                                     <a
                                         href={latestItem.htmlUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <Globe className="w-5 h-5" />
@@ -105,8 +109,6 @@ export default function BentoGridBiblioteca() {
                                 {latestItem.pdfAvailable ? (
                                     <a
                                         href={latestItem.pdfUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 hover:border-pink-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <FileText className="w-5 h-5" />
@@ -155,8 +157,6 @@ export default function BentoGridBiblioteca() {
                                     {item.htmlAvailable ? (
                                         <a
                                             href={item.htmlUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <Globe className="w-4 h-4" />
@@ -174,8 +174,6 @@ export default function BentoGridBiblioteca() {
                                     {item.pdfAvailable ? (
                                         <a
                                             href={item.pdfUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 hover:border-pink-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <FileText className="w-4 h-4" />

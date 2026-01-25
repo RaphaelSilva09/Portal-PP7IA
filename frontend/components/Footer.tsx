@@ -12,15 +12,10 @@ const socialLinks = [
     { icon: Mail, href: "#", label: "Email" },
 ];
 
-// 7 links legais/informacionais
+// Links legais funcionais
 const legalLinks = [
     { label: "Termos de Uso", href: "/PP7IAS_Disclosures_Legal_Compliance.pdf" },
-    { label: "Privacidade", href: "#privacidade" },
-    { label: "Cookies", href: "#cookies" },
-    { label: "FAQ", href: "#faq" },
-    { label: "Suporte", href: "#suporte" },
-    { label: "API", href: "#api" },
-    { label: "Status", href: "#status" },
+    { label: "Contato", href: "mailto:contato@pp7ias.com" },
 ];
 
 export default function Footer() {
@@ -65,7 +60,7 @@ export default function Footer() {
                     <div>
                         <h4 className="text-white font-semibold mb-4">Legal</h4>
                         <ul className="space-y-2">
-                            {legalLinks.slice(0, 4).map(item => (
+                            {legalLinks.map(item => (
                                 <li key={item.label}>
                                     <a
                                         href={item.href}

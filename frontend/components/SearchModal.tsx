@@ -1,7 +1,8 @@
 "use client";
 
-import { BookOpen, ChevronDown, ChevronUp, FileText, Library, Search, Sparkles, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { BookOpen, ChevronDown, ChevronUp, FileText, Globe, Library, Search, Sparkles, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ContentItem, searchContent } from "../data/content";
 
 interface SearchModalProps {
     isOpen: boolean;
@@ -10,10 +11,108 @@ interface SearchModalProps {
 
 type FilterType = "all" | "newsletter" | "mini-livro" | "biblioteca";
 
+/**
+ * Hook para debounce de valores
+ */
+function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
+
+/**
+ * Componente de card de resultado da busca
+ */
+function SearchResultCard({ item, onClose }: { item: ContentItem; onClose: () => void }) {
+    const typeConfig = {
+        newsletter: {
+            color: "blue",
+            bgColor: "bg-blue-500/10",
+            borderColor: "border-blue-500/20",
+            textColor: "text-blue-400",
+            label: "Newsletter",
+        },
+        "mini-livro": {
+            color: "green",
+            bgColor: "bg-green-500/10",
+            borderColor: "border-green-500/20",
+            textColor: "text-green-400",
+            label: "Mini-Livro",
+        },
+        biblioteca: {
+            color: "purple",
+            bgColor: "bg-purple-500/10",
+            borderColor: "border-purple-500/20",
+            textColor: "text-purple-400",
+            label: "Biblioteca",
+        },
+    };
+
+    const config = typeConfig[item.type];
+
+    return (
+        <div className={`${config.bgColor} border ${config.borderColor} rounded-xl p-4 hover:bg-white/10 transition-all duration-200`}>
+            {/* Badge de tipo */}
+            <span className={`inline-block px-2 py-1 ${config.bgColor} ${config.textColor} text-xs font-medium rounded-md mb-2`}>
+                {config.label}
+            </span>
+
+            {/* Título */}
+            <h4 className="text-white font-semibold text-sm mb-1 line-clamp-2">{item.title}</h4>
+
+            {/* Data */}
+            <p className="text-text-secondary text-xs mb-3">{item.date}</p>
+
+            {/* Botões de ação */}
+            <div className="flex gap-2">
+                {item.htmlAvailable && item.htmlUrl && (
+                    <a
+                        href={item.htmlUrl}
+                        onClick={onClose}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 ${config.bgColor} hover:bg-white/10 border ${config.borderColor} rounded-lg text-white text-xs font-medium transition-all duration-200`}
+                    >
+                        <Globe className="w-3.5 h-3.5" />
+                        <span>HTML</span>
+                    </a>
+                )}
+                {item.pdfAvailable && item.pdfUrl && (
+                    <a
+                        href={item.pdfUrl}
+                        onClick={onClose}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 ${config.bgColor} hover:bg-white/10 border ${config.borderColor} rounded-lg text-white text-xs font-medium transition-all duration-200`}
+                    >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>PDF</span>
+                    </a>
+                )}
+            </div>
+        </div>
+    );
+}
+
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState<FilterType>("all");
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+    // Debounce da query de busca (300ms)
+    const debouncedQuery = useDebounce(searchQuery, 300);
+
+    // Resultados da busca usando useMemo para performance
+    const searchResults = useMemo(() => {
+        if (debouncedQuery.length < 2) return [];
+        return searchContent(debouncedQuery, activeFilter);
+    }, [debouncedQuery, activeFilter]);
 
     // Desabilitar scroll do body quando modal está aberto (iOS-friendly)
     useEffect(() => {
@@ -34,6 +133,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         }
     }, [isOpen]);
 
+    // Limpar busca ao fechar modal
+    useEffect(() => {
+        if (!isOpen) {
+            setSearchQuery("");
+            setActiveFilter("all");
+        }
+    }, [isOpen]);
+
     const filters = [
         { id: "all" as FilterType, label: "Todos", icon: Sparkles, color: "blue" },
         { id: "newsletter" as FilterType, label: "Newsletter", icon: FileText, color: "purple" },
@@ -41,21 +148,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         { id: "biblioteca" as FilterType, label: "Biblioteca", icon: Library, color: "pink" },
     ];
 
-    const handleSearch = () => {
-        if (searchQuery.length >= 3) {
-            // TODO: Implementar lógica de pesquisa
-            console.log("Pesquisando:", searchQuery, "Filtro:", activeFilter);
-        }
-    };
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setSearchQuery(value);
-
-        // Auto-search após 3 caracteres
-        if (value.length >= 3) {
-            // TODO: Implementar debounce e pesquisa automática
-        }
+        setSearchQuery(e.target.value);
     };
 
     if (!isOpen) return null;
@@ -98,13 +192,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                 className="w-full px-6 py-4 pr-14 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-gray-500 outline-none focus:outline-none focus:ring-0 focus:border-white focus:bg-white/[0.07] transition-all duration-200"
                                 autoFocus
                             />
-                            <button
-                                onClick={handleSearch}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-linear-to-r from-blue-500 to-purple-600 rounded-xl hover:scale-105 active:scale-95 transition-transform duration-200"
-                                aria-label="Pesquisar"
-                            >
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-linear-to-r from-blue-500 to-purple-600 rounded-xl">
                                 <Search className="w-5 h-5 text-white" />
-                            </button>
+                            </div>
                         </div>
 
                         {/* Bento Box Layout - Filtros + Resultados */}
@@ -147,7 +237,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                                 key={filter.id}
                                                 onClick={() => {
                                                     setActiveFilter(filter.id);
-                                                    setIsFiltersOpen(false); // Fechar dropdown no mobile após seleção
+                                                    setIsFiltersOpen(false);
                                                 }}
                                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                                                     isActive
@@ -176,26 +266,41 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                         </div>
                                         <h3 className="text-2xl font-bold text-white mb-3">Comece a pesquisar</h3>
                                         <p className="text-text-secondary max-w-md">
-                                            Digite pelo menos 3 caracteres para encontrar newsletters, mini-livros e
+                                            Digite pelo menos 2 caracteres para encontrar newsletters, mini-livros e
                                             conteúdos da biblioteca.
                                         </p>
                                     </div>
-                                ) : searchQuery.length < 3 ? (
+                                ) : searchQuery.length < 2 ? (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center py-12 overflow-hidden">
                                         <div className="w-16 h-16 mb-4 rounded-2xl bg-yellow-500/20 flex items-center justify-center">
                                             <Sparkles className="w-8 h-8 text-yellow-400" />
                                         </div>
                                         <p className="text-text-secondary">
-                                            Digite mais {3 - searchQuery.length} caractere(s) para iniciar a pesquisa
+                                            Digite mais {2 - searchQuery.length} caractere(s) para iniciar a pesquisa
+                                        </p>
+                                    </div>
+                                ) : searchResults.length === 0 ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-12 overflow-hidden">
+                                        <div className="w-16 h-16 mb-4 rounded-2xl bg-gray-500/20 flex items-center justify-center">
+                                            <Search className="w-8 h-8 text-gray-400" />
+                                        </div>
+                                        <h3 className="text-lg font-bold text-white mb-2">Nenhum resultado</h3>
+                                        <p className="text-text-secondary max-w-md mb-4">
+                                            Não encontramos resultados para "{searchQuery}".
+                                        </p>
+                                        <p className="text-sm text-emerald-400">
+                                            Mais conteúdo em breve!
                                         </p>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col h-full min-h-0">
                                         <div className="flex items-center justify-between mb-6 shrink-0">
                                             <h3 className="text-lg font-bold text-white">
-                                                Resultados para "{searchQuery}"
+                                                Resultados para "{debouncedQuery}"
                                             </h3>
-                                            <span className="text-sm text-text-secondary">0 resultados</span>
+                                            <span className="text-sm text-text-secondary">
+                                                {searchResults.length} resultado{searchResults.length !== 1 ? "s" : ""}
+                                            </span>
                                         </div>
 
                                         {/* Grid de Resultados com Scroll Interno */}
@@ -204,13 +309,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                             style={{ WebkitOverflowScrolling: "touch" }}
                                         >
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                {/* TODO: Mapear resultados reais aqui */}
-                                                {/* Placeholder para demonstração */}
-                                                <div className="flex items-center justify-center py-12 col-span-full">
-                                                    <p className="text-text-secondary">
-                                                        Nenhum resultado encontrado para esta pesquisa.
-                                                    </p>
-                                                </div>
+                                                {searchResults.map(item => (
+                                                    <SearchResultCard key={item.id} item={item} onClose={onClose} />
+                                                ))}
                                             </div>
                                         </div>
                                     </div>

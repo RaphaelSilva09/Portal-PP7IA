@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
+import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, Sparkles, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../presentation/hooks/useAuth";
 import Portal from "./Portal";
@@ -293,20 +293,42 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
                     {/* Success Message - Email Confirmation */}
                     {successMessage && (
-                        <div className="mx-4 mb-2 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-start gap-2">
-                            <Check className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
-                            <p className="text-xs text-green-300">{successMessage}</p>
+                        <div className="mx-4 mb-2 p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+                            <div className="flex items-start gap-2 mb-3">
+                                <Check className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-medium text-green-300">{successMessage}</p>
+                                    <p className="text-xs text-green-300/70 mt-1">
+                                        Enquanto isso, explore nosso conteúdo gratuito.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="w-full px-4 py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-lg text-green-300 text-sm font-medium transition-all duration-200"
+                            >
+                                Explorar Conteúdo
+                            </button>
                         </div>
                     )}
 
                     {/* Warning Message - Login em Desenvolvimento */}
                     {isLoginMode && (
-                        <div className="mx-4 mb-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-2">
-                            <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-                            <p className="text-xs text-yellow-300">
-                                Funcionalidade de login em desenvolvimento. Por enquanto, apenas o cadastro está disponível.
-                            </p>
-                        </div>
+                        <>
+                            <div className="mx-4 mb-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-2">
+                                <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-yellow-300">
+                                    Funcionalidade de login em desenvolvimento. Por enquanto, apenas o cadastro está disponível.
+                                </p>
+                            </div>
+                            <div className="mx-4 mb-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-2">
+                                <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-blue-300">
+                                    Todo o conteúdo do portal é gratuito e acessível sem login. O cadastro permite receber notificações de novos conteúdos.
+                                </p>
+                            </div>
+                        </>
                     )}
 
                     {/* Form Container com scroll interno */}

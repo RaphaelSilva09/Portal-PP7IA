@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Globe } from "lucide-react";
+import { FileText, Globe, Sparkles } from "lucide-react";
 import NewsletterCTA from "./NewsletterCTA";
 
 /**
@@ -72,13 +72,19 @@ export default function BentoGridNewsletter() {
 
                         {/* Content */}
                         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-8 sm:p-12">
-                            {/* Badge */}
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full mb-6">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                                </span>
-                                <span className="text-green-500 text-sm font-medium">Última Edição</span>
+                            {/* Badges */}
+                            <div className="flex items-center gap-2 mb-6">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                                    </span>
+                                    <span className="text-green-500 text-sm font-medium">Última Edição</span>
+                                </div>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                                    <span className="text-emerald-400 text-sm font-medium">Gratuito</span>
+                                </div>
                             </div>
 
                             {/* Newsletter Number */}
@@ -101,8 +107,6 @@ export default function BentoGridNewsletter() {
                                 {latestNewsletter.htmlAvailable ? (
                                     <a
                                         href={latestNewsletter.htmlUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/20 hover:bg-brand-blue/30 border border-brand-blue/30 hover:border-brand-blue/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <Globe className="w-5 h-5" />
@@ -120,8 +124,6 @@ export default function BentoGridNewsletter() {
                                 {latestNewsletter.pdfAvailable ? (
                                     <a
                                         href={latestNewsletter.pdfUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/30 hover:border-brand-purple/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <FileText className="w-5 h-5" />
@@ -167,8 +169,6 @@ export default function BentoGridNewsletter() {
                                     {newsletter.htmlAvailable ? (
                                         <a
                                             href={newsletter.htmlUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 hover:border-brand-blue/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <Globe className="w-4 h-4" />
@@ -186,8 +186,6 @@ export default function BentoGridNewsletter() {
                                     {newsletter.pdfAvailable ? (
                                         <a
                                             href={newsletter.pdfUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/20 hover:border-brand-purple/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <FileText className="w-4 h-4" />
