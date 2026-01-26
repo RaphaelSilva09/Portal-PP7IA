@@ -1,8 +1,8 @@
 "use client";
 
+import TopoSvg from "@/public/topo.svg";
 import { ArrowRight, FileText } from "lucide-react";
 import HeroTitle from "./HeroTitle";
-import TopoSvg from "@/public/topo.svg";
 
 export default function HeroSection() {
     return (
@@ -14,8 +14,9 @@ export default function HeroSection() {
             <div
                 className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.05]"
                 style={{
-                    maskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 10%, transparent 100%)',
-                    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 50%, transparent 100%)',
+                    maskImage: "linear-gradient(to bottom, transparent 0%, black 40%, black 10%, transparent 100%)",
+                    WebkitMaskImage:
+                        "linear-gradient(to bottom, transparent 0%, black 40%, black 50%, transparent 100%)",
                 }}
             >
                 <TopoSvg className="w-full h-full" preserveAspectRatio="xMidYMax slice" />
@@ -41,7 +42,9 @@ export default function HeroSection() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-green-500 text-sm font-medium">Última atualização: 25.01.2026 • Versão Beta 001</span>
+                    <span className="text-green-500 text-sm font-medium">
+                        Última atualização: 25.01.2026 • Versão Beta 002
+                    </span>
                 </a>
 
                 {/* Main Title */}
