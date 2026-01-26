@@ -34,7 +34,7 @@ export default function Footer() {
                         >
                             PP7+IAS
                         </a>
-                        <p className="text-text-secondary text-base sm:text-2xl max-w-md mb-6">
+                        <p className="text-text-secondary text-sm max-w-md mb-6">
                             Menos ruído, mais clareza. Conhecimento e IA acessível para todos.
                         </p>
 
@@ -57,14 +57,14 @@ export default function Footer() {
                     </div>
 
                     {/* Legal */}
-                    <div>
-                        <h4 className="text-white font-semibold mb-4">Legal</h4>
-                        <ul className="space-y-2">
+                    <div className="flex flex-col w-auto min-w-fit">
+                        <h4 className="text-white font-semibold text-base mb-6 uppercase tracking-wide">Legal</h4>
+                        <ul className="space-y-3">
                             {legalLinks.map(item => (
                                 <li key={item.label}>
                                     <a
                                         href={item.href}
-                                        className="text-text-secondary hover:text-white transition-colors duration-200 text-base sm:text-2xl"
+                                        className="text-text-secondary hover:text-white transition-colors duration-200 text-sm whitespace-nowrap"
                                     >
                                         {item.label}
                                     </a>
@@ -76,7 +76,7 @@ export default function Footer() {
 
                 {/* Bottom Section */}
                 <div className="flex flex-col items-center justify-center gap-4 pt-8 border-t border-border-glass">
-                    <p className="text-text-secondary text-base sm:text-2xl text-center">
+                    <p className="text-text-secondary text-sm text-center">
                         © {currentYear} PP7+IAS. Todos os direitos reservados.
                     </p>
                 </div>
