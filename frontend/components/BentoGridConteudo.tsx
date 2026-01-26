@@ -105,7 +105,7 @@ export default function BentoGrid() {
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
                                 <Sparkles className="w-4 h-4 text-brand-blue" aria-hidden="true" />
                                 <span className="text-xs font-medium text-gray-300 tracking-tight">
-                                    Última atualização: 14.01.2025
+                                    Última atualização: 25.01.2026
                                 </span>
                             </div>
                         </div>

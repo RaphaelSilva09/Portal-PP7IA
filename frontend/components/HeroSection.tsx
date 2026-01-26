@@ -41,7 +41,7 @@ export default function HeroSection() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-green-500 text-sm font-medium">Última atualização: 21.01.2026 • Versão Beta 001</span>
+                    <span className="text-green-500 text-sm font-medium">Última atualização: 25.01.2026 • Versão Beta 001</span>
                 </a>
 
                 {/* Main Title */}
@@ -77,8 +77,6 @@ export default function HeroSection() {
                     {/* Carta Boas-vindas */}
                     <a
                         href="/boas-vindas.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="group relative w-auto sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 bg-brand-purple/10 border border-brand-purple/30 hover:bg-brand-purple/20 hover:border-brand-purple/50 rounded-2xl transition-all duration-300 touch-target hover:scale-105 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
                     >
                         {/* Pulse ring effect */}
@@ -97,8 +95,6 @@ export default function HeroSection() {
                     {/* Carta ao Leitor */}
                     <a
                         href="/CARTA-AO-LEITOR-COMPLETA.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="group relative w-auto sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 bg-brand-purple/10 border border-brand-purple/30 hover:bg-brand-purple/20 hover:border-brand-purple/50 rounded-2xl transition-all duration-300 touch-target hover:scale-105 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
                     >
                         {/* Pulse ring effect */}
@@ -117,8 +113,6 @@ export default function HeroSection() {
                     {/* Por que o 7? */}
                     <a
                         href="/Pp7ia-pq 7.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="group relative w-auto sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 bg-brand-purple/10 border border-brand-purple/30 hover:bg-brand-purple/20 hover:border-brand-purple/50 rounded-2xl transition-all duration-300 touch-target hover:scale-105 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
                     >
                         {/* Pulse ring effect */}
