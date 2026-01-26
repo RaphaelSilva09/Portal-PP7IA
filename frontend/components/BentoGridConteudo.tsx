@@ -117,7 +117,8 @@ export default function BentoGrid() {
                     ============================================ */}
 
                     {/* Card: Especial da Semana */}
-                    <div
+                    <a
+                        href="/especial-semana"
                         id="especial"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] block min-h-80"
                         style={{ scrollMarginTop: "100px" }}
@@ -128,10 +129,14 @@ export default function BentoGrid() {
                                 <Star className="w-8 h-8 text-yellow-400" />
                             </div>
 
-                            {/* Badge Em Breve */}
+                            {/* Badge Novo */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
-                                    <span className="text-xs font-medium text-yellow-400">Em breve</span>
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" />
+                                    </span>
+                                    <span className="text-xs font-medium text-yellow-400">Novo</span>
                                 </span>
                             </div>
 
@@ -148,7 +153,7 @@ export default function BentoGrid() {
                             {/* Accent Line */}
                             <div className="absolute bottom-0 left-0 right-0 h-2 bg-linear-to-r from-yellow-500 to-amber-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                         </div>
-                    </div>
+                    </a>
 
                     {/* Card: Radar de Oportunidades */}
                     <div
