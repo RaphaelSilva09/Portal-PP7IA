@@ -130,8 +130,6 @@ export default function QuemSomosContent() {
                                     </p>
                                     <a
                                         href="/Resumo-7IAS-e -plataformas-que -usamos .pdf"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="text-cyan-400 text-sm sm:text-base tracking-tight underline md:no-underline md:hover:underline hover:text-cyan-300 transition-colors duration-200"
                                     >
                                         Saiba mais sobre os modelos usados
