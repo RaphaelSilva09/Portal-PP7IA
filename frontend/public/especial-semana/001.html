@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PP7+IAS NEWS | ESPECIAL DA SEMANA - Brasil no Radar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            line-height: 1.7;
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        /* HEADER */
+        .header {
+            text-align: center;
+            padding: 25px 0;
+            margin-bottom: 20px;
+        }
+        .header .logo {
+            font-size: 20px;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+        .header .especial-tag {
+            background: linear-gradient(90deg, #ffd700 0%, #ff9500 100%);
+            color: #1a1a2e;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .header h1 {
+            font-size: 26px;
+            color: #fff;
+            line-height: 1.3;
+            margin-bottom: 10px;
+        }
+        .header h1 span {
+            color: #51cf66;
+        }
+        .header .subtitle {
+            font-size: 14px;
+            color: #888;
+        }
+        .header .date {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        /* HERO STATS */
+        .hero-stats {
+            background: linear-gradient(135deg, rgba(81, 207, 102, 0.2) 0%, rgba(0, 212, 255, 0.1) 100%);
+            border: 1px solid rgba(81, 207, 102, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .hero-stats .big-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #51cf66;
+            text-shadow: 0 0 30px rgba(81, 207, 102, 0.5);
+        }
+        .hero-stats .big-label {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+        .hero-stats .sub-stats {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .hero-stats .sub-stat {
+            text-align: center;
+        }
+        .hero-stats .sub-stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .hero-stats .sub-stat-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
+        /* INTRO TEXT */
+        .intro-text {
+            font-size: 15px;
+            color: #ccc;
+            margin-bottom: 25px;
+            padding: 0 5px;
+        }
+        .intro-text strong {
+            color: #fff;
+        }
+        .intro-text .highlight {
+            color: #51cf66;
+            font-weight: bold;
+        }
+        
+        /* SECTION */
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+        .section-header .icon {
+            font-size: 24px;
+        }
+        .section-header h2 {
+            font-size: 18px;
+            color: #fff;
+        }
+        .section-header h2 span {
+            color: #00d4ff;
+        }
+        
+        /* DEAL CARD */
+        .deal-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #51cf66;
+            position: relative;
+            overflow: hidden;
+        }
+        .deal-card.highlight-card {
+            background: linear-gradient(135deg, rgba(81, 207, 102, 0.15) 0%, rgba(0, 212, 255, 0.05) 100%);
+            border-left-color: #ffd700;
+        }
+        .deal-card .deal-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ffd700;
+            color: #1a1a2e;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+        .deal-card .deal-tag.ma {
+            background: #ff6b6b;
+            color: #fff;
+        }
+        .deal-card .deal-tag.ipo {
+            background: #845ef7;
+            color: #fff;
+        }
+        .deal-card .deal-tag.seed {
+            background: #51cf66;
+            color: #1a1a2e;
+        }
+        .deal-card .company-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        .deal-card .company-desc {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        .deal-card .deal-amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #51cf66;
+            margin-bottom: 5px;
+        }
+        .deal-card .deal-details {
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 12px;
+        }
+        .deal-card .deal-insight {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid #ffd700;
+            padding: 10px;
+            font-size: 12px;
+            color: #ffd700;
+            border-radius: 0 8px 8px 0;
+        }
+        .deal-card .brazil-flag {
+            font-size: 16px;
+            margin-left: 5px;
+        }
+        
+        /* TIMELINE */
+        .timeline {
+            position: relative;
+            padding-left: 25px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #51cf66 0%, #00d4ff 50%, #845ef7 100%);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -19px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: #51cf66;
+            border-radius: 50%;
+            border: 2px solid #1a1a2e;
+        }
+        .timeline-item .year {
+            font-size: 11px;
+            color: #51cf66;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .timeline-item .event {
+            font-size: 13px;
+            color: #ccc;
+        }
+        .timeline-item .event strong {
+            color: #fff;
+        }
+        
+        /* QUOTE BOX */
+        .quote-box {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .quote-box .quote-text {
+            font-size: 14px;
+            color: #ccc;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        .quote-box .quote-author {
+            font-size: 12px;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        
+        /* CONTEXT BOX */
+        .context-box {
+            background: linear-gradient(135deg, rgba(132, 94, 247, 0.2) 0%, rgba(0, 212, 255, 0.1) 100%);
+            border: 1px solid rgba(132, 94, 247, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .context-box .context-title {
+            font-size: 14px;
+            color: #845ef7;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .context-box .context-text {
+            font-size: 13px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        .context-box .context-link {
+            font-size: 12px;
+            color: #00d4ff;
+            text-decoration: none;
+        }
+        
+        /* INVESTOR LIST */
+        .investor-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .investor-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #ccc;
+        }
+        .investor-tag.lead {
+            background: rgba(81, 207, 102, 0.2);
+            color: #51cf66;
+            border: 1px solid rgba(81, 207, 102, 0.3);
+        }
+        
+        /* SUMMARY BOX */
+        .summary-box {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .summary-box .summary-title {
+            font-size: 14px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .summary-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .summary-box li {
+            font-size: 13px;
+            color: #ccc;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .summary-box li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+        }
+        .summary-box li strong {
+            color: #fff;
+        }
+        
+        /* CTA */
+        .cta-box {
+            text-align: center;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .cta-box .cta-text {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+        .cta-box .cta-button {
+            display: inline-block;
+            background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 20px;
+            border-top: 1px solid #333;
+            font-size: 12px;
+            color: #666;
+        }
+        .footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+        .footer .social {
+            margin-top: 10px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">PP7+IAS NEWS</div>
+        <div class="especial-tag">⭐ Especial da Semana</div>
+        <h1><span>Brasil</span> no Radar do Dinheiro Global</h1>
+        <div class="subtitle">Como startups brasileiras movimentaram bilhões em uma semana</div>
+        <div class="date">Semana de 18-24 de Janeiro de 2026</div>
+    </div>
+
+    <!-- HERO STATS -->
+    <div class="hero-stats">
+        <div class="big-number">US$ 7,6 Bi</div>
+        <div class="big-label">movimentados por founders brasileiros esta semana</div>
+        <div class="sub-stats">
+            <div class="sub-stat">
+                <div class="sub-stat-number">2</div>
+                <div class="sub-stat-label">Mega Deals</div>
+            </div>
+            <div class="sub-stat">
+                <div class="sub-stat-number">1º</div>
+                <div class="sub-stat-label">IPO BR desde 2021</div>
+            </div>
+            <div class="sub-stat">
+                <div class="sub-stat-number">+58%</div>
+                <div class="sub-stat-label">vs. Semana anterior</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="intro-text">
+        <p>Em uma semana, duas notícias sacudiram o ecossistema: a <strong>Brex foi vendida por US$ 5,15 bilhões</strong> e o <strong>PicPay anunciou IPO na Nasdaq</strong>.</p>
+        <br>
+        <p>Depois de um 2023-2024 de "inverno cripto" e valuations derretendo, <span class="highlight">o dinheiro gringo voltou a olhar para o Brasil</span>.</p>
+        <br>
+        <p>Entenda o que isso significa para founders, investidores e profissionais do setor.</p>
+    </div>
+
+    <!-- DEAL 1: BREX -->
+    <div class="section">
+        <div class="section-header">
+            <span class="icon">💰</span>
+            <h2>Os <span>Deals</span> da Semana</h2>
+        </div>
+
+        <div class="deal-card highlight-card">
+            <div class="deal-tag ma">M&A</div>
+            <div class="company-name">Brex <span class="brazil-flag">🇧🇷</span></div>
+            <div class="company-desc">Fintech de cartões corporativos • Fundada por Pedro Franceschi (brasileiro)</div>
+            <div class="deal-amount">US$ 5,15 Bi</div>
+            <div class="deal-details">
+                <strong>Comprador:</strong> Capital One (50% cash + 50% stock)<br>
+                <strong>Valuation de pico:</strong> US$ 12,3 Bi (2022)<br>
+                <strong>Queda:</strong> -58% do pico
+            </div>
+            <div class="deal-insight">
+                💡 <strong>Por que importa:</strong> Maior M&A fintech de 2026. Sinal claro de consolidação no setor. Pedro Franceschi continua como CEO.
+            </div>
+        </div>
+
+        <div class="deal-card highlight-card">
+            <div class="deal-tag ipo">IPO</div>
+            <div class="company-name">PicPay <span class="brazil-flag">🇧🇷</span></div>
+            <div class="company-desc">Super app de pagamentos • 35M+ usuários ativos</div>
+            <div class="deal-amount">US$ 434 Mi</div>
+            <div class="deal-details">
+                <strong>Valuation alvo:</strong> US$ 2,46 Bi<br>
+                <strong>Listagem:</strong> Nasdaq (ticker: PICS)<br>
+                <strong>Preço por ação:</strong> US$ 16-19
+            </div>
+            <div class="deal-insight">
+                💡 <strong>Por que importa:</strong> Primeiro IPO brasileiro nos EUA desde Nubank (2021). Janela de IPOs reabrindo para LATAM.
+            </div>
+        </div>
+    </div>
+
+    <!-- TIMELINE BREX -->
+    <div class="section">
+        <div class="section-header">
+            <span class="icon">📈</span>
+            <h2>A Jornada da <span>Brex</span></h2>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="year">2017</div>
+                <div class="event"><strong>Pedro Franceschi</strong> (22 anos) e Henrique Dubugras fundam a Brex em San Francisco</div>
+            </div>
+            <div class="timeline-item">
+                <div class="year">2018</div>
+                <div class="event">Série B de <strong>US$ 57M</strong> — Y Combinator, Ribbit Capital</div>
+            </div>
+            <div class="timeline-item">
+                <div class="year">2019</div>
+                <div class="event">Valuation atinge <strong>US$ 2,6 Bi</strong> — vira unicórnio</div>
+            </div>
+            <div class="timeline-item">
+                <div class="year">2022</div>
+                <div class="event">Pico de <strong>US$ 12,3 Bi</strong> — era do dinheiro fácil</div>
+            </div>
+            <div class="timeline-item">
+                <div class="year">2023-24</div>
+                <div class="event">Inverno: demissões, corte de custos, foco em enterprise</div>
+            </div>
+            <div class="timeline-item">
+                <div class="year">2026</div>
+                <div class="event"><strong>Exit:</strong> Capital One adquire por US$ 5,15 Bi</div>
+            </div>
+        </div>
+        
+        <div class="quote-box">
+            <div class="quote-text">"Brex inventou a combinação integrada de cartões corporativos, software de gestão de gastos e banking em uma única plataforma."</div>
+            <div class="quote-author">— Richard Fairbank, CEO da Capital One</div>
+        </div>
+    </div>
+
+    <!-- CONTEXTO GLOBAL -->
+    <div class="context-box">
+        <div class="context-title">🌍 Enquanto isso, no mundo...</div>
+        <div class="context-text">
+            A <strong>Anthropic</strong> publicou a "Constituição do Claude" — um documento de 23 mil palavras que ensina ética à IA. É a primeira big tech a reconhecer <strong>possível consciência</strong> em um modelo de IA.
+        </div>
+        <div class="context-text">
+            Isso importa para o Brasil porque define os padrões de governança que empresas brasileiras precisarão seguir ao usar IA em escala.
+        </div>
+        <a href="https://anthropic.com/news/claude-new-constitution" class="context-link" target="_blank">→ Ler a constituição completa</a>
+    </div>
+
+    <!-- MAIS DEALS -->
+    <div class="section">
+        <div class="section-header">
+            <span class="icon">🚀</span>
+            <h2>Outros <span>Deals</span> Relevantes</h2>
+        </div>
+
+        <div class="deal-card">
+            <div class="deal-tag seed">SEED</div>
+            <div class="company-name">Inferact (vLLM)</div>
+            <div class="company-desc">Infraestrutura de inferência para LLMs</div>
+            <div class="deal-amount">US$ 150 Mi</div>
+            <div class="deal-details">
+                <strong>Valuation:</strong> US$ 800M<br>
+                <strong>Lead:</strong> a16z + Lightspeed
+            </div>
+            <div class="investor-list">
+                <span class="investor-tag lead">a16z</span>
+                <span class="investor-tag lead">Lightspeed</span>
+                <span class="investor-tag">AWS (testando)</span>
+            </div>
+        </div>
+
+        <div class="deal-card">
+            <div class="deal-tag">SERIES D</div>
+            <div class="company-name">Zipline</div>
+            <div class="company-desc">Logística autônoma com drones</div>
+            <div class="deal-amount">US$ 600 Mi</div>
+            <div class="deal-details">
+                <strong>Valuation:</strong> US$ 7,6 Bi<br>
+                <strong>Entregas:</strong> 2M+ em 2025
+            </div>
+            <div class="investor-list">
+                <span class="investor-tag lead">Fidelity</span>
+                <span class="investor-tag lead">Tiger Global</span>
+                <span class="investor-tag">Baillie Gifford</span>
+            </div>
+        </div>
+
+        <div class="deal-card">
+            <div class="deal-tag">SERIES B</div>
+            <div class="company-name">Skild AI</div>
+            <div class="company-desc">"Cérebro universal" para robôs</div>
+            <div class="deal-amount">US$ 1,4 Bi</div>
+            <div class="deal-details">
+                <strong>Crescimento:</strong> 3x valuation em 7 meses<br>
+                <strong>Lead:</strong> SoftBank
+            </div>
+        </div>
+    </div>
+
+    <!-- O QUE ISSO SIGNIFICA -->
+    <div class="summary-box">
+        <div class="summary-title">🎯 O Que Isso Significa Para Você</div>
+        <ul>
+            <li><strong>Para Founders:</strong> Exit não precisa ser IPO. M&A estratégico está de volta. Valuations realistas > hype.</li>
+            <li><strong>Para Investidores:</strong> Consolidação cria oportunidades. Fintechs maduras viram alvos de aquisição.</li>
+            <li><strong>Para Profissionais:</strong> Empresas adquiridas = novas vagas. Capital One vai expandir Brex no Brasil.</li>
+            <li><strong>Para o Ecossistema BR:</strong> 2 brasileiros criaram empresa de US$ 5Bi em 9 anos. O playbook existe.</li>
+        </ul>
+    </div>
+
+    <!-- PRÓXIMOS PASSOS -->
+    <div class="section">
+        <div class="section-header">
+            <span class="icon">👀</span>
+            <h2>O Que <span>Observar</span> Agora</h2>
+        </div>
+        
+        <div class="intro-text">
+            <p>📅 <strong>Próximas semanas:</strong> Agibank também prepara IPO nos EUA. Se PicPay e Agibank derem certo, pode abrir comporta para mais fintechs BR.</p>
+            <br>
+            <p>📊 <strong>Forbes Tech BR:</strong> Lista de 10 startups de IA prontas para rodadas de até US$ 100M. Próximos unicórnios?</p>
+            <br>
+            <p>🤖 <strong>Claude Code:</strong> Ferramenta de coding da Anthropic está dominando. Profissionais de tech precisam conhecer.</p>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+        <div class="cta-text">Quer receber as 21 notícias mais relevantes toda semana?</div>
+        <a href="#" class="cta-button">📱 Ver Newsletter #004</a>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>PP7+IAS NEWS © 2026 | Curadoria de IA para Profissionais</p>
+        <p>Especial da Semana | 24/01/2026</p>
+        <p><a href="#">Edições anteriores</a> • <a href="#">Sobre o projeto</a></p>
+        <div class="social">
+            📧 💼 🐦
+        </div>
+    </div>
+
+</body>
+</html>
