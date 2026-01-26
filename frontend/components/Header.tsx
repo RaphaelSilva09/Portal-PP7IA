@@ -2,8 +2,8 @@
 
 import { Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import { useSearchModal } from "@/context/SearchModalContext";
 import AuthModal from "./AuthModal";
-import SearchModal from "./SearchModal";
 
 // 7 itens de navegação seguindo a regra de negócio
 const navItems = [
@@ -18,7 +18,7 @@ const navItems = [
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const { openModal } = useSearchModal();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authInitialMode, setAuthInitialMode] = useState<"login" | "signup">("login");
 
@@ -66,7 +66,7 @@ export default function Navbar() {
                             item.isModal ? (
                                 <button
                                     key={item.label}
-                                    onClick={() => setIsSearchModalOpen(true)}
+                                    onClick={() => openModal()}
                                     className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
                                 >
                                     {item.label}
@@ -139,7 +139,7 @@ export default function Navbar() {
                                 key={item.label}
                                 onClick={() => {
                                     setIsMenuOpen(false);
-                                    setIsSearchModalOpen(true);
+                                    openModal();
                                 }}
                                 className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target w-full"
                                 style={{ animationDelay: `${index * 50}ms` }}
@@ -201,9 +201,6 @@ export default function Navbar() {
                     </div>
                 </nav>
             </div>
-
-            {/* Search Modal */}
-            <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
 
             {/* Auth Modal */}
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialMode={authInitialMode} />

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SearchModalProvider } from "@/context/SearchModalContext";
+import ModalsProvider from "@/components/ModalsProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -38,7 +40,10 @@ export default function RootLayout({
     return (
         <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
-                {children}
+                <SearchModalProvider>
+                    {children}
+                    <ModalsProvider />
+                </SearchModalProvider>
                 <Analytics />
             </body>
         </html>
