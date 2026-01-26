@@ -57,3 +57,6 @@ coverage/
 
 # Misc
 .cache/
+
+#AI helpers
+.claude/
