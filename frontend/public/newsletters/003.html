@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PP7+IAS NEWS - NEWSLETTER #003 | 23/01/2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #00d4ff;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        .header .subtitle {
+            font-size: 18px;
+            color: #ffd700;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+        .header .date {
+            font-size: 14px;
+            color: #888;
+            margin-top: 8px;
+        }
+        .intro-box {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.7;
+        }
+        .intro-box .intro-title {
+            color: #00d4ff;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .intro-box .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .intro-box .stat-item {
+            text-align: center;
+        }
+        .intro-box .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .intro-box .stat-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+        }
+        .intro-box .intro-cta {
+            color: #51cf66;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        .profile-section {
+            margin-bottom: 30px;
+        }
+        .profile-header {
+            background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%);
+            color: #1a1a2e;
+            padding: 12px 15px;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-header.experts {
+            background: linear-gradient(90deg, #ff6b6b 0%, #c92a2a 100%);
+            color: #fff;
+        }
+        .profile-header.beginners {
+            background: linear-gradient(90deg, #51cf66 0%, #2f9e44 100%);
+            color: #fff;
+        }
+        .profile-header.startups {
+            background: linear-gradient(90deg, #845ef7 0%, #5f3dc4 100%);
+            color: #fff;
+        }
+        .news-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #00d4ff;
+            padding: 15px;
+            margin-bottom: 2px;
+            transition: all 0.3s ease;
+        }
+        .news-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .news-item.experts {
+            border-left-color: #ff6b6b;
+        }
+        .news-item.beginners {
+            border-left-color: #51cf66;
+        }
+        .news-item.startups {
+            border-left-color: #845ef7;
+        }
+        .news-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+        .news-id {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .news-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .news-title a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .news-title a:hover {
+            color: #00d4ff;
+            text-decoration: underline;
+        }
+        .news-title .new-tag {
+            background: #ffd700;
+            color: #1a1a2e;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .news-summary {
+            font-size: 13px;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
+        .news-summary strong {
+            color: #00d4ff;
+        }
+        .news-impact {
+            font-size: 12px;
+            color: #ffd700;
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 2px solid #ffd700;
+        }
+        .news-source {
+            font-size: 11px;
+            color: #888;
+        }
+        .news-source a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+        .news-source a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 20px;
+            border-top: 1px solid #333;
+            font-size: 12px;
+            color: #666;
+        }
+        .footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PP7+IAS NEWS</h1>
+        <div class="subtitle">NEWSLETTER #003</div>
+        <div class="date">23/01/2026 | EDIÇÃO MOBILE</div>
+    </div>
+
+    <div class="intro-box">
+        <div class="intro-title">📊 Como esta edição foi criada</div>
+        <p>Estas notícias foram compiladas entre os últimos 3 a 5 dias por <strong>7 IAs</strong> que, juntas, consultaram cerca de <strong>500 fontes</strong>.</p>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">4.000+</div>
+                <div class="stat-label">Notícias analisadas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">150</div>
+                <div class="stat-label">Pré-selecionadas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">21</div>
+                <div class="stat-label">Escolhidas</div>
+            </div>
+        </div>
+        
+        <p>Escolhi as <strong>7 mais relevantes</strong> para cada categoria de leitor.</p>
+        <p class="intro-cta">👉 Leia só o que quiser. Para mais detalhes, clique no link.</p>
+    </div>
+
+    <!-- PERFIL 1: ESPECIALISTAS / PROFISSIONAIS -->
+    <div class="profile-section">
+        <div class="profile-header experts">
+            🔬 PERFIL 1: Para Profissionais
+        </div>
+        
+        <div class="news-item experts">
+            <div class="news-id">P1-1</div>
+            <div class="news-title">
+                <a href="https://www.anthropic.com/news/claude-new-constitution" target="_blank">Anthropic Publica "Constituição" de 23 Mil Palavras para Claude</a>
+                <span class="new-tag">NOVO</span>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Documento de 80 páginas ensina Claude o "porquê" dos comportamentos éticos. Primeira big tech a reconhecer possível consciência em modelo de IA.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Novo padrão de governança. Prioriza: 1) Segurança 2) Ética 3) Compliance 4) Utilidade. Liberado em Creative Commons.</div>
+            <div class="news-source"><strong>FONTE:</strong> TIME/Anthropic — <a href="https://www.anthropic.com/news/claude-new-constitution" target="_blank">anthropic.com/news</a></div>
+        </div>
+
+        <div class="news-item experts">
+            <div class="news-id">P1-2</div>
+            <div class="news-title">
+                <a href="https://research.google/medgemma" target="_blank">Google MedGemma 1.5: IA Médica Open Source com 4B Parâmetros</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Modelo especializado em imagens médicas (tomografia, ressonância) otimizado para hardware local.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Desenvolvedores criam diagnóstico médico sem APIs caras. Desafio Kaggle com US$ 100 mil em prêmios.</div>
+            <div class="news-source"><strong>FONTE:</strong> Google Research — <a href="https://research.google/medgemma" target="_blank">research.google/medgemma</a></div>
+        </div>
+
+        <div class="news-item experts">
+            <div class="news-id">P1-3</div>
+            <div class="news-title">
+                <a href="https://www.anthropic.com/news" target="_blank">Claude Atinge Compliance HIPAA Total para Dados de Saúde</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Anthropic certifica Claude para processar dados médicos protegidos em ambientes regulados nos EUA.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Hospitais automatizam verificação de cobertura e fluxos clínicos com IA generativa sem risco legal.</div>
+            <div class="news-source"><strong>FONTE:</strong> Anthropic — <a href="https://www.anthropic.com/news" target="_blank">anthropic.com/news</a></div>
+        </div>
+
+        <div class="news-item experts">
+            <div class="news-id">P1-4</div>
+            <div class="news-title">
+                <a href="https://www.fool.com/investing/2026/01/22/nvidia-65b-forecast/" target="_blank">NVIDIA Projeta US$ 65 Bi em Receita com Chips de IA</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> CEO confirma visibilidade de meio trilhão com Blackwell. Mercado global de IA atinge US$ 2,52 trilhões em 2026.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Confirma boom contínuo de IA; contraria especulações sobre bolha tecnológica no setor.</div>
+            <div class="news-source"><strong>FONTE:</strong> The Motley Fool — <a href="https://www.fool.com/investing/2026/01/22/nvidia-65b-forecast/" target="_blank">fool.com</a></div>
+        </div>
+
+        <div class="news-item experts">
+            <div class="news-id">P1-5</div>
+            <div class="news-title">
+                <a href="https://techcrunch.com/2026/01/22/radixark-400m-valuation/" target="_blank">RadixArk: Spin-Out de Inferência Atinge US$ 400M de Valuation</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Project SGLang vira empresa independente focada exclusivamente em serving de LLMs com eficiência.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Mercado de inferência explode; fase crítica será operação eficiente de modelos em produção.</div>
+            <div class="news-source"><strong>FONTE:</strong> TechCrunch — <a href="https://techcrunch.com/2026/01/22/radixark-400m-valuation/" target="_blank">techcrunch.com</a></div>
+        </div>
+
+        <div class="news-item experts">
+            <div class="news-id">P1-6</div>
+            <div class="news-title">
+                <a href="https://www.axios.com/2026/01/07/anthropics-claude-code-vibe-coding" target="_blank">Claude Code Domina "Vibe Coding" e Lança Cowork</a>
+                <span class="new-tag">NOVO</span>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Ferramenta de coding autônomo da Anthropic vira fenômeno. Cowork: versão para não-programadores no Desktop.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Profissionais dizem superar Cursor e Copilot. Democratiza desenvolvimento de software com IA.</div>
+            <div class="news-source"><strong>FONTE:</strong> Axios — <a href="https://www.axios.com/2026/01/07/anthropics-claude-code-vibe-coding" target="_blank">axios.com</a></div>
+        </div>
+
+        <div class="news-item experts">
+            <div class="news-id">P1-7</div>
+            <div class="news-title">
+                <a href="https://www.technologyreview.com/2026/01/agentic-ai-trend/" target="_blank">Transição de Chatbots para Agentes Autônomos</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> IA deixa de apenas responder e passa a executar tarefas (comprar, agendar, pesquisar automaticamente).</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Mudança fundamental na UX: de 'assistente conversacional' para 'executor de tarefas'.</div>
+            <div class="news-source"><strong>FONTE:</strong> MIT Tech Review — <a href="https://www.technologyreview.com/2026/01/agentic-ai-trend/" target="_blank">technologyreview.com</a></div>
+        </div>
+    </div>
+
+    <!-- PERFIL 2: INICIANTES -->
+    <div class="profile-section">
+        <div class="profile-header beginners">
+            🌱 PERFIL 2: Para Iniciantes
+        </div>
+        
+        <div class="news-item beginners">
+            <div class="news-id">P2-1</div>
+            <div class="news-title">
+                <a href="https://tiinside.com.br/pesquisa-ipsos-ia-brasil-2026/" target="_blank">71% dos Brasileiros Já Usam Chatbots de IA</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Brasil lidera adoção global (média mundial: 62%). Para 79%, IA já é ferramenta essencial de aprendizado.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Mercado brasileiro maduro para produtos B2C de IA; baixa barreira de entrada para adoção.</div>
+            <div class="news-source"><strong>FONTE:</strong> TI Inside/Ipsos — <a href="https://tiinside.com.br/pesquisa-ipsos-ia-brasil-2026/" target="_blank">tiinside.com.br</a></div>
+        </div>
+
+        <div class="news-item beginners">
+            <div class="news-id">P2-2</div>
+            <div class="news-title">
+                <a href="https://canaltech.com.br/apple/apple-intelligence-portugues-brasil-2026/" target="_blank">Apple Intelligence em Português Chega em 2026</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Recursos de IA generativa do iOS expandem para PT-BR, incluindo Siri com LLM nativo.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Desbloqueia utilidade real dos iPhones 16/17 para 112 milhões de brasileiros.</div>
+            <div class="news-source"><strong>FONTE:</strong> Canaltech — <a href="https://canaltech.com.br/apple/apple-intelligence-portugues-brasil-2026/" target="_blank">canaltech.com.br</a></div>
+        </div>
+
+        <div class="news-item beginners">
+            <div class="news-id">P2-3</div>
+            <div class="news-title">
+                <a href="https://www.cnbc.com/2026/01/ai-labor-tsunami-davos/" target="_blank">IA Causa 'Tsunami' no Mercado de Trabalho Global</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Ansiedade sobre perda de emprego por IA salta de 28% (2024) para 40% (2026). Alerta do FMI em Davos.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Urgência em aprender IA para se manter relevante; requalificação será essencial nos próximos anos.</div>
+            <div class="news-source"><strong>FONTE:</strong> CNBC/FMI — <a href="https://www.cnbc.com/2026/01/ai-labor-tsunami-davos/" target="_blank">cnbc.com</a></div>
+        </div>
+
+        <div class="news-item beginners">
+            <div class="news-id">P2-4</div>
+            <div class="news-title">
+                <a href="https://9to5mac.com/2026/01/iphone-17e-apple-intelligence/" target="_blank">iPhone 17e: Apple por US$ 599 com IA Incluída</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Modelo de entrada com chip A19 e Dynamic Island traz Apple Intelligence para mercados emergentes.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Democratiza acesso à IA da Apple; pode capturar fatia de usuários Android no Brasil.</div>
+            <div class="news-source"><strong>FONTE:</strong> 9to5Mac — <a href="https://9to5mac.com/2026/01/iphone-17e-apple-intelligence/" target="_blank">9to5mac.com</a></div>
+        </div>
+
+        <div class="news-item beginners">
+            <div class="news-id">P2-5</div>
+            <div class="news-title">
+                <a href="https://chat.deepseek.com" target="_blank">DeepSeek Gratuito: IA de Ponta Sem Custo</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Acesso completo a modelo com performance comparável ao GPT-4, totalmente gratuito.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Elimina barreira financeira para experimentar IA avançada; basta acessar chat.deepseek.com.</div>
+            <div class="news-source"><strong>FONTE:</strong> DeepSeek AI — <a href="https://chat.deepseek.com" target="_blank">chat.deepseek.com</a></div>
+        </div>
+
+        <div class="news-item beginners">
+            <div class="news-id">P2-6</div>
+            <div class="news-title">
+                <a href="https://techcrunch.com/2026/01/22/todoist-voice-ai/" target="_blank">Todoist Adiciona Criação de Tarefas por Voz com IA</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> App de produtividade permite falar naturalmente; IA entende contexto e intenção automaticamente.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Elimina fricção na captura de tarefas; exemplo prático de IA aumentando produtividade diária.</div>
+            <div class="news-source"><strong>FONTE:</strong> TechCrunch — <a href="https://techcrunch.com/2026/01/22/todoist-voice-ai/" target="_blank">techcrunch.com</a></div>
+        </div>
+
+        <div class="news-item beginners">
+            <div class="news-id">P2-7</div>
+            <div class="news-title">
+                <a href="https://www.amazon.com.br/Intelig%C3%AAncia-pragm%C3%A1tica-habilidade-substituir%C3%A1-transformar/dp/6550477638" target="_blank">Livro "Inteligência Pragmática" Chega em Março</a>
+                <span class="new-tag">NOVO</span>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Max Peters (Adapta.org) lança livro sobre "a habilidade humana que IA nunca substituirá". Foco em definir, planejar e executar objetivos.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Framework prático para era da IA; destaque para quem quer se diferenciar da automação.</div>
+            <div class="news-source"><strong>FONTE:</strong> Amazon Brasil — <a href="https://www.amazon.com.br/Intelig%C3%AAncia-pragm%C3%A1tica-habilidade-substituir%C3%A1-transformar/dp/6550477638" target="_blank">amazon.com.br</a></div>
+        </div>
+    </div>
+
+    <!-- PERFIL 3: STARTUPS -->
+    <div class="profile-section">
+        <div class="profile-header startups">
+            🚀 PERFIL 3: Para Startups
+        </div>
+        
+        <div class="news-item startups">
+            <div class="news-id">P3-1</div>
+            <div class="news-title">
+                <a href="https://www.cnbc.com/2026/01/22/capital-one-is-buying-startup-brex-for-5point15-billion-in-credit-card-firms-latest-deal.html" target="_blank">Capital One Compra Brex por US$ 5,15 Bilhões</a>
+                <span class="new-tag">NOVO</span>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Fintech cofundada por brasileiro Pedro Franceschi adquirida. Deal 50% cash + 50% stock. Valuation caiu de US$12,3Bi (pico) para US$5,15Bi.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Maior M&A fintech de 2026. Sinal de consolidação e ajuste de valuations pós-2022.</div>
+            <div class="news-source"><strong>FONTE:</strong> CNBC — <a href="https://www.cnbc.com/2026/01/22/capital-one-is-buying-startup-brex-for-5point15-billion-in-credit-card-firms-latest-deal.html" target="_blank">cnbc.com</a></div>
+        </div>
+
+        <div class="news-item startups">
+            <div class="news-id">P3-2</div>
+            <div class="news-title">
+                <a href="https://techstartups.com/2026/01/20/brazilian-fintech-startup-picpay-targets-2-46b-valuation-plans-to-raise-434m-in-long-awaited-us-ipo/" target="_blank">PicPay Vai à Nasdaq com IPO de US$ 434M</a>
+                <span class="new-tag">NOVO</span>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Fintech brasileira mira valuation de US$ 2,46 Bi. Primeiro IPO BR nos EUA desde Nubank em 2021.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Janela de IPOs reabre para fintechs LATAM; sinaliza apetite renovado por Brasil.</div>
+            <div class="news-source"><strong>FONTE:</strong> TechStartups — <a href="https://techstartups.com/2026/01/20/brazilian-fintech-startup-picpay-targets-2-46b-valuation-plans-to-raise-434m-in-long-awaited-us-ipo/" target="_blank">techstartups.com</a></div>
+        </div>
+
+        <div class="news-item startups">
+            <div class="news-id">P3-3</div>
+            <div class="news-title">
+                <a href="https://techstartups.com/2026/01/21/zipline-600m-funding/" target="_blank">Zipline Levanta US$ 600M (Valuation US$ 7,6 Bi)</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Entregas com drones dobram volume para 2M em 2025. Fidelity e Tiger Global lideram investimento.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Valida modelo de logística autônoma aérea em escala; referência para deep tech.</div>
+            <div class="news-source"><strong>FONTE:</strong> TechStartups/Axios — <a href="https://techstartups.com/2026/01/21/zipline-600m-funding/" target="_blank">techstartups.com</a></div>
+        </div>
+
+        <div class="news-item startups">
+            <div class="news-id">P3-4</div>
+            <div class="news-title">
+                <a href="https://techcrunch.com/2026/01/22/openevidence-12b-valuation/" target="_blank">OpenEvidence Atinge US$ 12B com Thrive e DST</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Healthtech de IA para suporte clínico alcança valuation expressivo com fundos top-tier.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Apetite institucional por IA vertical com ROI claro; health AI entre setores mais quentes.</div>
+            <div class="news-source"><strong>FONTE:</strong> TechCrunch — <a href="https://techcrunch.com/2026/01/22/openevidence-12b-valuation/" target="_blank">techcrunch.com</a></div>
+        </div>
+
+        <div class="news-item startups">
+            <div class="news-id">P3-5</div>
+            <div class="news-title">
+                <a href="https://news.crunchbase.com/ai/skild-ai-1-4b-valuation-softbank/" target="_blank">Skild AI Triplica Valuation para US$ 1,4 Bi em 7 Meses</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> SoftBank lidera rodada em robótica com tecnologia de 'cérebro universal' para robôs.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Renascimento da robótica; velocidade extrema de crescimento em hard tech + IA.</div>
+            <div class="news-source"><strong>FONTE:</strong> Crunchbase — <a href="https://news.crunchbase.com/ai/skild-ai-1-4b-valuation-softbank/" target="_blank">news.crunchbase.com</a></div>
+        </div>
+
+        <div class="news-item startups">
+            <div class="news-id">P3-6</div>
+            <div class="news-title">
+                <a href="https://techstartups.com/2026/01/22/inferact-vllm-150m-seed/" target="_blank">Inferact (vLLM) Levanta US$ 150M em Seed Recorde</a>
+                <span class="new-tag">NOVO</span>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Startup por trás do projeto open source vLLM capta com a16z e Lightspeed. Valuation: US$ 800M.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Mercado de inferência de LLMs é novo campo de batalha; AWS já testa plataforma.</div>
+            <div class="news-source"><strong>FONTE:</strong> TechStartups — <a href="https://techstartups.com/2026/01/22/inferact-vllm-150m-seed/" target="_blank">techstartups.com</a></div>
+        </div>
+
+        <div class="news-item startups">
+            <div class="news-id">P3-7</div>
+            <div class="news-title">
+                <a href="https://forbes.com.br/forbes-tech/2026/01/startups-ia-brasil-100m/" target="_blank">Elite de Startups BR Mira Rodadas de até US$ 100M</a>
+            </div>
+            <div class="news-summary"><strong>RESUMO:</strong> Forbes Tech lista 10 startups de IA prontas para mega captações; virada para escala internacional.</div>
+            <div class="news-impact"><strong>IMPACTO:</strong> Sinaliza candidatos a unicórnio; indica principais players de IA no ecossistema nacional.</div>
+            <div class="news-source"><strong>FONTE:</strong> Forbes Tech Brasil — <a href="https://forbes.com.br/forbes-tech/2026/01/startups-ia-brasil-100m/" target="_blank">forbes.com.br</a></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>PP7+IAS NEWS © 2026 | Curadoria de IA para Profissionais</p>
+        <p>Newsletter #003 | 23/01/2026</p>
+        <p style="margin-top: 10px;">
+            <a href="#">← Índice Geral</a> • 
+            <a href="#">Edições Anteriores</a> • 
+            <a href="#">Especial da Semana</a>
+        </p>
+    </div>
+</body>
+</html>
