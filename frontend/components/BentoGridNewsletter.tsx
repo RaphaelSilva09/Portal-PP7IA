@@ -12,6 +12,15 @@ import InviteCTA from "./InviteCTA";
 // Dados das newsletters (mock - substituir por dados reais)
 const newsletters = [
     {
+        id: 3,
+        title: "PP-News #003 - Newsletter 003",
+        htmlUrl: "/newsletters/003.html",
+        pdfUrl: "/newsletters/003.pdf",
+        date: "25/01/2026",
+        htmlAvailable: true,
+        pdfAvailable: true,
+    },
+    {
         id: 2,
         title: "PP-News #002  - IA Curada com Inteligência",
         htmlUrl: "/newsletters/002.html",
