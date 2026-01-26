@@ -4,6 +4,7 @@ import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sp
 import { useState } from "react";
 import AuthModal from "./AuthModal";
 import NewsletterCTA from "./NewsletterCTA";
+import InviteCTA from "./InviteCTA";
 
 /**
  * BentoGrid Component - Layout "1x3x3 Hierarchy"
@@ -327,6 +328,7 @@ export default function BentoGrid() {
                 </div>
 
                 <NewsletterCTA onSubscribe={handleSubscribe} />
+                <InviteCTA />
             </div>
 
             {/* Auth Modal */}

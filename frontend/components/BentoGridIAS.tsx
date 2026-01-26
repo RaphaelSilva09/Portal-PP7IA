@@ -2,6 +2,7 @@
 
 import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sparkles, Star } from "lucide-react";
 import NewsletterCTA from "./NewsletterCTA";
+import InviteCTA from "./InviteCTA";
 
 /**
  * BentoGrid Component - Layout "1x3x3 Hierarchy"
@@ -312,6 +313,7 @@ export default function BentoGrid() {
                 </div>
 
                 <NewsletterCTA />
+                <InviteCTA />
             </div>
         </section>
     );

@@ -2,6 +2,7 @@
 
 import { FileText, Globe, Sparkles } from "lucide-react";
 import NewsletterCTA from "./NewsletterCTA";
+import InviteCTA from "./InviteCTA";
 
 /**
  * BentoGridNewsletter Component
@@ -209,6 +210,7 @@ export default function BentoGridNewsletter() {
                     ))}
                 </div>
                 <NewsletterCTA />
+                <InviteCTA />
             </div>
         </section>
     );
