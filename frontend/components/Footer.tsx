@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Instagram, Linkedin, Mail, Twitter, Youtube } from "lucide-react";
+import { Github, Instagram, Link, Linkedin, Mail, Twitter, Youtube } from "lucide-react";
 
 // 7 links de redes sociais seguindo a regra de negócio
 const socialLinks = [
@@ -28,12 +28,12 @@ export default function Footer() {
                 <div className="flex flex-col md:flex-row gap-8 mb-12">
                     {/* Brand */}
                     <div className="w-full">
-                        <a
+                        <Link
                             href="/"
                             className="inline-block text-2xl sm:text-3xl font-bold bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent mb-4"
                         >
                             PP7+IAS
-                        </a>
+                        </Link>
                         <p className="text-text-secondary text-sm max-w-md mb-6">
                             Menos ruído, mais clareza. Conhecimento e IA acessível para todos.
                         </p>
