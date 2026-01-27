@@ -15,4 +15,4 @@ export { default as HeroTitle } from "./hero/HeroTitle";
 export { default as NewsletterCTA } from "./NewsletterCTA";
 export { default as InviteCTA } from "./InviteCTA";
 export { default as Portal } from "./Portal";
-export { default as QuemSomosContent } from "./QuemSomosContent";
+export { default as QuemSomosContent } from "./quem-somos";
