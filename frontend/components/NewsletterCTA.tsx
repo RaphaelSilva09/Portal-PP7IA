@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { formatPhone } from "../lib/formatters";
+import { isValidEmail, isValidPhone } from "../lib/validators";
 
 interface NewsletterCTAProps {
     title?: string;
@@ -16,23 +18,6 @@ export default function NewsletterCTA({
     const [email, setEmail] = useState("");
     const [celular, setCelular] = useState("");
     const [errors, setErrors] = useState<{ email?: string; celular?: string }>({});
-
-    const isValidEmail = (email: string): boolean => {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    };
-
-    const isValidPhone = (phone: string): boolean => {
-        const cleanPhone = phone.replace(/\D/g, "");
-        return cleanPhone.length >= 10 && cleanPhone.length <= 11;
-    };
-
-    const formatPhone = (value: string): string => {
-        const numbers = value.replace(/\D/g, "");
-        if (numbers.length <= 10) {
-            return numbers.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
-        }
-        return numbers.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-    };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const formatted = formatPhone(e.target.value);
@@ -85,10 +70,13 @@ export default function NewsletterCTA({
                 <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
                     <div className="flex-1 sm:w-64">
                         <input
+                            id="newsletter-email"
+                            name="email"
                             type="email"
                             placeholder="seu@email.com"
                             value={email}
                             onChange={handleEmailChange}
+                            autoComplete="email"
                             className={`w-full px-4 py-3 bg-bg-primary border ${
                                 errors.email ? "border-red-500" : "border-border-glass"
                             } rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target`}
@@ -97,11 +85,14 @@ export default function NewsletterCTA({
                     </div>
                     <div className="flex-1 sm:w-64">
                         <input
+                            id="newsletter-celular"
+                            name="celular"
                             type="tel"
                             placeholder="(00) 00000-0000"
                             value={celular}
                             onChange={handlePhoneChange}
                             maxLength={15}
+                            autoComplete="tel"
                             className={`w-full px-4 py-3 bg-bg-primary border ${
                                 errors.celular ? "border-red-500" : "border-border-glass"
                             } rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target`}
