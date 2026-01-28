@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, Sparkles, X } from "lucide-react";
-import { useEffect } from "react";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 interface SearchModalProps {
     isOpen: boolean;
@@ -103,24 +103,8 @@ function SearchResultCard({ item, onClose }: { item: ContentItem; onClose: () =>
    ============================================ */
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-    // Desabilitar scroll do body quando modal está aberto (iOS-friendly)
-    useEffect(() => {
-        if (isOpen) {
-            const scrollY = window.scrollY;
-            document.body.style.position = "fixed";
-            document.body.style.top = `-${scrollY}px`;
-            document.body.style.width = "100%";
-            document.body.style.overflow = "hidden";
-
-            return () => {
-                document.body.style.position = "";
-                document.body.style.top = "";
-                document.body.style.width = "";
-                document.body.style.overflow = "";
-                window.scrollTo(0, scrollY);
-            };
-        }
-    }, [isOpen]);
+    // Hook para travar scroll do body (DRY - extraído para hook reutilizável)
+    useBodyScrollLock(isOpen);
 
     if (!isOpen) return null;
 
