@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isValidEmail } from "../lib/validators";
 
 interface InviteCTAProps {
     title?: string;
@@ -17,10 +18,6 @@ export default function InviteCTA({
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-
-    const isValidEmail = (email: string): boolean => {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    };
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
@@ -82,11 +79,14 @@ export default function InviteCTA({
                 <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
                     <div className="flex-1 sm:w-80">
                         <input
+                            id="invite-email"
+                            name="email"
                             type="email"
                             placeholder="email@exemplo.com"
                             value={email}
                             onChange={handleEmailChange}
                             disabled={loading}
+                            autoComplete="email"
                             className={`w-full px-4 py-3 bg-bg-primary border ${
                                 error ? "border-red-500" : success ? "border-green-500" : "border-border-glass"
                             } rounded-xl text-white placeholder:text-text-secondary focus:outline-none focus:border-brand-blue transition-colors touch-target disabled:opacity-50`}
