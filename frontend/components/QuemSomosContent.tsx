@@ -145,8 +145,6 @@ export default function QuemSomosContent() {
                                         <a
                                             key={ia.name}
                                             href={ia.href}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="group/ia p-2 transition-all duration-300"
                                         >
                                             <div
@@ -164,8 +162,6 @@ export default function QuemSomosContent() {
                                         <a
                                             key={ia.name}
                                             href={ia.href}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="group/ia p-2 transition-all duration-300"
                                         >
                                             <div
