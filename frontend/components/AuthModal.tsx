@@ -2,6 +2,9 @@
 
 import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, Sparkles, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import { formatPhone } from "../lib/formatters";
+import { isValidEmail, isValidPassword, isValidPhone } from "../lib/validators";
 import { useAuth } from "../presentation/hooks/useAuth";
 import Portal from "./Portal";
 
@@ -60,24 +63,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     // Hook de autenticação (Clean Architecture)
     const { signUp, signIn, isLoading, error: authError, clearError } = useAuth();
 
-    // Desabilita scroll do body quando modal está aberto (iOS-friendly)
-    useEffect(() => {
-        if (isOpen) {
-            const scrollY = window.scrollY;
-            document.body.style.position = "fixed";
-            document.body.style.top = `-${scrollY}px`;
-            document.body.style.width = "100%";
-            document.body.style.overflow = "hidden";
-
-            return () => {
-                document.body.style.position = "";
-                document.body.style.top = "";
-                document.body.style.width = "";
-                document.body.style.overflow = "";
-                window.scrollTo(0, scrollY);
-            };
-        }
-    }, [isOpen]);
+    // Hook para travar scroll do body (DRY - extraído para hook reutilizável)
+    useBodyScrollLock(isOpen);
 
     // Reseta o formulário quando o modo muda ou modal abre
     useEffect(() => {
@@ -95,43 +82,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
             clearError();
         }
     }, [mode, isOpen, initialData, clearError]);
-
-    /**
-     * Valida email usando regex padrão
-     * Side-Effect-Free Function (Clean Code)
-     */
-    const isValidEmail = (email: string): boolean => {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    };
-
-    /**
-     * Valida celular brasileiro (formato: (XX) XXXXX-XXXX ou similar)
-     * Side-Effect-Free Function (Clean Code)
-     */
-    const isValidPhone = (phone: string): boolean => {
-        const cleanPhone = phone.replace(/\D/g, "");
-        return cleanPhone.length >= 10 && cleanPhone.length <= 11;
-    };
-
-    /**
-     * Valida senha (mínimo 6 caracteres)
-     * Side-Effect-Free Function (Clean Code)
-     */
-    const isValidPassword = (password: string): boolean => {
-        return password.length >= 6;
-    };
-
-    /**
-     * Formata celular enquanto usuário digita
-     * Pure Function - Não altera estado diretamente
-     */
-    const formatPhone = (value: string): string => {
-        const numbers = value.replace(/\D/g, "");
-        if (numbers.length <= 10) {
-            return numbers.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
-        }
-        return numbers.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-    };
 
     /**
      * Valida o formulário baseado no modo atual
@@ -345,10 +295,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                         <input
                                             id="nome"
+                                            name="nome"
                                             type="text"
                                             value={formData.nome}
                                             onChange={handleInputChange("nome")}
                                             placeholder="Digite seu nome completo"
+                                            autoComplete="name"
                                             className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
                                                 errors.nome ? "border-red-500" : "border-border-glass"
                                             } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
@@ -367,10 +319,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                     <input
                                         id="email"
+                                        name="email"
                                         type="email"
                                         value={formData.email}
                                         onChange={handleInputChange("email")}
                                         placeholder="seu@email.com"
+                                        autoComplete="email"
                                         className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
                                             errors.email ? "border-red-500" : "border-border-glass"
                                         } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
@@ -389,11 +343,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                         <input
                                             id="celular"
+                                            name="celular"
                                             type="tel"
                                             value={formData.celular}
                                             onChange={handleInputChange("celular")}
                                             placeholder="(00) 00000-0000"
                                             maxLength={15}
+                                            autoComplete="tel"
                                             className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
                                                 errors.celular ? "border-red-500" : "border-border-glass"
                                             } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-green focus:bg-white/[0.07] transition-all duration-200`}
@@ -411,10 +367,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                 <div className="relative">
                                     <input
                                         id="senha"
+                                        name="senha"
                                         type={showPassword ? "text" : "password"}
                                         value={formData.senha}
                                         onChange={handleInputChange("senha")}
                                         placeholder="Mínimo 6 caracteres"
+                                        autoComplete={mode === "login" ? "current-password" : "new-password"}
                                         className={`w-full px-3 pr-10 py-2 bg-white/5 border ${
                                             errors.senha ? "border-red-500" : "border-border-glass"
                                         } rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
