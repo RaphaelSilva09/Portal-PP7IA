@@ -75,9 +75,13 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
     const handleSubmit = () => {
         if (!validateForm()) return;
 
-        // Fecha o FirstVisitModal e abre o AuthModal com os dados
+        // Fecha o FirstVisitModal com animação
         onClose();
-        openAuthModal({ email, celular }, "signup");
+
+        // Aguarda animação de saída antes de abrir AuthModal
+        setTimeout(() => {
+            openAuthModal({ email, celular }, "signup");
+        }, 300);
     };
 
     if (!isOpen) return null;
