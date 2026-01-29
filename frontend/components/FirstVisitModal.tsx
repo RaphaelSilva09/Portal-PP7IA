@@ -94,7 +94,7 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
 
                 {/* Modal Container */}
                 <div
-                    className="relative w-full max-w-lg bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300"
+                    className="relative w-full max-w-lg bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Close Button */}
