@@ -276,8 +276,21 @@ export class SupabaseAuthRepository implements IAuthRepository {
             return new EmailNotConfirmedError();
         }
 
-        if (message.includes("password") && message.includes("weak")) {
-            return new WeakPasswordError();
+        // Erros relacionados a senha - captura várias mensagens possíveis
+        if (
+            message.includes("password") &&
+            (message.includes("weak") ||
+                message.includes("short") ||
+                message.includes("length") ||
+                message.includes("character") ||
+                message.includes("must") ||
+                message.includes("should") ||
+                message.includes("require") ||
+                message.includes("at least"))
+        ) {
+            // Traduz mensagens comuns de requisitos de senha
+            const passwordDetails = this.translatePasswordError(error.message);
+            return new WeakPasswordError(passwordDetails);
         }
 
         if (code === "NETWORK_ERROR" || message.includes("network")) {
@@ -285,5 +298,38 @@ export class SupabaseAuthRepository implements IAuthRepository {
         }
 
         return new UnknownAuthError(error.message);
+    }
+
+    /**
+     * Traduz mensagens de erro de senha do Supabase para português
+     */
+    private translatePasswordError(originalMessage: string): string {
+        const msg = originalMessage?.toLowerCase() || "";
+
+        if (msg.includes("at least") && msg.includes("character")) {
+            // Extrai o número de caracteres do erro original se possível
+            const match = msg.match(/at least (\d+)/);
+            const minLength = match ? match[1] : "6";
+            return `A senha deve ter no mínimo ${minLength} caracteres`;
+        }
+
+        if (msg.includes("uppercase") || msg.includes("capital")) {
+            return "A senha deve conter pelo menos uma letra maiúscula";
+        }
+
+        if (msg.includes("lowercase")) {
+            return "A senha deve conter pelo menos uma letra minúscula";
+        }
+
+        if (msg.includes("number") || msg.includes("digit")) {
+            return "A senha deve conter pelo menos um número";
+        }
+
+        if (msg.includes("special") || msg.includes("symbol")) {
+            return "A senha deve conter pelo menos um caractere especial";
+        }
+
+        // Mensagem genérica para outros casos
+        return "A senha não atende aos requisitos de segurança. Tente uma senha mais forte.";
     }
 }

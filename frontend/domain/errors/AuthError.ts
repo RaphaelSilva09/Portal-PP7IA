@@ -30,8 +30,8 @@ export class UserAlreadyExistsError extends AuthError {
 }
 
 export class WeakPasswordError extends AuthError {
-    constructor() {
-        super("A senha deve ter no mínimo 6 caracteres");
+    constructor(details?: string) {
+        super(details || "A senha não atende aos requisitos de segurança");
     }
 }
 
