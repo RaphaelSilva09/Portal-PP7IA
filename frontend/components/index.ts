@@ -8,6 +8,7 @@ export { default as BentoGrid } from "./BentoGridConteudo";
 export { default as BentoGridEspecialSemana } from "./BentoGridEspecialSemana";
 export { default as BentoGridMiniLivros } from "./BentoGridMiniLivros";
 export { default as BentoGridNewsletter } from "./BentoGridNewsletter";
+export { default as FirstVisitModal } from "./FirstVisitModal";
 export { default as Footer } from "./Footer";
 export { default as Navbar } from "./Header";
 export { default as HeroSection } from "./HeroSection";
