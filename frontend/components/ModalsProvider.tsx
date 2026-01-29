@@ -2,9 +2,11 @@
 
 import SearchModal from "./SearchModal";
 import FirstVisitModal from "./FirstVisitModal";
+import AuthModal from "./AuthModal";
 import Portal from "./Portal";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 /**
  * ModalsProvider Component
@@ -17,35 +19,22 @@ import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
  * - SRP: Única responsabilidade é renderizar modais
  * - OCP: Aberto para extensão (novos modais), fechado para modificação
  * - Clean Architecture: Camada de apresentação independente
- *
- * Benefícios:
- * - Todos os modais em um único lugar (fácil manutenção)
- * - Renderização via Portal evita problemas de z-index e positioning
- * - Facilita adição de novos modais no futuro
- *
- * @example
- * // No layout.tsx:
- * <SearchModalProvider>
- *   <FirstVisitModalProvider>
- *     {children}
- *     <ModalsProvider />
- *   </FirstVisitModalProvider>
- * </SearchModalProvider>
  */
 export default function ModalsProvider() {
     const { isOpen: isSearchOpen, closeModal: closeSearchModal } = useSearchModal();
     const { isOpen: isFirstVisitOpen, closeModal: closeFirstVisitModal } = useFirstVisitModal();
+    const { isOpen: isAuthOpen, initialData, initialMode, closeModal: closeAuthModal } = useAuthModal();
 
     return (
         <Portal>
             <SearchModal isOpen={isSearchOpen} onClose={closeSearchModal} />
             <FirstVisitModal isOpen={isFirstVisitOpen} onClose={closeFirstVisitModal} />
-            {/*
-                Futuros modais podem ser adicionados aqui:
-                <AuthModal />
-                <NotificationModal />
-                <ConfirmationModal />
-            */}
+            <AuthModal
+                isOpen={isAuthOpen}
+                onClose={closeAuthModal}
+                initialMode={initialMode}
+                initialData={initialData}
+            />
         </Portal>
     );
 }

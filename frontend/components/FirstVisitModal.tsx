@@ -5,6 +5,7 @@ import { Mail, Phone, Sparkles, X } from "lucide-react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { formatPhone } from "../lib/formatters";
 import { isValidEmail, isValidPhone } from "../lib/validators";
+import { useAuthModal } from "../context/AuthModalContext";
 import Portal from "./Portal";
 
 /**
@@ -12,7 +13,7 @@ import Portal from "./Portal";
  * Modal de inscrição exibido no primeiro acesso do usuário
  *
  * Princípios aplicados:
- * - SRP: Focado exclusivamente em capturar inscrição no primeiro acesso
+ * - SRP: Focado em coletar dados iniciais e redirecionar para AuthModal
  * - OCP: Aberto para extensão via props
  * - Clean Code: Nomes reveladores de intenção
  */
@@ -31,8 +32,8 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
     const [email, setEmail] = useState("");
     const [celular, setCelular] = useState("");
     const [errors, setErrors] = useState<FormErrors>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
+
+    const { openModal: openAuthModal } = useAuthModal();
 
     // Hook para travar scroll do body
     useBodyScrollLock(isOpen);
@@ -71,21 +72,12 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
         if (!validateForm()) return;
 
-        setIsSubmitting(true);
-
-        // Simula envio - aqui você pode integrar com sua API
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        setIsSuccess(true);
-        setIsSubmitting(false);
-
-        // Fecha o modal após sucesso
-        setTimeout(() => {
-            onClose();
-        }, 2000);
+        // Fecha o FirstVisitModal e abre o AuthModal com os dados
+        onClose();
+        openAuthModal({ email, celular }, "signup");
     };
 
     if (!isOpen) return null;
@@ -125,88 +117,64 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
                             </p>
                         </div>
 
-                        {isSuccess ? (
-                            /* Success State */
-                            <div className="text-center py-6">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full mb-4">
-                                    <svg
-                                        className="w-8 h-8 text-green-400"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M5 13l4 4L19 7"
-                                        />
-                                    </svg>
+                        {/* Form */}
+                        <div className="space-y-4">
+                            {/* Email Input */}
+                            <div>
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                                    <input
+                                        id="first-visit-email"
+                                        name="email"
+                                        type="email"
+                                        placeholder="seu@email.com"
+                                        value={email}
+                                        onChange={handleEmailChange}
+                                        autoComplete="email"
+                                        className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border ${
+                                            errors.email ? "border-red-500" : "border-border-glass"
+                                        } rounded-xl text-white placeholder:text-text-secondary/60 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
+                                    />
                                 </div>
-                                <p className="text-lg font-medium text-white">Inscrição realizada!</p>
-                                <p className="text-text-secondary mt-1">Em breve você receberá nossas novidades.</p>
+                                {errors.email && <p className="text-xs text-red-500 mt-1.5 ml-1">{errors.email}</p>}
                             </div>
-                        ) : (
-                            /* Form */
-                            <div className="space-y-4">
-                                {/* Email Input */}
-                                <div>
-                                    <div className="relative">
-                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                                        <input
-                                            id="first-visit-email"
-                                            name="email"
-                                            type="email"
-                                            placeholder="seu@email.com"
-                                            value={email}
-                                            onChange={handleEmailChange}
-                                            autoComplete="email"
-                                            className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border ${
-                                                errors.email ? "border-red-500" : "border-border-glass"
-                                            } rounded-xl text-white placeholder:text-text-secondary/60 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
-                                        />
-                                    </div>
-                                    {errors.email && <p className="text-xs text-red-500 mt-1.5 ml-1">{errors.email}</p>}
+
+                            {/* Phone Input */}
+                            <div>
+                                <div className="relative">
+                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                                    <input
+                                        id="first-visit-celular"
+                                        name="celular"
+                                        type="tel"
+                                        placeholder="(00) 00000-0000"
+                                        value={celular}
+                                        onChange={handlePhoneChange}
+                                        maxLength={15}
+                                        autoComplete="tel"
+                                        className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border ${
+                                            errors.celular ? "border-red-500" : "border-border-glass"
+                                        } rounded-xl text-white placeholder:text-text-secondary/60 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
+                                    />
                                 </div>
-
-                                {/* Phone Input */}
-                                <div>
-                                    <div className="relative">
-                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                                        <input
-                                            id="first-visit-celular"
-                                            name="celular"
-                                            type="tel"
-                                            placeholder="(00) 00000-0000"
-                                            value={celular}
-                                            onChange={handlePhoneChange}
-                                            maxLength={15}
-                                            autoComplete="tel"
-                                            className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border ${
-                                                errors.celular ? "border-red-500" : "border-border-glass"
-                                            } rounded-xl text-white placeholder:text-text-secondary/60 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
-                                        />
-                                    </div>
-                                    {errors.celular && (
-                                        <p className="text-xs text-red-500 mt-1.5 ml-1">{errors.celular}</p>
-                                    )}
-                                </div>
-
-                                {/* Submit Button */}
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={isSubmitting}
-                                    className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                >
-                                    {isSubmitting ? "Inscrevendo..." : "Inscrever-se"}
-                                </button>
-
-                                {/* Privacy Note */}
-                                <p className="text-xs text-text-secondary/60 text-center">
-                                    Respeitamos sua privacidade. Cancele quando quiser.
-                                </p>
+                                {errors.celular && (
+                                    <p className="text-xs text-red-500 mt-1.5 ml-1">{errors.celular}</p>
+                                )}
                             </div>
-                        )}
+
+                            {/* Submit Button */}
+                            <button
+                                onClick={handleSubmit}
+                                className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-[1.02] active:scale-95 transition-all duration-200"
+                            >
+                                Continuar
+                            </button>
+
+                            {/* Privacy Note */}
+                            <p className="text-xs text-text-secondary/60 text-center">
+                                Respeitamos sua privacidade. Cancele quando quiser.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SearchModalProvider } from "@/context/SearchModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
+import { AuthModalProvider } from "@/context/AuthModalContext";
 import ModalsProvider from "@/components/ModalsProvider";
 import "./globals.css";
 
@@ -42,10 +43,12 @@ export default function RootLayout({
         <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
                 <SearchModalProvider>
-                    <FirstVisitModalProvider>
-                        {children}
-                        <ModalsProvider />
-                    </FirstVisitModalProvider>
+                    <AuthModalProvider>
+                        <FirstVisitModalProvider>
+                            {children}
+                            <ModalsProvider />
+                        </FirstVisitModalProvider>
+                    </AuthModalProvider>
                 </SearchModalProvider>
                 <Analytics />
             </body>
