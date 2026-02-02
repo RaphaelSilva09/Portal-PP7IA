@@ -1,6 +1,7 @@
 "use client";
 
-import { Search, Sparkles, X } from "lucide-react";
+import { Search, Sparkles, X, Mail, Star, BookOpen, Library, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 interface SearchModalProps {
@@ -12,19 +13,71 @@ interface SearchModalProps {
  * SearchModal Component
  * 
  * Modal de pesquisa centralizado com Portal para renderização no body.
- * Versão simplificada "Em breve" enquanto a funcionalidade completa está em desenvolvimento.
+ * Versão "Em breve" com índice de navegação rápida enquanto a busca está em desenvolvimento.
  * 
  * Princípios aplicados:
  * - SRP: Única responsabilidade de apresentar UI do modal
  * - Clean Code: Nomes reveladores, código autoexplicativo
- * - UX: Feedback claro ao usuário sobre funcionalidade futura
+ * - UX: Feedback claro ao usuário + navegação útil
  */
+
+// Configuração dos links de navegação rápida
+const quickLinks = [
+    {
+        id: "newsletter",
+        href: "/newsletter",
+        label: "Newsletter",
+        description: "Publicação semanal com 7 itens",
+        Icon: Mail,
+        bgColor: "bg-blue-500/20",
+        borderColor: "border-blue-500/30",
+        hoverBorder: "hover:border-blue-500/50",
+        iconColor: "text-blue-400",
+        hoverShadow: "hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]",
+    },
+    {
+        id: "especial",
+        href: "/especial-semana",
+        label: "Especial da Semana",
+        description: "Destaque editorial semanal",
+        Icon: Star,
+        bgColor: "bg-yellow-500/20",
+        borderColor: "border-yellow-500/30",
+        hoverBorder: "hover:border-yellow-500/50",
+        iconColor: "text-yellow-400",
+        hoverShadow: "hover:shadow-[0_0_20px_rgba(234,179,8,0.2)]",
+    },
+    {
+        id: "mini-livros",
+        href: "/mini-livros",
+        label: "Mini-Livros",
+        description: "Mini-guias mensais sobre IA",
+        Icon: BookOpen,
+        bgColor: "bg-green-500/20",
+        borderColor: "border-green-500/30",
+        hoverBorder: "hover:border-green-500/50",
+        iconColor: "text-green-400",
+        hoverShadow: "hover:shadow-[0_0_20px_rgba(34,197,94,0.2)]",
+    },
+    {
+        id: "biblioteca",
+        href: "/biblioteca",
+        label: "Biblioteca",
+        description: "Prompts, ferramentas e guias",
+        Icon: Library,
+        bgColor: "bg-purple-500/20",
+        borderColor: "border-purple-500/30",
+        hoverBorder: "hover:border-purple-500/50",
+        iconColor: "text-purple-400",
+        hoverShadow: "hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]",
+    },
+];
 
 /* ============================================
    CÓDIGO COMPLETO COMENTADO PARA FUTURA IMPLEMENTAÇÃO
    ============================================
 
-import { BookOpen, ChevronDown, ChevronUp, FileText, Globe, Library } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText, Globe } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ContentItem, searchContent } from "../data/content";
 
@@ -119,49 +172,94 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
             {/* Modal Container - Centralizado e responsivo */}
             <div
-                className="relative w-full max-w-2xl bg-bg-primary/95 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl animate-scale-in flex flex-col overflow-hidden"
+                className="relative w-full max-w-2xl max-h-[90vh] bg-bg-primary/95 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl animate-scale-in flex flex-col overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header com Close Button */}
                 <div className="flex items-center justify-end p-4 md:p-6 pb-0 shrink-0">
                     <button
                         onClick={onClose}
-                        className="p-2 md:p-2.5 text-text-secondary hover:text-white bg-bg-primary/80 hover:bg-white/10 rounded-full transition-all duration-200 border border-white/10 touch-target cursor-pointer"
+                        className="flex items-center justify-center p-2 md:p-2.5 text-text-secondary hover:text-white bg-bg-primary/80 hover:bg-white/10 rounded-full transition-all duration-200 border border-white/10 touch-target cursor-pointer"
                         aria-label="Fechar modal"
                     >
                         <X className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                 </div>
 
-                {/* Content - "Em breve" */}
-                <div className="flex-1 px-4 sm:px-6 md:px-8 pt-4 md:pt-6 pb-8 md:pb-12 flex flex-col items-center justify-center text-center">
-                    {/* Ícone animado */}
-                    <div className="relative mb-6 md:mb-8">
-                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-linear-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center animate-pulse-slow">
-                            <Search className="w-10 h-10 md:w-12 md:h-12 text-brand-blue" />
+                {/* Content com scroll */}
+                <div className="flex-1 px-4 sm:px-6 md:px-8 pt-4 md:pt-6 pb-6 md:pb-8 flex flex-col overflow-y-auto">
+                    {/* Seção "Em breve" - Compacta */}
+                    <div className="flex flex-col items-center text-center mb-6 md:mb-8">
+                        {/* Ícone animado */}
+                        <div className="relative mb-4 md:mb-5">
+                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-linear-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center animate-pulse-slow">
+                                <Search className="w-8 h-8 md:w-10 md:h-10 text-brand-blue" />
+                            </div>
+                            <div className="absolute -top-1 -right-1">
+                                <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-yellow-400 animate-pulse" />
+                            </div>
                         </div>
-                        <div className="absolute -top-2 -right-2">
-                            <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-yellow-400 animate-pulse" />
+
+                        {/* Título */}
+                        <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+                            Busca Inteligente
+                        </h2>
+
+                        {/* Descrição */}
+                        <p className="text-text-secondary text-xs md:text-sm mb-3 max-w-sm leading-relaxed">
+                            Estamos preparando uma experiência de busca poderosa. Por enquanto, navegue rapidamente pelos conteúdos abaixo.
+                        </p>
+
+                        {/* Badge "Em breve" */}
+                        <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-linear-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full">
+                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
+                            <span className="text-blue-400 font-semibold text-xs md:text-sm">
+                                Busca em breve
+                            </span>
                         </div>
                     </div>
 
-                    {/* Título */}
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 md:mb-4">
-                        Busca Inteligente
-                    </h2>
+                    {/* Divisor */}
+                    <div className="w-full h-px bg-white/10 mb-5 md:mb-6" />
 
-                    {/* Descrição */}
-                    <p className="text-text-secondary text-sm md:text-base mb-6 md:mb-8 max-w-md leading-relaxed">
-                        Estamos preparando uma experiência de busca poderosa para você encontrar newsletters, 
-                        mini-livros e conteúdos da biblioteca de forma rápida e intuitiva.
-                    </p>
+                    {/* Navegação Rápida */}
+                    <div>
+                        <h3 className="text-sm md:text-base font-semibold text-white mb-3 md:mb-4 text-center">
+                            Navegação Rápida
+                        </h3>
 
-                    {/* Badge "Em breve" */}
-                    <div className="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-linear-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-                        <span className="text-blue-400 font-semibold text-sm md:text-base">
-                            Em breve
-                        </span>
+                        {/* Grid de links */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {quickLinks.map(link => {
+                                const { Icon } = link;
+                                return (
+                                    <Link
+                                        key={link.id}
+                                        href={link.href}
+                                        onClick={onClose}
+                                        className={`group relative flex items-center gap-3 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/5 border ${link.borderColor} ${link.hoverBorder} ${link.hoverShadow} transition-all duration-300 hover:bg-white/[0.08] hover:scale-[1.02]`}
+                                    >
+                                        {/* Ícone */}
+                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl ${link.bgColor} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                                            <Icon className={`w-5 h-5 md:w-6 md:h-6 ${link.iconColor}`} />
+                                        </div>
+
+                                        {/* Conteúdo */}
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-sm md:text-base font-semibold text-white truncate">
+                                                {link.label}
+                                            </h4>
+                                            <p className="text-xs text-text-secondary truncate">
+                                                {link.description}
+                                            </p>
+                                        </div>
+
+                                        {/* Arrow */}
+                                        <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-gray-500 group-hover:text-white group-hover:scale-110 transition-all duration-300 shrink-0" />
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
