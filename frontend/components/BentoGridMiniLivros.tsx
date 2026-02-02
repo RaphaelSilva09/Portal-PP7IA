@@ -1,41 +1,49 @@
 "use client";
 
-import { FileText, Globe, Sparkles } from "lucide-react";
-import NewsletterCTA from "./NewsletterCTA";
+import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
+import { useMiniLivros } from "../presentation/hooks/useMiniLivros";
 import InviteCTA from "./InviteCTA";
+import NewsletterCTA from "./NewsletterCTA";
 
 /**
  * BentoGridMiniLivros Component
  * Exibe o último mini-livro em destaque e edições anteriores em grid 3x3
+ * Dados carregados dinamicamente do Supabase
  */
-
-// Dados dos mini-livros (mock - substituir por dados reais)
-const miniLivros = [
-    {
-        id: 1,
-        title: "Mini-livro #002-v2: Afinal, que talento é esse?",
-        htmlUrl: "/mini-livros/002.html",
-        pdfUrl: "/mini-livros/002.pdf",
-        date: "13/10/2025",
-        readTime: "14 min",
-        htmlAvailable: false,
-        pdfAvailable: true,
-    },
-    {
-        id: 0,
-        title: "Mini-livro #001-v2: A Resposta é o Problema",
-        htmlUrl: "/mini-livros/001.html",
-        pdfUrl: "/mini-livros/001.pdf",
-        date: "13/09/2025",
-        readTime: "14 min",
-        htmlAvailable: true,
-        pdfAvailable: false,
-    },
-];
-
 export default function BentoGridMiniLivros() {
-    const latestMiniLivro = miniLivros[0];
-    const olderMiniLivros = miniLivros.slice(1);
+    const { latest, older, isLoading, error } = useMiniLivros();
+
+    // Estado de carregamento
+    if (isLoading) {
+        return (
+            <section className="py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
+                    <Loader2 className="w-8 h-8 animate-spin text-green-500" />
+                    <p className="text-text-secondary">Carregando mini-livros...</p>
+                </div>
+            </section>
+        );
+    }
+
+    // Estado de erro ou sem dados
+    if (error || !latest) {
+        return (
+            <section className="py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center py-16">
+                        <p className="text-text-secondary text-lg">
+                            {error || "Nenhum mini-livro disponível no momento."}
+                        </p>
+                    </div>
+                    <NewsletterCTA
+                        title="Seja notificado de novos mini-livros"
+                        description="Publicações mensais sobre pessoas, liderança e IA prática."
+                    />
+                    <InviteCTA />
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
@@ -122,27 +130,27 @@ export default function BentoGridMiniLivros() {
 
                             {/* Mini-Livro Number */}
                             <p className="text-green-400 text-base sm:text-lg font-mono mb-2">
-                                Mini-Livro #{(latestMiniLivro.id + 1).toString().padStart(3, "0")}
+                                Mini-Livro #{latest.formattedNumber}
                             </p>
 
                             {/* Title */}
                             <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl">
-                                {latestMiniLivro.title}
+                                {latest.title}
                             </h3>
 
-                            {/* Date and Read Time */}
+                            {/* Date */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-text-secondary text-base sm:text-lg mb-8">
-                                <p>Publicado em {latestMiniLivro.date}</p>
-                                <span className="hidden sm:inline">•</span>
-                                <p>Tempo de leitura: {latestMiniLivro.readTime}</p>
+                                <p>Publicado em {latest.formattedDate}</p>
                             </div>
 
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                                {latestMiniLivro.htmlAvailable ? (
+                                {latest.htmlAvailable ? (
                                     <a
-                                        href={latestMiniLivro.htmlUrl}
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                        href={latest.htmlPath!}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-40"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Ver HTML</span>
@@ -150,16 +158,18 @@ export default function BentoGridMiniLivros() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-[160px] opacity-50"
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-40 opacity-50"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Indisponível</span>
                                     </button>
                                 )}
-                                {latestMiniLivro.pdfAvailable ? (
+                                {latest.pdfAvailable ? (
                                     <a
-                                        href={latestMiniLivro.pdfUrl}
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                        href={latest.pdfPath!}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-40"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -167,7 +177,7 @@ export default function BentoGridMiniLivros() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-[160px] opacity-50"
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-40 opacity-50"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -180,7 +190,7 @@ export default function BentoGridMiniLivros() {
                     {/* ============================================
                     MINI-LIVROS ANTERIORES - GRID 3x3
                     ============================================ */}
-                    {olderMiniLivros.map(miniLivro => (
+                    {older.map(miniLivro => (
                         <div
                             key={miniLivro.id}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
@@ -188,7 +198,7 @@ export default function BentoGridMiniLivros() {
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Mini-Livro Number */}
                                 <span className="text-xs font-mono text-green-400/80 tracking-tight mb-2">
-                                    Mini-Livro #{(miniLivro.id + 1).toString().padStart(3, "0")}
+                                    Mini-Livro #{miniLivro.formattedNumber}
                                 </span>
 
                                 {/* Title */}
@@ -196,17 +206,18 @@ export default function BentoGridMiniLivros() {
                                     {miniLivro.title}
                                 </h4>
 
-                                {/* Date and Read Time */}
+                                {/* Date */}
                                 <div className="flex flex-col gap-1 text-text-secondary text-sm mb-4">
-                                    <p>{miniLivro.date}</p>
-                                    <p className="text-green-400/70">{miniLivro.readTime} de leitura</p>
+                                    <p>{miniLivro.formattedDate}</p>
                                 </div>
 
                                 {/* Action Buttons */}
                                 <div className="flex flex-col w-full gap-2 mt-auto">
                                     {miniLivro.htmlAvailable ? (
                                         <a
-                                            href={miniLivro.htmlUrl}
+                                            href={miniLivro.htmlPath!}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <Globe className="w-4 h-4" />
@@ -223,7 +234,9 @@ export default function BentoGridMiniLivros() {
                                     )}
                                     {miniLivro.pdfAvailable ? (
                                         <a
-                                            href={miniLivro.pdfUrl}
+                                            href={miniLivro.pdfPath!}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <FileText className="w-4 h-4" />
