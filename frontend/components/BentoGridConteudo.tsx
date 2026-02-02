@@ -22,7 +22,7 @@ export default function BentoGrid() {
     };
 
     return (
-        <section className="py-8 px-4 sm:px-6 lg:px-8">
+        <section id="indice" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
             <div className="max-w-7xl mx-auto">
                 {/* Section Header */}
                 <div className="text-center flex flex-col gap-6 sm:gap-8">
