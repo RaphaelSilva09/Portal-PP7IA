@@ -5,14 +5,11 @@ import { useState } from "react";
 import { useSearchModal } from "@/context/SearchModalContext";
 import AuthModal from "./AuthModal";
 
-// 7 itens de navegação seguindo a regra de negócio
+// 4 itens de navegação seguindo a regra de negócio
 const navItems = [
-    { label: "Quem Somos", href: "/#quemsomos" },
     { label: "O Autor", href: "/#autor" },
-    { label: "Propósito", href: "/PP7IAS_Visao_Proposito.html" },
-    { label: "Divulgação", href: "/PP7IAS_Disclosures_Legal_Compliance.pdf" },
+    { label: "Quem Somos", href: "/#quemsomos" },
     { label: "Instruções", href: "/PP7IAS_Instrucoes_Rapidas.pdf" },
-    { label: "Ensinar", href: "/#ensinar" },
     { label: "Pesquisar", href: "#", isModal: true },
 ];
 
@@ -43,7 +40,7 @@ export default function Navbar() {
     return (
         <header className="sticky top-0 left-0 right-0 z-50 glass-navbar backdrop-blur-[20px] bg-bg-primary/90 safe-area-top">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16 md:h-20">
+                <div className="flex items-center justify-between h-16 md:h-20 gap-4">
                     {/* Logo */}
                     <a
                         href="/"
@@ -57,9 +54,9 @@ export default function Navbar() {
                         </span>
                     </a>
 
-                    {/* Desktop Navigation - 7 Links (Centered) */}
+                    {/* Desktop Navigation - 4 Links (Centered) */}
                     <nav
-                        className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2"
+                        className="hidden lg:flex items-center justify-center flex-1 gap-6"
                         aria-label="Navegação principal"
                     >
                         {navItems.map(item =>
@@ -67,7 +64,7 @@ export default function Navbar() {
                                 <button
                                     key={item.label}
                                     onClick={() => openModal()}
-                                    className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                    className="text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </button>
@@ -76,7 +73,7 @@ export default function Navbar() {
                                     key={item.label}
                                     href={item.href}
                                     onClick={e => scrollToSection(e, item.href)}
-                                    className="px-3 py-2 text-sm text-text-secondary hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5 whitespace-nowrap"
+                                    className="text-sm text-text-secondary hover:text-white transition-colors duration-200 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </a>
@@ -117,9 +114,8 @@ export default function Navbar() {
 
             {/* Mobile Menu - 7 Links */}
             <div
-                className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-                    isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
-                }`}
+                className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                    }`}
             >
                 <nav
                     className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"
