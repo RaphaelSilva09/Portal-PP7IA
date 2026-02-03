@@ -106,8 +106,6 @@ export default function BentoGridNewsletter() {
                                 {latest.htmlAvailable ? (
                                     <a
                                         href={latest.htmlPath!}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/20 hover:bg-brand-blue/30 border border-brand-blue/30 hover:border-brand-blue/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <Globe className="w-5 h-5" />
@@ -125,8 +123,6 @@ export default function BentoGridNewsletter() {
                                 {latest.pdfAvailable ? (
                                     <a
                                         href={latest.pdfPath!}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/30 hover:border-brand-purple/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <FileText className="w-5 h-5" />
@@ -172,8 +168,6 @@ export default function BentoGridNewsletter() {
                                     {newsletter.htmlAvailable ? (
                                         <a
                                             href={newsletter.htmlPath!}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 hover:border-brand-blue/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <Globe className="w-4 h-4" />
@@ -191,8 +185,6 @@ export default function BentoGridNewsletter() {
                                     {newsletter.pdfAvailable ? (
                                         <a
                                             href={newsletter.pdfPath!}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/20 hover:border-brand-purple/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <FileText className="w-4 h-4" />

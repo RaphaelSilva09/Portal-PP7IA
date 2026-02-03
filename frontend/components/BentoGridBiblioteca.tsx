@@ -106,8 +106,6 @@ export default function BentoGridBiblioteca() {
                                 {latest.htmlAvailable ? (
                                     <a
                                         href={latest.htmlPath!}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-40"
                                     >
                                         <Globe className="w-5 h-5" />
@@ -125,8 +123,6 @@ export default function BentoGridBiblioteca() {
                                 {latest.pdfAvailable ? (
                                     <a
                                         href={latest.pdfPath!}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 hover:border-pink-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-40"
                                     >
                                         <FileText className="w-5 h-5" />
@@ -174,8 +170,6 @@ export default function BentoGridBiblioteca() {
                                     {item.htmlAvailable ? (
                                         <a
                                             href={item.htmlPath!}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <Globe className="w-4 h-4" />
@@ -193,8 +187,6 @@ export default function BentoGridBiblioteca() {
                                     {item.pdfAvailable ? (
                                         <a
                                             href={item.pdfPath!}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 hover:border-pink-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <FileText className="w-4 h-4" />
