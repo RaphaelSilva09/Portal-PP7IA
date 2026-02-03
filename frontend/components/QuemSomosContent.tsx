@@ -5,6 +5,7 @@ import {
     Bot,
     Briefcase,
     ArrowUpRight,
+    Lightbulb,
 } from "lucide-react";
 import { Claude, OpenAI, Gemini, Grok, Perplexity, Manus } from "@lobehub/icons";
 import type { ReactNode } from "react";
@@ -255,22 +256,43 @@ export default function QuemSomosContent() {
                 AS 7 IAS PARCEIRAS
                 ============================================ */}
                 <div className="mb-8">
-                    {/* Section Header */}
-                    <div className="flex flex-col items-center md:items-start gap-4 mb-8">
-                        <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
-                            <Bot className="w-8 h-8 text-cyan-400" />
-                        </div>
-                        <div className="text-center md:text-left">
+                    {/* Header + Banner Split Layout */}
+                    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-12 lg:items-center">
+                        {/* Left: Title Section */}
+                        <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+                            <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6">
+                                <Bot className="w-8 h-8 text-cyan-400" />
+                            </div>
                             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">As 7 IAs parceiras</h2>
-                            <p className="text-gray-400 text-base sm:text-lg tracking-tight mb-2">
+                            <p className="text-gray-400 text-base sm:text-lg tracking-tight mb-4 max-w-md">
                                 A IA amplifica; o julgamento editorial é humano.
                             </p>
                             <a
                                 href="/Resumo-7IAS-e -plataformas-que -usamos .pdf"
-                                className="text-cyan-400 text-sm sm:text-base tracking-tight underline md:no-underline md:hover:underline hover:text-cyan-300 transition-colors duration-200"
+                                className="inline-flex items-center gap-2 text-cyan-400 text-sm sm:text-base tracking-tight font-medium hover:text-cyan-300 transition-colors duration-200 group"
                             >
-                                Saiba mais sobre os modelos usados
+                                <span>Saiba mais sobre os modelos usados</span>
+                                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                             </a>
+                        </div>
+
+                        {/* Divider (Desktop Only) */}
+                        <div className="hidden lg:block w-px h-32 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+
+                        {/* Right: Minha Visão (Minimalist) */}
+                        <div className="flex-1 relative">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Lightbulb className="w-4 h-4 text-yellow-500/90" />
+                                <h3 className="text-xs font-bold text-yellow-500/90 tracking-widest uppercase">
+                                    Minha visão sobre IA
+                                </h3>
+                            </div>
+                            <p className="text-gray-400 text-sm leading-relaxed">
+                                Dominar a IA hoje é tão vital quanto foi adotar a internet. Ela redefine como empresas lucram e pessoas aprendem. Quem usa ganha tempo e relevância; quem rejeita perde espaço.
+                            </p>
+                            <p className="mt-2 text-sm font-medium text-gray-300">
+                                O futuro já está acontecendo. <span className="text-white">E você, vai ficar de fora?</span>
+                            </p>
                         </div>
                     </div>
 
@@ -293,4 +315,3 @@ export default function QuemSomosContent() {
         </section>
     );
 }
-
