@@ -10,6 +10,8 @@
  * - Singleton Pattern: Reutiliza instâncias
  */
 
+import { CreateContentWithUploadUseCase } from "../../application/usecases/CreateContentWithUploadUseCase";
+import { DeleteContentWithFilesUseCase } from "../../application/usecases/DeleteContentWithFilesUseCase";
 import { GetBibliotecaUseCase } from "../../application/usecases/GetBibliotecaUseCase";
 import { GetCurrentUserUseCase } from "../../application/usecases/GetCurrentUserUseCase";
 import { GetMiniLivrosUseCase } from "../../application/usecases/GetMiniLivrosUseCase";
@@ -18,10 +20,13 @@ import { SignInUseCase } from "../../application/usecases/SignInUseCase";
 import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
 import { supabase } from "../config/supabase";
+import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
 import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
 import { SupabaseBibliotecaRepository } from "../repositories/SupabaseBibliotecaRepository";
+import { SupabaseContentRepository } from "../repositories/SupabaseContentRepository";
 import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
+import { SupabaseStorageRepository } from "../repositories/SupabaseStorageRepository";
 
 /**
  * Container de Dependências
@@ -32,6 +37,9 @@ class DIContainer {
     private static newsletterRepositoryInstance: SupabaseNewsletterRepository | null = null;
     private static miniLivroRepositoryInstance: SupabaseMiniLivroRepository | null = null;
     private static bibliotecaRepositoryInstance: SupabaseBibliotecaRepository | null = null;
+    private static adminRepositoryInstance: SupabaseAdminRepository | null = null;
+    private static contentRepositoryInstance: SupabaseContentRepository | null = null;
+    private static storageRepositoryInstance: SupabaseStorageRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -78,6 +86,39 @@ class DIContainer {
     }
 
     /**
+     * Obtém instância do repositório de admin
+     * Singleton Pattern
+     */
+    static getAdminRepository(): SupabaseAdminRepository {
+        if (!this.adminRepositoryInstance) {
+            this.adminRepositoryInstance = new SupabaseAdminRepository();
+        }
+        return this.adminRepositoryInstance;
+    }
+
+    /**
+     * Obtém instância do repositório de conteúdo genérico
+     * Singleton Pattern
+     */
+    static getContentRepository(): SupabaseContentRepository {
+        if (!this.contentRepositoryInstance) {
+            this.contentRepositoryInstance = new SupabaseContentRepository();
+        }
+        return this.contentRepositoryInstance;
+    }
+
+    /**
+     * Obtém instância do repositório de storage
+     * Singleton Pattern
+     */
+    static getStorageRepository(): SupabaseStorageRepository {
+        if (!this.storageRepositoryInstance) {
+            this.storageRepositoryInstance = new SupabaseStorageRepository();
+        }
+        return this.storageRepositoryInstance;
+    }
+
+    /**
      * Factory Methods para casos de uso
      * Cada chamada cria nova instância (útil para testes)
      */
@@ -113,6 +154,23 @@ class DIContainer {
     }
 
     /**
+     * Factory Methods para casos de uso de admin
+     */
+    static getCreateContentWithUploadUseCase(): CreateContentWithUploadUseCase {
+        return new CreateContentWithUploadUseCase(
+            this.getContentRepository(),
+            this.getStorageRepository()
+        );
+    }
+
+    static getDeleteContentWithFilesUseCase(): DeleteContentWithFilesUseCase {
+        return new DeleteContentWithFilesUseCase(
+            this.getContentRepository(),
+            this.getStorageRepository()
+        );
+    }
+
+    /**
      * Reseta container (útil para testes)
      */
     static reset(): void {
@@ -120,6 +178,9 @@ class DIContainer {
         this.newsletterRepositoryInstance = null;
         this.miniLivroRepositoryInstance = null;
         this.bibliotecaRepositoryInstance = null;
+        this.adminRepositoryInstance = null;
+        this.contentRepositoryInstance = null;
+        this.storageRepositoryInstance = null;
     }
 }
 
