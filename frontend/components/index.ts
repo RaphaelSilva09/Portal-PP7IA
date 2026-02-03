@@ -17,3 +17,4 @@ export { default as NewsletterCTA } from "./NewsletterCTA";
 export { default as InviteCTA } from "./InviteCTA";
 export { default as Portal } from "./Portal";
 export { default as QuemSomosContent } from "./QuemSomosContent";
+export { default as WelcomeBanner } from "./WelcomeBanner";

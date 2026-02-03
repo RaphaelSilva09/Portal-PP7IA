@@ -1,4 +1,4 @@
-import { Author, BentoGrid, Footer, HeroSection, Navbar, QuemSomosContent } from "@/components";
+import { Author, BentoGrid, Footer, HeroSection, Navbar, QuemSomosContent, WelcomeBanner } from "@/components";
 
 export default function Home() {
     return (
@@ -8,6 +8,9 @@ export default function Home() {
 
             {/* Hero Section */}
             <HeroSection />
+
+            {/* Welcome Banner - Primeira Edição Oficial */}
+            <WelcomeBanner />
 
             {/* Author Section */}
             <Author />
