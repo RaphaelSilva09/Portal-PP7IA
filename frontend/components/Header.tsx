@@ -5,12 +5,13 @@ import { useState } from "react";
 import { useSearchModal } from "@/context/SearchModalContext";
 import AuthModal from "./AuthModal";
 
-// 4 itens de navegação seguindo a regra de negócio
+// 5 itens de navegação seguindo a regra de negócio
 const navItems = [
     { label: "O Autor", href: "/#autor" },
     { label: "Quem Somos", href: "/#quemsomos" },
-    { label: "Instruções", href: "/PP7IAS_Instrucoes_Rapidas.pdf" },
+    { label: "Índice", href: "/#indice" },
     { label: "Pesquisar", href: "#", isModal: true },
+    { label: "Instruções", href: "/PP7IAS_Instrucoes_Rapidas.pdf" },
 ];
 
 export default function Navbar() {
