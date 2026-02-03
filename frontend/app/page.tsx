@@ -1,4 +1,16 @@
-import { Author, BentoGrid, Footer, HeroSection, Navbar, QuemSomosContent } from "@/components";
+import { 
+    Author, 
+    BentoGrid, 
+    Contato,
+    Declaracoes,
+    Footer, 
+    HeroSection, 
+    IASParceiras,
+    Navbar, 
+    QuemSomosEquipe, 
+    WelcomeBanner, 
+    WhyPP7IASSection 
+} from "@/components";
 
 export default function Home() {
     return (
@@ -6,19 +18,36 @@ export default function Home() {
             {/* Navbar com 7 links de navegação */}
             <Navbar />
 
-            {/* Hero Section */}
+            {/* 1. Hero Section */}
             <HeroSection />
 
-            {/* Author Section */}
-            <Author />
+            {/* 2. Quem Somos + Equipe Unificado */}
+            <QuemSomosEquipe />
 
-            {/* Quem Somos */}
-            <QuemSomosContent />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12 pb-"></div>
+            <div className="pb-8"></div>
+            {/* 3. Welcome Banner - Primeira Edição Oficial */}
+            <WelcomeBanner />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
+            {/* 4. Declarações - Propósito, Visão, Problema, Solução, Para Quem */}
+            <Declaracoes />
 
-            {/* Bento Grid com 7 blocos de conteúdo */}
+            {/* 5. Bento Grid com 7 blocos de conteúdo */}
             <BentoGrid />
 
-            {/* Footer com 7 links sociais e 7 links legais */}
+            {/* 6. Por Que "PP7+IAS" - Explicação do nome do portal */}
+            <WhyPP7IASSection />
+
+            {/* 7. Author Section */}
+            <Author />
+
+            {/* 8. As 7 IAs Parceiras */}
+            <IASParceiras />
+
+            {/* 9. Contato - Newsletter e Convite */}
+            <Contato />
+
+            {/* 10. Footer com 7 links sociais e 7 links legais */}
             <Footer />
         </main>
     );

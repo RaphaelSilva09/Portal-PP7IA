@@ -61,7 +61,7 @@ export default function NewsletterCTA({
     };
 
     return (
-        <div id="cta" className="glass-card rounded-2xl p-6 sm:p-8 mt-12">
+        <div id="cta" className="glass-card rounded-2xl p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{title}</h3>
