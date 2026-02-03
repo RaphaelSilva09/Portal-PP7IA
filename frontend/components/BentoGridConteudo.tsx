@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sparkles, Star } from "lucide-react";
+import { ArrowUpRight, BookOpen, GraduationCap, Handshake, Library, Mail, Search, Sparkles, Star } from "lucide-react";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
 import NewsletterCTA from "./NewsletterCTA";
@@ -300,34 +300,34 @@ export default function BentoGrid() {
                     {/* Card: Patrocínio de Estudos */}
                     <div
                         id="ensinar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-pink-500/30 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] block min-h-80"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-rose-500/30 hover:shadow-[0_0_30px_rgba(244,63,94,0.15)] block min-h-80"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
                             {/* Icon */}
-                            <div className="w-16 h-16 rounded-2xl bg-pink-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <Heart className="w-8 h-8 text-pink-400" />
+                            <div className="w-16 h-16 rounded-2xl bg-rose-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <Handshake className="w-8 h-8 text-rose-400" />
                             </div>
 
                             {/* Badge Em Breve */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-pink-500/10 border border-pink-500/20 rounded-full">
-                                    <span className="text-xs font-medium text-pink-400">Em breve</span>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 rounded-full">
+                                    <span className="text-xs font-medium text-rose-400">Em breve</span>
                                 </span>
                             </div>
 
                             {/* Content */}
                             <div>
                                 <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
-                                    Ensinar
+                                    Patrocínio
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    A ser implementado a partir de 7 de abril.
+                                    Em Breve (abril/2026)
                                 </p>
                             </div>
 
                             {/* Accent Line */}
-                            <div className="absolute bottom-0 left-0 right-0 h-2 bg-linear-to-r from-pink-500 to-rose-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                            <div className="absolute bottom-0 left-0 right-0 h-2 bg-linear-to-r from-rose-500 to-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                         </div>
                     </div>
                 </div>
