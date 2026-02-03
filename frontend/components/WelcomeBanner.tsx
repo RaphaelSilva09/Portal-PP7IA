@@ -1,6 +1,6 @@
 export default function WelcomeBanner() {
     return (
-        <section className="relative py-8 sm:py-12 md:py-16 px-4 sm:px-6 lg:px-8">
+        <section className="relative py-8 sm:py-12 md:pt-4 md:pb-0 px-4 sm:px-6 lg:px-8">
             <div className="max-w-5xl mx-auto">
                 <div className="glass-card p-6 sm:p-8 text-center bg-brand-green/5 border-brand-green/20 shadow-glow-green-sm">
                     {/* Title */}

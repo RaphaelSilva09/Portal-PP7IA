@@ -1,10 +1,6 @@
 "use client";
 
 import { ArrowUpRight, BookOpen, GraduationCap, Handshake, Library, Mail, Search, Sparkles, Star } from "lucide-react";
-import { useState } from "react";
-import AuthModal from "./AuthModal";
-import NewsletterCTA from "./NewsletterCTA";
-import InviteCTA from "./InviteCTA";
 
 /**
  * BentoGrid Component - Layout "1x3x3 Hierarchy"
@@ -13,14 +9,6 @@ import InviteCTA from "./InviteCTA";
  */
 
 export default function BentoGrid() {
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [authInitialData, setAuthInitialData] = useState<{ email?: string; celular?: string }>({});
-
-    const handleSubscribe = (email: string, celular: string) => {
-        setAuthInitialData({ email, celular });
-        setIsAuthModalOpen(true);
-    };
-
     return (
         <section id="indice" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
             <div className="max-w-7xl mx-auto">
@@ -331,18 +319,7 @@ export default function BentoGrid() {
                         </div>
                     </div>
                 </div>
-
-                <NewsletterCTA onSubscribe={handleSubscribe} />
-                <InviteCTA />
             </div>
-
-            {/* Auth Modal */}
-            <AuthModal
-                isOpen={isAuthModalOpen}
-                onClose={() => setIsAuthModalOpen(false)}
-                initialMode="signup"
-                initialData={authInitialData}
-            />
         </section>
     );
 }
