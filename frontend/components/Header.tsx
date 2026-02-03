@@ -5,13 +5,15 @@ import { useState } from "react";
 import { useSearchModal } from "@/context/SearchModalContext";
 import AuthModal from "./AuthModal";
 
-// 5 itens de navegação seguindo a regra de negócio
+// 7 itens de navegação seguindo a regra de negócio
 const navItems = [
-    { label: "O Autor", href: "/#autor" },
     { label: "Quem Somos", href: "/#quemsomos" },
+    { label: "Declarações", href: "/#declaracoes" },
     { label: "Índice", href: "/#indice" },
+    { label: "O Autor", href: "/#autor" },
+    { label: "As 7 IAs", href: "/#ias" },
+    { label: "Contato", href: "/#contato" },
     { label: "Pesquisar", href: "#", isModal: true },
-    { label: "Instruções", href: "/PP7IAS_Instrucoes_Rapidas.pdf" },
 ];
 
 export default function Navbar() {
@@ -55,9 +57,9 @@ export default function Navbar() {
                         </span>
                     </a>
 
-                    {/* Desktop Navigation - 4 Links (Centered) */}
+                    {/* Desktop Navigation - 7 Links (Centered) */}
                     <nav
-                        className="hidden lg:flex items-center justify-center flex-1 gap-6"
+                        className="nav-desktop hidden items-center justify-center flex-1 gap-6"
                         aria-label="Navegação principal"
                     >
                         {navItems.map(item =>
@@ -105,7 +107,7 @@ export default function Navbar() {
                     {/* Mobile Menu Button */}
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="lg:hidden p-2 text-text-secondary hover:text-white transition-colors touch-target"
+                        className="nav-mobile-hidden p-2 text-text-secondary hover:text-white transition-colors touch-target"
                         aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
                     >
                         {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -115,7 +117,7 @@ export default function Navbar() {
 
             {/* Mobile Menu - 7 Links */}
             <div
-                className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                className={`nav-mobile-hidden transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
                     }`}
             >
                 <nav

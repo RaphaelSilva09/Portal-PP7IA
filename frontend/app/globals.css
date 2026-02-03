@@ -89,6 +89,9 @@
     --color-brand-green: var(--brand-green);
     --color-brand-yellow: var(--brand-yellow);
     --color-brand-purple: var(--brand-purple);
+
+    /* Custom Breakpoint */
+    --breakpoint-lg: 1106px;
 }
 
 /* === Reset & Base === */
@@ -562,4 +565,57 @@ body {
 
 .btn-gradient-cta:active {
     transform: scale(0.95);
+}
+
+/* ============================================
+   Custom Breakpoint Media Queries
+   ============================================ */
+@media (min-width: 1106px) {
+    .nav-desktop {
+        display: flex !important;
+    }
+    
+    .nav-mobile-hidden {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1105px) {
+    .nav-desktop {
+        display: none !important;
+    }
+    
+    .nav-mobile-hidden {
+        display: flex !important;
+    }
+}
+
+/* Breakpoint para solução vertical (menor que 380px) */
+@media (max-width: 379px) {
+    .solution-flow-container {
+        flex-direction: column !important;
+    }
+    
+    .solution-flow-item {
+        flex-direction: column !important;
+    }
+    
+    .solution-arrow-down {
+        transform: rotate(90deg) !important;
+    }
+}
+
+@media (min-width: 380px) {
+    .solution-flow-container {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .solution-flow-item {
+        flex-direction: row !important;
+    }
+    
+    .solution-arrow-down {
+        transform: rotate(0deg) !important;
+    }
 }
