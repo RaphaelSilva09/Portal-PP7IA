@@ -40,7 +40,12 @@ export class MiniLivro {
     }
 
     get htmlPath(): string | null {
-        return this.props.htmlPath?.trim() || null;
+        const rawPath = this.props.htmlPath?.trim();
+        if (!rawPath) return null;
+        const match = rawPath.match(/\/([^/]+)\.html$/);
+        if (!match) return rawPath;
+        const slug = match[1];
+        return `/view/mini-livro/${slug}`;
     }
 
     get pdfPath(): string | null {

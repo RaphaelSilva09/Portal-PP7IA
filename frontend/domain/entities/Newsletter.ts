@@ -40,7 +40,12 @@ export class Newsletter {
     }
 
     get htmlPath(): string | null {
-        return this.props.htmlPath?.trim() || null;
+        const rawPath = this.props.htmlPath?.trim();
+        if (!rawPath) return null;
+        const match = rawPath.match(/\/([^/]+)\.html$/);
+        if (!match) return rawPath;
+        const slug = match[1];
+        return `/view/newsletter/${slug}`;
     }
 
     get pdfPath(): string | null {
