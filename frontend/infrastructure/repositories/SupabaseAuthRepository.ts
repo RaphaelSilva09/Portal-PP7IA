@@ -245,6 +245,132 @@ export class SupabaseAuthRepository implements IAuthRepository {
     }
 
     /**
+     * Atualiza o email do usuário
+     */
+    async updateEmail(params: { newEmail: string }): Promise<void> {
+        try {
+            const { error } = await this.supabase.auth.updateUser({
+                email: params.newEmail,
+            });
+
+            if (error) {
+                throw this.mapSupabaseError(error);
+            }
+
+            // Atualiza também na tabela users
+            const {
+                data: { user },
+            } = await this.supabase.auth.getUser();
+            if (user) {
+                await this.supabase.from("users").update({ email: params.newEmail }).eq("id", user.id);
+            }
+        } catch (error) {
+            if (error instanceof Error && "status" in error) {
+                throw this.mapSupabaseError(error);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Atualiza a senha do usuário
+     */
+    async updatePassword(params: { currentPassword: string; newPassword: string }): Promise<void> {
+        try {
+            // Primeiro verifica a senha atual tentando fazer login
+            const {
+                data: { user },
+            } = await this.supabase.auth.getUser();
+            if (!user?.email) {
+                throw new UnknownAuthError("Usuário não autenticado");
+            }
+
+            const { error: signInError } = await this.supabase.auth.signInWithPassword({
+                email: user.email,
+                password: params.currentPassword,
+            });
+
+            if (signInError) {
+                throw new InvalidCredentialsError();
+            }
+
+            // Atualiza a senha
+            const { error } = await this.supabase.auth.updateUser({
+                password: params.newPassword,
+            });
+
+            if (error) {
+                throw this.mapSupabaseError(error);
+            }
+        } catch (error) {
+            if (error instanceof Error && "status" in error) {
+                throw this.mapSupabaseError(error);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Atualiza preferências de notificação
+     */
+    async updatePreferences(params: { acceptEmailUpdates: boolean; acceptWhatsAppUpdates: boolean }): Promise<void> {
+        try {
+            const {
+                data: { user },
+            } = await this.supabase.auth.getUser();
+            if (!user) {
+                throw new UnknownAuthError("Usuário não autenticado");
+            }
+
+            const { error } = await this.supabase
+                .from("users")
+                .update({
+                    accept_email_updates: params.acceptEmailUpdates,
+                    accept_whatsapp_updates: params.acceptWhatsAppUpdates,
+                })
+                .eq("id", user.id);
+
+            if (error) {
+                throw this.mapSupabaseError(error);
+            }
+        } catch (error) {
+            if (error instanceof Error && "status" in error) {
+                throw this.mapSupabaseError(error);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Deleta a conta do usuário
+     */
+    async deleteAccount(): Promise<void> {
+        try {
+            const {
+                data: { user },
+            } = await this.supabase.auth.getUser();
+            if (!user) {
+                throw new UnknownAuthError("Usuário não autenticado");
+            }
+
+            // Primeiro deleta o perfil (o RLS permite que o usuário delete seu próprio perfil)
+            const { error: profileError } = await this.supabase.from("users").delete().eq("id", user.id);
+
+            if (profileError) {
+                throw this.mapSupabaseError(profileError);
+            }
+
+            // Faz signOut (a deleção completa do Auth requer um endpoint backend)
+            await this.supabase.auth.signOut();
+        } catch (error) {
+            if (error instanceof Error && "status" in error) {
+                throw this.mapSupabaseError(error);
+            }
+            throw error;
+        }
+    }
+
+    /**
      * Mapeia dados brutos para entidade User do domínio
      * Adapter Pattern: Traduz formato externo para domínio
      */

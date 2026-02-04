@@ -17,6 +17,7 @@ export { default as HeroSection } from "./HeroSection";
 export { default as HeroTitle } from "./HeroTitle";
 export { default as IASParceiras } from "./IASParceiras";
 export { default as Portal } from "./Portal";
+export { default as ProfileModal } from "./ProfileModal";
 export { default as QuemSomosEquipe } from "./QuemSomosEquipe";
 export { default as QuemSomosTitulo } from "./QuemSomosTitulo";
 export { default as WelcomeBanner } from "./WelcomeBanner";

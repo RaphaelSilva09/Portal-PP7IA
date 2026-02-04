@@ -26,6 +26,10 @@ interface UseAuthResult {
     signIn: (params: SignInParams) => Promise<void>;
     signOut: () => Promise<void>;
     getCurrentUser: () => Promise<void>;
+    updateEmail: (newEmail: string) => Promise<void>;
+    updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+    updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
+    deleteAccount: () => Promise<void>;
     clearError: () => void;
 }
 
@@ -148,6 +152,96 @@ export function useAuth(): UseAuthResult {
         setError(null);
     }, []);
 
+    /**
+     * Atualiza email do usuário
+     */
+    const updateEmail = useCallback(
+        async (newEmail: string) => {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const repository = DIContainer.getAuthRepository();
+                await repository.updateEmail({ newEmail });
+                // Atualiza o usuário local
+                await getCurrentUser();
+            } catch (err) {
+                const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar email.";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [getCurrentUser],
+    );
+
+    /**
+     * Atualiza senha do usuário
+     */
+    const updatePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const repository = DIContainer.getAuthRepository();
+            await repository.updatePassword({ currentPassword, newPassword });
+        } catch (err) {
+            const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar senha.";
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    /**
+     * Atualiza preferências de notificação
+     */
+    const updatePreferences = useCallback(
+        async (acceptEmail: boolean, acceptWhatsApp: boolean) => {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const repository = DIContainer.getAuthRepository();
+                await repository.updatePreferences({
+                    acceptEmailUpdates: acceptEmail,
+                    acceptWhatsAppUpdates: acceptWhatsApp,
+                });
+                // Atualiza o usuário local
+                await getCurrentUser();
+            } catch (err) {
+                const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar preferências.";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [getCurrentUser],
+    );
+
+    /**
+     * Deleta conta do usuário
+     */
+    const deleteAccount = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const repository = DIContainer.getAuthRepository();
+            await repository.deleteAccount();
+            setUser(null);
+        } catch (err) {
+            const errorMessage = err instanceof AuthError ? err.message : "Erro ao deletar conta.";
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     return {
         user,
         isLoading,
@@ -157,6 +251,10 @@ export function useAuth(): UseAuthResult {
         signIn,
         signOut,
         getCurrentUser,
+        updateEmail,
+        updatePassword,
+        updatePreferences,
+        deleteAccount,
         clearError,
     };
 }
