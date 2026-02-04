@@ -83,7 +83,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
         try {
             await updateEmail(newEmail);
-            setSuccessMessage("Email atualizado! Verifique sua caixa de entrada para confirmar.");
+            setSuccessMessage("Email atualizado! Verifique sua caixa de entrada para confirmar. Se não encontrar, verifique a pasta de spam.");
         } catch {
             // Error handled by useAuth
         }
