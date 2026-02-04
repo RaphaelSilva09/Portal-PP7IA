@@ -2,10 +2,10 @@
 
 import { AlertCircle, Check, Eye, EyeOff, Mail, Phone, Trash2, User as UserIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAuth } from "../presentation/hooks/useAuth";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
-import Portal from "./Portal";
 import { isValidEmail, isValidPassword } from "../lib/validators";
+import { useAuth } from "../presentation/hooks/useAuth";
+import Portal from "./Portal";
 
 interface ProfileModalProps {
     isOpen: boolean;
@@ -83,7 +83,9 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
         try {
             await updateEmail(newEmail);
-            setSuccessMessage("Email atualizado! Verifique sua caixa de entrada para confirmar. Se não encontrar, verifique a pasta de spam.");
+            setSuccessMessage(
+                "Email atualizado! Verifique sua caixa de entrada para confirmar. Se não encontrar, verifique a pasta de spam.",
+            );
         } catch {
             // Error handled by useAuth
         }
@@ -153,11 +155,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         <Portal>
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                 {/* Overlay */}
-                <div
-                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                    onClick={onClose}
-                    aria-hidden="true"
-                />
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
 
                 {/* Modal */}
                 <div className="relative w-full max-w-lg bg-bg-secondary border border-border-glass rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">

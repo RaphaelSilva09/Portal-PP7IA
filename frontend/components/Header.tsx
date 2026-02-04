@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchModal } from "@/context/SearchModalContext";
+import { useAuth } from "@/presentation/hooks/useAuth";
 import { LogOut, Menu, Sparkles, User as UserIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/presentation/hooks/useAuth";
 import AuthModal from "./AuthModal";
 import ProfileModal from "./ProfileModal";
 

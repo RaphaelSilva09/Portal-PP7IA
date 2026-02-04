@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, Sparkles, User, UserPlus, X } from "lucide-react";
+import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { formatPhone } from "../lib/formatters";
@@ -177,7 +177,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
             // Cadastro bem-sucedido: verificar se precisa confirmar email
             if (result.emailConfirmationRequired) {
-                setSuccessMessage("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta. Se não encontrar, verifique a pasta de spam.");
+                setSuccessMessage(
+                    "Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta. Se não encontrar, verifique a pasta de spam.",
+                );
             } else {
                 // Sessão criada automaticamente, fechar modal
                 onClose();
