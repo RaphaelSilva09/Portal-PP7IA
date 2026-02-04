@@ -26,6 +26,20 @@ export interface SignInParams {
     password: string;
 }
 
+export interface UpdateEmailParams {
+    newEmail: string;
+}
+
+export interface UpdatePasswordParams {
+    currentPassword: string;
+    newPassword: string;
+}
+
+export interface UpdatePreferencesParams {
+    acceptEmailUpdates: boolean;
+    acceptWhatsAppUpdates: boolean;
+}
+
 export interface AuthResult {
     user: User;
     session: {
@@ -70,4 +84,24 @@ export interface IAuthRepository {
      * Envia email de reset de senha
      */
     sendPasswordReset(email: string): Promise<void>;
+
+    /**
+     * Atualiza o email do usuário
+     */
+    updateEmail(params: UpdateEmailParams): Promise<void>;
+
+    /**
+     * Atualiza a senha do usuário
+     */
+    updatePassword(params: UpdatePasswordParams): Promise<void>;
+
+    /**
+     * Atualiza preferências de notificação
+     */
+    updatePreferences(params: UpdatePreferencesParams): Promise<void>;
+
+    /**
+     * Deleta a conta do usuário
+     */
+    deleteAccount(): Promise<void>;
 }

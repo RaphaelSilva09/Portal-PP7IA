@@ -1,15 +1,14 @@
-import { 
-    Author, 
-    BentoGrid, 
-    Contato,
+import {
+    Author,
+    BentoGrid,
     Declaracoes,
-    Footer, 
-    HeroSection, 
+    Footer,
+    HeroSection,
     IASParceiras,
-    Navbar, 
-    QuemSomosEquipe, 
-    WelcomeBanner, 
-    WhyPP7IASSection 
+    Navbar,
+    QuemSomosEquipe,
+    WelcomeBanner,
+    WhyPP7IASSection,
 } from "@/components";
 
 export default function Home() {
@@ -44,10 +43,7 @@ export default function Home() {
             {/* 8. As 7 IAs Parceiras */}
             <IASParceiras />
 
-            {/* 9. Contato - Newsletter e Convite */}
-            <Contato />
-
-            {/* 10. Footer com 7 links sociais e 7 links legais */}
+            {/* 9. Footer com 7 links sociais e 7 links legais */}
             <Footer />
         </main>
     );

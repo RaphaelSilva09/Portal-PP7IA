@@ -1,9 +1,11 @@
 "use client";
 
-import { Menu, Sparkles, X } from "lucide-react";
-import { useState } from "react";
 import { useSearchModal } from "@/context/SearchModalContext";
+import { LogOut, Menu, Sparkles, User as UserIcon, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/presentation/hooks/useAuth";
 import AuthModal from "./AuthModal";
+import ProfileModal from "./ProfileModal";
 
 // 7 itens de navegação seguindo a regra de negócio
 const navItems = [
@@ -12,7 +14,7 @@ const navItems = [
     { label: "Índice", href: "/#indice" },
     { label: "O Autor", href: "/#autor" },
     { label: "As 7 IAs", href: "/#ias" },
-    { label: "Contato", href: "/#contato" },
+    { label: "Contato", href: "mailto:contato@pp7ias.com", isExternal: true },
     { label: "Pesquisar", href: "#", isModal: true },
 ];
 
@@ -21,6 +23,18 @@ export default function Navbar() {
     const { openModal } = useSearchModal();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authInitialMode, setAuthInitialMode] = useState<"login" | "signup">("login");
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const { user, signOut, getCurrentUser } = useAuth();
+
+    // Busca usuário atual ao montar
+    useEffect(() => {
+        getCurrentUser();
+    }, [getCurrentUser]);
+
+    const handleLogout = async () => {
+        await signOut();
+        setIsMenuOpen(false);
+    };
 
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
         if (!href.startsWith("/#")) return;
@@ -75,33 +89,56 @@ export default function Navbar() {
                                 <a
                                     key={item.label}
                                     href={item.href}
-                                    onClick={e => scrollToSection(e, item.href)}
+                                    onClick={e => !item.isExternal && scrollToSection(e, item.href)}
                                     className="text-sm text-text-secondary hover:text-white transition-colors duration-200 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </a>
-                            )
+                            ),
                         )}
                     </nav>
 
-                    {/* CTA Button */}
+                    {/* CTA or User Section */}
                     <div className="hidden md:flex items-center gap-2">
-                        <button
-                            onClick={() => {
-                                setAuthInitialMode("login");
-                                setIsAuthModalOpen(true);
-                            }}
-                            className="px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
-                        >
-                            Entrar
-                        </button>
-                        <a
-                            href="/#cta"
-                            onClick={e => scrollToSection(e, "/#cta")}
-                            className="flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
-                        >
-                            <span>Quero Fazer Parte</span>
-                        </a>
+                        {user ? (
+                            <>
+                                <button
+                                    onClick={() => setIsProfileModalOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                >
+                                    <UserIcon className="w-4 h-4" />
+                                    <span>{user.nome}</span>
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-200"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    <span>Sair</span>
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => {
+                                        setAuthInitialMode("login");
+                                        setIsAuthModalOpen(true);
+                                    }}
+                                    className="px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                >
+                                    Entrar
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setAuthInitialMode("signup");
+                                        setIsAuthModalOpen(true);
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
+                                >
+                                    <span>Quero Fazer Parte</span>
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -144,7 +181,7 @@ export default function Navbar() {
                                 href={item.href}
                                 onClick={e => {
                                     setIsMenuOpen(false);
-                                    scrollToSection(e, item.href);
+                                    !item.isExternal && scrollToSection(e, item.href);
                                 }}
                                 className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
                                 style={{ animationDelay: `${index * 50}ms` }}
@@ -152,38 +189,69 @@ export default function Navbar() {
                                 <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
                                 <span className="font-medium">{item.label}</span>
                             </a>
-                        )
+                        ),
                     )}
 
-                    {/* Mobile CTA */}
+                    {/* Mobile CTA or User Section */}
                     <div className="pt-4 px-4 space-y-3">
-                        <button
-                            onClick={() => {
-                                setIsMenuOpen(false);
-                                setAuthInitialMode("login");
-                                setIsAuthModalOpen(true);
-                            }}
-                            className="w-full px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
-                        >
-                            Entrar
-                        </button>
-                        <a
-                            href="/#cta"
-                            onClick={e => {
-                                setIsMenuOpen(false);
-                                scrollToSection(e, "/#cta");
-                            }}
-                            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-all duration-200 touch-target"
-                        >
-                            <Sparkles className="w-4 h-4" />
-                            <span>Quero Fazer Parte</span>
-                        </a>
+                        {user ? (
+                            <>
+                                <button
+                                    onClick={() => {
+                                        setIsMenuOpen(false);
+                                        setIsProfileModalOpen(true);
+                                    }}
+                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
+                                >
+                                    <UserIcon className="w-4 h-4" />
+                                    <span>{user.nome}</span>
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 text-red-400 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 active:scale-95 transition-all duration-200 touch-target"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    <span>Sair</span>
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => {
+                                        setIsMenuOpen(false);
+                                        setAuthInitialMode("login");
+                                        setIsAuthModalOpen(true);
+                                    }}
+                                    className="w-full px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
+                                >
+                                    Entrar
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setIsMenuOpen(false);
+                                        setAuthInitialMode("signup");
+                                        setIsAuthModalOpen(true);
+                                    }}
+                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-all duration-200 touch-target"
+                                >
+                                    <Sparkles className="w-4 h-4" />
+                                    <span>Quero Fazer Parte</span>
+                                </button>
+                            </>
+                        )}
                     </div>
                 </nav>
             </div>
 
             {/* Auth Modal */}
-            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialMode={authInitialMode} />
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                initialMode={authInitialMode}
+            />
+
+            {/* Profile Modal */}
+            <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
         </header>
     );
 }

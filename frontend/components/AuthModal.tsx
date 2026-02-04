@@ -66,6 +66,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     // Hook para travar scroll do body (DRY - extraído para hook reutilizável)
     useBodyScrollLock(isOpen);
 
+    // Sincroniza o modo com initialMode quando o modal abre
+    useEffect(() => {
+        if (isOpen) {
+            setMode(initialMode);
+        }
+    }, [isOpen, initialMode]);
+
     // Reseta o formulário quando o modo muda ou modal abre
     useEffect(() => {
         if (isOpen) {
@@ -170,7 +177,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
             // Cadastro bem-sucedido: verificar se precisa confirmar email
             if (result.emailConfirmationRequired) {
-                setSuccessMessage("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta.");
+                setSuccessMessage("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta. Se não encontrar, verifique a pasta de spam.");
             } else {
                 // Sessão criada automaticamente, fechar modal
                 onClose();
@@ -261,24 +268,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                 Explorar Conteúdo
                             </button>
                         </div>
-                    )}
-
-                    {/* Warning Message - Login em Desenvolvimento */}
-                    {isLoginMode && (
-                        <>
-                            <div className="mx-4 mb-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-2">
-                                <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-yellow-300">
-                                    Funcionalidade de login em desenvolvimento. Por enquanto, apenas o cadastro está disponível.
-                                </p>
-                            </div>
-                            <div className="mx-4 mb-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-2">
-                                <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-blue-300">
-                                    Todo o conteúdo do portal é gratuito e acessível sem login. O cadastro permite receber notificações de novos conteúdos.
-                                </p>
-                            </div>
-                        </>
                     )}
 
                     {/* Form Container com scroll interno */}
@@ -444,14 +433,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                disabled={isLoading || isLoginMode}
+                                disabled={isLoading}
                                 className={`w-full px-5 py-2.5 ${
                                     isLoginMode
                                         ? "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
                                         : "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
                                 } text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                             >
-                                {isLoading ? "Processando..." : isLoginMode ? "Em breve..." : submitButtonText}
+                                {isLoading ? "Processando..." : submitButtonText}
                             </button>
 
                             {/* Toggle Mode */}
