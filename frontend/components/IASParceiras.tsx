@@ -202,13 +202,7 @@ export default function IASParceiras() {
                             <p className="text-gray-400 text-base sm:text-lg tracking-tight mb-4 max-w-md">
                                 A IA amplifica; o julgamento editorial é humano.
                             </p>
-                            <a
-                                href="/Resumo-7IAS-e -plataformas-que -usamos .pdf"
-                                className="inline-flex items-center gap-2 text-cyan-400 text-sm sm:text-base tracking-tight font-medium hover:text-cyan-300 transition-colors duration-200 group"
-                            >
-                                <span>Saiba mais sobre os modelos usados</span>
-                                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                            </a>
+
                         </div>
 
                         {/* Divider (Desktop Only) */}
