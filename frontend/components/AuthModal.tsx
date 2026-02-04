@@ -156,36 +156,36 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Bloqueia login - funcionalidade em desenvolvimento
-        if (mode === "login") {
-            return;
-        }
-
         if (!validateForm()) {
             return;
         }
 
         try {
-            const result = await signUp({
-                email: formData.email,
-                password: formData.senha,
-                nome: formData.nome,
-                celular: formData.celular,
-                acceptEmailUpdates,
-                acceptWhatsAppUpdates,
-            });
-
-            // Cadastro bem-sucedido: verificar se precisa confirmar email
-            if (result.emailConfirmationRequired) {
-                setSuccessMessage(
-                    "Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta. Se não encontrar, verifique a pasta de spam.",
-                );
-            } else {
-                // Sessão criada automaticamente, fechar modal
+            if (mode === "login") {
+                await signIn({
+                    email: formData.email,
+                    password: formData.senha,
+                });
                 onClose();
+            } else {
+                const result = await signUp({
+                    email: formData.email,
+                    password: formData.senha,
+                    nome: formData.nome,
+                    celular: formData.celular,
+                    acceptEmailUpdates,
+                    acceptWhatsAppUpdates,
+                });
+
+                if (result.emailConfirmationRequired) {
+                    setSuccessMessage(
+                        "Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta. Se não encontrar, verifique a pasta de spam.",
+                    );
+                } else {
+                    onClose();
+                }
             }
         } catch (error) {
-            // Erro já está sendo tratado pelo hook useAuth
             console.error("Erro ao processar autenticação:", error);
         }
     };
