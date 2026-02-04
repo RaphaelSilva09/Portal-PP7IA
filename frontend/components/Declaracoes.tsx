@@ -1,13 +1,6 @@
 "use client";
 
-import {
-    Heart,
-    Eye,
-    AlertCircle,
-    CheckCircle2,
-    Users,
-    ArrowRight,
-} from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Eye, Heart, Users } from "lucide-react";
 
 export default function Declaracoes() {
     return (
@@ -49,7 +42,8 @@ export default function Declaracoes() {
                                             Propósito
                                         </span>
                                         <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 leading-tight">
-                                            Curar conhecimento prático para netos, família, amigos, novas gerações e quem mais tiver interesse em temas de IAs, liderança e outros conhecimentos
+                                            Curar conhecimento prático para netos, família, amigos, novas gerações e
+                                            quem mais tiver interesse em temas de IAs, liderança e outros conhecimentos
                                         </h2>
                                         <p className="text-sm sm:text-base text-gray-400">
                                             A tecnologia é ferramenta. O foco é{" "}
@@ -65,10 +59,8 @@ export default function Declaracoes() {
                     LINHA 2: VISÃO + PROBLEMA + SOLUÇÃO (3 colunas)
                     ============================================ */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
                         {/* VISÃO */}
                         <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300">
-
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -78,9 +70,7 @@ export default function Declaracoes() {
 
                             {/* Conteúdo */}
                             <div>
-                                <h3 className="text-lg font-bold text-white mb-3">
-                                    Visão
-                                </h3>
+                                <h3 className="text-lg font-bold text-white mb-3">Visão</h3>
                                 <blockquote className="border-l-4 border-blue-400 pl-4 italic text-base text-gray-300 leading-relaxed">
                                     "Liderar é servir. Formar pessoas. Deixar legado."
                                 </blockquote>
@@ -89,7 +79,6 @@ export default function Declaracoes() {
 
                         {/* O PROBLEMA */}
                         <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300">
-
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -99,9 +88,7 @@ export default function Declaracoes() {
 
                             {/* Conteúdo */}
                             <div>
-                                <h3 className="text-lg font-bold text-white mb-3">
-                                    O Problema
-                                </h3>
+                                <h3 className="text-lg font-bold text-white mb-3">O Problema</h3>
                                 <p className="text-base text-gray-300 leading-relaxed">
                                     Excesso de informação, conhecimento disperso e difícil aplicação prática.
                                 </p>
@@ -110,7 +97,6 @@ export default function Declaracoes() {
 
                         {/* A SOLUÇÃO */}
                         <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300">
-
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -120,23 +106,19 @@ export default function Declaracoes() {
 
                             {/* Conteúdo */}
                             <div>
-                                <h3 className="text-lg font-bold text-white mb-3">
-                                    A Solução
-                                </h3>
-                                <p className="text-sm text-gray-400 mb-4">
-                                    Um lugar só. O caminho claro:
-                                </p>
+                                <h3 className="text-lg font-bold text-white mb-3">A Solução</h3>
+                                <p className="text-sm text-gray-400 mb-4">Um lugar só. O caminho claro:</p>
 
                                 {/* Fluxo de processo - mantém horizontal em todos os tamanhos */}
                                 <div className="flex flex-row flex-wrap items-center gap-2">
-                                    {['Aprendo', 'Faço', 'Documento', 'Compartilho'].map((step, i) => (
+                                    {["Aprendo", "Faço", "Documento", "Compartilho"].map((step, i) => (
                                         <div key={step} className="flex items-center gap-2">
-                                            <span className={`${i === 3 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-white/5 text-gray-400 border-white/10'} border px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap`}>
+                                            <span
+                                                className={`${i === 3 ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-white/5 text-gray-400 border-white/10"} border px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap`}
+                                            >
                                                 {step}
                                             </span>
-                                            {i < 3 && (
-                                                <ArrowRight className="w-4 h-4 text-gray-600 flex-shrink-0" />
-                                            )}
+                                            {i < 3 && <ArrowRight className="w-4 h-4 text-gray-600 flex-shrink-0" />}
                                         </div>
                                     ))}
                                 </div>
@@ -148,7 +130,6 @@ export default function Declaracoes() {
                     LINHA 3: PARA QUEM (Full Width)
                     ============================================ */}
                     <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 lg:p-8">
-
                         {/* Header */}
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center">
@@ -166,9 +147,12 @@ export default function Declaracoes() {
                                 "Família e amigos interessados",
                                 "Quem quer aprender IA sem jargão",
                                 "Líderes em formação ou transição",
-                                "Quem valoriza clareza sobre volume"
+                                "Quem valoriza clareza sobre volume",
                             ].map((item, idx) => (
-                                <div key={idx} className="flex items-start gap-2 p-3 rounded-xl bg-white/5 hover:bg-white/[0.07] transition-colors">
+                                <div
+                                    key={idx}
+                                    className="flex items-start gap-2 p-3 rounded-xl bg-white/5 hover:bg-white/[0.07] transition-colors"
+                                >
                                     <span className="text-amber-400 text-sm mt-0.5">•</span>
                                     <span className="text-gray-300 text-sm leading-snug">{item}</span>
                                 </div>

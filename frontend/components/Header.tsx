@@ -154,8 +154,9 @@ export default function Navbar() {
 
             {/* Mobile Menu - 7 Links */}
             <div
-                className={`nav-mobile-1108 transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
-                    }`}
+                className={`nav-mobile-1108 transition-all duration-300 ease-in-out overflow-hidden ${
+                    isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                }`}
             >
                 <nav
                     className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"

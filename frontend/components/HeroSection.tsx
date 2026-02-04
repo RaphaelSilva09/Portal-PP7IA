@@ -1,7 +1,6 @@
 "use client";
 
 import TopoSvg from "@/public/topo.svg";
-import { ArrowRight, FileText } from "lucide-react";
 import HeroTitle from "./HeroTitle";
 
 export default function HeroSection() {
