@@ -66,6 +66,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     // Hook para travar scroll do body (DRY - extraído para hook reutilizável)
     useBodyScrollLock(isOpen);
 
+    // Sincroniza o modo com initialMode quando o modal abre
+    useEffect(() => {
+        if (isOpen) {
+            setMode(initialMode);
+        }
+    }, [isOpen, initialMode]);
+
     // Reseta o formulário quando o modo muda ou modal abre
     useEffect(() => {
         if (isOpen) {
