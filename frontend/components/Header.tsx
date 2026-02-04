@@ -59,7 +59,7 @@ export default function Navbar() {
 
                     {/* Desktop Navigation - 7 Links (Centered) */}
                     <nav
-                        className="nav-desktop hidden items-center justify-center flex-1 gap-6"
+                        className="nav-desktop-1108 hidden items-center justify-center flex-1 gap-6"
                         aria-label="Navegação principal"
                     >
                         {navItems.map(item =>
@@ -107,7 +107,7 @@ export default function Navbar() {
                     {/* Mobile Menu Button */}
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="nav-mobile-hidden p-2 text-text-secondary hover:text-white transition-colors touch-target"
+                        className="nav-mobile-1108 p-2 text-text-secondary hover:text-white transition-colors touch-target"
                         aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
                     >
                         {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -117,7 +117,7 @@ export default function Navbar() {
 
             {/* Mobile Menu - 7 Links */}
             <div
-                className={`nav-mobile-hidden transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                className={`nav-mobile-1108 transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
                     }`}
             >
                 <nav
