@@ -244,7 +244,6 @@ export default function BentoGridMiniLivros() {
                         </div>
                     ))}
                 </div>
-
             </div>
         </section>
     );

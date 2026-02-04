@@ -309,7 +309,6 @@ export default function BentoGrid() {
                         </div>
                     </a>
                 </div>
-
             </div>
         </section>
     );

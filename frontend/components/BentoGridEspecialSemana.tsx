@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Globe, Sparkles, Star } from "lucide-react";
+import { FileText, Globe, Sparkles } from "lucide-react";
 
 /**
  * BentoGridEspecialSemana Component
@@ -222,7 +222,6 @@ export default function BentoGridEspecialSemana() {
                         </div>
                     ))}
                 </div>
-
             </div>
         </section>
     );

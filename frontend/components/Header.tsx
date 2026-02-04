@@ -12,7 +12,7 @@ const navItems = [
     { label: "Índice", href: "/#indice" },
     { label: "O Autor", href: "/#autor" },
     { label: "As 7 IAs", href: "/#ias" },
-    { label: "Contato", href: "/#contato" },
+    { label: "Contato", href: "mailto:contato@pp7ias.com", isExternal: true },
     { label: "Pesquisar", href: "#", isModal: true },
 ];
 
@@ -75,7 +75,7 @@ export default function Navbar() {
                                 <a
                                     key={item.label}
                                     href={item.href}
-                                    onClick={e => scrollToSection(e, item.href)}
+                                    onClick={e => !item.isExternal && scrollToSection(e, item.href)}
                                     className="text-sm text-text-secondary hover:text-white transition-colors duration-200 whitespace-nowrap"
                                 >
                                     {item.label}
@@ -147,7 +147,7 @@ export default function Navbar() {
                                 href={item.href}
                                 onClick={e => {
                                     setIsMenuOpen(false);
-                                    scrollToSection(e, item.href);
+                                    !item.isExternal && scrollToSection(e, item.href);
                                 }}
                                 className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
                                 style={{ animationDelay: `${index * 50}ms` }}
