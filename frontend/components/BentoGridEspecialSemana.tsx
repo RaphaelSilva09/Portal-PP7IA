@@ -1,8 +1,6 @@
 "use client";
 
 import { FileText, Globe, Sparkles, Star } from "lucide-react";
-import NewsletterCTA from "./NewsletterCTA";
-import InviteCTA from "./InviteCTA";
 
 /**
  * BentoGridEspecialSemana Component
@@ -225,11 +223,6 @@ export default function BentoGridEspecialSemana() {
                     ))}
                 </div>
 
-                <NewsletterCTA
-                    title="Seja notificado dos próximos especiais"
-                    description="Receba o destaque semanal direto no seu email."
-                />
-                <InviteCTA />
             </div>
         </section>
     );

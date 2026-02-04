@@ -1,8 +1,8 @@
 "use client";
 
+import { useSearchModal } from "@/context/SearchModalContext";
 import { Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
-import { useSearchModal } from "@/context/SearchModalContext";
 import AuthModal from "./AuthModal";
 
 // 7 itens de navegação seguindo a regra de negócio
@@ -80,7 +80,7 @@ export default function Navbar() {
                                 >
                                     {item.label}
                                 </a>
-                            )
+                            ),
                         )}
                     </nav>
 
@@ -95,13 +95,15 @@ export default function Navbar() {
                         >
                             Entrar
                         </button>
-                        <a
-                            href="/#cta"
-                            onClick={e => scrollToSection(e, "/#cta")}
+                        <button
+                            onClick={() => {
+                                setAuthInitialMode("signup");
+                                setIsAuthModalOpen(true);
+                            }}
                             className="flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
                         >
                             <span>Quero Fazer Parte</span>
-                        </a>
+                        </button>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -117,8 +119,9 @@ export default function Navbar() {
 
             {/* Mobile Menu - 7 Links */}
             <div
-                className={`nav-mobile-hidden transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
-                    }`}
+                className={`nav-mobile-hidden transition-all duration-300 ease-in-out overflow-hidden ${
+                    isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                }`}
             >
                 <nav
                     className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"
@@ -152,7 +155,7 @@ export default function Navbar() {
                                 <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
                                 <span className="font-medium">{item.label}</span>
                             </a>
-                        )
+                        ),
                     )}
 
                     {/* Mobile CTA */}
@@ -167,23 +170,27 @@ export default function Navbar() {
                         >
                             Entrar
                         </button>
-                        <a
-                            href="/#cta"
-                            onClick={e => {
+                        <button
+                            onClick={() => {
                                 setIsMenuOpen(false);
-                                scrollToSection(e, "/#cta");
+                                setAuthInitialMode("signup");
+                                setIsAuthModalOpen(true);
                             }}
                             className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-all duration-200 touch-target"
                         >
                             <Sparkles className="w-4 h-4" />
                             <span>Quero Fazer Parte</span>
-                        </a>
+                        </button>
                     </div>
                 </nav>
             </div>
 
             {/* Auth Modal */}
-            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialMode={authInitialMode} />
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                initialMode={authInitialMode}
+            />
         </header>
     );
 }
