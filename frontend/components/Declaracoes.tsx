@@ -11,7 +11,7 @@ import {
 
 export default function Declaracoes() {
     return (
-        <section id="declaracoes" className="py-8 px-4 sm:px-6 lg:px-8">
+        <section id="declaracoes" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
             <div className="max-w-7xl mx-auto">
                 {/* ============================================
                 DECLARAÇÕES / MANIFESTO - VERSÃO BALANCEADA

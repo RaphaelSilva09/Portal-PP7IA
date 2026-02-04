@@ -39,10 +39,11 @@ export default function Navbar() {
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
         if (!href.startsWith("/#")) return;
 
-        e.preventDefault();
         const element = document.getElementById(href.slice(2));
 
         if (element) {
+            // Se o elemento existe na página atual, faz scroll suave
+            e.preventDefault();
             const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
             // Adiciona padding adequado: 16px para mobile, 32px para desktop
             const offset = window.innerWidth < 768 ? 16 : 32;
@@ -52,6 +53,7 @@ export default function Navbar() {
                 behavior: "smooth",
             });
         }
+        // Se o elemento não existe, deixa o link navegar normalmente para "/#section"
     };
 
     return (
