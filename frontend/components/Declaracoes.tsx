@@ -11,7 +11,7 @@ import {
 
 export default function Declaracoes() {
     return (
-        <section className="py-8 px-4 sm:px-6 lg:px-8">
+        <section id="declaracoes" className="py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 {/* ============================================
                 DECLARAÇÕES / MANIFESTO - VERSÃO BALANCEADA
@@ -25,7 +25,7 @@ export default function Declaracoes() {
                         <div className="relative overflow-hidden rounded-3xl group">
                             {/* Background gradiente sutil */}
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/8 via-indigo-500/5 to-purple-500/8" />
-                            
+
                             {/* Efeito de luz suave azul-roxo */}
                             <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 blur-3xl rounded-full" />
                             <div className="absolute bottom-0 left-0 w-60 h-60 bg-purple-500/5 blur-3xl rounded-full" />
@@ -65,10 +65,10 @@ export default function Declaracoes() {
                     LINHA 2: VISÃO + PROBLEMA + SOLUÇÃO (3 colunas)
                     ============================================ */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        
+
                         {/* VISÃO */}
                         <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300">
-                            
+
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -89,7 +89,7 @@ export default function Declaracoes() {
 
                         {/* O PROBLEMA */}
                         <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300">
-                            
+
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -110,7 +110,7 @@ export default function Declaracoes() {
 
                         {/* A SOLUÇÃO */}
                         <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300">
-                            
+
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -148,7 +148,7 @@ export default function Declaracoes() {
                     LINHA 3: PARA QUEM (Full Width)
                     ============================================ */}
                     <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 lg:p-8">
-                        
+
                         {/* Header */}
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center">
