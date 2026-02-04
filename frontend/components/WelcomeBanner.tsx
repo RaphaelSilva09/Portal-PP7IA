@@ -12,7 +12,7 @@ export default function WelcomeBanner() {
                     <p className="text-sm sm:text-base md:text-lg text-text-secondary leading-relaxed text-left">
                         <span className="text-brand-green font-medium">Não mais em versão beta.</span>{" "}
                         Você está acessando um espaço criado para compartilhar conhecimento prático, testado e vivido.{" "}
-                        Aqui, <span className="text-brand-purple font-medium">7 IAs colaboram</span>, mas{" "}
+                        Aqui, <span className="text-brand-blue font-medium">7 IAs colaboram</span>, mas{" "}
                         <span className="text-brand-blue font-medium">pessoas decidem</span>.
                     </p>
 

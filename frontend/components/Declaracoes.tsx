@@ -49,7 +49,7 @@ export default function Declaracoes() {
                                             Propósito
                                         </span>
                                         <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 leading-tight">
-                                            Curar conhecimento prático para filhos, netos e novas gerações
+                                            Curar conhecimento prático para netos, família, amigos, novas gerações e quem mais tiver interesse em temas de IAs, liderança e outros conhecimentos
                                         </h2>
                                         <p className="text-sm sm:text-base text-gray-400">
                                             A tecnologia é ferramenta. O foco é{" "}

@@ -194,7 +194,7 @@ export default function BentoGrid() {
                                     Mini-Livros
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    Mini-guias mensais sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
+                                    Mini-guias sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
                                     21 min.
                                 </p>
                             </div>

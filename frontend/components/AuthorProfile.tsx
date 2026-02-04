@@ -36,14 +36,23 @@ export default function AuthorProfile() {
                         </div>
                         <h3 className="text-xl font-bold text-white">Trajetória</h3>
                     </div>
-                    <p className="text-text-secondary leading-relaxed">
-                        Engenheiro com base em TI e{" "}
-                        <span className="text-white font-medium">3+ décadas</span> de carreira{" "}
-                        <span className="text-brand-blue font-medium">C-Level</span>. Foi Presidente da{" "}
-                        <span className="text-white font-medium">Whirlpool</span> na América Latina e Internacional
-                        (LatAm, Ásia, Europa) e <span className="text-white font-medium">Presidente/COO da Alcoa</span>{" "}
-                        na América Latina.
-                    </p>
+                    <div className="text-text-secondary leading-relaxed space-y-1">
+                        <p>
+                            Engenheiro, com formação em TI, e{" "}
+                            <span className="text-white font-bold">4+ décadas</span> de carreira{" "}
+                            <span className="text-white font-bold">C-Level</span> em RH, PE, CFO, operações, varejo e inovação.
+                        </p>
+                        <p>
+                            <span className="text-brand-blue font-bold">Presidente</span> da{" "}
+                            <span className="text-white italic">Alcoa</span> México e{" "}
+                            <span className="text-brand-blue font-bold">COO</span> da empresa na América Latina.
+                        </p>
+                        <p>
+                            <span className="text-brand-blue font-bold">Presidente</span> da{" "}
+                            <span className="text-white italic">Whirlpool</span> na América Latina, e depois{" "}
+                            <span className="text-brand-blue font-bold">Presidente Internacional</span> — LatAm, Ásia, Europa.
+                        </p>
+                    </div>
                 </div>
 
                 {/* Focus Card */}

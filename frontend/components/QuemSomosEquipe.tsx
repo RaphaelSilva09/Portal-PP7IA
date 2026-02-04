@@ -35,7 +35,7 @@ export default function QuemSomosEquipe() {
                                     <p className="text-gray-300 text-base sm:text-2xl max-w-3xl mx-auto tracking-tight px-4 leading-relaxed">
                                         Plataforma de curadoria que combina{" "}
                                         <span className="text-brand-blue font-semibold">40+ anos de liderança executiva</span> com{" "}
-                                        <span className="text-brand-purple font-semibold">7 inteligências artificiais</span>
+                                        <span className="text-brand-blue font-semibold">7 inteligências artificiais</span>
                                     </p>
                                     <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto tracking-tight px-4">
                                         Conteúdo organizado em 7 blocos principais, publicando só o que foi testado e funciona
@@ -91,7 +91,7 @@ export default function QuemSomosEquipe() {
                                 Raphael Silva
                             </h3>
                             <p className="text-sm text-gray-400 leading-relaxed">
-                                Estudante de Ciências/Engenharia da Computação. Desenvolvimento e implementação técnica.
+                                Estudante de Ciências da Computação. Desenvolvimento e implementação técnica.
                             </p>
                         </div>
                     </div>
@@ -114,7 +114,7 @@ export default function QuemSomosEquipe() {
                                 Lucas Periquito Costa
                             </h3>
                             <p className="text-sm text-gray-400 leading-relaxed">
-                                Estudante de Ciências/Engenharia da Computação. Suporte técnico e desenvolvimento.
+                                Estudante de Engenharia da Computação. Suporte técnico e desenvolvimento.
                             </p>
                         </div>
                     </div>
