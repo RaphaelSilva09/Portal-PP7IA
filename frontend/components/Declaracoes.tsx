@@ -127,15 +127,15 @@ export default function Declaracoes() {
                                     Um lugar só. O caminho claro:
                                 </p>
 
-                                {/* Fluxo de processo - Vertical apenas abaixo de 380px */}
-                                <div className="solution-flow-container flex flex-row flex-wrap items-center gap-2">
+                                {/* Fluxo de processo - mantém horizontal em todos os tamanhos */}
+                                <div className="flex flex-row flex-wrap items-center gap-2">
                                     {['Aprendo', 'Faço', 'Documento', 'Compartilho'].map((step, i) => (
-                                        <div key={step} className="solution-flow-item flex items-center gap-2">
+                                        <div key={step} className="flex items-center gap-2">
                                             <span className={`${i === 3 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-white/5 text-gray-400 border-white/10'} border px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap`}>
                                                 {step}
                                             </span>
                                             {i < 3 && (
-                                                <ArrowRight className="solution-arrow-down w-4 h-4 text-gray-600 flex-shrink-0" />
+                                                <ArrowRight className="w-4 h-4 text-gray-600 flex-shrink-0" />
                                             )}
                                         </div>
                                     ))}
