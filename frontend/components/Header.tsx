@@ -13,7 +13,7 @@ const navItems = [
     { label: "Declarações", href: "/#declaracoes" },
     { label: "Índice", href: "/#indice" },
     { label: "O Autor", href: "/#autor" },
-    { label: "As 7 IAs", href: "/#why-pp7ias" },
+    { label: "As 7 IAs", href: "/#ias-parceiras" },
     { label: "Contato", href: "mailto:contato@pp7ias.com", isExternal: true },
     { label: "Pesquisar", href: "#", isModal: true },
 ];
