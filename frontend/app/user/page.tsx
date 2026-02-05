@@ -1,8 +1,8 @@
 "use client";
 
 import { Footer, Navbar } from "@/components";
-import { useAuth } from "@/presentation/hooks/useAuth";
-import { AlertCircle, Mail, Phone, Trash2, User } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { AlertCircle, ArrowLeft, Mail, Phone, Trash2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -14,15 +14,10 @@ import { useEffect, useState } from "react";
  */
 export default function UserPage() {
     const router = useRouter();
-    const { user, isLoading, deleteAccount, getCurrentUser } = useAuth();
+    const { user, isLoading, deleteAccount } = useAuth();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    // Busca usuário atual ao montar
-    useEffect(() => {
-        getCurrentUser();
-    }, [getCurrentUser]);
 
     // Redireciona para home se não logado
     useEffect(() => {
@@ -69,6 +64,13 @@ export default function UserPage() {
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-8">
+                        <button
+                            onClick={() => router.push("/")}
+                            className="cursor-pointer inline-flex items-center gap-2 text-text-secondary hover:text-white mb-4 transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            <span>Voltar para início</span>
+                        </button>
                         <h1 className="text-3xl font-bold text-white mb-2">Minha Conta</h1>
                         <p className="text-text-secondary">Suas informações cadastrais</p>
                     </div>
