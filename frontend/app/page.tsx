@@ -5,6 +5,7 @@ import {
     Footer,
     HeroSection,
     IASParceiras,
+    InstructionsBanner,
     Navbar,
     QuemSomosEquipe,
     WelcomeBanner,
@@ -28,22 +29,26 @@ export default function Home() {
             {/* 3. Welcome Banner - Primeira Edição Oficial */}
             <WelcomeBanner />
             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
-            {/* 4. Declarações - Propósito, Visão, Problema, Solução, Para Quem */}
+            <div className="pb-8"></div>
+            {/* 4. Instructions Banner - Como usar o portal */}
+            <InstructionsBanner />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
+            {/* 5. Declarações - Propósito, Visão, Problema, Solução, Para Quem */}
             <Declaracoes />
 
-            {/* 5. Bento Grid com 7 blocos de conteúdo */}
+            {/* 6. Bento Grid com 7 blocos de conteúdo */}
             <BentoGrid />
 
-            {/* 6. Por Que "PP7+IAS" - Explicação do nome do portal */}
+            {/* 7. Por Que "PP7+IAS" - Explicação do nome do portal */}
             <WhyPP7IASSection />
 
-            {/* 7. Author Section */}
+            {/* 8. Author Section */}
             <Author />
 
-            {/* 8. As 7 IAs Parceiras */}
+            {/* 9. As 7 IAs Parceiras */}
             <IASParceiras />
 
-            {/* 9. Footer com 7 links sociais e 7 links legais */}
+            {/* 10. Footer com 7 links sociais e 7 links legais */}
             <Footer />
         </main>
     );

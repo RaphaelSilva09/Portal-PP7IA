@@ -42,7 +42,7 @@ export default function HeroSection() {
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
                     <span className="text-green-500 text-sm font-medium">
-                        Última atualização: 25.01.2026 • Versão Beta 002
+                        Última atualização: 04.02.2026 • Versão Oficial
                     </span>
                 </a>
 
