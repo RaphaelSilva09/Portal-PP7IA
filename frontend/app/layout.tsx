@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SearchModalProvider } from "@/context/SearchModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
+import { AuthProvider } from "@/context/AuthContext";
 import ModalsProvider from "@/components/ModalsProvider";
 import "./globals.css";
 
@@ -42,14 +43,16 @@ export default function RootLayout({
     return (
         <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
-                <SearchModalProvider>
-                    <AuthModalProvider>
-                        <FirstVisitModalProvider>
-                            {children}
-                            <ModalsProvider />
-                        </FirstVisitModalProvider>
-                    </AuthModalProvider>
-                </SearchModalProvider>
+                <AuthProvider>
+                    <SearchModalProvider>
+                        <AuthModalProvider>
+                            <FirstVisitModalProvider>
+                                {children}
+                                <ModalsProvider />
+                            </FirstVisitModalProvider>
+                        </AuthModalProvider>
+                    </SearchModalProvider>
+                </AuthProvider>
                 <Analytics />
             </body>
         </html>
