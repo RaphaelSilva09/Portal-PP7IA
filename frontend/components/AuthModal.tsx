@@ -213,11 +213,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
         <Portal>
             <div className="fixed inset-0 z-9999 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
                 {/* Backdrop com glassmorphism */}
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose} />
 
                 {/* Modal Container */}
                 <div
-                    className="relative w-full max-w-md max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl overflow-hidden"
+                    className="relative w-full max-w-md max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl overflow-hidden animate-scale-in"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Header com Close Button */}
@@ -278,7 +278,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                         <form onSubmit={handleSubmit} className="p-4 pt-0 space-y-3">
                             {/* Nome - Apenas no modo Cadastro */}
                             {!isLoginMode && (
-                                <div className="space-y-1">
+                                <div className="space-y-1 animate-fade-in">
                                     <label htmlFor="nome" className="block text-xs font-medium text-text-primary">
                                         Nome Completo
                                     </label>
@@ -326,7 +326,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
                             {/* Celular - Apenas no modo Cadastro */}
                             {!isLoginMode && (
-                                <div className="space-y-1">
+                                <div className="space-y-1 animate-fade-in">
                                     <label htmlFor="celular" className="block text-xs font-medium text-text-primary">
                                         Celular
                                     </label>
@@ -382,7 +382,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
                             {/* Checkboxes de Consentimento - Apenas no modo Cadastro */}
                             {!isLoginMode && (
-                                <div className="space-y-2 pt-1">
+                                <div className="space-y-2 pt-1 animate-fade-in">
                                     <div className="space-y-2">
                                         <label
                                             className="flex items-center gap-2 cursor-pointer group"
@@ -436,13 +436,20 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className={`w-full px-5 py-2.5 ${
+                                className={`w-full px-5 py-2.5 flex items-center justify-center gap-2 ${
                                     isLoginMode
                                         ? "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
                                         : "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
                                 } text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                             >
-                                {isLoading ? "Processando..." : submitButtonText}
+                                {isLoading ? (
+                                    <>
+                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span>Processando...</span>
+                                    </>
+                                ) : (
+                                    submitButtonText
+                                )}
                             </button>
 
                             {/* Toggle Mode */}
