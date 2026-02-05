@@ -1,8 +1,6 @@
 "use client";
 
 import { FileText, Globe, Sparkles } from "lucide-react";
-import NewsletterCTA from "./NewsletterCTA";
-import InviteCTA from "./InviteCTA";
 
 /**
  * BentoGridBiblioteca Component
@@ -197,8 +195,6 @@ export default function BentoGridBiblioteca() {
                         </div>
                     ))}
                 </div>
-                <NewsletterCTA />
-                <InviteCTA />
             </div>
         </section>
     );

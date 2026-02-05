@@ -1,10 +1,6 @@
 "use client";
 
 import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sparkles, Star } from "lucide-react";
-import { useState } from "react";
-import AuthModal from "./AuthModal";
-import NewsletterCTA from "./NewsletterCTA";
-import InviteCTA from "./InviteCTA";
 
 /**
  * BentoGrid Component - Layout "1x3x3 Hierarchy"
@@ -13,16 +9,8 @@ import InviteCTA from "./InviteCTA";
  */
 
 export default function BentoGrid() {
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [authInitialData, setAuthInitialData] = useState<{ email?: string; celular?: string }>({});
-
-    const handleSubscribe = (email: string, celular: string) => {
-        setAuthInitialData({ email, celular });
-        setIsAuthModalOpen(true);
-    };
-
     return (
-        <section className="py-8 px-4 sm:px-6 lg:px-8">
+        <section id="indice" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
             <div className="max-w-7xl mx-auto">
                 {/* Section Header */}
                 <div className="text-center flex flex-col gap-6 sm:gap-8">
@@ -180,7 +168,7 @@ export default function BentoGrid() {
                                     Radar de Oportunidades
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    7 itens mensais: 3 novas ferramentas, 3 startups em alta e 1 tendência de mercado.
+                                    7 itens mensais. Novas ferramentas, startups em alta,  tendências de mercado
                                 </p>
                             </div>
 
@@ -213,7 +201,7 @@ export default function BentoGrid() {
                                     Mini-Livros
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    Mini-guias mensais sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
+                                    Mini-guias sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
                                     21 min.
                                 </p>
                             </div>
@@ -297,7 +285,7 @@ export default function BentoGrid() {
                         </div>
                     </div>
 
-                    {/* Card: Patrocínio de Estudos */}
+                    {/* Card: Ensinar */}
                     <div
                         id="ensinar"
                         className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-pink-500/30 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] block min-h-80"
@@ -331,18 +319,7 @@ export default function BentoGrid() {
                         </div>
                     </div>
                 </div>
-
-                <NewsletterCTA onSubscribe={handleSubscribe} />
-                <InviteCTA />
             </div>
-
-            {/* Auth Modal */}
-            <AuthModal
-                isOpen={isAuthModalOpen}
-                onClose={() => setIsAuthModalOpen(false)}
-                initialMode="signup"
-                initialData={authInitialData}
-            />
         </section>
     );
 }

@@ -1,8 +1,6 @@
 "use client";
 
 import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sparkles, Star } from "lucide-react";
-import NewsletterCTA from "./NewsletterCTA";
-import InviteCTA from "./InviteCTA";
 
 /**
  * BentoGrid Component - Layout "1x3x3 Hierarchy"
@@ -196,7 +194,7 @@ export default function BentoGrid() {
                                     Mini-Livros
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    Mini-guias mensais sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
+                                    Mini-guias sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
                                     21 min.
                                 </p>
                             </div>
@@ -311,9 +309,6 @@ export default function BentoGrid() {
                         </div>
                     </a>
                 </div>
-
-                <NewsletterCTA />
-                <InviteCTA />
             </div>
         </section>
     );
