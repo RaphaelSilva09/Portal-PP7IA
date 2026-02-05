@@ -1,11 +1,11 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import { useSearchModal } from "@/context/SearchModalContext";
-import { useAuth } from "@/presentation/hooks/useAuth";
 import { LogOut, Menu, Sparkles, User as UserIcon, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 import AuthModal from "./AuthModal";
-import ProfileModal from "./ProfileModal";
 
 // Tipo para os itens de navegação
 interface NavItem {
@@ -31,13 +31,7 @@ export default function Navbar() {
     const { openModal } = useSearchModal();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authInitialMode, setAuthInitialMode] = useState<"login" | "signup">("login");
-    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-    const { user, signOut, getCurrentUser } = useAuth();
-
-    // Busca usuário atual ao montar
-    useEffect(() => {
-        getCurrentUser();
-    }, [getCurrentUser]);
+    const { user, signOut } = useAuth();
 
     const handleLogout = async () => {
         await signOut();
@@ -112,16 +106,16 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center gap-2">
                         {user ? (
                             <>
-                                <button
-                                    onClick={() => setIsProfileModalOpen(true)}
-                                    className="flex items-center gap-2 px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                <Link
+                                    href="/user"
+                                    className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
                                 >
                                     <UserIcon className="w-4 h-4" />
                                     <span>{user.nome}</span>
-                                </button>
+                                </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-200"
+                                    className="cursor-pointer flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-200"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     <span>Sair</span>
@@ -206,19 +200,17 @@ export default function Navbar() {
                     <div className="pt-4 px-4 space-y-3">
                         {user ? (
                             <>
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        setIsProfileModalOpen(true);
-                                    }}
-                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
+                                <Link
+                                    href="/user"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="cursor-pointer w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
                                 >
                                     <UserIcon className="w-4 h-4" />
                                     <span>{user.nome}</span>
-                                </button>
+                                </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 text-red-400 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 active:scale-95 transition-all duration-200 touch-target"
+                                    className="cursor-pointer w-full flex items-center justify-center gap-2 px-5 py-3 text-red-400 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 active:scale-95 transition-all duration-200 touch-target"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     <span>Sair</span>
@@ -259,9 +251,6 @@ export default function Navbar() {
                 onClose={() => setIsAuthModalOpen(false)}
                 initialMode={authInitialMode}
             />
-
-            {/* Profile Modal */}
-            <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
         </header>
     );
 }

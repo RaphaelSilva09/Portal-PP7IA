@@ -2,9 +2,9 @@
 
 import { AlertCircle, Check, Eye, EyeOff, Mail, Phone, Trash2, User as UserIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { isValidEmail, isValidPassword } from "../lib/validators";
-import { useAuth } from "../presentation/hooks/useAuth";
 import Portal from "./Portal";
 
 interface ProfileModalProps {

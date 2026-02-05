@@ -2,10 +2,10 @@
 
 import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { formatPhone } from "../lib/formatters";
 import { isValidEmail, isValidPassword, isValidPhone } from "../lib/validators";
-import { useAuth } from "../presentation/hooks/useAuth";
 import Portal from "./Portal";
 
 /**
