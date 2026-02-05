@@ -7,15 +7,23 @@ import { useEffect, useState } from "react";
 import AuthModal from "./AuthModal";
 import ProfileModal from "./ProfileModal";
 
+// Tipo para os itens de navegação
+interface NavItem {
+    label: string;
+    href: string;
+    isExternal?: boolean;
+    isModal?: boolean;
+}
+
 // 7 itens de navegação seguindo a regra de negócio
-const navItems = [
+const navItems: NavItem[] = [
     { label: "Quem Somos", href: "/#quemsomos" },
     { label: "Declarações", href: "/#declaracoes" },
     { label: "Índice", href: "/#indice" },
     { label: "O Autor", href: "/#autor" },
     { label: "As 7 IAs", href: "/#ias-parceiras" },
     { label: "Contato", href: "mailto:contato@pp7ias.com", isExternal: true },
-    { label: "Pesquisar", href: "#", isModal: true },
+    // { label: "Pesquisar", href: "#", isModal: true },
 ];
 
 export default function Navbar() {
@@ -156,9 +164,8 @@ export default function Navbar() {
 
             {/* Mobile Menu - 7 Links */}
             <div
-                className={`nav-mobile-1108 transition-all duration-300 ease-in-out overflow-hidden ${
-                    isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
-                }`}
+                className={`nav-mobile-1108 transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
+                    }`}
             >
                 <nav
                     className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"
