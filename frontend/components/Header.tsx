@@ -22,7 +22,7 @@ const navItems: NavItem[] = [
     { label: "Índice", href: "/#indice" },
     { label: "O Autor", href: "/#autor" },
     { label: "As 7 IAs", href: "/#ias-parceiras" },
-    { label: "Contato", href: "mailto:contato@pp7ias.com", isExternal: true },
+    { label: "Contato", href: "/#footer" },
     // { label: "Pesquisar", href: "#", isModal: true },
 ];
 

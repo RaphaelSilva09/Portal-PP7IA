@@ -23,7 +23,7 @@ export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-bg-secondary border-t border-border-glass">
+        <footer id="footer" className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-bg-secondary border-t border-border-glass">
             <div className="max-w-7xl mx-auto">
                 {/* Top Section */}
                 <div className="flex flex-col md:flex-row gap-8 mb-12">
