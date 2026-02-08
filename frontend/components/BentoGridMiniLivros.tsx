@@ -1,6 +1,8 @@
 "use client";
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
+import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
+import { MiniLivro } from "@/domain/entities/MiniLivro";
 
 /**
  * BentoGridMiniLivros Component
@@ -32,11 +34,6 @@ export default function BentoGridMiniLivros() {
                             {error || "Nenhum mini-livro disponível no momento."}
                         </p>
                     </div>
-                    <NewsletterCTA
-                        title="Seja notificado de novos mini-livros"
-                        description="Publicações mensais sobre pessoas, liderança e IA prática."
-                    />
-                    <InviteCTA />
                 </div>
             </section>
         );
@@ -183,7 +180,7 @@ export default function BentoGridMiniLivros() {
                     {/* ============================================
                     MINI-LIVROS ANTERIORES - GRID 3x3
                     ============================================ */}
-                    {older.map(miniLivro => (
+                    {older.map((miniLivro: MiniLivro) => (
                         <div
                             key={miniLivro.id}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
