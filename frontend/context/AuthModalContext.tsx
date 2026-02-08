@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, ReactNode } from "react";
 
 /**
  * AuthModalContext
@@ -34,16 +34,16 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
     const [initialData, setInitialData] = useState<AuthModalInitialData>({});
     const [initialMode, setInitialMode] = useState<"login" | "signup">("signup");
 
-    const openModal = (data?: AuthModalInitialData, mode?: "login" | "signup") => {
+    const openModal = useCallback((data?: AuthModalInitialData, mode?: "login" | "signup") => {
         setInitialData(data || {});
         setInitialMode(mode || "signup");
         setIsOpen(true);
-    };
+    }, []);
 
-    const closeModal = () => {
+    const closeModal = useCallback(() => {
         setIsOpen(false);
         setInitialData({});
-    };
+    }, []);
 
     return (
         <AuthModalContext.Provider value={{ isOpen, initialData, initialMode, openModal, closeModal }}>
