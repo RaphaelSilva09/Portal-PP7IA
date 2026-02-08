@@ -1,9 +1,6 @@
 "use client";
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
-import { useMiniLivros } from "../presentation/hooks/useMiniLivros";
-import InviteCTA from "./InviteCTA";
-import NewsletterCTA from "./NewsletterCTA";
 
 /**
  * BentoGridMiniLivros Component
@@ -251,12 +248,6 @@ export default function BentoGridMiniLivros() {
                         </div>
                     ))}
                 </div>
-
-                <NewsletterCTA
-                    title="Seja notificado de novos mini-livros"
-                    description="Publicações mensais sobre pessoas, liderança e IA prática."
-                />
-                <InviteCTA />
             </div>
         </section>
     );

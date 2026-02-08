@@ -563,3 +563,26 @@ body {
 .btn-gradient-cta:active {
     transform: scale(0.95);
 }
+
+/* ============================================
+   Custom Breakpoint for Navigation (1108px)
+   ============================================ */
+@media (min-width: 1108px) {
+    .nav-desktop-1108 {
+        display: flex !important;
+    }
+    
+    .nav-mobile-1108 {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1107px) {
+    .nav-desktop-1108 {
+        display: none !important;
+    }
+    
+    .nav-mobile-1108 {
+        display: flex !important;
+    }
+}

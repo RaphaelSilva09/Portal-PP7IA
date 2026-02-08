@@ -1,37 +1,21 @@
-/**
- * useAuth Hook (Presentation Layer)
- *
- * Hook React para gerenciar autenticação.
- * Fornece interface simples para componentes consumirem casos de uso.
- *
- * Princípios aplicados:
- * - Facade Pattern: Simplifica interface complexa para componentes
- * - SRP: Responsável apenas por gerenciar estado de autenticação
- * - Clean Architecture: Camada de apresentação depende de casos de uso
- */
-
 "use client";
 
-import { useCallback, useState } from "react";
-import { User } from "../../domain/entities/User";
-import { AuthError } from "../../domain/errors/AuthError";
-import DIContainer from "../../infrastructure/di/container";
+import { User } from "@/domain/entities/User";
+import { AuthError } from "@/domain/errors/AuthError";
+import DIContainer from "@/infrastructure/di/container";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
-interface UseAuthResult {
-    user: User | null;
-    isLoading: boolean;
-    error: string | null;
-    emailConfirmationRequired: boolean;
-    signUp: (params: SignUpParams) => Promise<{ emailConfirmationRequired: boolean }>;
-    signIn: (params: SignInParams) => Promise<void>;
-    signOut: () => Promise<void>;
-    getCurrentUser: () => Promise<void>;
-    updateEmail: (newEmail: string) => Promise<void>;
-    updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-    updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
-    deleteAccount: () => Promise<void>;
-    clearError: () => void;
-}
+/**
+ * AuthContext - Contexto Global de Autenticação
+ *
+ * Gerencia o estado do usuário de forma global, permitindo que todos
+ * os componentes acessem o mesmo estado de autenticação.
+ *
+ * Princípios aplicados:
+ * - Single Source of Truth: Estado único compartilhado
+ * - Context Pattern: Evita prop drilling
+ * - Clean Architecture: Usa casos de uso via DI Container
+ */
 
 interface SignUpParams {
     email: string;
@@ -47,15 +31,57 @@ interface SignInParams {
     password: string;
 }
 
-/**
- * Hook customizado para autenticação
- * Custom Hook Pattern
- */
-export function useAuth(): UseAuthResult {
+interface AuthContextType {
+    user: User | null;
+    isLoading: boolean;
+    error: string | null;
+    emailConfirmationRequired: boolean;
+    signUp: (params: SignUpParams) => Promise<{ emailConfirmationRequired: boolean }>;
+    signIn: (params: SignInParams) => Promise<void>;
+    signOut: () => Promise<void>;
+    getCurrentUser: () => Promise<void>;
+    updateEmail: (newEmail: string) => Promise<void>;
+    updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+    updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
+    deleteAccount: () => Promise<void>;
+    clearError: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+interface AuthProviderProps {
+    children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // Começa true para verificar sessão
     const [error, setError] = useState<string | null>(null);
     const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(false);
+
+    /**
+     * Obtém usuário atual da sessão
+     */
+    const getCurrentUser = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
+            const currentUser = await getCurrentUserUseCase.execute();
+            setUser(currentUser);
+        } catch (err) {
+            // Silenciosamente falha se não há usuário logado
+            setUser(null);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    // Verifica sessão existente ao montar
+    useEffect(() => {
+        getCurrentUser();
+    }, [getCurrentUser]);
 
     /**
      * Cadastra novo usuário
@@ -70,7 +96,6 @@ export function useAuth(): UseAuthResult {
             const result = await signUpUseCase.execute(params);
             setUser(result.user);
 
-            // Se confirmação de email é necessária, marca estado
             const requiresConfirmation = result.emailConfirmationRequired ?? false;
             if (requiresConfirmation) {
                 setEmailConfirmationRequired(true);
@@ -127,32 +152,6 @@ export function useAuth(): UseAuthResult {
     }, []);
 
     /**
-     * Obtém usuário atual
-     */
-    const getCurrentUser = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
-            const currentUser = await getCurrentUserUseCase.execute();
-            setUser(currentUser);
-        } catch (err) {
-            const errorMessage = err instanceof AuthError ? err.message : "Erro ao carregar usuário.";
-            setError(errorMessage);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    /**
-     * Limpa erro atual
-     */
-    const clearError = useCallback(() => {
-        setError(null);
-    }, []);
-
-    /**
      * Atualiza email do usuário
      */
     const updateEmail = useCallback(
@@ -163,7 +162,6 @@ export function useAuth(): UseAuthResult {
             try {
                 const repository = DIContainer.getAuthRepository();
                 await repository.updateEmail({ newEmail });
-                // Atualiza o usuário local
                 await getCurrentUser();
             } catch (err) {
                 const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar email.";
@@ -209,7 +207,6 @@ export function useAuth(): UseAuthResult {
                     acceptEmailUpdates: acceptEmail,
                     acceptWhatsAppUpdates: acceptWhatsApp,
                 });
-                // Atualiza o usuário local
                 await getCurrentUser();
             } catch (err) {
                 const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar preferências.";
@@ -242,19 +239,42 @@ export function useAuth(): UseAuthResult {
         }
     }, []);
 
-    return {
-        user,
-        isLoading,
-        error,
-        emailConfirmationRequired,
-        signUp,
-        signIn,
-        signOut,
-        getCurrentUser,
-        updateEmail,
-        updatePassword,
-        updatePreferences,
-        deleteAccount,
-        clearError,
-    };
+    const clearError = useCallback(() => {
+        setError(null);
+    }, []);
+
+    return (
+        <AuthContext.Provider
+            value={{
+                user,
+                isLoading,
+                error,
+                emailConfirmationRequired,
+                signUp,
+                signIn,
+                signOut,
+                getCurrentUser,
+                updateEmail,
+                updatePassword,
+                updatePreferences,
+                deleteAccount,
+                clearError,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    );
+}
+
+/**
+ * Hook para acessar o contexto de autenticação
+ */
+export function useAuth(): AuthContextType {
+    const context = useContext(AuthContext);
+
+    if (!context) {
+        throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+    }
+
+    return context;
 }

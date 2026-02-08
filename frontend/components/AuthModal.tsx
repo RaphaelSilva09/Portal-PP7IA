@@ -1,11 +1,11 @@
 "use client";
 
-import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, Sparkles, User, UserPlus, X } from "lucide-react";
+import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { formatPhone } from "../lib/formatters";
 import { isValidEmail, isValidPassword, isValidPhone } from "../lib/validators";
-import { useAuth } from "../presentation/hooks/useAuth";
 import Portal from "./Portal";
 
 /**
@@ -65,6 +65,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
     // Hook para travar scroll do body (DRY - extraído para hook reutilizável)
     useBodyScrollLock(isOpen);
+
+    // Sincroniza o modo com initialMode quando o modal abre
+    useEffect(() => {
+        if (isOpen) {
+            setMode(initialMode);
+        }
+    }, [isOpen, initialMode]);
 
     // Reseta o formulário quando o modo muda ou modal abre
     useEffect(() => {
@@ -149,34 +156,36 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Bloqueia login - funcionalidade em desenvolvimento
-        if (mode === "login") {
-            return;
-        }
-
         if (!validateForm()) {
             return;
         }
 
         try {
-            const result = await signUp({
-                email: formData.email,
-                password: formData.senha,
-                nome: formData.nome,
-                celular: formData.celular,
-                acceptEmailUpdates,
-                acceptWhatsAppUpdates,
-            });
-
-            // Cadastro bem-sucedido: verificar se precisa confirmar email
-            if (result.emailConfirmationRequired) {
-                setSuccessMessage("Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta.");
-            } else {
-                // Sessão criada automaticamente, fechar modal
+            if (mode === "login") {
+                await signIn({
+                    email: formData.email,
+                    password: formData.senha,
+                });
                 onClose();
+            } else {
+                const result = await signUp({
+                    email: formData.email,
+                    password: formData.senha,
+                    nome: formData.nome,
+                    celular: formData.celular,
+                    acceptEmailUpdates,
+                    acceptWhatsAppUpdates,
+                });
+
+                if (result.emailConfirmationRequired) {
+                    setSuccessMessage(
+                        "Cadastro realizado com sucesso! Verifique seu email para confirmar sua conta. Se não encontrar, verifique a pasta de spam.",
+                    );
+                } else {
+                    onClose();
+                }
             }
         } catch (error) {
-            // Erro já está sendo tratado pelo hook useAuth
             console.error("Erro ao processar autenticação:", error);
         }
     };
@@ -204,11 +213,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
         <Portal>
             <div className="fixed inset-0 z-9999 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
                 {/* Backdrop com glassmorphism */}
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose} />
 
                 {/* Modal Container */}
                 <div
-                    className="relative w-full max-w-md max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl overflow-hidden"
+                    className="relative w-full max-w-md max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl overflow-hidden animate-scale-in"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Header com Close Button */}
@@ -263,31 +272,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                         </div>
                     )}
 
-                    {/* Warning Message - Login em Desenvolvimento */}
-                    {isLoginMode && (
-                        <>
-                            <div className="mx-4 mb-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-2">
-                                <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-yellow-300">
-                                    Funcionalidade de login em desenvolvimento. Por enquanto, apenas o cadastro está disponível.
-                                </p>
-                            </div>
-                            <div className="mx-4 mb-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-2">
-                                <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-blue-300">
-                                    Todo o conteúdo do portal é gratuito e acessível sem login. O cadastro permite receber notificações de novos conteúdos.
-                                </p>
-                            </div>
-                        </>
-                    )}
-
                     {/* Form Container com scroll interno */}
                     <div className="flex-1 overflow-y-auto min-h-0">
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="p-4 pt-0 space-y-3">
                             {/* Nome - Apenas no modo Cadastro */}
                             {!isLoginMode && (
-                                <div className="space-y-1">
+                                <div className="space-y-1 animate-fade-in">
                                     <label htmlFor="nome" className="block text-xs font-medium text-text-primary">
                                         Nome Completo
                                     </label>
@@ -335,7 +326,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
                             {/* Celular - Apenas no modo Cadastro */}
                             {!isLoginMode && (
-                                <div className="space-y-1">
+                                <div className="space-y-1 animate-fade-in">
                                     <label htmlFor="celular" className="block text-xs font-medium text-text-primary">
                                         Celular
                                     </label>
@@ -391,7 +382,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
                             {/* Checkboxes de Consentimento - Apenas no modo Cadastro */}
                             {!isLoginMode && (
-                                <div className="space-y-2 pt-1">
+                                <div className="space-y-2 pt-1 animate-fade-in">
                                     <div className="space-y-2">
                                         <label
                                             className="flex items-center gap-2 cursor-pointer group"
@@ -444,14 +435,21 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                disabled={isLoading || isLoginMode}
-                                className={`w-full px-5 py-2.5 ${
+                                disabled={isLoading}
+                                className={`w-full px-5 py-2.5 flex items-center justify-center gap-2 ${
                                     isLoginMode
                                         ? "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]"
                                         : "bg-linear-to-r from-blue-500 to-purple-600 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]"
                                 } text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                             >
-                                {isLoading ? "Processando..." : isLoginMode ? "Em breve..." : submitButtonText}
+                                {isLoading ? (
+                                    <>
+                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span>Processando...</span>
+                                    </>
+                                ) : (
+                                    submitButtonText
+                                )}
                             </button>
 
                             {/* Toggle Mode */}

@@ -1,15 +1,16 @@
 "use client";
 
-import { Github, Instagram, Linkedin, Mail, Twitter, Youtube } from "lucide-react";
+import { Github, Instagram, Linkedin, Mail, MessageCircle, Twitter, Youtube } from "lucide-react";
 
-// 7 links de redes sociais seguindo a regra de negócio
+// Links de redes sociais (alguns comentados para uso futuro)
 const socialLinks = [
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Youtube, href: "#", label: "YouTube" },
-    { icon: Github, href: "#", label: "GitHub" },
-    { icon: Mail, href: "#", label: "Email" },
+    // { icon: Twitter, href: "#", label: "Twitter" },
+    // { icon: Linkedin, href: "#", label: "LinkedIn" },
+    // { icon: Instagram, href: "#", label: "Instagram" },
+    // { icon: Youtube, href: "#", label: "YouTube" },
+    // { icon: Github, href: "#", label: "GitHub" },
+    { icon: Mail, href: "mailto:paulof@pp7ias-portal.com.br", label: "E-mail: paulof@pp7ias-portal.com.br" },
+    { icon: MessageCircle, href: "https://wa.me/5511914892836", label: "WhatsApp: +55 11 91489-2836" },
 ];
 
 // Links legais funcionais
@@ -22,7 +23,7 @@ export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-bg-secondary border-t border-border-glass">
+        <footer id="footer" className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-bg-secondary border-t border-border-glass">
             <div className="max-w-7xl mx-auto">
                 {/* Top Section */}
                 <div className="flex flex-col md:flex-row gap-8 mb-12">
@@ -38,18 +39,22 @@ export default function Footer() {
                             Menos ruído, mais clareza. Conhecimento e IA acessível para todos.
                         </p>
 
-                        {/* Social Links - 7 items */}
-                        <div className="flex flex-wrap gap-3">
+                        {/* Contact Links */}
+                        <div className="flex flex-col gap-3">
                             {socialLinks.map(social => {
                                 const Icon = social.icon;
                                 return (
                                     <a
                                         key={social.label}
                                         href={social.href}
-                                        aria-label={social.label}
-                                        className="w-10 h-10 rounded-full glass flex items-center justify-center text-text-secondary hover:text-white hover:bg-brand-blue/20 transition-all duration-200 touch-target"
+                                        target={social.href.startsWith("http") ? "_blank" : undefined}
+                                        rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                                        className="flex items-center gap-3 text-text-secondary hover:text-white transition-all duration-200"
                                     >
-                                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <span className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-brand-blue/20 transition-all duration-200">
+                                            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        </span>
+                                        <span className="text-sm">{social.label}</span>
                                     </a>
                                 );
                             })}
