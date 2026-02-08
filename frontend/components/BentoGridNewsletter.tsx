@@ -2,6 +2,9 @@
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
+import { useNewsletters } from "@/presentation/hooks/useNewsletters";
+import { Newsletter } from "@/domain/entities/Newsletter";
+
 /**
  * BentoGridNewsletter Component
  * Exibe a última edição em destaque e edições anteriores em grid 3x3
@@ -32,8 +35,6 @@ export default function BentoGridNewsletter() {
                             {error || "Nenhuma newsletter disponível no momento."}
                         </p>
                     </div>
-                    <NewsletterCTA />
-                    <InviteCTA />
                 </div>
             </section>
         );
@@ -141,7 +142,7 @@ export default function BentoGridNewsletter() {
                     {/* ============================================
                     EDIÇÕES ANTERIORES - GRID 3x3
                     ============================================ */}
-                    {older.map(newsletter => (
+                    {older.map((newsletter: Newsletter) => (
                         <div
                             key={newsletter.id}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-70 bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-brand-blue/30 hover:shadow-[0_0_30px_rgba(0,129,242,0.15)]"

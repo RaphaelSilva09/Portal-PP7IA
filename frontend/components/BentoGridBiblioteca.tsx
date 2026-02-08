@@ -2,6 +2,9 @@
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
+import { useBiblioteca } from "@/presentation/hooks/useBiblioteca";
+import { BibliotecaItem } from "@/domain/entities/BibliotecaItem";
+
 /**
  * BentoGridBiblioteca Component
  * Exibe a última edição da biblioteca em destaque e edições anteriores em grid 3x3
@@ -32,8 +35,6 @@ export default function BentoGridBiblioteca() {
                             {error || "Nenhum conteúdo disponível na biblioteca no momento."}
                         </p>
                     </div>
-                    <NewsletterCTA />
-                    <InviteCTA />
                 </div>
             </section>
         );
@@ -141,7 +142,7 @@ export default function BentoGridBiblioteca() {
                     {/* ============================================
                     EDIÇÕES ANTERIORES - GRID 3x3
                     ============================================ */}
-                    {older.map(item => (
+                    {older.map((item: BibliotecaItem) => (
                         <div
                             key={item.id}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
