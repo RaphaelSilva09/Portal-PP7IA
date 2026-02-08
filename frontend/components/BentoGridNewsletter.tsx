@@ -1,6 +1,7 @@
 "use client";
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
+
 import { useNewsletters } from "@/presentation/hooks/useNewsletters";
 import { Newsletter } from "@/domain/entities/Newsletter";
 
