@@ -34,14 +34,8 @@ export async function POST(request: Request) {
             );
         }
 
-        // 2. Autorização: verifica se o chamador é admin
-        const { data: adminRecord } = await supabaseAuth
-            .from("admin")
-            .select("id")
-            .eq("id", user.id)
-            .single();
-
-        if (!adminRecord) {
+        // 2. Autorização: verifica role admin no JWT (app_metadata)
+        if (user.app_metadata?.role !== "admin") {
             return NextResponse.json(
                 { error: "Acesso não autorizado" },
                 { status: 403 }

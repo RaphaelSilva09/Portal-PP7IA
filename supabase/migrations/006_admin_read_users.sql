@@ -5,7 +5,7 @@
 -- Policies existentes de self-access (001_auth_schema)
 -- permanecem inalteradas.
 --
--- Dependencias: 003_admin_table.sql (is_admin())
+-- Dependencias: 003_admin_function.sql (is_admin())
 -- =====================================================
 
 DROP POLICY IF EXISTS "admin_select_all_users" ON public.users;

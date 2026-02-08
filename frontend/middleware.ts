@@ -74,14 +74,10 @@ export async function middleware(request: NextRequest) {
         return response;
     }
 
-    // 3. Para rotas admin, verifica se usuário é admin
-    const { data: admin } = await supabase
-        .from("admin")
-        .select("id")
-        .eq("id", user.id)
-        .single();
+    // 3. Para rotas admin, verifica role no JWT (app_metadata)
+    const isAdmin = user.app_metadata?.role === "admin";
 
-    if (!admin) {
+    if (!isAdmin) {
         return redirectToHome(request);
     }
 
