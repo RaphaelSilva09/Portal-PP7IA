@@ -49,7 +49,9 @@ export default function RootLayout({
                         <AuthModalProvider>
                             <FirstVisitModalProvider>
                                 {children}
-                                <ModalsProvider />
+                                <Suspense fallback={null}>
+                                    <ModalsProvider />
+                                </Suspense>
                             </FirstVisitModalProvider>
                         </AuthModalProvider>
                     </SearchModalProvider>

@@ -1,6 +1,7 @@
 "use client";
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
+import { useBiblioteca } from "../presentation/hooks/useBiblioteca";
 
 /**
  * BentoGridBiblioteca Component
@@ -32,8 +33,6 @@ export default function BentoGridBiblioteca() {
                             {error || "Nenhum conteúdo disponível na biblioteca no momento."}
                         </p>
                     </div>
-                    <NewsletterCTA />
-                    <InviteCTA />
                 </div>
             </section>
         );
