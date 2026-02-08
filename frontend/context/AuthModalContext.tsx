@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from "react";
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from "react";
 
 /**
  * AuthModalContext
@@ -47,14 +47,10 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
 
     const contextValue = useMemo(
         () => ({ isOpen, initialData, initialMode, openModal, closeModal }),
-        [isOpen, initialData, initialMode, openModal, closeModal]
+        [isOpen, initialData, initialMode, openModal, closeModal],
     );
 
-    return (
-        <AuthModalContext.Provider value={contextValue}>
-            {children}
-        </AuthModalContext.Provider>
-    );
+    return <AuthModalContext.Provider value={contextValue}>{children}</AuthModalContext.Provider>;
 }
 
 /**
