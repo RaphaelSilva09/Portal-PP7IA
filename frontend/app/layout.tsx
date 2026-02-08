@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SearchModalProvider } from "@/context/SearchModalContext";
@@ -46,7 +47,9 @@ export default function RootLayout({
                     <AuthModalProvider>
                         <FirstVisitModalProvider>
                             {children}
-                            <ModalsProvider />
+                            <Suspense fallback={null}>
+                                <ModalsProvider />
+                            </Suspense>
                         </FirstVisitModalProvider>
                     </AuthModalProvider>
                 </SearchModalProvider>
