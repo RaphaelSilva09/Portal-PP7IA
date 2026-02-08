@@ -1,0 +1,48 @@
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+
+interface Props {
+    params: Promise<{ type: string; slug: string }>;
+}
+
+const typeConfig: Record<string, { folder: string; title: string }> = {
+    newsletter: { folder: "newsletters", title: "Newsletter" },
+    "mini-livro": { folder: "mini-livros", title: "Mini-Livro" },
+    biblioteca: { folder: "biblioteca", title: "Biblioteca" },
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { type, slug } = await params;
+    const config = typeConfig[type];
+
+    if (!config) {
+        return { title: "Não encontrado" };
+    }
+
+    return {
+        title: `${config.title} #${slug} | Portal PP7+IA`,
+        description: `Visualização de ${config.title} do Portal PP7+IA`,
+    };
+}
+
+export default async function ViewPage({ params }: Props) {
+    const { type, slug } = await params;
+
+    const config = typeConfig[type];
+    if (!config) {
+        notFound();
+    }
+
+    const htmlPath = `/${config.folder}/${slug}.html`;
+
+    return (
+        <div className="w-full h-screen bg-[var(--background)]">
+            <iframe
+                src={htmlPath}
+                className="w-full h-full border-0"
+                title={`${config.title} - ${slug}`}
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            />
+        </div>
+    );
+}
