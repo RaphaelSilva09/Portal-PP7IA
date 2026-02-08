@@ -20,8 +20,8 @@ import type {
 
 /** Mapeamento de tipo de conteúdo para nome da tabela no Supabase */
 const TABLE_MAP: Record<ContentType, string> = {
-    newsletter: "newsletter",
-    "mini-livro": "mini_livro",
+    newsletter: "newsletters",
+    "mini-livro": "mini-livros",
     biblioteca: "biblioteca",
 };
 
