@@ -1,55 +1,44 @@
 "use client";
 
-import { FileText, Globe, Sparkles } from "lucide-react";
+import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
+
+import { useNewsletters } from "@/presentation/hooks/useNewsletters";
+import { Newsletter } from "@/domain/entities/Newsletter";
 
 /**
  * BentoGridNewsletter Component
  * Exibe a última edição em destaque e edições anteriores em grid 3x3
+ * Dados carregados dinamicamente do Supabase
  */
-
-// Dados das newsletters (mock - substituir por dados reais)
-const newsletters = [
-    {
-        id: 3,
-        title: "PP-News #003 - Newsletter 003",
-        htmlUrl: "/newsletters/003.html",
-        pdfUrl: "/newsletters/003.pdf",
-        date: "25/01/2026",
-        htmlAvailable: true,
-        pdfAvailable: true,
-    },
-    {
-        id: 2,
-        title: "PP-News #002  - IA Curada com Inteligência",
-        htmlUrl: "/newsletters/002.html",
-        pdfUrl: "/newsletters/002.pdf",
-        date: "16/12/2025",
-        htmlAvailable: true,
-        pdfAvailable: true,
-    },
-    {
-        id: 1,
-        title: "PP-News #001 - O Início de uma Nova Era",
-        htmlUrl: "/newsletters/001.html",
-        pdfUrl: "/newsletters/001.pdf",
-        date: "09/12/2025",
-        htmlAvailable: true,
-        pdfAvailable: false,
-    },
-    {
-        id: 0,
-        title: "PP-News #000 - Edição Piloto",
-        htmlUrl: "/newsletters/000.html",
-        pdfUrl: "/newsletters/000.pdf",
-        date: "02/12/2025",
-        htmlAvailable: true,
-        pdfAvailable: false,
-    },
-];
-
 export default function BentoGridNewsletter() {
-    const latestNewsletter = newsletters[0];
-    const olderNewsletters = newsletters.slice(1);
+    const { latest, older, isLoading, error } = useNewsletters();
+
+    // Estado de carregamento
+    if (isLoading) {
+        return (
+            <section className="py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto flex flex-col justify-center items-center min-h-[400px] gap-4">
+                    <Loader2 className="w-8 h-8 animate-spin text-brand-blue" />
+                    <p className="text-text-secondary">Carregando newsletters...</p>
+                </div>
+            </section>
+        );
+    }
+
+    // Estado de erro ou sem dados
+    if (error || !latest) {
+        return (
+            <section className="py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center py-16">
+                        <p className="text-text-secondary text-lg">
+                            {error || "Nenhuma newsletter disponível no momento."}
+                        </p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
@@ -97,24 +86,24 @@ export default function BentoGridNewsletter() {
 
                             {/* Newsletter Number */}
                             <p className="text-brand-blue text-base sm:text-lg font-mono mb-2">
-                                Newsletter #{latestNewsletter.id.toString().padStart(3, "0")}
+                                Newsletter #{latest.formattedNumber}
                             </p>
 
                             {/* Title */}
                             <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl">
-                                {latestNewsletter.title}
+                                {latest.title}
                             </h3>
 
                             {/* Date */}
                             <p className="text-text-secondary text-base sm:text-lg mb-8">
-                                Publicada em {latestNewsletter.date}
+                                Publicada em {latest.formattedDate}
                             </p>
 
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                                {latestNewsletter.htmlAvailable ? (
+                                {latest.htmlAvailable ? (
                                     <a
-                                        href={latestNewsletter.htmlUrl}
+                                        href={latest.htmlPath!}
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/20 hover:bg-brand-blue/30 border border-brand-blue/30 hover:border-brand-blue/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <Globe className="w-5 h-5" />
@@ -129,9 +118,9 @@ export default function BentoGridNewsletter() {
                                         <span>Indisponível</span>
                                     </button>
                                 )}
-                                {latestNewsletter.pdfAvailable ? (
+                                {latest.pdfAvailable ? (
                                     <a
-                                        href={latestNewsletter.pdfUrl}
+                                        href={latest.pdfPath!}
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/30 hover:border-brand-purple/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <FileText className="w-5 h-5" />
@@ -153,7 +142,7 @@ export default function BentoGridNewsletter() {
                     {/* ============================================
                     EDIÇÕES ANTERIORES - GRID 3x3
                     ============================================ */}
-                    {olderNewsletters.map(newsletter => (
+                    {older.map((newsletter: Newsletter) => (
                         <div
                             key={newsletter.id}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-70 bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-brand-blue/30 hover:shadow-[0_0_30px_rgba(0,129,242,0.15)]"
@@ -161,7 +150,7 @@ export default function BentoGridNewsletter() {
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Newsletter Number */}
                                 <span className="text-xs font-mono text-brand-blue/80 tracking-tight mb-2">
-                                    Newsletter #{newsletter.id.toString().padStart(3, "0")}
+                                    Newsletter #{newsletter.formattedNumber}
                                 </span>
 
                                 {/* Title */}
@@ -170,13 +159,13 @@ export default function BentoGridNewsletter() {
                                 </h4>
 
                                 {/* Date */}
-                                <p className="text-text-secondary text-sm mb-4">{newsletter.date}</p>
+                                <p className="text-text-secondary text-sm mb-4">{newsletter.formattedDate}</p>
 
                                 {/* Action Buttons */}
                                 <div className="flex flex-col w-full gap-2 mt-auto">
                                     {newsletter.htmlAvailable ? (
                                         <a
-                                            href={newsletter.htmlUrl}
+                                            href={newsletter.htmlPath!}
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 hover:border-brand-blue/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <Globe className="w-4 h-4" />
@@ -193,7 +182,7 @@ export default function BentoGridNewsletter() {
                                     )}
                                     {newsletter.pdfAvailable ? (
                                         <a
-                                            href={newsletter.pdfUrl}
+                                            href={newsletter.pdfPath!}
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/20 hover:border-brand-purple/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <FileText className="w-4 h-4" />
