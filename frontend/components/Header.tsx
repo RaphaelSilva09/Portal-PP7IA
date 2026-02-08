@@ -103,7 +103,7 @@ export default function Navbar() {
                     </nav>
 
                     {/* CTA or User Section */}
-                    <div className="hidden md:flex items-center gap-2">
+                    <div className="nav-desktop-1108 hidden items-center gap-2">
                         {user ? (
                             <>
                                 <Link
@@ -145,14 +145,66 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="nav-mobile-1108 p-2 text-text-secondary hover:text-white transition-colors touch-target"
-                        aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
-                    >
-                        {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                    </button>
+                    {/* Mobile Auth Buttons + Menu Button */}
+                    <div className="nav-mobile-1108 flex items-center gap-2">
+                        {user ? (
+                            <>
+                                <Link
+                                    href="/user"
+                                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-text-secondary hover:text-white font-semibold text-xs rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                >
+                                    <UserIcon className="w-3.5 h-3.5" />
+                                    <span className="max-w-[60px] truncate">{user.nome}</span>
+                                </Link>
+                                <button
+                                    onClick={handleLogout}
+                                    className="cursor-pointer p-1.5 text-red-400 hover:text-red-300 rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-200"
+                                    aria-label="Sair"
+                                >
+                                    <LogOut className="w-3.5 h-3.5" />
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                {/* Mobile only: single button */}
+                                <button
+                                    onClick={() => {
+                                        setAuthInitialMode("login");
+                                        setIsAuthModalOpen(true);
+                                    }}
+                                    className="btn-mobile-auth sm:hidden cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] active:scale-95 transition-all duration-200"
+                                >
+                                    Entrar
+                                </button>
+                                {/* Tablet: both buttons */}
+                                <button
+                                    onClick={() => {
+                                        setAuthInitialMode("login");
+                                        setIsAuthModalOpen(true);
+                                    }}
+                                    className="hidden sm:block px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                >
+                                    Entrar
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setAuthInitialMode("signup");
+                                        setIsAuthModalOpen(true);
+                                    }}
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
+                                >
+                                    <span>Quero Fazer Parte</span>
+                                </button>
+                            </>
+                        )}
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="p-2 text-text-secondary hover:text-white transition-colors touch-target"
+                            aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+                        >
+                            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -195,53 +247,6 @@ export default function Navbar() {
                             </a>
                         ),
                     )}
-
-                    {/* Mobile CTA or User Section */}
-                    <div className="pt-4 px-4 space-y-3">
-                        {user ? (
-                            <>
-                                <Link
-                                    href="/user"
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="cursor-pointer w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
-                                >
-                                    <UserIcon className="w-4 h-4" />
-                                    <span>{user.nome}</span>
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="cursor-pointer w-full flex items-center justify-center gap-2 px-5 py-3 text-red-400 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 active:scale-95 transition-all duration-200 touch-target"
-                                >
-                                    <LogOut className="w-4 h-4" />
-                                    <span>Sair</span>
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        setAuthInitialMode("login");
-                                        setIsAuthModalOpen(true);
-                                    }}
-                                    className="w-full px-5 py-3 text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 active:scale-95 transition-all duration-200 touch-target"
-                                >
-                                    Entrar
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        setAuthInitialMode("signup");
-                                        setIsAuthModalOpen(true);
-                                    }}
-                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-95 transition-all duration-200 touch-target"
-                                >
-                                    <Sparkles className="w-4 h-4" />
-                                    <span>Quero Fazer Parte</span>
-                                </button>
-                            </>
-                        )}
-                    </div>
                 </nav>
             </div>
 
