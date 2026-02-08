@@ -1,21 +1,43 @@
 /**
- * Middleware de Autenticação e Autorização Admin
+ * Middleware de Autenticação e Autorização
  *
- * Intercepta rotas /painel-admin antes de renderizar.
- * Verifica sessão e permissão de admin para economizar recursos.
+ * Intercepta rotas protegidas antes de renderizar.
+ * - /painel-admin: requer autenticação + admin
+ * - /user: requer autenticação
+ *
+ * Redirects:
+ * - Não autenticado -> /?authModal=login (abre modal de login)
+ * - Autenticado não-admin em /painel-admin -> / (home)
  *
  * Princípios aplicados:
  * - Defense in Depth: Primeira camada de segurança (middleware)
- * - Fail Secure: Redireciona para home se não autorizado
+ * - Fail Secure: Redireciona para home/login se não autorizado
  * - Performance: Evita renderização desnecessária
  */
 
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const ADMIN_ROUTES = "/painel-admin";
+const AUTH_ROUTES = "/user";
+
+function redirectToLogin(request: NextRequest): NextResponse {
+    const loginUrl = new URL("/", request.url);
+    loginUrl.searchParams.set("authModal", "login");
+    return NextResponse.redirect(loginUrl);
+}
+
+function redirectToHome(request: NextRequest): NextResponse {
+    return NextResponse.redirect(new URL("/", request.url));
+}
+
 export async function middleware(request: NextRequest) {
-    // Só intercepta rotas /painel-admin
-    if (!request.nextUrl.pathname.startsWith("/painel-admin")) {
+    const { pathname } = request.nextUrl;
+
+    const isAdminRoute = pathname.startsWith(ADMIN_ROUTES);
+    const isAuthRoute = pathname.startsWith(AUTH_ROUTES);
+
+    if (!isAdminRoute && !isAuthRoute) {
         return NextResponse.next();
     }
 
@@ -44,10 +66,15 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-        return NextResponse.redirect(new URL("/", request.url));
+        return redirectToLogin(request);
     }
 
-    // 2. Verifica se usuário é admin
+    // 2. Para rotas de usuário, autenticação é suficiente
+    if (isAuthRoute) {
+        return response;
+    }
+
+    // 3. Para rotas admin, verifica se usuário é admin
     const { data: admin } = await supabase
         .from("admin")
         .select("id")
@@ -55,12 +82,12 @@ export async function middleware(request: NextRequest) {
         .single();
 
     if (!admin) {
-        return NextResponse.redirect(new URL("/", request.url));
+        return redirectToHome(request);
     }
 
     return response;
 }
 
 export const config = {
-    matcher: "/painel-admin/:path*",
+    matcher: ["/painel-admin/:path*", "/user/:path*"],
 };
