@@ -1,8 +1,9 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
-import { LogOut, Menu, Sparkles, User as UserIcon, X } from "lucide-react";
+import { LogOut, Menu, Sparkles, User as UserIcon, UserPlus, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { openModal } = useSearchModal();
+    const { openModal: openInviteModal } = useInviteModal();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authInitialMode, setAuthInitialMode] = useState<"login" | "signup">("login");
     const { user, signOut, isLoading } = useAuth();
@@ -116,6 +118,13 @@ export default function Navbar() {
                                     <span>{user.nome}</span>
                                 </Link>
                                 <button
+                                    onClick={openInviteModal}
+                                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10 transition-all duration-200"
+                                >
+                                    <UserPlus className="w-4 h-4" />
+                                    <span>Convidar</span>
+                                </button>
+                                <button
                                     onClick={handleLogout}
                                     className="cursor-pointer flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-200"
                                 >
@@ -160,6 +169,13 @@ export default function Navbar() {
                                     <UserIcon className="w-3.5 h-3.5" />
                                     <span className="max-w-[60px] truncate">{user.nome}</span>
                                 </Link>
+                                <button
+                                    onClick={openInviteModal}
+                                    className="cursor-pointer p-1.5 text-text-secondary hover:text-white hover:bg-blue-500/10 rounded-full border border-white/10 hover:border-blue-500/50 transition-all duration-200"
+                                    aria-label="Convidar alguém"
+                                >
+                                    <UserPlus className="w-3.5 h-3.5" />
+                                </button>
                                 <button
                                     onClick={handleLogout}
                                     className="cursor-pointer p-1.5 text-red-400 hover:text-red-300 rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-200"

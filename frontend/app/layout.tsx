@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SearchModalProvider } from "@/context/SearchModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
+import { InviteModalProvider } from "@/context/InviteModalContext";
 import { AuthProvider } from "@/context/AuthContext";
 import ModalsProvider from "@/components/ModalsProvider";
 import "./globals.css";
@@ -47,8 +48,10 @@ export default function RootLayout({
                     <SearchModalProvider>
                         <AuthModalProvider>
                             <FirstVisitModalProvider>
-                                {children}
-                                <ModalsProvider />
+                                <InviteModalProvider>
+                                    {children}
+                                    <ModalsProvider />
+                                </InviteModalProvider>
                             </FirstVisitModalProvider>
                         </AuthModalProvider>
                     </SearchModalProvider>

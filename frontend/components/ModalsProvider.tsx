@@ -3,10 +3,12 @@
 import SearchModal from "./SearchModal";
 import FirstVisitModal from "./FirstVisitModal";
 import AuthModal from "./AuthModal";
+import InviteModal from "./InviteModal";
 import Portal from "./Portal";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
 import { useAuthModal } from "@/context/AuthModalContext";
+import { useInviteModal } from "@/context/InviteModalContext";
 
 /**
  * ModalsProvider Component
@@ -24,6 +26,7 @@ export default function ModalsProvider() {
     const { isOpen: isSearchOpen, closeModal: closeSearchModal } = useSearchModal();
     const { isOpen: isFirstVisitOpen, closeModal: closeFirstVisitModal } = useFirstVisitModal();
     const { isOpen: isAuthOpen, initialData, initialMode, closeModal: closeAuthModal } = useAuthModal();
+    const { isOpen: isInviteOpen, closeModal: closeInviteModal } = useInviteModal();
 
     return (
         <Portal>
@@ -35,6 +38,7 @@ export default function ModalsProvider() {
                 initialMode={initialMode}
                 initialData={initialData}
             />
+            <InviteModal isOpen={isInviteOpen} onClose={closeInviteModal} />
         </Portal>
     );
 }
