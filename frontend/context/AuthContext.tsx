@@ -2,6 +2,7 @@
 
 import { User } from "@/domain/entities/User";
 import { AuthError } from "@/domain/errors/AuthError";
+import { supabase } from "@/infrastructure/config/supabase";
 import DIContainer from "@/infrastructure/di/container";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
@@ -78,10 +79,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }, []);
 
-    // Verifica sessão existente ao montar
+    // Escuta mudanças de estado da autenticação do Supabase
     useEffect(() => {
-        getCurrentUser();
-    }, [getCurrentUser]);
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                try {
+                    const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
+                    const currentUser = await getCurrentUserUseCase.execute();
+                    setUser(currentUser);
+                } catch {
+                    setUser(null);
+                }
+            } else {
+                setUser(null);
+            }
+            setIsLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     /**
      * Cadastra novo usuário
