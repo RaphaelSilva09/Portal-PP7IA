@@ -31,7 +31,7 @@ export default function Navbar() {
     const { openModal } = useSearchModal();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authInitialMode, setAuthInitialMode] = useState<"login" | "signup">("login");
-    const { user, signOut } = useAuth();
+    const { user, signOut, isLoading } = useAuth();
 
     const handleLogout = async () => {
         await signOut();
@@ -104,7 +104,9 @@ export default function Navbar() {
 
                     {/* CTA or User Section */}
                     <div className="nav-desktop-1108 hidden items-center gap-2">
-                        {user ? (
+                        {isLoading ? (
+                            <div className="w-24 h-9 bg-white/5 rounded-full animate-pulse" />
+                        ) : user ? (
                             <>
                                 <Link
                                     href="/user"
@@ -147,7 +149,9 @@ export default function Navbar() {
 
                     {/* Mobile Auth Buttons + Menu Button */}
                     <div className="nav-mobile-1108 flex items-center gap-2">
-                        {user ? (
+                        {isLoading ? (
+                            <div className="w-16 h-7 bg-white/5 rounded-full animate-pulse" />
+                        ) : user ? (
                             <>
                                 <Link
                                     href="/user"
