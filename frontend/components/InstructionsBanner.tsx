@@ -51,7 +51,19 @@ export default function InstructionsBanner() {
                             </p>
                         </div>
 
-                        {/* Instruction 5 - Atualizações */}
+                        {/* Instruction 5 - Convidar */}
+                        <div className="flex gap-3 items-start">
+                            <span className="text-brand-blue font-bold flex-shrink-0">•</span>
+                            <p>
+                                <span className="text-brand-blue font-medium">Convide alguém:</span> Após fazer login, clique no botão{" "}
+                                <span className="text-brand-blue font-medium">"Convidar"</span> no topo da página ou na sua{" "}
+                                <span className="text-brand-blue font-medium">página de perfil</span>.
+                                Informe o e-mail da pessoa e ela receberá um convite com link para se cadastrar.
+                                Você pode enviar vários convites de uma vez.
+                            </p>
+                        </div>
+
+                        {/* Instruction 6 - Atualizações */}
                         <div className="flex gap-3 items-start">
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
