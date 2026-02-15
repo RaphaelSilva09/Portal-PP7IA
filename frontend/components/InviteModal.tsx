@@ -77,7 +77,7 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
             setRows(prev => prev.map(r => (r.id === row.id ? { ...r, status: "sending" } : r)));
 
             try {
-                const response = await fetch("/api/invite", {
+                const response = await fetch("/api/admin/invite", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email: row.email.trim().toLowerCase() }),
