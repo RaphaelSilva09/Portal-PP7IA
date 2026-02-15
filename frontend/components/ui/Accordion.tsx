@@ -36,25 +36,25 @@ export interface AccordionProps {
  */
 const variantStyles = {
     level1: {
-        container: "bg-gradient-to-br from-[#1e3a5f] to-[#1e40af] border-blue-500/30",
+        container: "bg-linear-to-br from-[#0f1419] to-[#1e3a8a] border-blue-500/40",
         header: "px-6 py-5",
         title: "text-base md:text-lg font-semibold text-white",
-        content: "px-6 pb-5 pt-4 border-t border-white/10 text-white",
-        arrow: "text-white/70",
+        content: "px-6 pb-5 pt-4 border-t border-white/10 text-white/90",
+        arrow: "text-blue-400/80",
     },
     level2: {
-        container: "bg-gradient-to-br from-[#1e3a5f] to-[#2563eb] border-blue-500/25",
+        container: "bg-linear-to-br from-[#1a1a2e] to-[#2563eb] border-blue-400/30",
         header: "px-5 py-4",
         title: "text-sm md:text-base font-semibold text-white",
-        content: "px-5 pb-4 pt-3 border-t border-white/10 text-white",
-        arrow: "text-white/70",
+        content: "px-5 pb-4 pt-3 border-t border-blue-400/15 text-white/90",
+        arrow: "text-blue-300/80",
     },
     level3: {
-        container: "bg-gradient-to-br from-[#dbeafe] to-[#eff6ff] border-blue-500/20",
+        container: "bg-linear-to-br from-[#1e293b] to-[#3b82f6] border-blue-300/25",
         header: "px-4 py-3.5",
-        title: "text-sm font-semibold text-[#1e3a5f]",
-        content: "px-4 pb-3.5 pt-3 border-t border-[#1e3a5f]/10 text-[#1e3a5f]",
-        arrow: "text-[#2563eb]",
+        title: "text-sm font-semibold text-white/95",
+        content: "px-4 pb-3.5 pt-3 border-t border-blue-300/15 text-blue-50/90",
+        arrow: "text-blue-200/80",
     },
 };
 

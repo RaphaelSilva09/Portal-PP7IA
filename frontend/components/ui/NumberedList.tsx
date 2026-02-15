@@ -38,9 +38,9 @@ const variantStyles = {
         strong: "text-white",
     },
     light: {
-        item: "text-[#1e3a5f] border-[#1e3a5f]/8",
-        number: "text-[#2563eb]",
-        strong: "text-[#1e3a5f]",
+        item: "text-blue-50/90 border-blue-300/10",
+        number: "text-blue-200",
+        strong: "text-white/95",
     },
 };
 
