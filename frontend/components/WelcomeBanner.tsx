@@ -5,7 +5,7 @@ export default function WelcomeBanner() {
                 <div className="glass-card p-6 sm:p-8 text-center bg-brand-green/5 border-brand-green/20 shadow-glow-green-sm">
                     {/* Title */}
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-bold md:mb-8 mb-4">
-                        🎉 Bem-vindos à Primeira Edição Oficial do Novo Portal!
+                        🎉 Bem-vindos à Versão Oficial do Portal!
                     </h2>
 
                     {/* Message */}

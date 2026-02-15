@@ -2,7 +2,8 @@
 
 import { Footer, Navbar } from "@/components";
 import { useAuth } from "@/context/AuthContext";
-import { AlertCircle, ArrowLeft, Mail, Phone, Trash2, User } from "lucide-react";
+import { useInviteModal } from "@/context/InviteModalContext";
+import { AlertCircle, ArrowLeft, Mail, Phone, Trash2, User, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -15,6 +16,7 @@ import { useEffect, useState } from "react";
 export default function UserPage() {
     const router = useRouter();
     const { user, isLoading, deleteAccount } = useAuth();
+    const { openModal: openInviteModal } = useInviteModal();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -109,6 +111,22 @@ export default function UserPage() {
                                 {user.celular}
                             </div>
                         </div>
+                    </div>
+
+                    {/* Seção Convidar */}
+                    <div className="mt-8 bg-bg-secondary border border-blue-500/20 rounded-2xl p-6">
+                        <h2 className="text-lg font-semibold text-blue-400 mb-2">Convidar para o Portal</h2>
+                        <p className="text-sm text-text-secondary mb-4">
+                            Conhece alguém que se beneficiaria do PP7+IAS? Envie um convite por email e a pessoa
+                            receberá um link para se cadastrar.
+                        </p>
+                        <button
+                            onClick={openInviteModal}
+                            className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 font-medium rounded-xl transition-all"
+                        >
+                            <UserPlus className="w-4 h-4" />
+                            Convidar por Email
+                        </button>
                     </div>
 
                     {/* Seção de Exclusão */}

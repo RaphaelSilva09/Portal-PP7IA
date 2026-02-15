@@ -1,12 +1,13 @@
 "use client";
 
-import { BrainCircuit, Plus, Sparkles, User } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 /**
  * WhyPP7IASSection Component
- * 
+ *
  * Seção que explica o significado do nome "PP7+IAS".
- * Layout: Título + 4 cards horizontais
+ * Layout: Título + 4 cards horizontais + link para página completa
  */
 
 export default function WhyPP7IASSection() {
@@ -77,6 +78,17 @@ export default function WhyPP7IASSection() {
                             Artificiais
                         </p>
                     </div>
+                </div>
+
+                {/* Link para página completa */}
+                <div className="mt-8 sm:mt-10 flex justify-center">
+                    <Link
+                        href="/por-que-7"
+                        className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-xl shadow-glow-blue-sm hover:shadow-glow-blue-md hover:scale-105 transition-all duration-200"
+                    >
+                        <span>Saiba mais sobre o 7</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                 </div>
                 
                 {/* Linha Horizontal Inferior */}

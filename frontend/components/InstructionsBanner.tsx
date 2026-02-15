@@ -10,25 +10,29 @@ export default function InstructionsBanner() {
 
                     {/* Instructions List */}
                     <div className="space-y-4 text-sm sm:text-base md:text-lg text-text-secondary leading-relaxed">
-                        {/* Instruction 1 */}
+                        {/* Instruction 1 - Como se inscrever */}
                         <div className="flex gap-3 items-start">
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
-                                Você está recebendo essa mensagem porque está inscrito no portal (só com WhatsApp), foi
-                                indicado ou entrou diretamente no link.
+                                <span className="text-brand-blue font-medium">Como se inscrever:</span> Clique em{" "}
+                                <span className="text-brand-blue font-medium">"Quero Fazer Parte"</span> ou{" "}
+                                <span className="text-brand-blue font-medium">"Entrar"</span> no topo da página.
+                                Preencha nome, e-mail, celular e crie uma senha.
+                                Escolha como quer receber atualizações (e-mail e/ou WhatsApp).
+                                Após o cadastro, confirme seu e-mail clicando no link enviado (verifique a pasta de spam).
                             </p>
                         </div>
 
-                        {/* Instruction 2 */}
+                        {/* Instruction 2 - Já é inscrito */}
                         <div className="flex gap-3 items-start">
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
-                                <span className="text-brand-blue font-medium">Confirme seu cadastramento ou cancelamento</span> no bloco azul no topo:{" "}
-                                <span className="text-brand-blue font-medium">"Quero Fazer Parte"</span>.
+                                <span className="text-brand-blue font-medium">Já é inscrito?</span> Use o botão{" "}
+                                <span className="text-brand-blue font-medium">"Entrar"</span> no topo para acessar sua conta com e-mail e senha.
                             </p>
                         </div>
 
-                        {/* Instruction 3 */}
+                        {/* Instruction 3 - Ajuda */}
                         <div className="flex gap-3 items-start">
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
@@ -37,7 +41,7 @@ export default function InstructionsBanner() {
                             </p>
                         </div>
 
-                        {/* Instruction 4 */}
+                        {/* Instruction 4 - Instruções por bloco */}
                         <div className="flex gap-3 items-start">
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
@@ -47,7 +51,7 @@ export default function InstructionsBanner() {
                             </p>
                         </div>
 
-                        {/* Instruction 5 */}
+                        {/* Instruction 5 - Atualizações */}
                         <div className="flex gap-3 items-start">
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
