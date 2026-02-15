@@ -19,7 +19,7 @@ interface NavItem {
 // 7 itens de navegação seguindo a regra de negócio
 const navItems: NavItem[] = [
     { label: "Quem Somos", href: "/#quemsomos" },
-    { label: "Declarações", href: "/#declaracoes" },
+    { label: "Declarações", href: "/PP7IAS_Disclosures_Legal_Compliance.pdf", isExternal: true },
     { label: "Índice", href: "/#indice" },
     { label: "O Autor", href: "/#autor" },
     { label: "As 7 IAs", href: "/#ias-parceiras" },
