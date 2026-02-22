@@ -14,14 +14,14 @@
  * - DI: Obtém use cases via DIContainer
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { ContentType, ContentItem } from "@/domain/entities/ContentItem";
-import { useAuth } from "@/context/AuthContext";
-import DIContainer from "@/infrastructure/di/container";
-import { ContentTable, ContentForm } from "@/components/admin";
+import { ContentForm, ContentTable } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
-import { Plus, Newspaper, BookOpen, Library } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
+import DIContainer from "@/infrastructure/di/container";
+import { BookOpen, Library, Newspaper, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 const TABS: { type: ContentType; label: string; icon: typeof Newspaper }[] = [
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
@@ -89,12 +89,7 @@ export default function PainelAdminPage() {
         }
     };
 
-    const handleSubmit = async (data: {
-        title: string;
-        readTime?: number;
-        htmlFile?: File;
-        pdfFile?: File;
-    }) => {
+    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File }) => {
         setIsSubmitting(true);
         try {
             if (editItem) {
@@ -137,9 +132,7 @@ export default function PainelAdminPage() {
             <div className="max-w-6xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-                        Painel de Administração
-                    </h1>
+                    <h1 className="text-3xl font-bold text-[var(--text-primary)]">Painel de Administração</h1>
                 </div>
 
                 {/* Tabs */}
@@ -178,20 +171,14 @@ export default function PainelAdminPage() {
                     <>
                         {/* Botão Criar */}
                         <div className="flex justify-end">
-                            <GradientButton
-                                variant="cta"
-                                icon={Plus}
-                                onClick={handleCreate}
-                            >
+                            <GradientButton variant="cta" icon={Plus} onClick={handleCreate}>
                                 Novo Material
                             </GradientButton>
                         </div>
 
                         {/* Tabela */}
                         {isLoading ? (
-                            <div className="text-center py-12 text-[var(--text-secondary)]">
-                                Carregando...
-                            </div>
+                            <div className="text-center py-12 text-[var(--text-secondary)]">Carregando...</div>
                         ) : items.length === 0 ? (
                             <GlassCard variant="bordered" padding="lg">
                                 <div className="text-center py-8 text-[var(--text-secondary)]">
@@ -199,11 +186,7 @@ export default function PainelAdminPage() {
                                 </div>
                             </GlassCard>
                         ) : (
-                            <ContentTable
-                                items={items}
-                                onEdit={handleEdit}
-                                onDelete={handleDelete}
-                            />
+                            <ContentTable items={items} onEdit={handleEdit} onDelete={handleDelete} />
                         )}
                     </>
                 )}
