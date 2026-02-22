@@ -1,15 +1,15 @@
 "use client";
 
 import type { User } from "@/domain/entities/User";
-import type { SignInParams, SignUpParams } from "@/domain/repositories/IAuthRepository";
 import { AuthError } from "@/domain/errors/AuthError";
-import DIContainer from "@/infrastructure/di/container";
+import type { SignInParams, SignUpParams } from "@/domain/repositories/IAuthRepository";
 import { supabase } from "@/infrastructure/config/supabase";
+import DIContainer from "@/infrastructure/di/container";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 /**
  * SessionContext - Responsável apenas pela gestão de sessão
- * 
+ *
  * Princípios aplicados:
  * - SRP: Única responsabilidade - gerenciar estado da sessão
  * - ISP: Interface específica apenas para operações de sessão
@@ -51,74 +51,52 @@ export function SessionProvider({ children }: SessionProviderProps) {
     }, []);
 
     /**
-     * Busca sessão inicial do Supabase
-     * Executa uma única vez no mount
-     */
-    const checkInitialSession = useCallback(async () => {
-        const sessionLoadInProgress = true;
-        console.log("🔍 Verificando sessão inicial...");
-
-        try {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-
-            if (session) {
-                const repository = DIContainer.getAuthRepository();
-                const userData = await repository.getCurrentUser();
-
-                if (userData) {
-                    console.log("✅ Sessão restaurada:", userData.email);
-                    setUser(userData);
-                    userRef.current = userData;
-                } else {
-                    console.warn("⚠️ Sessão existe mas dados do usuário não encontrados");
-                    setUser(null);
-                    userRef.current = null;
-                }
-            } else {
-                console.log("ℹ️ Nenhuma sessão encontrada");
-                setUser(null);
-                userRef.current = null;
-            }
-        } catch (err) {
-            console.error("❌ Erro ao verificar sessão:", err);
-            setUser(null);
-            userRef.current = null;
-        } finally {
-            setIsLoading(false);
-        }
-
-        return sessionLoadInProgress;
-    }, []);
-
-    /**
      * Monitora mudanças de autenticação via Supabase
+     * INITIAL_SESSION é sempre o primeiro evento — fonte única de verdade
+     * Elimina race conditions de checkInitialSession paralelo
      */
     useEffect(() => {
         let mounted = true;
-        let sessionLoadInProgress = false;
 
-        // Carrega sessão inicial
-        checkInitialSession().then(inProgress => {
-            sessionLoadInProgress = inProgress;
-        });
-
-        // Listener para mudanças de auth state
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
-            if (sessionLoadInProgress) return; // Aguarda sessão inicial terminar
 
-            // Só ignora SIGNED_IN se o userId é o mesmo (re-auth do mesmo usuário)
-            // Não ignora se a sessão mudou (refresh de token, recovery, etc.)
-            if (event === "SIGNED_IN" && userRef.current && session?.user?.id === userRef.current.id) {
-                console.log(`ℹ️ SIGNED_IN ignorado - usuário ${userRef.current.email} já autenticado`);
+            console.log(`🔔 Auth event: ${event}`);
+
+            // INITIAL_SESSION é sempre o primeiro evento — fonte de verdade única
+            if (event === "INITIAL_SESSION") {
+                if (session?.user) {
+                    try {
+                        const repository = DIContainer.getAuthRepository();
+                        const userData = await repository.getCurrentUser();
+                        if (mounted) {
+                            console.log("✅ Sessão restaurada:", userData?.email);
+                            setUser(userData);
+                            userRef.current = userData;
+                        }
+                    } catch (err) {
+                        console.error("❌ Erro ao restaurar sessão:", err);
+                        if (mounted) {
+                            setUser(null);
+                            userRef.current = null;
+                        }
+                    }
+                } else {
+                    console.log("ℹ️ Nenhuma sessão encontrada");
+                    setUser(null);
+                    userRef.current = null;
+                }
+                if (mounted) setIsLoading(false);
                 return;
             }
 
-            console.log(`🔔 Auth event: ${event}`);
+            // PASSWORD_RECOVERY é tratado pelo hook dedicado usePasswordRecovery
+            if (event === "PASSWORD_RECOVERY") {
+                console.log("ℹ️ PASSWORD_RECOVERY ignorado - tratado por usePasswordRecovery");
+                return;
+            }
 
             if (event === "SIGNED_OUT") {
                 console.log("👋 Usuário desconectado");
@@ -128,13 +106,19 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 return;
             }
 
-            if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+            // Ignora SIGNED_IN se o userId é o mesmo (evita re-fetch desnecessário)
+            if (event === "SIGNED_IN" && session?.user?.id === userRef.current?.id) {
+                console.log(`ℹ️ SIGNED_IN ignorado - usuário ${userRef.current?.email} já autenticado`);
+                setIsLoading(false);
+                return;
+            }
+
+            if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session?.user) {
                 try {
                     const repository = DIContainer.getAuthRepository();
                     const userData = await repository.getCurrentUser();
-
-                    if (userData && mounted) {
-                        console.log(`✅ Usuário autenticado: ${userData.email}`);
+                    if (mounted) {
+                        console.log(`✅ Usuário atualizado: ${userData?.email}`);
                         setUser(userData);
                         userRef.current = userData;
                     }
@@ -157,7 +141,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
             mounted = false;
             subscription.unsubscribe();
         };
-    }, [checkInitialSession]);
+    }, []);
 
     /**
      * Cadastra novo usuário

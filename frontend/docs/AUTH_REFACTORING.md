@@ -22,24 +22,32 @@ interface AuthContextType {
     // 1. Estado de sessão
     user: User | null;
     isLoading: boolean;
-    
+
     // 2. Gestão de erros
     error: string | null;
-    
+
     // 3. Confirmação de email
     emailConfirmationRequired: boolean;
-    
+
     // 4. Recovery de senha
     isRecoveryReady: boolean;
-    
+
     // 5-9. Operações de autenticação
-    signUp, signIn, signOut, getCurrentUser,
-    updateEmail, updatePassword, updatePreferences,
-    deleteAccount, sendPasswordReset, resetPasswordWithToken
+    signUp;
+    signIn;
+    signOut;
+    getCurrentUser;
+    updateEmail;
+    updatePassword;
+    updatePreferences;
+    deleteAccount;
+    sendPasswordReset;
+    resetPasswordWithToken;
 }
 ```
 
 **Problemas:**
+
 - Viola SRP (Single Responsibility Principle)
 - Viola ISP (Interface Segregation Principle)
 - Difícil de testar (muitas dependências)
@@ -76,9 +84,10 @@ interface AuthContextType {
 **Responsabilidade**: Gerenciar fluxo temporário de recuperação de senha
 
 **Interface**:
+
 ```typescript
 interface UsePasswordRecoveryResult {
-    recoveryStatus: 'idle' | 'loading' | 'ready' | 'success' | 'error';
+    recoveryStatus: "idle" | "loading" | "ready" | "success" | "error";
     recoveryError: string | null;
     isLoading: boolean;
     resetPassword: (newPassword: string, confirmPassword?: string) => Promise<boolean>;
@@ -86,6 +95,7 @@ interface UsePasswordRecoveryResult {
 ```
 
 **Features**:
+
 - ✅ Extração de tokens do hash da URL (implicit flow)
 - ✅ Fallback com listener de PASSWORD_RECOVERY event
 - ✅ Timeout de 5s para detectar token inválido
@@ -93,6 +103,7 @@ interface UsePasswordRecoveryResult {
 - ✅ Cleanup automático (unsubscribe + signOut após sucesso)
 
 **Benefícios**:
+
 - Estado de UI não vaza para contexto global
 - Componentes decidem quando usar (opt-in)
 - Fácil de testar isoladamente
@@ -106,6 +117,7 @@ interface UsePasswordRecoveryResult {
 **Responsabilidade**: Gerenciar estado e operações de sessão
 
 **Interface**:
+
 ```typescript
 interface SessionContextType {
     // Estado
@@ -113,7 +125,7 @@ interface SessionContextType {
     isLoading: boolean;
     error: string | null;
     emailConfirmationRequired: boolean;
-    
+
     // Operações de sessão
     signUp: (params: SignUpParams) => Promise<{ emailConfirmationRequired: boolean }>;
     signIn: (params: SignInParams) => Promise<void>;
@@ -124,12 +136,14 @@ interface SessionContextType {
 ```
 
 **Responsabilidades** (SRP aplicado):
+
 1. Gerenciar usuário logado
 2. Controlar loading states
 3. Operações de login/logout/signup
 4. Sincronização com Supabase auth events
 
 **Performance**:
+
 - Componentes que só precisam de user não re-renderizam quando actions mudam
 - `useRef` para evitar re-subscrições
 
@@ -142,12 +156,13 @@ interface SessionContextType {
 **Responsabilidade**: Gerenciar ações de usuário autenticado
 
 **Interface**:
+
 ```typescript
 interface UserActionsContextType {
     // Estado
     isLoading: boolean;
     error: string | null;
-    
+
     // Operações de usuário
     updateEmail: (newEmail: string) => Promise<void>;
     updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
@@ -160,12 +175,14 @@ interface UserActionsContextType {
 ```
 
 **Responsabilidades** (SRP aplicado):
+
 1. Atualização de dados do usuário
 2. Gerenciamento de senha (update e recovery)
 3. Preferências de comunicação
 4. Deleção de conta
 
 **Benefícios**:
+
 - Loading/error isolados de SessionContext
 - Componentes de perfil podem usar sem depender de session
 
@@ -180,6 +197,7 @@ interface UserActionsContextType {
 **Pattern**: Facade + Composite
 
 **Implementação**:
+
 ```typescript
 export function AuthProvider({ children }: AuthProviderProps) {
     return (
@@ -192,7 +210,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 export function useAuth(): AuthContextType {
     const session = useSession();
     const actions = useUserActions();
-    
+
     // Combina ambos os contextos
     return {
         ...session,
@@ -204,6 +222,7 @@ export function useAuth(): AuthContextType {
 ```
 
 **Benefícios**:
+
 - ✅ Código existente continua funcionando
 - ✅ Migração gradual possível
 - ✅ Novos componentes podem usar useSession/useUserActions diretamente
@@ -245,28 +264,32 @@ export function useAuth(): AuthContextType {
 
 ### Redução de Responsabilidades
 
-| Componente | Antes | Depois | Redução |
-|-----------|-------|--------|---------|
-| AuthContext | 9 responsabilidades | 0 (facade) | -100% |
-| SessionContext | - | 4 responsabilidades | +4 (novo) |
-| UserActionsContext | - | 4 responsabilidades | +4 (novo) |
-| usePasswordRecovery | - | 1 responsabilidade | +1 (novo) |
+| Componente          | Antes               | Depois              | Redução   |
+| ------------------- | ------------------- | ------------------- | --------- |
+| AuthContext         | 9 responsabilidades | 0 (facade)          | -100%     |
+| SessionContext      | -                   | 4 responsabilidades | +4 (novo) |
+| UserActionsContext  | -                   | 4 responsabilidades | +4 (novo) |
+| usePasswordRecovery | -                   | 1 responsabilidade  | +1 (novo) |
 
 ### Princípios SOLID Aplicados
 
 ✅ **SRP (Single Responsibility Principle)**
+
 - Cada contexto tem uma responsabilidade clara
 - usePasswordRecovery gerencia apenas estado temporário de recovery
 
 ✅ **OCP (Open/Closed Principle)**
+
 - Novos contextos podem ser adicionados sem modificar existentes
 - Facade permite extensão sem quebrar compatibilidade
 
 ✅ **ISP (Interface Segregation Principle)**
+
 - Componentes podem usar apenas SessionContext ou UserActionsContext
 - Não são forçados a depender de operações que não usam
 
 ✅ **DIP (Dependency Inversion Principle)**
+
 - Contextos dependem de abstrações (DIContainer)
 - Uso de repositories e use cases (Clean Architecture)
 
@@ -317,7 +340,7 @@ mockSessionContext({
 
 ```typescript
 // Operações de sessão
-import { useSession } from '@/context/SessionContext';
+import { useSession } from "@/context/SessionContext";
 
 function LoginForm() {
     const { signIn, isLoading, error } = useSession();
@@ -325,7 +348,7 @@ function LoginForm() {
 }
 
 // Operações de usuário
-import { useUserActions } from '@/context/UserActionsContext';
+import { useUserActions } from "@/context/UserActionsContext";
 
 function ProfileSettings() {
     const { updateEmail, isLoading, error } = useUserActions();
@@ -333,7 +356,7 @@ function ProfileSettings() {
 }
 
 // Password recovery
-import { usePasswordRecovery } from '@/hooks/usePasswordRecovery';
+import { usePasswordRecovery } from "@/hooks/usePasswordRecovery";
 
 function ResetPasswordPage() {
     const { recoveryStatus, resetPassword } = usePasswordRecovery();
@@ -344,7 +367,7 @@ function ResetPasswordPage() {
 ### Para compatibilidade (código legado)
 
 ```typescript
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from "@/context/AuthContext";
 
 function LegacyComponent() {
     const { user, signIn, updatePassword } = useAuth();
@@ -361,6 +384,7 @@ function LegacyComponent() {
 **Causa**: Componente está fora da árvore de providers
 
 **Solução**:
+
 ```typescript
 // app/layout.tsx
 import { AuthProvider } from '@/context/AuthContext';
@@ -381,6 +405,7 @@ export default function RootLayout({ children }) {
 **Causa**: Múltiplos contextos loading ao mesmo tempo
 
 **Solução**: Use contexto específico
+
 ```typescript
 // ❌ Evite (combina loading de ambos)
 const { isLoading } = useAuth();
@@ -396,6 +421,7 @@ const { isLoading } = useUserActions();
 ## 📝 Próximos Passos
 
 ### ✅ Implementado
+
 - [x] usePasswordRecovery hook
 - [x] SessionContext
 - [x] UserActionsContext
@@ -406,47 +432,47 @@ const { isLoading } = useUserActions();
 ### 🔮 Melhorias Futuras (Opcional)
 
 1. **Testes Unitários**
-   - `usePasswordRecovery.test.ts`
-   - `SessionContext.test.tsx`
-   - `UserActionsContext.test.tsx`
+    - `usePasswordRecovery.test.ts`
+    - `SessionContext.test.tsx`
+    - `UserActionsContext.test.tsx`
 
 2. **Hooks Adicionais**
-   - `useAuthUser()` - apenas user do SessionContext
-   - `useAuthSession()` - apenas signIn/signOut
-   - `useProfileActions()` - subset de UserActionsContext
+    - `useAuthUser()` - apenas user do SessionContext
+    - `useAuthSession()` - apenas signIn/signOut
+    - `useProfileActions()` - subset de UserActionsContext
 
 3. **Performance Optimizations**
-   - Memoização de valores derivados
-   - Debounce em updatePreferences
-   - Retry logic em operações críticas
+    - Memoização de valores derivados
+    - Debounce em updatePreferences
+    - Retry logic em operações críticas
 
 4. **Analytics**
-   - Tracking de autenticação
-   - Métricas de password recovery
-   - Erro rates por operação
+    - Tracking de autenticação
+    - Métricas de password recovery
+    - Erro rates por operação
 
 ---
 
 ## 🎓 Lições Aprendidas
 
 1. **God Objects crescem gradualmente**
-   - AuthContext começou pequeno, cresceu com requirements
-   - Refatoração preventiva é mais barata que corretiva
+    - AuthContext começou pequeno, cresceu com requirements
+    - Refatoração preventiva é mais barata que corretiva
 
 2. **Facade Pattern permite migração segura**
-   - Zero breaking changes
-   - Código legado continua funcionando
-   - Novos códigos podem adotar nova arquitetura
+    - Zero breaking changes
+    - Código legado continua funcionando
+    - Novos códigos podem adotar nova arquitetura
 
 3. **Separation of Concerns melhora DX**
-   - Autocomplete mais preciso
-   - Menos props desnecessárias
-   - Testes mais focados
+    - Autocomplete mais preciso
+    - Menos props desnecessárias
+    - Testes mais focados
 
 4. **Clean Architecture vale a pena**
-   - DIContainer facilita refatoração
-   - Repositories isolam lógica de infraestrutura
-   - Use cases documentam regras de negócio
+    - DIContainer facilita refatoração
+    - Repositories isolam lógica de infraestrutura
+    - Use cases documentam regras de negócio
 
 ---
 

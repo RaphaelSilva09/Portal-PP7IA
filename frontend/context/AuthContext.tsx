@@ -1,9 +1,9 @@
 "use client";
 
 import { User } from "@/domain/entities/User";
+import { ReactNode } from "react";
 import { SessionProvider, useSession } from "./SessionContext";
 import { UserActionsProvider, useUserActions } from "./UserActionsContext";
-import { ReactNode } from "react";
 
 /**
  * AuthContext - Facade para SessionContext + UserActionsContext
@@ -68,10 +68,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 /**
  * useAuth - Hook facade que combina SessionContext + UserActionsContext
- * 
+ *
  * Mantém compatibilidade com código existente enquanto usa
  * arquitetura refatorada internamente.
- * 
+ *
  * IMPORTANTE: Este hook combina isLoading e error de ambos os contextos.
  * Se precisar de controle mais fino, use useSession() ou useUserActions() diretamente.
  */

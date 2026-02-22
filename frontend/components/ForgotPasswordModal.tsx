@@ -257,7 +257,7 @@ export default function ForgotPasswordModal() {
                         {mode === "reset" && !successMessage && (
                             <>
                                 {/* Loading state while waiting for recovery token */}
-                                {recoveryStatus === 'loading' && (
+                                {recoveryStatus === "loading" && (
                                     <div className="flex flex-col items-center justify-center py-8 space-y-4">
                                         <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
                                         <p className="text-white/70 text-sm">Preparando formulário...</p>
@@ -265,7 +265,7 @@ export default function ForgotPasswordModal() {
                                 )}
 
                                 {/* Form appears only after token is ready */}
-                                {recoveryStatus === 'ready' && (
+                                {recoveryStatus === "ready" && (
                                     <form onSubmit={handleResetPassword} className="space-y-4">
                                         <div>
                                             <label

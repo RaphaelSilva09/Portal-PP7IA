@@ -6,7 +6,7 @@ import { createContext, ReactNode, useCallback, useContext, useState } from "rea
 
 /**
  * UserActionsContext - Responsável apenas por ações de gerenciamento de usuário
- * 
+ *
  * Princípios aplicados:
  * - SRP: Única responsabilidade - operações de gerenciamento de usuário
  * - ISP: Interface específica apenas para ações de usuário
@@ -136,8 +136,7 @@ export function UserActionsProvider({ children }: UserActionsProviderProps) {
             const useCase = DIContainer.getSendPasswordResetUseCase();
             await useCase.execute({ email });
         } catch (err) {
-            const errorMessage =
-                err instanceof AuthError ? err.message : "Erro ao enviar email de recuperação.";
+            const errorMessage = err instanceof AuthError ? err.message : "Erro ao enviar email de recuperação.";
             setError(errorMessage);
             throw err;
         } finally {
