@@ -1,21 +1,21 @@
 "use client";
 
 import { User } from "@/domain/entities/User";
-import { AuthError } from "@/domain/errors/AuthError";
-import { supabase } from "@/infrastructure/config/supabase";
-import DIContainer from "@/infrastructure/di/container";
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { SessionProvider, useSession } from "./SessionContext";
+import { UserActionsProvider, useUserActions } from "./UserActionsContext";
+import { ReactNode } from "react";
 
 /**
- * AuthContext - Contexto Global de Autenticação
+ * AuthContext - Facade para SessionContext + UserActionsContext
  *
- * Gerencia o estado do usuário de forma global, permitindo que todos
- * os componentes acessem o mesmo estado de autenticação.
+ * Mantém compatibilidade retroativa com o código existente
+ * enquanto internamente usa a arquitetura refatorada.
  *
  * Princípios aplicados:
- * - Single Source of Truth: Estado único compartilhado
- * - Context Pattern: Evita prop drilling
- * - Clean Architecture: Usa casos de uso via DI Container
+ * - Facade Pattern: Simplifica interface complexa
+ * - Composite Pattern: Combina múltiplos provedores
+ * - Clean Architecture: Camadas bem definidas
+ * - SRP: Cada contexto tem uma responsabilidade
  */
 
 interface SignUpParams {
@@ -37,7 +37,6 @@ interface AuthContextType {
     isLoading: boolean;
     error: string | null;
     emailConfirmationRequired: boolean;
-    isRecoveryReady: boolean;
     signUp: (params: SignUpParams) => Promise<{ emailConfirmationRequired: boolean }>;
     signIn: (params: SignInParams) => Promise<void>;
     signOut: () => Promise<void>;
@@ -51,402 +50,69 @@ interface AuthContextType {
     clearError: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
-
 interface AuthProviderProps {
     children: ReactNode;
 }
 
+/**
+ * AuthProvider - Wrapper que combina SessionProvider + UserActionsProvider
+ * Fornece todos os providers necessários em um único ponto
+ */
 export function AuthProvider({ children }: AuthProviderProps) {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(false);
-    const [isRecoveryReady, setIsRecoveryReady] = useState(false);
-
-    // Ref para evitar re-subscrições desnecessárias
-    const userRef = useRef<User | null>(null);
-
-    /**
-     * Obtém usuário atual da sessão
-     * OTIMIZAÇÃO: Só use quando realmente necessário - o onAuthStateChange gerencia automaticamente
-     */
-    const getCurrentUser = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
-            const currentUser = await getCurrentUserUseCase.execute();
-            setUser(currentUser);
-            userRef.current = currentUser;
-        } catch (err) {
-            setUser(null);
-            userRef.current = null;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    // OTIMIZAÇÃO: useEffect sem dependências para evitar re-subscrições
-    // onAuthStateChange é o listener principal, gerencia todo o ciclo de vida da sessão
-    useEffect(() => {
-        let mounted = true;
-        let sessionLoadInProgress = false;
-
-        // 1. Verifica sessão inicial usando getSession() (valida localmente primeiro)
-        const checkInitialSession = async () => {
-            sessionLoadInProgress = true;
-            try {
-                const {
-                    data: { session },
-                } = await supabase.auth.getSession();
-
-                if (!mounted) return;
-
-                if (session?.user) {
-                    try {
-                        const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
-                        const currentUser = await getCurrentUserUseCase.execute();
-                        if (mounted) {
-                            setUser(currentUser);
-                            userRef.current = currentUser;
-                        }
-                    } catch (err) {
-                        console.error("Error loading user profile:", err);
-                        if (mounted) {
-                            setUser(null);
-                            userRef.current = null;
-                        }
-                    }
-                } else {
-                    if (mounted) {
-                        setUser(null);
-                        userRef.current = null;
-                    }
-                }
-            } catch (err) {
-                console.error("Error checking session:", err);
-                if (mounted) {
-                    setUser(null);
-                    userRef.current = null;
-                }
-            } finally {
-                sessionLoadInProgress = false;
-                if (mounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        checkInitialSession();
-
-        // 2. Escuta mudanças de autenticação
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (!mounted) return;
-            if (sessionLoadInProgress) return; // Aguarda sessão inicial terminar
-
-            // Detecta fluxo de recuperação de senha
-            if (event === "PASSWORD_RECOVERY") {
-                console.log("🔐 PASSWORD_RECOVERY event detectado");
-                setIsRecoveryReady(true);
-                return;
-            }
-
-            // Só ignora SIGNED_IN se o userId é o mesmo (re-auth do mesmo usuário)
-            // Não ignora se a sessão mudou (refresh de token, recovery, etc.)
-            if (event === "SIGNED_IN" && userRef.current && session?.user?.id === userRef.current.id) {
-                setIsLoading(false);
-                return;
-            }
-
-            if (session?.user) {
-                try {
-                    const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
-                    const currentUser = await getCurrentUserUseCase.execute();
-                    if (mounted) {
-                        setUser(currentUser);
-                        userRef.current = currentUser;
-                    }
-                } catch (err) {
-                    console.error("Error in onAuthStateChange:", err);
-                    if (mounted) {
-                        setUser(null);
-                        userRef.current = null;
-                    }
-                }
-            } else {
-                if (mounted) {
-                    setUser(null);
-                    userRef.current = null;
-                }
-            }
-
-            if (mounted) {
-                setIsLoading(false);
-            }
-        });
-
-        return () => {
-            mounted = false;
-            subscription.unsubscribe();
-        };
-    }, []); // Sem dependências - só roda uma vez
-
-    /**
-     * Cadastra novo usuário
-     */
-    const signUp = useCallback(async (params: SignUpParams) => {
-        setIsLoading(true);
-        setError(null);
-        setEmailConfirmationRequired(false);
-
-        try {
-            const signUpUseCase = DIContainer.getSignUpUseCase();
-            const result = await signUpUseCase.execute(params);
-            setUser(result.user);
-
-            const requiresConfirmation = result.emailConfirmationRequired ?? false;
-            if (requiresConfirmation) {
-                setEmailConfirmationRequired(true);
-            }
-
-            return { emailConfirmationRequired: requiresConfirmation };
-        } catch (err) {
-            const errorMessage = err instanceof AuthError ? err.message : "Erro ao cadastrar. Tente novamente.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    /**
-     * Autentica usuário
-     */
-    const signIn = useCallback(async (params: SignInParams) => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const signInUseCase = DIContainer.getSignInUseCase();
-            const result = await signInUseCase.execute(params);
-            setUser(result.user);
-        } catch (err) {
-            const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer login. Tente novamente.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    /**
-     * Desautentica usuário
-     */
-    const signOut = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const signOutUseCase = DIContainer.getSignOutUseCase();
-            await signOutUseCase.execute();
-            setUser(null);
-        } catch (err) {
-            const errorMessage = err instanceof AuthError ? err.message : "Erro ao sair. Tente novamente.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    /**
-     * Atualiza email do usuário
-     * OTIMIZAÇÃO: Não precisa chamar getCurrentUser - onAuthStateChange detecta a mudança automaticamente
-     */
-    const updateEmail = useCallback(async (newEmail: string) => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const repository = DIContainer.getAuthRepository();
-            await repository.updateEmail({ newEmail });
-            // onAuthStateChange vai detectar a mudança automaticamente
-        } catch (err) {
-            const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar email.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    /**
-     * Atualiza senha do usuário
-     */
-    const updatePassword = useCallback(async (currentPassword: string, newPassword: string) => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const repository = DIContainer.getAuthRepository();
-            await repository.updatePassword({ currentPassword, newPassword });
-            // CRITICAL: Reset isRecoveryReady após password update para evitar state leak
-            setIsRecoveryReady(false);
-        } catch (err) {
-            const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar senha.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    /**
-     * Atualiza preferências de notificação
-     * OTIMIZAÇÃO: Atualiza estado local imediatamente
-     */
-    const updatePreferences = useCallback(
-        async (acceptEmail: boolean, acceptWhatsApp: boolean) => {
-            setIsLoading(true);
-            setError(null);
-
-            try {
-                const repository = DIContainer.getAuthRepository();
-                await repository.updatePreferences({
-                    acceptEmailUpdates: acceptEmail,
-                    acceptWhatsAppUpdates: acceptWhatsApp,
-                });
-                // Atualiza estado local imediatamente usando User.create()
-                if (user) {
-                    const updatedUser = User.create({
-                        id: user.id,
-                        email: user.email,
-                        nome: user.nome,
-                        celular: user.celular,
-                        acceptEmailUpdates: acceptEmail,
-                        acceptWhatsAppUpdates: acceptWhatsApp,
-                        createdAt: user.createdAt,
-                    });
-                    setUser(updatedUser);
-                    userRef.current = updatedUser;
-                }
-            } catch (err) {
-                const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar preferências.";
-                setError(errorMessage);
-                throw err;
-            } finally {
-                setIsLoading(false);
-            }
-        },
-        [user],
-    );
-
-    /**
-     * Deleta conta do usuário
-     */
-    const deleteAccount = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const repository = DIContainer.getAuthRepository();
-            await repository.deleteAccount();
-            setUser(null);
-        } catch (err) {
-            const errorMessage = err instanceof AuthError ? err.message : "Erro ao deletar conta.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    /**
-     * Solicita recuperação de senha
-     */
-    const sendPasswordReset = useCallback(async (email: string) => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const useCase = DIContainer.getSendPasswordResetUseCase();
-            await useCase.execute({ email });
-        } catch (err) {
-            const errorMessage =
-                err instanceof AuthError ? err.message : "Erro ao enviar email de recuperação. Tente novamente.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    /**
-     * Redefine a senha usando token de recuperação
-     * OTIMIZAÇÃO: onAuthStateChange detecta a mudança automaticamente
-     */
-    const resetPasswordWithToken = useCallback(async (newPassword: string, confirmPassword: string) => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const useCase = DIContainer.getResetPasswordWithTokenUseCase();
-            await useCase.execute({ newPassword, confirmPassword });
-            // CRITICAL: Reset isRecoveryReady após password reset para evitar state leak
-            setIsRecoveryReady(false);
-            // onAuthStateChange vai atualizar o usuário automaticamente após o reset
-        } catch (err) {
-            const errorMessage = err instanceof AuthError ? err.message : "Erro ao redefinir senha. Tente novamente.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    const clearError = useCallback(() => {
-        setError(null);
-    }, []);
-
     return (
-        <AuthContext.Provider
-            value={{
-                user,
-                isLoading,
-                error,
-                emailConfirmationRequired,
-                isRecoveryReady,
-                signUp,
-                signIn,
-                signOut,
-                getCurrentUser,
-                updateEmail,
-                updatePassword,
-                updatePreferences,
-                deleteAccount,
-                sendPasswordReset,
-                resetPasswordWithToken,
-                clearError,
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
+        <SessionProvider>
+            <UserActionsProvider>{children}</UserActionsProvider>
+        </SessionProvider>
     );
 }
 
 /**
- * Hook para acessar o contexto de autenticação
+ * useAuth - Hook facade que combina SessionContext + UserActionsContext
+ * 
+ * Mantém compatibilidade com código existente enquanto usa
+ * arquitetura refatorada internamente.
+ * 
+ * IMPORTANTE: Este hook combina isLoading e error de ambos os contextos.
+ * Se precisar de controle mais fino, use useSession() ou useUserActions() diretamente.
  */
 export function useAuth(): AuthContextType {
-    const context = useContext(AuthContext);
+    const session = useSession();
+    const actions = useUserActions();
 
-    if (!context) {
-        throw new Error("useAuth deve ser usado dentro de um AuthProvider");
-    }
+    // Combina loading states (se qualquer um está loading, o facade retorna true)
+    const isLoading = session.isLoading || actions.isLoading;
 
-    return context;
+    // Prioriza erro da sessão sobre erro das ações
+    const error = session.error || actions.error;
+
+    // Combina clearError de ambos os contextos
+    const clearError = () => {
+        session.clearError();
+        actions.clearError();
+    };
+
+    return {
+        // Dados de sessão
+        user: session.user,
+        isLoading,
+        error,
+        emailConfirmationRequired: session.emailConfirmationRequired,
+
+        // Operações de sessão
+        signUp: session.signUp,
+        signIn: session.signIn,
+        signOut: session.signOut,
+        getCurrentUser: session.getCurrentUser,
+
+        // Operações de usuário
+        updateEmail: actions.updateEmail,
+        updatePassword: actions.updatePassword,
+        updatePreferences: actions.updatePreferences,
+        deleteAccount: actions.deleteAccount,
+        sendPasswordReset: actions.sendPasswordReset,
+        resetPasswordWithToken: actions.resetPasswordWithToken,
+
+        // Utilitários
+        clearError,
+    };
 }
