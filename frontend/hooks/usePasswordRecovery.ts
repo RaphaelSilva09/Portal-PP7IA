@@ -1,7 +1,7 @@
 /**
  * usePasswordRecovery Hook (OTP-based)
  *
- * Hook dedicado para gerenciar o fluxo de recuperação de senha via código OTP de 6 dígitos.
+ * Hook dedicado para gerenciar o fluxo de recuperação de senha via código OTP de 8 dígitos.
  * Este é um estado de UI temporário, não pertence ao contexto global de sessão.
  *
  * Princípios aplicados:
@@ -10,7 +10,7 @@
  * - Clean Code: Nomenclatura clara e fluxo explícito
  *
  * Fluxo OTP (novo):
- * 1. requestReset: Envia email com código OTP de 6 dígitos
+ * 1. requestReset: Envia email com código OTP de 8 dígitos
  * 2. verifyCode: Valida OTP e estabelece sessão temporária
  * 3. resetPassword: Atualiza senha com sessão ativa
  * 4. Cleanup: Encerra sessão e limpa localStorage
@@ -98,7 +98,7 @@ export function usePasswordRecovery(): UsePasswordRecoveryResult {
     }, []);
 
     /**
-     * Step 2: Verifica código OTP de 6 dígitos
+     * Step 2: Verifica código OTP de 8 dígitos
      */
     const verifyCode = useCallback(
         async (code: string): Promise<boolean> => {

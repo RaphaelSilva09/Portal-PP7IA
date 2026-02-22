@@ -14,7 +14,7 @@ import Portal from "./Portal";
  *
  * Fluxo:
  * 1. idle -> Email input (requestReset)
- * 2. awaiting_code/verifying -> OTP input de 6 dígitos (verifyCode)
+ * 2. awaiting_code/verifying -> OTP input de 8 dígitos (verifyCode)
  * 3. ready -> Password input (resetPassword)
  * 4. success -> Mensagem de sucesso (auto-close)
  *
@@ -102,8 +102,8 @@ export default function ForgotPasswordModal() {
 
         if (!otp.trim()) {
             newErrors.otp = "Código é obrigatório";
-        } else if (!/^\d{6}$/.test(otp)) {
-            newErrors.otp = "Código deve ter 6 dígitos";
+        } else if (!/^\d{8}$/.test(otp)) {
+            newErrors.otp = "Código deve ter 8 dígitos";
         }
 
         setErrors(newErrors);
@@ -221,7 +221,7 @@ export default function ForgotPasswordModal() {
                 return "Insira seu email para receber um código de recuperação";
             case "awaiting_code":
             case "verifying":
-                return `Digite o código de 6 dígitos enviado para ${userEmail}`;
+                return `Digite o código de 8 dígitos enviado para ${userEmail}`;
             case "ready":
                 return "Crie uma nova senha para sua conta";
             case "success":
@@ -331,15 +331,15 @@ export default function ForgotPasswordModal() {
                                         id="otp"
                                         type="text"
                                         inputMode="numeric"
-                                        maxLength={6}
-                                        pattern="[0-9]{6}"
+                                        maxLength={8}
+                                        pattern="[0-9]{8}"
                                         value={otp}
                                         onChange={e => {
                                             const value = e.target.value.replace(/\D/g, "");
                                             setOtp(value);
                                             if (errors.otp) setErrors(prev => ({ ...prev, otp: undefined }));
                                         }}
-                                        placeholder="000000"
+                                        placeholder="00000000"
                                         className={`w-full px-4 py-3 bg-white/10 border ${
                                             errors.otp ? "border-red-500/50" : "border-white/20"
                                         } rounded-lg text-white text-center text-2xl tracking-widest placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}

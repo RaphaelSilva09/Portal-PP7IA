@@ -22,7 +22,7 @@ export interface VerifyPasswordResetOTPInput {
  * Use Case: Verificar código OTP de recuperação de senha
  *
  * Fluxo:
- * 1. Valida formato do OTP (6 dígitos numéricos)
+ * 1. Valida formato do OTP (8 dígitos numéricos)
  * 2. Valida email
  * 3. Chama repository para verificar OTP com Supabase
  * 4. Se válido: estabelece sessão temporária de recovery
@@ -32,7 +32,7 @@ export class VerifyPasswordResetOTPUseCase {
 
     /**
      * Executa o caso de uso de verificar OTP
-     * @param input Email e código OTP de 6 dígitos
+     * @param input Email e código OTP de 8 dígitos
      * @throws Error se OTP inválido, expirado ou formato incorreto
      */
     async execute(input: VerifyPasswordResetOTPInput): Promise<void> {
@@ -64,10 +64,10 @@ export class VerifyPasswordResetOTPUseCase {
             throw new Error("Código OTP é obrigatório");
         }
 
-        // Valida que OTP tem exatamente 6 dígitos numéricos
-        const otpRegex = /^\d{6}$/;
+        // Valida que OTP tem exatamente 8 dígitos numéricos
+        const otpRegex = /^\d{8}$/;
         if (!otpRegex.test(input.otp.trim())) {
-            throw new Error("Código deve ter exatamente 6 dígitos numéricos");
+            throw new Error("Código deve ter exatamente 8 dígitos numéricos");
         }
     }
 }

@@ -125,7 +125,7 @@ function ResetPasswordPageContent() {
                                             <strong>Os links de recuperação foram atualizados.</strong>
                                         </p>
                                         <p className="text-sm text-blue-100/80 mb-3">
-                                            Agora usamos um código de 6 dígitos enviado por email, que é mais seguro e
+                                            Agora usamos um código de 8 dígitos enviado por email, que é mais seguro e
                                             confiável.
                                         </p>
                                         <p className="text-sm text-blue-100/80">

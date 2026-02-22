@@ -81,13 +81,13 @@ export interface IAuthRepository {
     getCurrentUser(): Promise<User | null>;
 
     /**
-     * Envia email de reset de senha com código OTP de 6 dígitos
+     * Envia email de reset de senha com código OTP de 8 dígitos
      */
     sendPasswordReset(email: string): Promise<void>;
 
     /**
      * Verifica código OTP de recuperação de senha
-     * @param params Email e token OTP de 6 dígitos
+     * @param params Email e token OTP de 8 dígitos
      * @throws InvalidOTPError se código inválido
      * @throws OTPExpiredError se código expirado
      */

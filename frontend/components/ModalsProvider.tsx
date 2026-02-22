@@ -65,7 +65,7 @@ export default function ModalsProvider() {
         }
 
         // LEGACY: Links de reset token antigos não são mais suportados
-        // O fluxo agora é OTP-based (código de 6 dígitos)
+        // O fluxo agora é OTP-based (código de 8 dígitos)
         // Detecção de links antigos é feita em app/reset-password/page.tsx
 
         // Limpa params processados após um tempo para permitir novas ações

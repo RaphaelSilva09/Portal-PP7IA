@@ -236,7 +236,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
     }
 
     /**
-     * Envia email de reset de senha com código OTP de 6 dígitos
+     * Envia email de reset de senha com código OTP de 8 dígitos
      * OTP expira em 1 hora (configurado no Supabase Dashboard)
      */
     async sendPasswordReset(email: string): Promise<void> {
