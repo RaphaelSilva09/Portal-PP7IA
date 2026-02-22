@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
+import { supabase } from "@/infrastructure/config/supabase";
 import { isValidPassword } from "@/lib/validators";
 import { AlertCircle, ArrowLeft, Check, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -23,6 +24,23 @@ function ResetPasswordPageContent() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<{ newPassword?: string; confirmPassword?: string }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [isFormReady, setIsFormReady] = useState(false);
+
+    // Listener para PASSWORD_RECOVERY event com cleanup obrigatório
+    useEffect(() => {
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange(event => {
+            if (event === "PASSWORD_RECOVERY") {
+                console.log("🔐 ResetPasswordPage: PASSWORD_RECOVERY detectado");
+                setIsFormReady(true);
+            }
+        });
+        // CRITICAL: Cleanup para evitar listeners duplicados
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
 
     // Verifica se há token e redireciona usuários deslogados para o modal
     useEffect(() => {
@@ -129,7 +147,18 @@ function ResetPasswordPageContent() {
 
                         {/* Form */}
                         {!successMessage && (
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                            <>
+                                {/* Loading state while waiting for PASSWORD_RECOVERY event */}
+                                {!isFormReady && (
+                                    <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                                        <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <p className="text-white/70 text-sm">Preparando formulário...</p>
+                                    </div>
+                                )}
+
+                                {/* Form appears only after isFormReady=true */}
+                                {isFormReady && (
+                                    <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
                                     <label htmlFor="newPassword" className="block text-sm font-medium text-white mb-2">
                                         Nova Senha
@@ -231,6 +260,8 @@ function ResetPasswordPageContent() {
                                     )}
                                 </button>
                             </form>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

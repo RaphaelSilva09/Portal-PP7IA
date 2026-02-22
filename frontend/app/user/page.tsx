@@ -99,8 +99,10 @@ export default function UserPage() {
         }
 
         try {
+            console.log("🔄 Iniciando updatePassword");
             // Supabase updateUser sempre retorna sucesso (200) se não houver error
             await updatePassword(passwordData.currentPassword, passwordData.newPassword);
+            console.log("✅ Password atualizado, chamando setPasswordSuccess");
 
             // Sucesso - senha alterada e email de confirmação enviado
             setPasswordSuccess(true);
@@ -112,6 +114,7 @@ export default function UserPage() {
                 setPasswordSuccess(false);
             }, 3000);
         } catch (err: unknown) {
+            console.error("❌ Erro updatePassword:", err);
             // Tratamento de erros específicos
             if (err instanceof Error) {
                 const errorMessage = err.message;
@@ -128,6 +131,7 @@ export default function UserPage() {
                 setPasswordError("Erro ao alterar senha. Tente novamente mais tarde.");
             }
         } finally {
+            console.log("🏁 Finally block executado");
             setIsChangingPassword(false);
         }
     };
