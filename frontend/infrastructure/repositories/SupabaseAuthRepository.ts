@@ -238,9 +238,32 @@ export class SupabaseAuthRepository implements IAuthRepository {
      * Envia email de reset de senha
      */
     async sendPasswordReset(email: string): Promise<void> {
-        const { error } = await this.supabase.auth.resetPasswordForEmail(email);
+        const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/?resetToken=true`,
+        });
         if (error) {
             throw this.mapSupabaseError(error);
+        }
+    }
+
+    /**
+     * Redefine a senha usando token de recuperação
+     * O token deve estar presente na sessão atual (após clicar no link do email)
+     */
+    async resetPasswordWithToken(newPassword: string): Promise<void> {
+        try {
+            const { error } = await this.supabase.auth.updateUser({
+                password: newPassword,
+            });
+
+            if (error) {
+                throw this.mapSupabaseError(error);
+            }
+        } catch (error) {
+            if (error instanceof Error && "status" in error) {
+                throw this.mapSupabaseError(error);
+            }
+            throw error;
         }
     }
 

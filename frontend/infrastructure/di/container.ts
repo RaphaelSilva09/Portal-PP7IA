@@ -25,6 +25,8 @@ import { PromoteUserToAdminUseCase } from "../../application/usecases/PromoteUse
 import { SignInUseCase } from "../../application/usecases/SignInUseCase";
 import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
+import { SendPasswordResetUseCase } from "../../application/usecases/SendPasswordResetUseCase";
+import { ResetPasswordWithTokenUseCase } from "../../application/usecases/ResetPasswordWithTokenUseCase";
 import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
 import { supabase } from "../config/supabase";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
@@ -225,6 +227,14 @@ class DIContainer {
 
     static getSignUpUseCase(): SignUpUseCase {
         return new SignUpUseCase(this.getAuthRepository());
+    }
+
+    static getSendPasswordResetUseCase(): SendPasswordResetUseCase {
+        return new SendPasswordResetUseCase(this.getAuthRepository());
+    }
+
+    static getResetPasswordWithTokenUseCase(): ResetPasswordWithTokenUseCase {
+        return new ResetPasswordWithTokenUseCase(this.getAuthRepository());
     }
 
     /**
