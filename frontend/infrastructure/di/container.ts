@@ -12,21 +12,31 @@
 
 import { CreateContentWithUploadUseCase } from "../../application/usecases/CreateContentWithUploadUseCase";
 import { DeleteContentWithFilesUseCase } from "../../application/usecases/DeleteContentWithFilesUseCase";
+import { DeleteUserAndDataUseCase } from "../../application/usecases/DeleteUserAndDataUseCase";
+import { DemoteUserFromAdminUseCase } from "../../application/usecases/DemoteUserFromAdminUseCase";
+import { GetAllUsersUseCase } from "../../application/usecases/GetAllUsersUseCase";
 import { GetBibliotecaUseCase } from "../../application/usecases/GetBibliotecaUseCase";
 import { GetCurrentUserUseCase } from "../../application/usecases/GetCurrentUserUseCase";
+import { GetDashboardStatsUseCase } from "../../application/usecases/GetDashboardStatsUseCase";
+import { GetEspecialSemanaUseCase } from "../../application/usecases/GetEspecialSemanaUseCase";
 import { GetMiniLivrosUseCase } from "../../application/usecases/GetMiniLivrosUseCase";
 import { GetNewslettersUseCase } from "../../application/usecases/GetNewslettersUseCase";
+import { PromoteUserToAdminUseCase } from "../../application/usecases/PromoteUserToAdminUseCase";
 import { SignInUseCase } from "../../application/usecases/SignInUseCase";
 import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
+import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
 import { supabase } from "../config/supabase";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
+import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
 import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
 import { SupabaseBibliotecaRepository } from "../repositories/SupabaseBibliotecaRepository";
 import { SupabaseContentRepository } from "../repositories/SupabaseContentRepository";
+import { SupabaseEspecialSemanaRepository } from "../repositories/SupabaseEspecialSemanaRepository";
 import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
 import { SupabaseStorageRepository } from "../repositories/SupabaseStorageRepository";
+import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserManagementRepository";
 
 /**
  * Container de Dependências
@@ -37,9 +47,12 @@ class DIContainer {
     private static newsletterRepositoryInstance: SupabaseNewsletterRepository | null = null;
     private static miniLivroRepositoryInstance: SupabaseMiniLivroRepository | null = null;
     private static bibliotecaRepositoryInstance: SupabaseBibliotecaRepository | null = null;
+    private static especialSemanaRepositoryInstance: SupabaseEspecialSemanaRepository | null = null;
     private static adminRepositoryInstance: SupabaseAdminRepository | null = null;
     private static contentRepositoryInstance: SupabaseContentRepository | null = null;
     private static storageRepositoryInstance: SupabaseStorageRepository | null = null;
+    private static userManagementRepositoryInstance: SupabaseUserManagementRepository | null = null;
+    private static analyticsRepositoryInstance: SupabaseAnalyticsRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -86,6 +99,39 @@ class DIContainer {
     }
 
     /**
+     * Obtém instância do repositório de especial da semana
+     * Singleton Pattern
+     */
+    static getEspecialSemanaRepository(): SupabaseEspecialSemanaRepository {
+        if (!this.especialSemanaRepositoryInstance) {
+            this.especialSemanaRepositoryInstance = new SupabaseEspecialSemanaRepository(supabase);
+        }
+        return this.especialSemanaRepositoryInstance;
+    }
+
+    /**
+     * Obtém instância do repositório de gerenciamento de usuários
+     * Singleton Pattern
+     */
+    static getUserManagementRepository(): SupabaseUserManagementRepository {
+        if (!this.userManagementRepositoryInstance) {
+            this.userManagementRepositoryInstance = new SupabaseUserManagementRepository(supabase);
+        }
+        return this.userManagementRepositoryInstance;
+    }
+
+    /**
+     * Obtém instância do repositório de analytics
+     * Singleton Pattern
+     */
+    static getAnalyticsRepository(): SupabaseAnalyticsRepository {
+        if (!this.analyticsRepositoryInstance) {
+            this.analyticsRepositoryInstance = new SupabaseAnalyticsRepository(supabase);
+        }
+        return this.analyticsRepositoryInstance;
+    }
+
+    /**
      * Obtém instância do repositório de admin
      * Singleton Pattern
      */
@@ -120,10 +166,53 @@ class DIContainer {
 
     /**
      * Factory Methods para casos de uso
-     * Cada chamada cria nova instância (útil para testes)
+    static getEspecialSemanaUseCase(): GetEspecialSemanaUseCase {
+        return new GetEspecialSemanaUseCase(this.getEspecialSemanaRepository());
+    }
+
+    /**
+     * Factory Methods para casos de uso de admin
      */
-    static getSignUpUseCase(): SignUpUseCase {
-        return new SignUpUseCase(this.getAuthRepository());
+    static getCreateContentWithUploadUseCase(): CreateContentWithUploadUseCase {
+        return new CreateContentWithUploadUseCase(this.getContentRepository(), this.getStorageRepository());
+    }
+
+    static getUpdateContentWithFilesUseCase(): UpdateContentWithFilesUseCase {
+        return new UpdateContentWithFilesUseCase(this.getContentRepository(), this.getStorageRepository());
+    }
+
+    static getDeleteContentWithFilesUseCase(): DeleteContentWithFilesUseCase {
+        return new DeleteContentWithFilesUseCase(this.getContentRepository(), this.getStorageRepository());
+    }
+
+    /**
+     * Factory Methods para casos de uso de gerenciamento de usuários
+     */
+    static getAllUsersUseCase(): GetAllUsersUseCase {
+        return new GetAllUsersUseCase(this.getUserManagementRepository());
+    }
+
+    static getPromoteUserToAdminUseCase(): PromoteUserToAdminUseCase {
+        return new PromoteUserToAdminUseCase(this.getUserManagementRepository());
+    }
+
+    static getDemoteUserFromAdminUseCase(): DemoteUserFromAdminUseCase {
+        return new DemoteUserFromAdminUseCase(this.getUserManagementRepository());
+    }
+
+    static getDeleteUserAndDataUseCase(): DeleteUserAndDataUseCase {
+        return new DeleteUserAndDataUseCase(this.getUserManagementRepository());
+    }
+
+    /**
+     * Factory Methods para casos de uso de analytics
+     */
+    static getDashboardStatsUseCase(): GetDashboardStatsUseCase {
+        return new GetDashboardStatsUseCase(this.getAnalyticsRepository());
+    }
+
+    static getCurrentUserUseCase(): GetCurrentUserUseCase {
+        return new GetCurrentUserUseCase(this.getAuthRepository());
     }
 
     static getSignInUseCase(): SignInUseCase {
@@ -134,8 +223,8 @@ class DIContainer {
         return new SignOutUseCase(this.getAuthRepository());
     }
 
-    static getCurrentUserUseCase(): GetCurrentUserUseCase {
-        return new GetCurrentUserUseCase(this.getAuthRepository());
+    static getSignUpUseCase(): SignUpUseCase {
+        return new SignUpUseCase(this.getAuthRepository());
     }
 
     /**
@@ -154,23 +243,6 @@ class DIContainer {
     }
 
     /**
-     * Factory Methods para casos de uso de admin
-     */
-    static getCreateContentWithUploadUseCase(): CreateContentWithUploadUseCase {
-        return new CreateContentWithUploadUseCase(
-            this.getContentRepository(),
-            this.getStorageRepository()
-        );
-    }
-
-    static getDeleteContentWithFilesUseCase(): DeleteContentWithFilesUseCase {
-        return new DeleteContentWithFilesUseCase(
-            this.getContentRepository(),
-            this.getStorageRepository()
-        );
-    }
-
-    /**
      * Reseta container (útil para testes)
      */
     static reset(): void {
@@ -178,9 +250,12 @@ class DIContainer {
         this.newsletterRepositoryInstance = null;
         this.miniLivroRepositoryInstance = null;
         this.bibliotecaRepositoryInstance = null;
+        this.especialSemanaRepositoryInstance = null;
         this.adminRepositoryInstance = null;
         this.contentRepositoryInstance = null;
         this.storageRepositoryInstance = null;
+        this.userManagementRepositoryInstance = null;
+        this.analyticsRepositoryInstance = null;
     }
 }
 
