@@ -15,7 +15,9 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { ContentType, ContentItem } from "@/domain/entities/ContentItem";
+import { useAuth } from "@/context/AuthContext";
 import DIContainer from "@/infrastructure/di/container";
 import { ContentTable, ContentForm } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
@@ -28,12 +30,21 @@ const TABS: { type: ContentType; label: string; icon: typeof Newspaper }[] = [
 ];
 
 export default function PainelAdminPage() {
+    const router = useRouter();
+    const { user, isLoading: authLoading } = useAuth();
     const [activeTab, setActiveTab] = useState<ContentType>("newsletter");
     const [items, setItems] = useState<ContentItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editItem, setEditItem] = useState<ContentItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Redireciona para home se não logado (logout detectado)
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.push("/");
+        }
+    }, [authLoading, user, router]);
 
     const loadItems = useCallback(async () => {
         setIsLoading(true);

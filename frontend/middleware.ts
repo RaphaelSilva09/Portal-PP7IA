@@ -2,12 +2,12 @@
  * Middleware de Autenticação e Autorização
  *
  * Intercepta rotas protegidas antes de renderizar.
- * - /admin: requer autenticação + admin
+ * - /painel-admin: requer autenticação + admin
  * - /user: requer autenticação
  *
  * Redirects:
  * - Não autenticado -> /?authModal=login (abre modal de login)
- * - Autenticado não-admin em /admin -> / (home)
+ * - Autenticado não-admin em /painel-admin -> / (home)
  *
  * Princípios aplicados:
  * - Defense in Depth: Primeira camada de segurança (middleware)
@@ -18,7 +18,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const ADMIN_ROUTES = "/admin";
+const ADMIN_ROUTES = "/painel-admin";
 const AUTH_ROUTES = "/user";
 
 function redirectToLogin(request: NextRequest): NextResponse {
@@ -87,5 +87,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/admin/:path*", "/user/:path*"],
+    matcher: ["/painel-admin/:path*", "/user/:path*"],
 };
