@@ -86,6 +86,12 @@ export interface IAuthRepository {
     sendPasswordReset(email: string): Promise<void>;
 
     /**
+     * Redefine a senha usando token de reset
+     * @param newPassword Nova senha do usuário
+     */
+    resetPasswordWithToken(newPassword: string): Promise<void>;
+
+    /**
      * Atualiza o email do usuário
      */
     updateEmail(params: UpdateEmailParams): Promise<void>;

@@ -52,3 +52,15 @@ export class EmailNotConfirmedError extends AuthError {
         super("Por favor, confirme seu email antes de fazer login");
     }
 }
+
+export class PasswordResetRequestError extends AuthError {
+    constructor() {
+        super("Não foi possível enviar o email de recuperação. Tente novamente");
+    }
+}
+
+export class InvalidResetTokenError extends AuthError {
+    constructor() {
+        super("Link de recuperação inválido ou expirado. Solicite um novo link");
+    }
+}
