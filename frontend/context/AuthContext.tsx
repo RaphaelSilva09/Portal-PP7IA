@@ -89,24 +89,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // OTIMIZAÇÃO: useEffect sem dependências para evitar re-subscrições
     // onAuthStateChange é o listener principal, gerencia todo o ciclo de vida da sessão
     useEffect(() => {
+        let mounted = true;
+
         // 1. Verifica sessão inicial usando getSession() (valida localmente primeiro)
         const checkInitialSession = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
+            try {
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
 
-            if (session?.user) {
-                try {
-                    const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
-                    const currentUser = await getCurrentUserUseCase.execute();
-                    setUser(currentUser);
-                    userRef.current = currentUser;
-                } catch {
+                if (!mounted) return;
+
+                if (session?.user) {
+                    try {
+                        const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
+                        const currentUser = await getCurrentUserUseCase.execute();
+                        if (mounted) {
+                            setUser(currentUser);
+                            userRef.current = currentUser;
+                        }
+                    } catch (err) {
+                        console.error("Error loading user profile:", err);
+                        if (mounted) {
+                            setUser(null);
+                            userRef.current = null;
+                        }
+                    }
+                } else {
+                    if (mounted) {
+                        setUser(null);
+                        userRef.current = null;
+                    }
+                }
+            } catch (err) {
+                console.error("Error checking session:", err);
+                if (mounted) {
                     setUser(null);
                     userRef.current = null;
                 }
+            } finally {
+                if (mounted) {
+                    setIsLoading(false);
+                }
             }
-            setIsLoading(false);
         };
 
         checkInitialSession();
@@ -115,6 +140,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (!mounted) return;
+
             // Ignora eventos de re-autenticação ao verificar senha atual
             if (event === "SIGNED_IN" && userRef.current) {
                 return;
@@ -124,20 +151,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 try {
                     const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
                     const currentUser = await getCurrentUserUseCase.execute();
-                    setUser(currentUser);
-                    userRef.current = currentUser;
-                } catch {
+                    if (mounted) {
+                        setUser(currentUser);
+                        userRef.current = currentUser;
+                    }
+                } catch (err) {
+                    console.error("Error in onAuthStateChange:", err);
+                    if (mounted) {
+                        setUser(null);
+                        userRef.current = null;
+                    }
+                }
+            } else {
+                if (mounted) {
                     setUser(null);
                     userRef.current = null;
                 }
-            } else {
-                setUser(null);
-                userRef.current = null;
             }
-            setIsLoading(false);
+
+            if (mounted) {
+                setIsLoading(false);
+            }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
     }, []); // Sem dependências - só roda uma vez
 
     /**
