@@ -102,7 +102,7 @@ export default function UserPage() {
             // Timeout de segurança: força conclusão após 8 segundos
             const updatePromise = updatePassword(passwordData.currentPassword, passwordData.newPassword);
             const timeoutPromise = new Promise<void>((_, reject) =>
-                setTimeout(() => reject(new Error("timeout")), 8000)
+                setTimeout(() => reject(new Error("timeout")), 8000),
             );
 
             await Promise.race([updatePromise, timeoutPromise]);
@@ -124,7 +124,7 @@ export default function UserPage() {
                 // Timeout - provavelmente funcionou mas demorou
                 if (errorMessage === "timeout") {
                     setPasswordError(
-                        "A operação demorou muito. Verifique seu email - se recebeu confirmação, a senha foi alterada."
+                        "A operação demorou muito. Verifique seu email - se recebeu confirmação, a senha foi alterada.",
                     );
                 }
                 // Mensagens mais claras baseadas no erro
@@ -247,7 +247,9 @@ export default function UserPage() {
                                     <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl space-y-1.5">
                                         <div className="flex items-center gap-2">
                                             <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
-                                            <p className="text-sm font-medium text-green-300">Senha alterada com sucesso!</p>
+                                            <p className="text-sm font-medium text-green-300">
+                                                Senha alterada com sucesso!
+                                            </p>
                                         </div>
                                         <p className="text-xs text-green-300/70 pl-6">
                                             Um email de confirmação foi enviado para {user?.email}
