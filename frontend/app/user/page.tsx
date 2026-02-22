@@ -20,6 +20,7 @@ export default function UserPage() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [hasLoaded, setHasLoaded] = useState(false);
 
     // Estados para alterar senha
     const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -37,12 +38,17 @@ export default function UserPage() {
         confirm: false,
     });
 
-    // Redireciona para home se não logado
+    // Marca que o primeiro ciclo de loading completou
     useEffect(() => {
-        if (!isLoading && !user) {
+        if (!isLoading) setHasLoaded(true);
+    }, [isLoading]);
+
+    // Redireciona para home se não logado (somente após loading inicial)
+    useEffect(() => {
+        if (hasLoaded && !isLoading && !user) {
             router.push("/");
         }
-    }, [isLoading, user, router]);
+    }, [hasLoaded, isLoading, user, router]);
 
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
