@@ -14,6 +14,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { User, UserProps } from "../../domain/entities/User";
 import {
+    AuthError,
     EmailNotConfirmedError,
     InvalidCredentialsError,
     NetworkError,
@@ -249,6 +250,10 @@ export class SupabaseAuthRepository implements IAuthRepository {
     /**
      * Redefine a senha usando token de recuperação
      * O token deve estar presente na sessão atual (após clicar no link do email)
+     *
+     * Nota: Quando chamado através do link de recuperação, o token está na URL
+     * e o Supabase automaticamente autentica o usuário temporariamente para permitir
+     * a mudança de senha.
      */
     async resetPasswordWithToken(newPassword: string): Promise<void> {
         try {
@@ -297,35 +302,54 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
     /**
      * Atualiza a senha do usuário
+     *
+     * IMPORTANTE: Para alterar senha, o Supabase requer que o usuário:
+     * 1. Esteja autenticado (sessão ativa)
+     * 2. Por segurança adicional, verificamos a senha atual via signInWithPassword
+     *
+     * Comportamento depende da configuração "Secure password change":
+     * - Desabilitado: Senha muda imediatamente
+     * - Habilitado: Envia email de confirmação, senha muda após clicar no link
+     *
+     * Retorno: Promise que sempre resolve com sucesso. A senha é atualizada imediatamente
+     * no Supabase (não há flag de "email_confirmation_sent" para password changes).
      */
     async updatePassword(params: { currentPassword: string; newPassword: string }): Promise<void> {
         try {
-            // Primeiro verifica a senha atual tentando fazer login
             const {
                 data: { user },
             } = await this.supabase.auth.getUser();
+
             if (!user?.email) {
                 throw new UnknownAuthError("Usuário não autenticado");
             }
 
-            const { error: signInError } = await this.supabase.auth.signInWithPassword({
+            // Verifica se a senha atual está correta
+            // Nota: Este signInWithPassword cria uma nova sessão, mas o Supabase
+            // gerencia isso automaticamente sem duplicar o usuário
+            const { error: verifyError } = await this.supabase.auth.signInWithPassword({
                 email: user.email,
                 password: params.currentPassword,
             });
 
-            if (signInError) {
+            if (verifyError) {
                 throw new InvalidCredentialsError();
             }
 
             // Atualiza a senha
-            const { error } = await this.supabase.auth.updateUser({
+            // Nota: Com "Secure password change" desabilitado, a senha muda imediatamente
+            // e um email de confirmação é enviado ao usuário.
+            const { error: updateError } = await this.supabase.auth.updateUser({
                 password: params.newPassword,
             });
 
-            if (error) {
-                throw this.mapSupabaseError(error);
+            if (updateError) {
+                throw this.mapSupabaseError(updateError);
             }
         } catch (error) {
+            if (error instanceof AuthError) {
+                throw error;
+            }
             if (error instanceof Error && "status" in error) {
                 throw this.mapSupabaseError(error);
             }

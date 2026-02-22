@@ -124,6 +124,11 @@ export default function ForgotPasswordModal() {
             setNewPassword("");
             setConfirmPassword("");
 
+            // Limpa a URL de quaisquer tokens antes de fechar o modal
+            if (typeof window !== "undefined") {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             // Fecha o modal após 2 segundos
             setTimeout(() => {
                 closeModal();

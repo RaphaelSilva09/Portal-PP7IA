@@ -32,7 +32,7 @@ export class SendPasswordResetUseCase {
         this.validateInput(input);
 
         const normalizedEmail = input.email.trim().toLowerCase();
-        
+
         await this.authRepository.sendPasswordReset(normalizedEmail);
     }
 

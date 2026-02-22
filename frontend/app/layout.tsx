@@ -1,14 +1,14 @@
-import type { Metadata, Viewport } from "next";
-import { Suspense } from "react";
-import { Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { SearchModalProvider } from "@/context/SearchModalContext";
-import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
-import { AuthModalProvider } from "@/context/AuthModalContext";
-import { InviteModalProvider } from "@/context/InviteModalContext";
-import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
-import { AuthProvider } from "@/context/AuthContext";
 import ModalsProvider from "@/components/ModalsProvider";
+import { AuthProvider } from "@/context/AuthContext";
+import { AuthModalProvider } from "@/context/AuthModalContext";
+import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
+import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
+import { InviteModalProvider } from "@/context/InviteModalContext";
+import { SearchModalProvider } from "@/context/SearchModalContext";
+import { Analytics } from "@vercel/analytics/next";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 
 const inter = Inter({
@@ -43,6 +43,9 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    // Só carrega Analytics se estiver em produção E habilitado no Vercel
+    const showAnalytics = process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === "true";
+
     return (
         <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
@@ -62,7 +65,7 @@ export default function RootLayout({
                         </AuthModalProvider>
                     </SearchModalProvider>
                 </AuthProvider>
-                <Analytics />
+                {showAnalytics && <Analytics />}
             </body>
         </html>
     );

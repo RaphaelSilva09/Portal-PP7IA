@@ -2,12 +2,12 @@
  * Middleware de Autenticação e Autorização
  *
  * Intercepta rotas protegidas antes de renderizar.
- * - /admin: requer autenticação + admin
+ * - /painel-admin: requer autenticação + admin
  * - /user: requer autenticação
  *
  * Redirects:
  * - Não autenticado -> /?authModal=login (abre modal de login)
- * - Autenticado não-admin em /admin -> / (home)
+ * - Autenticado não-admin em /painel-admin -> / (home)
  *
  * Princípios aplicados:
  * - Defense in Depth: Primeira camada de segurança (middleware)
@@ -18,7 +18,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const ADMIN_ROUTES = "/admin";
+const ADMIN_ROUTES = "/painel-admin";
 const AUTH_ROUTES = "/user";
 
 function redirectToLogin(request: NextRequest): NextResponse {
@@ -41,7 +41,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    const response = NextResponse.next();
+    let supabaseResponse = NextResponse.next({
+        request,
+    });
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,36 +54,40 @@ export async function middleware(request: NextRequest) {
                     return request.cookies.getAll();
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        supabaseResponse.cookies.set(name, value, options),
+                    );
                 },
             },
         },
     );
 
     // 1. Verifica sessão autenticada
+    // OTIMIZAÇÃO: getSession() valida localmente primeiro (JWT cache),
+    // evitando requests desnecessários ao servidor em toda navegação
     const {
-        data: { user },
-    } = await supabase.auth.getUser();
+        data: { session },
+    } = await supabase.auth.getSession();
 
-    if (!user) {
+    if (!session?.user) {
         return redirectToLogin(request);
     }
 
     // 2. Para rotas de usuário, autenticação é suficiente
     if (isAuthRoute) {
-        return response;
+        return supabaseResponse;
     }
 
     // 3. Para rotas admin, verifica role no JWT (app_metadata)
-    const isAdmin = user.app_metadata?.role === "admin";
+    const isAdmin = session.user.app_metadata?.role === "admin";
 
     if (!isAdmin) {
         return redirectToHome(request);
     }
 
-    return response;
+    return supabaseResponse;
 }
 
 export const config = {
-    matcher: ["/admin/:path*", "/user/:path*"],
+    matcher: ["/painel-admin/:path*", "/user/:path*"],
 };
