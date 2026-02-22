@@ -48,7 +48,8 @@ export default function ForgotPasswordModal() {
             setShowConfirmPassword(false);
             clearError();
         }
-    }, [isOpen, initialEmail, clearError]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, initialEmail]);
 
     /**
      * Valida formulário de solicitação

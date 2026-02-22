@@ -90,7 +90,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
             setAcceptWhatsAppUpdates(false);
             clearError();
         }
-    }, [mode, isOpen, initialData, clearError]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mode, isOpen, initialData]);
 
     /**
      * Valida o formulário baseado no modo atual
