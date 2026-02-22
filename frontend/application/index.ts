@@ -18,5 +18,8 @@ export { GetCurrentUserUseCase } from "./usecases/GetCurrentUserUseCase";
 export { SendPasswordResetUseCase } from "./usecases/SendPasswordResetUseCase";
 export type { SendPasswordResetInput } from "./usecases/SendPasswordResetUseCase";
 
+export { VerifyPasswordResetOTPUseCase } from "./usecases/VerifyPasswordResetOTPUseCase";
+export type { VerifyPasswordResetOTPInput } from "./usecases/VerifyPasswordResetOTPUseCase";
+
 export { ResetPasswordWithTokenUseCase } from "./usecases/ResetPasswordWithTokenUseCase";
 export type { ResetPasswordWithTokenInput } from "./usecases/ResetPasswordWithTokenUseCase";
