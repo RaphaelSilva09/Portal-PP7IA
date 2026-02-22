@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     // while we continue using webpack for SVG handling
     turbopack: {},
 
-    // Headers de segurança
+    // Headers de segurança - sem Permissions-Policy para evitar warnings de features experimentais
     async headers() {
         return [
             {
@@ -26,10 +26,6 @@ const nextConfig: NextConfig = {
                     {
                         key: "Referrer-Policy",
                         value: "strict-origin-when-cross-origin",
-                    },
-                    {
-                        key: "Permissions-Policy",
-                        value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
                     },
                 ],
             },
