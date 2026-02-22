@@ -413,7 +413,11 @@ export default function ForgotPasswordModal() {
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
                                             aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                                         >
-                                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                            {showPassword ? (
+                                                <EyeOff className="w-5 h-5" />
+                                            ) : (
+                                                <Eye className="w-5 h-5" />
+                                            )}
                                         </button>
                                     </div>
                                     {errors.newPassword && (
@@ -492,7 +496,9 @@ export default function ForgotPasswordModal() {
                                 <p className="text-white text-center">
                                     Senha redefinida com sucesso!
                                     <br />
-                                    <span className="text-sm text-white/70">Você já pode fazer login com sua nova senha.</span>
+                                    <span className="text-sm text-white/70">
+                                        Você já pode fazer login com sua nova senha.
+                                    </span>
                                 </p>
                             </div>
                         )}

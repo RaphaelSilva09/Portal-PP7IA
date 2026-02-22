@@ -61,7 +61,7 @@ export function usePasswordRecovery(): UsePasswordRecoveryResult {
     // Cooldown timer
     useEffect(() => {
         if (cooldown > 0) {
-            const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+            const timer = setTimeout(() => setCooldown(c => c - 1), 1000);
             return () => clearTimeout(timer);
         }
     }, [cooldown]);
@@ -149,43 +149,40 @@ export function usePasswordRecovery(): UsePasswordRecoveryResult {
     /**
      * Step 3: Redefine senha após OTP validado
      */
-    const resetPassword = useCallback(
-        async (newPassword: string, confirmPassword?: string): Promise<boolean> => {
-            // Valida senhas se confirmPassword foi fornecida
-            if (confirmPassword !== undefined && newPassword !== confirmPassword) {
-                setStatus("error");
-                setErrorMessage("As senhas não coincidem");
-                return false;
+    const resetPassword = useCallback(async (newPassword: string, confirmPassword?: string): Promise<boolean> => {
+        // Valida senhas se confirmPassword foi fornecida
+        if (confirmPassword !== undefined && newPassword !== confirmPassword) {
+            setStatus("error");
+            setErrorMessage("As senhas não coincidem");
+            return false;
+        }
+
+        setStatus("verifying"); // Reutiliza estado de loading
+        setErrorMessage(null);
+
+        try {
+            console.log("🔐 Atualizando senha...");
+            const repository = DIContainer.getAuthRepository();
+            await repository.resetPasswordWithOTP(newPassword);
+
+            setStatus("success");
+            console.log("✅ Senha atualizada com sucesso");
+
+            // Cleanup: remove email do localStorage e encerra sessão
+            if (typeof window !== "undefined") {
+                localStorage.removeItem(RECOVERY_EMAIL_KEY);
             }
+            await repository.signOut();
+            console.log("👋 Sessão de recovery encerrada");
 
-            setStatus("verifying"); // Reutiliza estado de loading
-            setErrorMessage(null);
-
-            try {
-                console.log("🔐 Atualizando senha...");
-                const repository = DIContainer.getAuthRepository();
-                await repository.resetPasswordWithOTP(newPassword);
-
-                setStatus("success");
-                console.log("✅ Senha atualizada com sucesso");
-
-                // Cleanup: remove email do localStorage e encerra sessão
-                if (typeof window !== "undefined") {
-                    localStorage.removeItem(RECOVERY_EMAIL_KEY);
-                }
-                await repository.signOut();
-                console.log("👋 Sessão de recovery encerrada");
-
-                return true;
-            } catch (err) {
-                console.error("❌ Erro ao resetar senha:", err);
-                setStatus("error");
-                setErrorMessage(err instanceof Error ? err.message : "Erro ao redefinir senha.");
-                return false;
-            }
-        },
-        [],
-    );
+            return true;
+        } catch (err) {
+            console.error("❌ Erro ao resetar senha:", err);
+            setStatus("error");
+            setErrorMessage(err instanceof Error ? err.message : "Erro ao redefinir senha.");
+            return false;
+        }
+    }, []);
 
     return {
         recoveryStatus: status,

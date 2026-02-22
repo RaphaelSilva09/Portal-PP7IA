@@ -2,7 +2,6 @@
 
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
-import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { useRouter, useSearchParams } from "next/navigation";
