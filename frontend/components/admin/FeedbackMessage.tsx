@@ -13,7 +13,7 @@
 
 "use client";
 
-import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
 import { useEffect } from "react";
 
 export type FeedbackType = "success" | "error" | "warning";

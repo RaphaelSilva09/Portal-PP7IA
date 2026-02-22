@@ -80,7 +80,7 @@ export function ConfirmDialog({
         >
             <div
                 className="relative w-full max-w-lg rounded-2xl bg-[var(--bg-secondary)] border-2 border-[var(--border-glass)] shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
                 <div className="flex items-start justify-between p-6 border-b border-[var(--border-glass)]">

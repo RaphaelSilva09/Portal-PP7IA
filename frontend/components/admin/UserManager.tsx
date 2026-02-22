@@ -143,9 +143,7 @@ export function UserManager() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">
-                    Gerenciar Usuários ({users.length})
-                </h2>
+                <h2 className="text-2xl font-bold text-[var(--text-primary)]">Gerenciar Usuários ({users.length})</h2>
             </div>
 
             {users.length === 0 ? (
@@ -154,7 +152,7 @@ export function UserManager() {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {users.map((user) => (
+                    {users.map(user => (
                         <UserCard
                             key={user.id}
                             user={user}

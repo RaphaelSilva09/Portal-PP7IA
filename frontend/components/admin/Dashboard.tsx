@@ -15,7 +15,7 @@
 
 import { GlassCard } from "@/components/ui";
 import DIContainer from "@/infrastructure/di/container";
-import { BookOpen, Sparkles, Users, Clock } from "lucide-react";
+import { BookOpen, Clock, Sparkles, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface DashboardStats {

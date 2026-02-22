@@ -12,35 +12,22 @@
  * - Composition: Recebe handlers via props
  */
 
-import { useState } from "react";
-import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import { GlassCard, GradientButton } from "@/components/ui";
+import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import { Upload } from "lucide-react";
+import { useState } from "react";
 
 interface ContentFormProps {
     type: ContentType;
     editItem?: ContentItem | null;
-    onSubmit: (data: {
-        title: string;
-        readTime?: number;
-        htmlFile?: File;
-        pdfFile?: File;
-    }) => Promise<void>;
+    onSubmit: (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File }) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
 }
 
-export function ContentForm({
-    type,
-    editItem,
-    onSubmit,
-    onCancel,
-    isLoading,
-}: ContentFormProps) {
+export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: ContentFormProps) {
     const [title, setTitle] = useState(editItem?.title || "");
-    const [readTime, setReadTime] = useState(
-        editItem?.readTime?.toString() || ""
-    );
+    const [readTime, setReadTime] = useState(editItem?.readTime?.toString() || "");
     const [htmlFile, setHtmlFile] = useState<File | null>(null);
     const [pdfFile, setPdfFile] = useState<File | null>(null);
 
@@ -73,13 +60,11 @@ export function ContentForm({
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Título */}
                 <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                        Título *
-                    </label>
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Título *</label>
                     <input
                         type="text"
                         value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={e => setTitle(e.target.value)}
                         required
                         className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
                                    text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50
@@ -96,7 +81,7 @@ export function ContentForm({
                     <input
                         type="number"
                         value={readTime}
-                        onChange={(e) => setReadTime(e.target.value)}
+                        onChange={e => setReadTime(e.target.value)}
                         min="1"
                         className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
                                    text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50
@@ -115,9 +100,7 @@ export function ContentForm({
                             <input
                                 type="file"
                                 accept=".html"
-                                onChange={(e) =>
-                                    setHtmlFile(e.target.files?.[0] || null)
-                                }
+                                onChange={e => setHtmlFile(e.target.files?.[0] || null)}
                                 className="hidden"
                                 id="html-upload"
                             />
@@ -128,9 +111,7 @@ export function ContentForm({
                                            text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-blue)]/50 transition-colors"
                             >
                                 <Upload className="w-5 h-5" />
-                                {htmlFile
-                                    ? htmlFile.name
-                                    : "Selecionar arquivo HTML"}
+                                {htmlFile ? htmlFile.name : "Selecionar arquivo HTML"}
                             </label>
                         </div>
                     </div>
@@ -146,9 +127,7 @@ export function ContentForm({
                             <input
                                 type="file"
                                 accept=".pdf"
-                                onChange={(e) =>
-                                    setPdfFile(e.target.files?.[0] || null)
-                                }
+                                onChange={e => setPdfFile(e.target.files?.[0] || null)}
                                 className="hidden"
                                 id="pdf-upload"
                             />
@@ -159,9 +138,7 @@ export function ContentForm({
                                            text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-orange)]/50 transition-colors"
                             >
                                 <Upload className="w-5 h-5" />
-                                {pdfFile
-                                    ? pdfFile.name
-                                    : "Selecionar arquivo PDF"}
+                                {pdfFile ? pdfFile.name : "Selecionar arquivo PDF"}
                             </label>
                         </div>
                     </div>
@@ -176,12 +153,7 @@ export function ContentForm({
                     >
                         Cancelar
                     </button>
-                    <GradientButton
-                        type="submit"
-                        variant="cta"
-                        loading={isLoading}
-                        loadingText="Salvando..."
-                    >
+                    <GradientButton type="submit" variant="cta" loading={isLoading} loadingText="Salvando...">
                         {isEditing ? "Salvar Alterações" : "Criar Material"}
                     </GradientButton>
                 </div>
