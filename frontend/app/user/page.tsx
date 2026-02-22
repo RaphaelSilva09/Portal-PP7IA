@@ -3,7 +3,8 @@
 import { Footer, Navbar } from "@/components";
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
-import { AlertCircle, ArrowLeft, Check, Eye, EyeOff, Key, Mail, Phone, Trash2, User, UserPlus } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { AlertCircle, ArrowLeft, Check, Eye, EyeOff, Key, Mail, Phone, Shield, Trash2, User, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -21,6 +22,7 @@ export default function UserPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasLoaded, setHasLoaded] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     // Estados para alterar senha
     const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -42,6 +44,17 @@ export default function UserPage() {
     useEffect(() => {
         if (!isLoading) setHasLoaded(true);
     }, [isLoading]);
+
+    // Verifica se o usuário é admin
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            setIsAdmin(session?.user?.app_metadata?.role === "admin");
+        };
+        checkAdminStatus();
+    }, [user]);
 
     // Redireciona para home se não logado (somente após loading inicial)
     useEffect(() => {
@@ -178,8 +191,21 @@ export default function UserPage() {
                             <ArrowLeft className="w-4 h-4" />
                             <span>Voltar para início</span>
                         </button>
-                        <h1 className="text-3xl font-bold text-white mb-2">Minha Conta</h1>
-                        <p className="text-text-secondary">Suas informações cadastrais</p>
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <h1 className="text-3xl font-bold text-white mb-2">Minha Conta</h1>
+                                <p className="text-text-secondary">Suas informações cadastrais</p>
+                            </div>
+                            {isAdmin && (
+                                <button
+                                    onClick={() => router.push("/painel-admin")}
+                                    className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
+                                >
+                                    <Shield className="w-5 h-5" />
+                                    <span>Painel Admin</span>
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Card de Informações */}
