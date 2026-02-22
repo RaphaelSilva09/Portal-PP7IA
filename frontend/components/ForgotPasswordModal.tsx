@@ -1,11 +1,11 @@
 "use client";
 
-import { supabase } from "@/infrastructure/config/supabase";
 import { AlertCircle, Check, Eye, EyeOff, Mail, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useForgotPasswordModal } from "../context/ForgotPasswordModalContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import { usePasswordRecovery } from "../hooks/usePasswordRecovery";
 import { isValidEmail, isValidPassword } from "../lib/validators";
 import Portal from "./Portal";
 
@@ -21,7 +21,8 @@ import Portal from "./Portal";
 
 export default function ForgotPasswordModal() {
     const { isOpen, mode, email: initialEmail, closeModal } = useForgotPasswordModal();
-    const { sendPasswordReset, resetPasswordWithToken, isLoading, error: authError, clearError } = useAuth();
+    const { sendPasswordReset, isLoading, error: authError, clearError } = useAuth();
+    const { recoveryStatus, recoveryError, resetPassword: resetPasswordWithRecovery } = usePasswordRecovery();
 
     // Estados do formulário
     const [email, setEmail] = useState("");
@@ -31,26 +32,9 @@ export default function ForgotPasswordModal() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<{ email?: string; newPassword?: string; confirmPassword?: string }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [isFormReady, setIsFormReady] = useState(false);
 
     // Hook para travar scroll do body
     useBodyScrollLock(isOpen);
-
-    // Listener para PASSWORD_RECOVERY event com cleanup obrigatório
-    useEffect(() => {
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(event => {
-            if (event === "PASSWORD_RECOVERY") {
-                console.log("🔐 ForgotPasswordModal: PASSWORD_RECOVERY detectado");
-                setIsFormReady(true);
-            }
-        });
-        // CRITICAL: Cleanup para evitar listeners duplicados
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, []);
 
     // Inicializa email quando modal abre
     useEffect(() => {
@@ -62,13 +46,9 @@ export default function ForgotPasswordModal() {
             setSuccessMessage(null);
             setShowPassword(false);
             setShowConfirmPassword(false);
-            setIsFormReady(mode === "request"); // Request mode sempre pronto, reset mode aguarda evento
             clearError();
-        } else {
-            // Reset isFormReady ao fechar modal para evitar state leak
-            setIsFormReady(false);
         }
-    }, [isOpen, initialEmail, mode, clearError]);
+    }, [isOpen, initialEmail, clearError]);
 
     /**
      * Valida formulário de solicitação
@@ -131,7 +111,7 @@ export default function ForgotPasswordModal() {
     };
 
     /**
-     * Handler para redefinir senha com token
+     * Handler para redefinir senha com token (usa hook dedicado)
      */
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -140,35 +120,28 @@ export default function ForgotPasswordModal() {
             return;
         }
 
-        try {
-            await resetPasswordWithToken(newPassword, confirmPassword);
-            setSuccessMessage("Senha redefinida com sucesso! Você já pode fazer login com sua nova senha.");
-            setNewPassword("");
-            setConfirmPassword("");
-
-            // Limpa a URL de quaisquer tokens antes de fechar o modal
-            if (typeof window !== "undefined") {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            // Fecha o modal após 2 segundos
-            setTimeout(() => {
-                closeModal();
-            }, 2000);
-        } catch (err) {
-            // Erro já está no contexto
-            console.error("Erro ao redefinir senha:", err);
-        }
+        await resetPasswordWithRecovery(newPassword);
     };
 
     /**
      * Fecha o modal
      */
     const handleClose = () => {
-        if (!isLoading) {
+        const isProcessing = isLoading || recoveryStatus === "loading";
+        if (!isProcessing) {
             closeModal();
         }
     };
+
+    // Fecha modal automaticamente após sucesso no recovery
+    useEffect(() => {
+        if (recoveryStatus === "success" && mode === "reset") {
+            setSuccessMessage("Senha redefinida com sucesso! Você já pode fazer login com sua nova senha.");
+            setTimeout(() => {
+                closeModal();
+            }, 2000);
+        }
+    }, [recoveryStatus, mode, closeModal]);
 
     if (!isOpen) return null;
 
@@ -211,16 +184,24 @@ export default function ForgotPasswordModal() {
                         {/* Success Message */}
                         {successMessage && (
                             <div className="mb-4 p-4 rounded-lg bg-green-500/20 border border-green-500/30 flex items-start gap-3">
-                                <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                                <Check className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                                 <p className="text-sm text-green-100">{successMessage}</p>
                             </div>
                         )}
 
-                        {/* Error Message */}
-                        {authError && (
+                        {/* Error Message - Request Mode */}
+                        {mode === "request" && authError && (
                             <div className="mb-4 p-4 rounded-lg bg-red-500/20 border border-red-500/30 flex items-start gap-3">
-                                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                                 <p className="text-sm text-red-100">{authError}</p>
+                            </div>
+                        )}
+
+                        {/* Error Message - Reset Mode */}
+                        {mode === "reset" && recoveryError && (
+                            <div className="mb-4 p-4 rounded-lg bg-red-500/20 border border-red-500/30 flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                                <p className="text-sm text-red-100">{recoveryError}</p>
                             </div>
                         )}
 
@@ -255,7 +236,7 @@ export default function ForgotPasswordModal() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 bg-gradient-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isLoading ? (
                                         <>
@@ -275,16 +256,16 @@ export default function ForgotPasswordModal() {
                         {/* Reset Form */}
                         {mode === "reset" && !successMessage && (
                             <>
-                                {/* Loading state while waiting for PASSWORD_RECOVERY event */}
-                                {!isFormReady && (
+                                {/* Loading state while waiting for recovery token */}
+                                {recoveryStatus === 'loading' && (
                                     <div className="flex flex-col items-center justify-center py-8 space-y-4">
                                         <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
                                         <p className="text-white/70 text-sm">Preparando formulário...</p>
                                     </div>
                                 )}
 
-                                {/* Form appears only after isFormReady=true */}
-                                {isFormReady && (
+                                {/* Form appears only after token is ready */}
+                                {recoveryStatus === 'ready' && (
                                     <form onSubmit={handleResetPassword} className="space-y-4">
                                         <div>
                                             <label
@@ -376,7 +357,7 @@ export default function ForgotPasswordModal() {
                                         <button
                                             type="submit"
                                             disabled={isLoading}
-                                            className="w-full py-3 bg-gradient-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                         >
                                             {isLoading ? (
                                                 <>
