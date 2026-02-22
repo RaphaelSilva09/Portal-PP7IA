@@ -43,6 +43,9 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    // Só carrega Analytics se estiver em produção E habilitado no Vercel
+    const showAnalytics = process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === "true";
+
     return (
         <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
@@ -62,7 +65,7 @@ export default function RootLayout({
                         </AuthModalProvider>
                     </SearchModalProvider>
                 </AuthProvider>
-                <Analytics />
+                {showAnalytics && <Analytics />}
             </body>
         </html>
     );
