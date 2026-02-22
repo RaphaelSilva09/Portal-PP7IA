@@ -24,6 +24,7 @@ interface SupabaseMiniLivroRow {
     title: string;
     html_path: string | null;
     pdf_path: string | null;
+    read_time: number;
 }
 
 /**
@@ -93,11 +94,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
      */
     async getById(id: number): Promise<MiniLivro | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("mini-livros")
-                .select("*")
-                .eq("id", id)
-                .single();
+            const { data, error } = await this.supabase.from("mini-livros").select("*").eq("id", id).single();
 
             if (error || !data) {
                 return null;
@@ -134,6 +131,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
             title: row.title,
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
+            readTime: row.read_time,
         };
         return MiniLivro.create(props);
     }

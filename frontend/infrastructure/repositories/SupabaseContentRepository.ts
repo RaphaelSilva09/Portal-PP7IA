@@ -10,19 +10,20 @@
  * - Graceful Degradation: Retorna arrays vazios em caso de erro de leitura
  */
 
-import { supabase } from "../config/supabase";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type {
-    IContentRepository,
     CreateContentInput,
+    IContentRepository,
     UpdateContentInput,
 } from "@/domain/repositories/IContentRepository";
+import { supabase } from "../config/supabase";
 
 /** Mapeamento de tipo de conteúdo para nome da tabela no Supabase */
 const TABLE_MAP: Record<ContentType, string> = {
     newsletter: "newsletters",
     "mini-livro": "mini-livros",
     biblioteca: "biblioteca",
+    "especial-semana": "especial-semana",
 };
 
 export class SupabaseContentRepository implements IContentRepository {
@@ -30,17 +31,14 @@ export class SupabaseContentRepository implements IContentRepository {
         try {
             const table = TABLE_MAP[type];
 
-            const { data, error } = await supabase
-                .from(table)
-                .select("*")
-                .order("id", { ascending: false });
+            const { data, error } = await supabase.from(table).select("*").order("id", { ascending: false });
 
             if (error || !data) {
                 console.error(`Erro ao buscar ${type}:`, error);
                 return [];
             }
 
-            return data.map((row) =>
+            return data.map(row =>
                 ContentItem.create({
                     id: row.id,
                     createdAt: new Date(row.created_at),
@@ -48,7 +46,7 @@ export class SupabaseContentRepository implements IContentRepository {
                     htmlPath: row.html_path,
                     pdfPath: row.pdf_path,
                     readTime: row.read_time,
-                })
+                }),
             );
         } catch (error) {
             console.error(`Erro inesperado ao buscar ${type}:`, error);
@@ -60,11 +58,7 @@ export class SupabaseContentRepository implements IContentRepository {
         try {
             const table = TABLE_MAP[type];
 
-            const { data, error } = await supabase
-                .from(table)
-                .select("*")
-                .eq("id", id)
-                .single();
+            const { data, error } = await supabase.from(table).select("*").eq("id", id).single();
 
             if (error || !data) {
                 return null;
@@ -83,10 +77,7 @@ export class SupabaseContentRepository implements IContentRepository {
         }
     }
 
-    async create(
-        type: ContentType,
-        input: CreateContentInput
-    ): Promise<ContentItem> {
+    async create(type: ContentType, input: CreateContentInput): Promise<ContentItem> {
         const table = TABLE_MAP[type];
 
         const { data, error } = await supabase
@@ -112,11 +103,7 @@ export class SupabaseContentRepository implements IContentRepository {
         });
     }
 
-    async update(
-        type: ContentType,
-        id: number,
-        input: UpdateContentInput
-    ): Promise<ContentItem> {
+    async update(type: ContentType, id: number, input: UpdateContentInput): Promise<ContentItem> {
         const table = TABLE_MAP[type];
 
         const updateData: Record<string, unknown> = {};
@@ -125,12 +112,7 @@ export class SupabaseContentRepository implements IContentRepository {
         if (input.htmlPath !== undefined) updateData.html_path = input.htmlPath;
         if (input.pdfPath !== undefined) updateData.pdf_path = input.pdfPath;
 
-        const { data, error } = await supabase
-            .from(table)
-            .update(updateData)
-            .eq("id", id)
-            .select()
-            .single();
+        const { data, error } = await supabase.from(table).update(updateData).eq("id", id).select().single();
 
         if (error || !data) {
             throw new Error(`Falha ao atualizar ${type}: ${error?.message}`);

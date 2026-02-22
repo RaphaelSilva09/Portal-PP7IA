@@ -3,6 +3,7 @@
 import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useForgotPasswordModal } from "../context/ForgotPasswordModalContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { formatPhone } from "../lib/formatters";
 import { isValidEmail, isValidPassword, isValidPhone } from "../lib/validators";
@@ -62,6 +63,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
     // Hook de autenticação (Clean Architecture)
     const { signUp, signIn, isLoading, error: authError, clearError } = useAuth();
+    const { openModal: openForgotPasswordModal } = useForgotPasswordModal();
 
     // Hook para travar scroll do body (DRY - extraído para hook reutilizável)
     useBodyScrollLock(isOpen);
@@ -379,6 +381,22 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                 </div>
                                 {errors.senha && <p className="text-xs text-red-500">{errors.senha}</p>}
                             </div>
+
+                            {/* Link Esqueceu Senha - Apenas no modo Login */}
+                            {mode === "login" && (
+                                <div className="flex justify-end -mt-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            onClose();
+                                            openForgotPasswordModal("request", formData.email);
+                                        }}
+                                        className="text-xs text-brand-blue hover:text-blue-400 transition-colors"
+                                    >
+                                        Esqueceu sua senha?
+                                    </button>
+                                </div>
+                            )}
 
                             {/* Checkboxes de Consentimento - Apenas no modo Cadastro */}
                             {!isLoginMode && (

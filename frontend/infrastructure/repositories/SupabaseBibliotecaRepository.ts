@@ -24,6 +24,7 @@ interface SupabaseBibliotecaRow {
     title: string;
     html_path: string | null;
     pdf_path: string | null;
+    read_time: number;
 }
 
 /**
@@ -93,11 +94,7 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
      */
     async getById(id: number): Promise<BibliotecaItem | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("biblioteca")
-                .select("*")
-                .eq("id", id)
-                .single();
+            const { data, error } = await this.supabase.from("biblioteca").select("*").eq("id", id).single();
 
             if (error || !data) {
                 return null;
@@ -134,6 +131,7 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
             title: row.title,
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
+            readTime: row.read_time,
         };
         return BibliotecaItem.create(props);
     }

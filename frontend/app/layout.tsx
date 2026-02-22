@@ -6,6 +6,7 @@ import { SearchModalProvider } from "@/context/SearchModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { InviteModalProvider } from "@/context/InviteModalContext";
+import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
 import { AuthProvider } from "@/context/AuthContext";
 import ModalsProvider from "@/components/ModalsProvider";
 import "./globals.css";
@@ -48,14 +49,16 @@ export default function RootLayout({
                 <AuthProvider>
                     <SearchModalProvider>
                         <AuthModalProvider>
-                            <FirstVisitModalProvider>
-                                <InviteModalProvider>
-                                    {children}
-                                    <Suspense fallback={null}>
-                                        <ModalsProvider />
-                                    </Suspense>
-                                </InviteModalProvider>
-                            </FirstVisitModalProvider>
+                            <ForgotPasswordModalProvider>
+                                <FirstVisitModalProvider>
+                                    <InviteModalProvider>
+                                        {children}
+                                        <Suspense fallback={null}>
+                                            <ModalsProvider />
+                                        </Suspense>
+                                    </InviteModalProvider>
+                                </FirstVisitModalProvider>
+                            </ForgotPasswordModalProvider>
                         </AuthModalProvider>
                     </SearchModalProvider>
                 </AuthProvider>

@@ -6,11 +6,13 @@ import SearchModal from "./SearchModal";
 import FirstVisitModal from "./FirstVisitModal";
 import AuthModal from "./AuthModal";
 import InviteModal from "./InviteModal";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 import Portal from "./Portal";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
+import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
 
 /**
  * ModalsProvider Component
@@ -34,18 +36,27 @@ export default function ModalsProvider() {
     const { isOpen: isFirstVisitOpen, closeModal: closeFirstVisitModal } = useFirstVisitModal();
     const { isOpen: isAuthOpen, initialData, initialMode, openModal: openAuthModal, closeModal: closeAuthModal } = useAuthModal();
     const { isOpen: isInviteOpen, closeModal: closeInviteModal } = useInviteModal();
+    const { isOpen: isForgotPasswordOpen, mode: forgotPasswordMode, openModal: openForgotPasswordModal } = useForgotPasswordModal();
 
     useEffect(() => {
         const authModalParam = searchParams.get("authModal");
+        const resetTokenParam = searchParams.get("resetToken");
+        
         if (authModalParam === "login") {
             openAuthModal({}, "login");
             router.replace("/", { scroll: false });
         }
-    }, [searchParams, openAuthModal, router]);
+        
+        if (resetTokenParam) {
+            openForgotPasswordModal("reset");
+            router.replace("/", { scroll: false });
+        }
+    }, [searchParams, openAuthModal, openForgotPasswordModal, router]);
 
     return (
         <Portal>
             <SearchModal isOpen={isSearchOpen} onClose={closeSearchModal} />
+            <ForgotPasswordModal />
             <FirstVisitModal isOpen={isFirstVisitOpen} onClose={closeFirstVisitModal} />
             <AuthModal
                 isOpen={isAuthOpen}

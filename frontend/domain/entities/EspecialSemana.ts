@@ -1,19 +1,17 @@
 /**
- * ContentItem Entity (Domain Layer)
+ * EspecialSemana Entity (Domain Layer)
  *
- * Entidade genérica para conteúdo (Newsletter, MiniLivro, Biblioteca).
- * Usada no contexto admin para operações CRUD unificadas.
+ * Representa a entidade de domínio EspecialSemana seguindo DDD.
+ * Inclui fallbacks seguros para dados ausentes ou corrompidos.
  *
  * Princípios aplicados:
- * - DRY: Evita duplicação de código entre entidades similares
- * - DDD: Entidade de domínio com comportamentos
+ * - DDD: Entidade de domínio com comportamentos do negócio
+ * - SRP: Responsável apenas por representar especial da semana
  * - Graceful Degradation: Fallbacks para dados ausentes
  * - Immutability: Dados protegidos via getters
  */
 
-export type ContentType = "newsletter" | "mini-livro" | "biblioteca" | "especial-semana";
-
-export interface ContentItemProps {
+export interface EspecialSemanaProps {
     id: number;
     createdAt: Date;
     title: string;
@@ -22,17 +20,18 @@ export interface ContentItemProps {
     readTime: number;
 }
 
-export class ContentItem {
-    private constructor(private readonly props: ContentItemProps) {}
+export class EspecialSemana {
+    private constructor(private readonly props: EspecialSemanaProps) {}
 
     /**
-     * Factory Method para criar ContentItem
+     * Factory Method para criar EspecialSemana
      * Design Pattern: Factory Method
      */
-    static create(props: ContentItemProps): ContentItem {
-        return new ContentItem(props);
+    static create(props: EspecialSemanaProps): EspecialSemana {
+        return new EspecialSemana(props);
     }
 
+    // Getters com fallbacks seguros
     get id(): number {
         return this.props.id ?? 0;
     }
@@ -42,7 +41,12 @@ export class ContentItem {
     }
 
     get htmlPath(): string | null {
-        return this.props.htmlPath?.trim() || null;
+        const rawPath = this.props.htmlPath?.trim();
+        if (!rawPath) return null;
+        const match = rawPath.match(/\/([^/]+)\.html$/);
+        if (!match) return rawPath;
+        const slug = match[1];
+        return `/view/especial-semana/${slug}`;
     }
 
     get pdfPath(): string | null {
@@ -97,7 +101,14 @@ export class ContentItem {
     /**
      * Converte para objeto plano (DTO)
      */
-    toObject(): ContentItemProps {
-        return { ...this.props };
+    toPlainObject() {
+        return {
+            id: this.id,
+            createdAt: this.createdAt,
+            title: this.title,
+            htmlPath: this.htmlPath,
+            pdfPath: this.pdfPath,
+            readTime: this.readTime,
+        };
     }
 }

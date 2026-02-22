@@ -45,6 +45,8 @@ interface AuthContextType {
     updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
     updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
     deleteAccount: () => Promise<void>;
+    sendPasswordReset: (email: string) => Promise<void>;
+    resetPasswordWithToken: (newPassword: string, confirmPassword: string) => Promise<void>;
     clearError: () => void;
 }
 
@@ -257,6 +259,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }, []);
 
+    /**
+     * Solicita recuperação de senha
+     */
+    const sendPasswordReset = useCallback(async (email: string) => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const useCase = DIContainer.getSendPasswordResetUseCase();
+            await useCase.execute({ email });
+        } catch (err) {
+            const errorMessage =
+                err instanceof AuthError ? err.message : "Erro ao enviar email de recuperação. Tente novamente.";
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    /**
+     * Redefine a senha usando token de recuperação
+     */
+    const resetPasswordWithToken = useCallback(async (newPassword: string, confirmPassword: string) => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const useCase = DIContainer.getResetPasswordWithTokenUseCase();
+            await useCase.execute({ newPassword, confirmPassword });
+            // Recarrega o usuário após reset
+            await getCurrentUser();
+        } catch (err) {
+            const errorMessage =
+                err instanceof AuthError ? err.message : "Erro ao redefinir senha. Tente novamente.";
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [getCurrentUser]);
+
     const clearError = useCallback(() => {
         setError(null);
     }, []);
@@ -276,6 +320,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 updatePassword,
                 updatePreferences,
                 deleteAccount,
+                sendPasswordReset,
+                resetPasswordWithToken,
                 clearError,
             }}
         >

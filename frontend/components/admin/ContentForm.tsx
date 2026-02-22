@@ -61,6 +61,7 @@ export function ContentForm({
         newsletter: "Newsletter",
         "mini-livro": "Mini-Livro",
         biblioteca: "Biblioteca",
+        "especial-semana": "Especial da Semana",
     }[type];
 
     return (

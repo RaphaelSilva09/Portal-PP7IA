@@ -16,15 +16,16 @@
  * - Fail Secure: Rollback em caso de erro
  */
 
+import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import type { ContentType, ContentItem } from "@/domain/entities/ContentItem";
 
 /** Mapeamento de tipo de conteúdo para nome do bucket no Supabase Storage */
 const BUCKET_MAP: Record<ContentType, string> = {
     newsletter: "Newsletters",
     "mini-livro": "MiniLivros",
     biblioteca: "Biblioteca",
+    "especial-semana": "especial-semana",
 };
 
 export interface CreateContentWithUploadInput {
@@ -38,12 +39,10 @@ export interface CreateContentWithUploadInput {
 export class CreateContentWithUploadUseCase {
     constructor(
         private readonly contentRepository: IContentRepository,
-        private readonly storageRepository: IStorageRepository
+        private readonly storageRepository: IStorageRepository,
     ) {}
 
-    async execute(
-        input: CreateContentWithUploadInput
-    ): Promise<ContentItem | null> {
+    async execute(input: CreateContentWithUploadInput): Promise<ContentItem | null> {
         const bucket = BUCKET_MAP[input.type];
 
         // 1. Criar registro no banco primeiro (para obter o ID)
@@ -62,21 +61,13 @@ export class CreateContentWithUploadUseCase {
             // 2. Upload dos arquivos com nome baseado no ID
             if (input.htmlFile) {
                 const htmlFileName = `${formattedId}.html`;
-                await this.storageRepository.upload(
-                    bucket,
-                    htmlFileName,
-                    input.htmlFile
-                );
+                await this.storageRepository.upload(bucket, htmlFileName, input.htmlFile);
                 htmlPath = `/${bucket.toLowerCase()}/${htmlFileName}`;
             }
 
             if (input.pdfFile) {
                 const pdfFileName = `${formattedId}.pdf`;
-                await this.storageRepository.upload(
-                    bucket,
-                    pdfFileName,
-                    input.pdfFile
-                );
+                await this.storageRepository.upload(bucket, pdfFileName, input.pdfFile);
                 pdfPath = `/${bucket.toLowerCase()}/${pdfFileName}`;
             }
 
@@ -93,9 +84,7 @@ export class CreateContentWithUploadUseCase {
             // ROLLBACK: Se upload falhar, deletar registro do banco
             console.error("Upload failed, rolling back:", uploadError);
             await this.contentRepository.delete(input.type, contentId);
-            throw new Error(
-                `Falha no upload. Operação revertida: ${uploadError}`
-            );
+            throw new Error(`Falha no upload. Operação revertida: ${uploadError}`);
         }
     }
 }
