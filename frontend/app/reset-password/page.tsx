@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
-import { supabase } from "@/infrastructure/config/supabase";
+import { usePasswordRecovery } from "@/hooks/usePasswordRecovery";
 import { isValidPassword } from "@/lib/validators";
 import { AlertCircle, ArrowLeft, Check, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -15,8 +15,9 @@ import { Suspense, useEffect, useState } from "react";
 function ResetPasswordPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { user, resetPasswordWithToken, isLoading, error: authError, clearError } = useAuth();
+    const { user } = useAuth();
     const { openModal: openForgotPasswordModal } = useForgotPasswordModal();
+    const { recoveryStatus, recoveryError, isLoading, resetPassword } = usePasswordRecovery();
 
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,23 +25,6 @@ function ResetPasswordPageContent() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<{ newPassword?: string; confirmPassword?: string }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [isFormReady, setIsFormReady] = useState(false);
-
-    // Listener para PASSWORD_RECOVERY event com cleanup obrigatório
-    useEffect(() => {
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(event => {
-            if (event === "PASSWORD_RECOVERY") {
-                console.log("🔐 ResetPasswordPage: PASSWORD_RECOVERY detectado");
-                setIsFormReady(true);
-            }
-        });
-        // CRITICAL: Cleanup para evitar listeners duplicados
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, []);
 
     // Verifica se há token e redireciona usuários deslogados para o modal
     useEffect(() => {
@@ -92,8 +76,8 @@ function ResetPasswordPageContent() {
             return;
         }
 
-        try {
-            await resetPasswordWithToken(newPassword, confirmPassword);
+        const success = await resetPassword(newPassword, confirmPassword);
+        if (success) {
             setSuccessMessage("Senha redefinida com sucesso! Redirecionando...");
             setNewPassword("");
             setConfirmPassword("");
@@ -102,8 +86,6 @@ function ResetPasswordPageContent() {
             setTimeout(() => {
                 router.push(user ? "/user" : "/");
             }, 2000);
-        } catch (err) {
-            console.error("Erro ao redefinir senha:", err);
         }
     };
 
@@ -132,32 +114,32 @@ function ResetPasswordPageContent() {
                         {/* Success Message */}
                         {successMessage && (
                             <div className="mb-4 p-4 rounded-lg bg-green-500/20 border border-green-500/30 flex items-start gap-3">
-                                <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                                <Check className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                                 <p className="text-sm text-green-100">{successMessage}</p>
                             </div>
                         )}
 
                         {/* Error Message */}
-                        {authError && (
+                        {recoveryError && (
                             <div className="mb-4 p-4 rounded-lg bg-red-500/20 border border-red-500/30 flex items-start gap-3">
-                                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                                <p className="text-sm text-red-100">{authError}</p>
+                                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                                <p className="text-sm text-red-100">{recoveryError}</p>
                             </div>
                         )}
 
                         {/* Form */}
                         {!successMessage && (
                             <>
-                                {/* Loading state while waiting for PASSWORD_RECOVERY event */}
-                                {!isFormReady && (
+                                {/* Loading state while waiting for recovery token */}
+                                {recoveryStatus === "loading" && (
                                     <div className="flex flex-col items-center justify-center py-8 space-y-4">
                                         <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
                                         <p className="text-white/70 text-sm">Preparando formulário...</p>
                                     </div>
                                 )}
 
-                                {/* Form appears only after isFormReady=true */}
-                                {isFormReady && (
+                                {/* Form appears only after token is ready */}
+                                {recoveryStatus === "ready" && (
                                     <form onSubmit={handleSubmit} className="space-y-4">
                                         <div>
                                             <label
@@ -175,7 +157,6 @@ function ResetPasswordPageContent() {
                                                         setNewPassword(e.target.value);
                                                         if (errors.newPassword)
                                                             setErrors(prev => ({ ...prev, newPassword: undefined }));
-                                                        clearError();
                                                     }}
                                                     placeholder="Mínimo 6 caracteres"
                                                     className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
@@ -221,7 +202,6 @@ function ResetPasswordPageContent() {
                                                                 ...prev,
                                                                 confirmPassword: undefined,
                                                             }));
-                                                        clearError();
                                                     }}
                                                     placeholder="Repita a senha"
                                                     className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
@@ -251,7 +231,7 @@ function ResetPasswordPageContent() {
                                         <button
                                             type="submit"
                                             disabled={isLoading}
-                                            className="w-full py-3 bg-gradient-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                         >
                                             {isLoading ? (
                                                 <>
