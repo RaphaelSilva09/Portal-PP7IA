@@ -382,23 +382,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                 {errors.senha && <p className="text-xs text-red-500">{errors.senha}</p>}
                             </div>
 
-                            {/* Link Esqueceu Senha - Apenas no modo Login */}
-                            {mode === "login" && (
-                                <div className="flex justify-end -mt-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            onClose();
-                                            openForgotPasswordModal("request", formData.email);
-                                        }}
-                                        className="text-xs text-brand-blue hover:text-blue-400 transition-colors"
-                                    >
-                                        Esqueceu sua senha?
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Checkboxes de Consentimento - Apenas no modo Cadastro */}
                             {!isLoginMode && (
                                 <div className="space-y-2 pt-1 animate-fade-in">
                                     <div className="space-y-2">
@@ -484,6 +467,22 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                         {toggleButtonText}
                                     </button>
                                 </p>
+                                
+                                {/* Link Esqueceu Senha - Apenas no modo Login */}
+                                {mode === "login" && (
+                                    <p className="text-xs text-text-secondary mt-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                onClose();
+                                                openForgotPasswordModal("request", formData.email);
+                                            }}
+                                            className="text-brand-blue hover:text-blue-400 transition-colors"
+                                        >
+                                            Esqueceu sua senha?
+                                        </button>
+                                    </p>
+                                )}
                             </div>
                         </form>
                     </div>

@@ -6,7 +6,7 @@ import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import AuthModal from "./AuthModal";
 import FirstVisitModal from "./FirstVisitModal";
 import ForgotPasswordModal from "./ForgotPasswordModal";
@@ -47,20 +47,43 @@ export default function ModalsProvider() {
         mode: forgotPasswordMode,
         openModal: openForgotPasswordModal,
     } = useForgotPasswordModal();
+    
+    // Ref para evitar processar os mesmos params múltiplas vezes
+    const processedParams = useRef<Set<string>>(new Set());
 
     useEffect(() => {
         const authModalParam = searchParams.get("authModal");
         const resetTokenParam = searchParams.get("resetToken");
+        const accessToken = searchParams.get("access_token");
+        const type = searchParams.get("type");
+        
+        // Cria uma chave única para os params atuais
+        const paramsKey = `${authModalParam}-${resetTokenParam}-${accessToken}-${type}`;
+        
+        // Se já processamos esses params, não processa novamente
+        if (processedParams.current.has(paramsKey)) {
+            return;
+        }
 
         if (authModalParam === "login") {
             openAuthModal({}, "login");
             router.replace("/", { scroll: false });
+            processedParams.current.add(paramsKey);
         }
 
-        if (resetTokenParam) {
+        // Só abre modal de reset se o tipo for recovery (não confirmation)
+        if (resetTokenParam && type !== "email_change") {
             openForgotPasswordModal("reset");
             router.replace("/", { scroll: false });
+            processedParams.current.add(paramsKey);
         }
+        
+        // Limpa params processados após um tempo para permitir novas ações
+        const timeout = setTimeout(() => {
+            processedParams.current.clear();
+        }, 5000);
+        
+        return () => clearTimeout(timeout);
     }, [searchParams, openAuthModal, openForgotPasswordModal, router]);
 
     return (
