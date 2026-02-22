@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Eye, EyeOff, Check, AlertCircle, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
 import { isValidPassword } from "@/lib/validators";
+import { AlertCircle, ArrowLeft, Check, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 /**
  * Reset Password Page Content
@@ -29,7 +29,7 @@ function ResetPasswordPageContent() {
         const resetToken = searchParams.get("resetToken");
         const accessToken = searchParams.get("access_token");
         const refreshToken = searchParams.get("refresh_token");
-        
+
         // Se há token mas usuário não está logado, redireciona para modal
         if ((resetToken || accessToken || refreshToken) && !user) {
             router.push("/?resetToken=true");
@@ -251,13 +251,14 @@ function ResetPasswordPageContent() {
  */
 export default function ResetPasswordPage() {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 flex items-center justify-center">
-                <div className="text-white">Carregando...</div>
-            </div>
-        }>
+        <Suspense
+            fallback={
+                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 flex items-center justify-center">
+                    <div className="text-white">Carregando...</div>
+                </div>
+            }
+        >
             <ResetPasswordPageContent />
         </Suspense>
     );
 }
-

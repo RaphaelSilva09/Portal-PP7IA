@@ -1,14 +1,14 @@
-import type { Metadata, Viewport } from "next";
-import { Suspense } from "react";
-import { Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { SearchModalProvider } from "@/context/SearchModalContext";
-import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
-import { AuthModalProvider } from "@/context/AuthModalContext";
-import { InviteModalProvider } from "@/context/InviteModalContext";
-import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
-import { AuthProvider } from "@/context/AuthContext";
 import ModalsProvider from "@/components/ModalsProvider";
+import { AuthProvider } from "@/context/AuthContext";
+import { AuthModalProvider } from "@/context/AuthModalContext";
+import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
+import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
+import { InviteModalProvider } from "@/context/InviteModalContext";
+import { SearchModalProvider } from "@/context/SearchModalContext";
+import { Analytics } from "@vercel/analytics/next";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 
 const inter = Inter({

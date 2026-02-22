@@ -18,15 +18,14 @@ import { GetAllUsersUseCase } from "../../application/usecases/GetAllUsersUseCas
 import { GetBibliotecaUseCase } from "../../application/usecases/GetBibliotecaUseCase";
 import { GetCurrentUserUseCase } from "../../application/usecases/GetCurrentUserUseCase";
 import { GetDashboardStatsUseCase } from "../../application/usecases/GetDashboardStatsUseCase";
-import { GetEspecialSemanaUseCase } from "../../application/usecases/GetEspecialSemanaUseCase";
 import { GetMiniLivrosUseCase } from "../../application/usecases/GetMiniLivrosUseCase";
 import { GetNewslettersUseCase } from "../../application/usecases/GetNewslettersUseCase";
 import { PromoteUserToAdminUseCase } from "../../application/usecases/PromoteUserToAdminUseCase";
+import { ResetPasswordWithTokenUseCase } from "../../application/usecases/ResetPasswordWithTokenUseCase";
+import { SendPasswordResetUseCase } from "../../application/usecases/SendPasswordResetUseCase";
 import { SignInUseCase } from "../../application/usecases/SignInUseCase";
 import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
-import { SendPasswordResetUseCase } from "../../application/usecases/SendPasswordResetUseCase";
-import { ResetPasswordWithTokenUseCase } from "../../application/usecases/ResetPasswordWithTokenUseCase";
 import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
 import { supabase } from "../config/supabase";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";

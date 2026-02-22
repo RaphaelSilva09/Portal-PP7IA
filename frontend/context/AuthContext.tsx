@@ -282,24 +282,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     /**
      * Redefine a senha usando token de recuperação
      */
-    const resetPasswordWithToken = useCallback(async (newPassword: string, confirmPassword: string) => {
-        setIsLoading(true);
-        setError(null);
+    const resetPasswordWithToken = useCallback(
+        async (newPassword: string, confirmPassword: string) => {
+            setIsLoading(true);
+            setError(null);
 
-        try {
-            const useCase = DIContainer.getResetPasswordWithTokenUseCase();
-            await useCase.execute({ newPassword, confirmPassword });
-            // Recarrega o usuário após reset
-            await getCurrentUser();
-        } catch (err) {
-            const errorMessage =
-                err instanceof AuthError ? err.message : "Erro ao redefinir senha. Tente novamente.";
-            setError(errorMessage);
-            throw err;
-        } finally {
-            setIsLoading(false);
-        }
-    }, [getCurrentUser]);
+            try {
+                const useCase = DIContainer.getResetPasswordWithTokenUseCase();
+                await useCase.execute({ newPassword, confirmPassword });
+                // Recarrega o usuário após reset
+                await getCurrentUser();
+            } catch (err) {
+                const errorMessage =
+                    err instanceof AuthError ? err.message : "Erro ao redefinir senha. Tente novamente.";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [getCurrentUser],
+    );
 
     const clearError = useCallback(() => {
         setError(null);

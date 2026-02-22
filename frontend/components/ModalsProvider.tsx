@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import SearchModal from "./SearchModal";
-import FirstVisitModal from "./FirstVisitModal";
-import AuthModal from "./AuthModal";
-import InviteModal from "./InviteModal";
-import ForgotPasswordModal from "./ForgotPasswordModal";
-import Portal from "./Portal";
-import { useSearchModal } from "@/context/SearchModalContext";
-import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
 import { useAuthModal } from "@/context/AuthModalContext";
-import { useInviteModal } from "@/context/InviteModalContext";
+import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
 import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
+import { useInviteModal } from "@/context/InviteModalContext";
+import { useSearchModal } from "@/context/SearchModalContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import AuthModal from "./AuthModal";
+import FirstVisitModal from "./FirstVisitModal";
+import ForgotPasswordModal from "./ForgotPasswordModal";
+import InviteModal from "./InviteModal";
+import Portal from "./Portal";
+import SearchModal from "./SearchModal";
 
 /**
  * ModalsProvider Component
@@ -34,19 +34,29 @@ export default function ModalsProvider() {
     const router = useRouter();
     const { isOpen: isSearchOpen, closeModal: closeSearchModal } = useSearchModal();
     const { isOpen: isFirstVisitOpen, closeModal: closeFirstVisitModal } = useFirstVisitModal();
-    const { isOpen: isAuthOpen, initialData, initialMode, openModal: openAuthModal, closeModal: closeAuthModal } = useAuthModal();
+    const {
+        isOpen: isAuthOpen,
+        initialData,
+        initialMode,
+        openModal: openAuthModal,
+        closeModal: closeAuthModal,
+    } = useAuthModal();
     const { isOpen: isInviteOpen, closeModal: closeInviteModal } = useInviteModal();
-    const { isOpen: isForgotPasswordOpen, mode: forgotPasswordMode, openModal: openForgotPasswordModal } = useForgotPasswordModal();
+    const {
+        isOpen: isForgotPasswordOpen,
+        mode: forgotPasswordMode,
+        openModal: openForgotPasswordModal,
+    } = useForgotPasswordModal();
 
     useEffect(() => {
         const authModalParam = searchParams.get("authModal");
         const resetTokenParam = searchParams.get("resetToken");
-        
+
         if (authModalParam === "login") {
             openAuthModal({}, "login");
             router.replace("/", { scroll: false });
         }
-        
+
         if (resetTokenParam) {
             openForgotPasswordModal("reset");
             router.replace("/", { scroll: false });
