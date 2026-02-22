@@ -99,13 +99,8 @@ export default function UserPage() {
         }
 
         try {
-            // Timeout de segurança: força conclusão após 8 segundos
-            const updatePromise = updatePassword(passwordData.currentPassword, passwordData.newPassword);
-            const timeoutPromise = new Promise<void>((_, reject) =>
-                setTimeout(() => reject(new Error("timeout")), 8000),
-            );
-
-            await Promise.race([updatePromise, timeoutPromise]);
+            // Supabase updateUser sempre retorna sucesso (200) se não houver error
+            await updatePassword(passwordData.currentPassword, passwordData.newPassword);
 
             // Sucesso - senha alterada e email de confirmação enviado
             setPasswordSuccess(true);
@@ -121,14 +116,8 @@ export default function UserPage() {
             if (err instanceof Error) {
                 const errorMessage = err.message;
 
-                // Timeout - provavelmente funcionou mas demorou
-                if (errorMessage === "timeout") {
-                    setPasswordError(
-                        "A operação demorou muito. Verifique seu email - se recebeu confirmação, a senha foi alterada.",
-                    );
-                }
                 // Mensagens mais claras baseadas no erro
-                else if (errorMessage.includes("credenciais") || errorMessage.includes("senha incorreta")) {
+                if (errorMessage.includes("credenciais") || errorMessage.includes("senha incorreta")) {
                     setPasswordError("Senha atual incorreta. Verifique e tente novamente.");
                 } else if (errorMessage.includes("network") || errorMessage.includes("rede")) {
                     setPasswordError("Erro de conexão. Verifique sua internet e tente novamente.");
