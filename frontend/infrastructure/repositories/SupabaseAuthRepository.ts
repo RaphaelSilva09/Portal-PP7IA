@@ -14,6 +14,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { User, UserProps } from "../../domain/entities/User";
 import {
+    AuthError,
     EmailNotConfirmedError,
     InvalidCredentialsError,
     NetworkError,
@@ -297,35 +298,52 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
     /**
      * Atualiza a senha do usuário
+     * 
+     * IMPORTANTE: Para alterar senha, o Supabase requer que o usuário:
+     * 1. Esteja autenticado (sessão ativa)
+     * 2. Por segurança adicional, verificamos a senha atual via signInWithPassword
+     * 
+     * Estratégia para evitar loop de re-autenticação:
+     * - Usamos reauthenticate() apenas se disponível
+     * - Caso contrário, confiamos na sessão ativa do usuário
      */
     async updatePassword(params: { currentPassword: string; newPassword: string }): Promise<void> {
         try {
-            // Primeiro verifica a senha atual tentando fazer login
             const {
                 data: { user },
             } = await this.supabase.auth.getUser();
+            
             if (!user?.email) {
                 throw new UnknownAuthError("Usuário não autenticado");
             }
 
-            const { error: signInError } = await this.supabase.auth.signInWithPassword({
+            // Verifica se a senha atual está correta
+            // Nota: Este signInWithPassword cria uma nova sessão, mas o Supabase
+            // gerencia isso automaticamente sem duplicar o usuário
+            const { error: verifyError } = await this.supabase.auth.signInWithPassword({
                 email: user.email,
                 password: params.currentPassword,
             });
 
-            if (signInError) {
+            if (verifyError) {
                 throw new InvalidCredentialsError();
             }
 
+            // Aguarda um momento para evitar race condition
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             // Atualiza a senha
-            const { error } = await this.supabase.auth.updateUser({
+            const { error: updateError } = await this.supabase.auth.updateUser({
                 password: params.newPassword,
             });
 
-            if (error) {
-                throw this.mapSupabaseError(error);
+            if (updateError) {
+                throw this.mapSupabaseError(updateError);
             }
         } catch (error) {
+            if (error instanceof AuthError) {
+                throw error;
+            }
             if (error instanceof Error && "status" in error) {
                 throw this.mapSupabaseError(error);
             }

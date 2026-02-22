@@ -86,6 +86,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
+            // Ignora eventos de re-autenticação (como ao verificar senha)
+            // quando já há um usuário logado
+            if (event === "SIGNED_IN" && user) {
+                return;
+            }
+
             if (session?.user) {
                 try {
                     const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
@@ -101,7 +107,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [user]);
 
     /**
      * Cadastra novo usuário

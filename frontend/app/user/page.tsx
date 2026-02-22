@@ -59,38 +59,73 @@ export default function UserPage() {
 
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsChangingPassword(true);
         setPasswordError(null);
         setPasswordSuccess(false);
+        setIsChangingPassword(true);
 
-        // Validações
+        // Validação: Senha atual preenchida
+        if (!passwordData.currentPassword.trim()) {
+            setPasswordError("Digite sua senha atual.");
+            setIsChangingPassword(false);
+            return;
+        }
+
+        // Validação: Nova senha preenchida
+        if (!passwordData.newPassword.trim()) {
+            setPasswordError("Digite a nova senha.");
+            setIsChangingPassword(false);
+            return;
+        }
+
+        // Validação: Comprimento mínimo
         if (passwordData.newPassword.length < 6) {
             setPasswordError("A nova senha deve ter pelo menos 6 caracteres.");
             setIsChangingPassword(false);
             return;
         }
 
+        // Validação: Senhas coincidem
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            setPasswordError("As senhas não coincidem.");
+            setPasswordError("A nova senha e a confirmação não coincidem.");
+            setIsChangingPassword(false);
+            return;
+        }
+
+        // Validação: Senha diferente da atual
+        if (passwordData.currentPassword === passwordData.newPassword) {
+            setPasswordError("A nova senha deve ser diferente da senha atual.");
             setIsChangingPassword(false);
             return;
         }
 
         try {
             await updatePassword(passwordData.currentPassword, passwordData.newPassword);
+            
+            // Sucesso
             setPasswordSuccess(true);
             setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+            
+            // Aguarda 3 segundos antes de fechar o formulário
             setTimeout(() => {
                 setShowPasswordForm(false);
                 setPasswordSuccess(false);
-            }, 2000);
+            }, 3000);
         } catch (err: unknown) {
+            // Tratamento de erros específicos
             if (err instanceof Error) {
-                setPasswordError(err.message);
+                const errorMessage = err.message;
+                
+                // Mensagens mais claras baseadas no erro
+                if (errorMessage.includes("credenciais") || errorMessage.includes("senha incorreta")) {
+                    setPasswordError("Senha atual incorreta. Verifique e tente novamente.");
+                } else if (errorMessage.includes("network") || errorMessage.includes("rede")) {
+                    setPasswordError("Erro de conexão. Verifique sua internet e tente novamente.");
+                } else {
+                    setPasswordError(errorMessage);
+                }
             } else {
-                setPasswordError("Erro ao alterar senha. Verifique sua senha atual.");
+                setPasswordError("Erro ao alterar senha. Tente novamente mais tarde.");
             }
-            setIsChangingPassword(false);
         } finally {
             setIsChangingPassword(false);
         }
@@ -212,7 +247,10 @@ export default function UserPage() {
 
                                 {/* Senha Atual */}
                                 <div className="space-y-2">
-                                    <label htmlFor="currentPassword" className="block text-sm font-medium text-text-secondary">
+                                    <label
+                                        htmlFor="currentPassword"
+                                        className="block text-sm font-medium text-text-secondary"
+                                    >
                                         Senha Atual
                                     </label>
                                     <div className="relative">
@@ -220,7 +258,9 @@ export default function UserPage() {
                                             id="currentPassword"
                                             type={showPasswords.current ? "text" : "password"}
                                             value={passwordData.currentPassword}
-                                            onChange={e => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                                            onChange={e =>
+                                                setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))
+                                            }
                                             placeholder="Digite sua senha atual"
                                             required
                                             className="w-full px-4 pr-10 py-3 bg-white/5 border border-border-glass rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all"
@@ -231,14 +271,21 @@ export default function UserPage() {
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white transition-colors"
                                             aria-label={showPasswords.current ? "Ocultar senha" : "Mostrar senha"}
                                         >
-                                            {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            {showPasswords.current ? (
+                                                <EyeOff className="w-4 h-4" />
+                                            ) : (
+                                                <Eye className="w-4 h-4" />
+                                            )}
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Nova Senha */}
                                 <div className="space-y-2">
-                                    <label htmlFor="newPassword" className="block text-sm font-medium text-text-secondary">
+                                    <label
+                                        htmlFor="newPassword"
+                                        className="block text-sm font-medium text-text-secondary"
+                                    >
                                         Nova Senha
                                     </label>
                                     <div className="relative">
@@ -246,11 +293,19 @@ export default function UserPage() {
                                             id="newPassword"
                                             type={showPasswords.new ? "text" : "password"}
                                             value={passwordData.newPassword}
-                                            onChange={e => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                                            onChange={e =>
+                                                setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))
+                                            }
                                             placeholder="Mínimo 6 caracteres"
                                             required
                                             minLength={6}
-                                            className="w-full px-4 pr-10 py-3 bg-white/5 border border-border-glass rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all"
+                                            className={`w-full px-4 pr-10 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none transition-all ${
+                                                passwordData.newPassword.length > 0 && passwordData.newPassword.length < 6
+                                                    ? "border-yellow-500/50 focus:border-yellow-500"
+                                                    : passwordData.newPassword.length >= 6
+                                                      ? "border-green-500/50 focus:border-green-500"
+                                                      : "border-border-glass focus:border-brand-blue"
+                                            } focus:bg-white/[0.07]`}
                                         />
                                         <button
                                             type="button"
@@ -258,14 +313,29 @@ export default function UserPage() {
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white transition-colors"
                                             aria-label={showPasswords.new ? "Ocultar senha" : "Mostrar senha"}
                                         >
-                                            {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            {showPasswords.new ? (
+                                                <EyeOff className="w-4 h-4" />
+                                            ) : (
+                                                <Eye className="w-4 h-4" />
+                                            )}
                                         </button>
                                     </div>
+                                    {passwordData.newPassword.length > 0 && passwordData.newPassword.length < 6 && (
+                                        <p className="text-xs text-yellow-500">
+                                            Faltam {6 - passwordData.newPassword.length} caracteres
+                                        </p>
+                                    )}
+                                    {passwordData.newPassword.length >= 6 && (
+                                        <p className="text-xs text-green-500">✓ Senha válida</p>
+                                    )}
                                 </div>
 
                                 {/* Confirmar Nova Senha */}
                                 <div className="space-y-2">
-                                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-secondary">
+                                    <label
+                                        htmlFor="confirmPassword"
+                                        className="block text-sm font-medium text-text-secondary"
+                                    >
                                         Confirmar Nova Senha
                                     </label>
                                     <div className="relative">
@@ -273,11 +343,22 @@ export default function UserPage() {
                                             id="confirmPassword"
                                             type={showPasswords.confirm ? "text" : "password"}
                                             value={passwordData.confirmPassword}
-                                            onChange={e => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                                            onChange={e =>
+                                                setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))
+                                            }
                                             placeholder="Digite a senha novamente"
                                             required
                                             minLength={6}
-                                            className="w-full px-4 pr-10 py-3 bg-white/5 border border-border-glass rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all"
+                                            className={`w-full px-4 pr-10 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none transition-all ${
+                                                passwordData.confirmPassword.length > 0 &&
+                                                passwordData.confirmPassword !== passwordData.newPassword
+                                                    ? "border-red-500/50 focus:border-red-500"
+                                                    : passwordData.confirmPassword.length > 0 &&
+                                                        passwordData.confirmPassword === passwordData.newPassword &&
+                                                        passwordData.newPassword.length >= 6
+                                                      ? "border-green-500/50 focus:border-green-500"
+                                                      : "border-border-glass focus:border-brand-blue"
+                                            } focus:bg-white/[0.07]`}
                                         />
                                         <button
                                             type="button"
@@ -285,9 +366,22 @@ export default function UserPage() {
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white transition-colors"
                                             aria-label={showPasswords.confirm ? "Ocultar senha" : "Mostrar senha"}
                                         >
-                                            {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            {showPasswords.confirm ? (
+                                                <EyeOff className="w-4 h-4" />
+                                            ) : (
+                                                <Eye className="w-4 h-4" />
+                                            )}
                                         </button>
                                     </div>
+                                    {passwordData.confirmPassword.length > 0 &&
+                                        passwordData.confirmPassword !== passwordData.newPassword && (
+                                            <p className="text-xs text-red-500">✗ As senhas não coincidem</p>
+                                        )}
+                                    {passwordData.confirmPassword.length > 0 &&
+                                        passwordData.confirmPassword === passwordData.newPassword &&
+                                        passwordData.newPassword.length >= 6 && (
+                                            <p className="text-xs text-green-500">✓ As senhas coincidem</p>
+                                        )}
                                 </div>
 
                                 {/* Botões de Ação */}
@@ -297,18 +391,36 @@ export default function UserPage() {
                                         onClick={() => {
                                             setShowPasswordForm(false);
                                             setPasswordError(null);
-                                            setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                                            setPasswordSuccess(false);
+                                            setPasswordData({
+                                                currentPassword: "",
+                                                newPassword: "",
+                                                confirmPassword: "",
+                                            });
                                         }}
-                                        className="cursor-pointer flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all"
+                                        disabled={isChangingPassword}
+                                        className="cursor-pointer flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         Cancelar
                                     </button>
                                     <button
                                         type="submit"
-                                        disabled={isChangingPassword}
-                                        className="cursor-pointer flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled={isChangingPassword || passwordSuccess}
+                                        className="cursor-pointer flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
-                                        {isChangingPassword ? "Alterando..." : "Salvar Nova Senha"}
+                                        {isChangingPassword ? (
+                                            <>
+                                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                <span>Alterando Senha...</span>
+                                            </>
+                                        ) : passwordSuccess ? (
+                                            <>
+                                                <Check className="w-4 h-4" />
+                                                <span>Senha Alterada!</span>
+                                            </>
+                                        ) : (
+                                            "Salvar Nova Senha"
+                                        )}
                                     </button>
                                 </div>
                             </form>
@@ -356,9 +468,7 @@ export default function UserPage() {
                             </button>
                         ) : (
                             <div className="space-y-3">
-                                <p className="text-sm text-white font-medium">
-                                    Tem certeza? Esta ação é irreversível.
-                                </p>
+                                <p className="text-sm text-white font-medium">Tem certeza? Esta ação é irreversível.</p>
                                 <div className="flex gap-3">
                                     <button
                                         onClick={() => setShowDeleteConfirm(false)}
