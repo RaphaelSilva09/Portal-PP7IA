@@ -159,107 +159,113 @@ function ResetPasswordPageContent() {
                                 {/* Form appears only after isFormReady=true */}
                                 {isFormReady && (
                                     <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label htmlFor="newPassword" className="block text-sm font-medium text-white mb-2">
-                                        Nova Senha
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            id="newPassword"
-                                            type={showPassword ? "text" : "password"}
-                                            value={newPassword}
-                                            onChange={e => {
-                                                setNewPassword(e.target.value);
-                                                if (errors.newPassword)
-                                                    setErrors(prev => ({ ...prev, newPassword: undefined }));
-                                                clearError();
-                                            }}
-                                            placeholder="Mínimo 6 caracteres"
-                                            className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
-                                                errors.newPassword ? "border-red-500/50" : "border-white/20"
-                                            } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
-                                            disabled={isLoading}
-                                            autoComplete="new-password"
-                                        />
+                                        <div>
+                                            <label
+                                                htmlFor="newPassword"
+                                                className="block text-sm font-medium text-white mb-2"
+                                            >
+                                                Nova Senha
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    id="newPassword"
+                                                    type={showPassword ? "text" : "password"}
+                                                    value={newPassword}
+                                                    onChange={e => {
+                                                        setNewPassword(e.target.value);
+                                                        if (errors.newPassword)
+                                                            setErrors(prev => ({ ...prev, newPassword: undefined }));
+                                                        clearError();
+                                                    }}
+                                                    placeholder="Mínimo 6 caracteres"
+                                                    className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
+                                                        errors.newPassword ? "border-red-500/50" : "border-white/20"
+                                                    } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
+                                                    disabled={isLoading}
+                                                    autoComplete="new-password"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                                                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="w-5 h-5" />
+                                                    ) : (
+                                                        <Eye className="w-5 h-5" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                            {errors.newPassword && (
+                                                <p className="mt-1 text-xs text-red-400">{errors.newPassword}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                htmlFor="confirmPassword"
+                                                className="block text-sm font-medium text-white mb-2"
+                                            >
+                                                Confirmar Nova Senha
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    id="confirmPassword"
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    value={confirmPassword}
+                                                    onChange={e => {
+                                                        setConfirmPassword(e.target.value);
+                                                        if (errors.confirmPassword)
+                                                            setErrors(prev => ({
+                                                                ...prev,
+                                                                confirmPassword: undefined,
+                                                            }));
+                                                        clearError();
+                                                    }}
+                                                    placeholder="Repita a senha"
+                                                    className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
+                                                        errors.confirmPassword ? "border-red-500/50" : "border-white/20"
+                                                    } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
+                                                    disabled={isLoading}
+                                                    autoComplete="new-password"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                                                    aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="w-5 h-5" />
+                                                    ) : (
+                                                        <Eye className="w-5 h-5" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                            {errors.confirmPassword && (
+                                                <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>
+                                            )}
+                                        </div>
+
                                         <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
-                                            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                                            type="submit"
+                                            disabled={isLoading}
+                                            className="w-full py-3 bg-gradient-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                         >
-                                            {showPassword ? (
-                                                <EyeOff className="w-5 h-5" />
+                                            {isLoading ? (
+                                                <>
+                                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    <span>Redefinindo...</span>
+                                                </>
                                             ) : (
-                                                <Eye className="w-5 h-5" />
+                                                <>
+                                                    <Check className="w-5 h-5" />
+                                                    <span>Redefinir Senha</span>
+                                                </>
                                             )}
                                         </button>
-                                    </div>
-                                    {errors.newPassword && (
-                                        <p className="mt-1 text-xs text-red-400">{errors.newPassword}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label
-                                        htmlFor="confirmPassword"
-                                        className="block text-sm font-medium text-white mb-2"
-                                    >
-                                        Confirmar Nova Senha
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            id="confirmPassword"
-                                            type={showConfirmPassword ? "text" : "password"}
-                                            value={confirmPassword}
-                                            onChange={e => {
-                                                setConfirmPassword(e.target.value);
-                                                if (errors.confirmPassword)
-                                                    setErrors(prev => ({ ...prev, confirmPassword: undefined }));
-                                                clearError();
-                                            }}
-                                            placeholder="Repita a senha"
-                                            className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
-                                                errors.confirmPassword ? "border-red-500/50" : "border-white/20"
-                                            } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
-                                            disabled={isLoading}
-                                            autoComplete="new-password"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
-                                            aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
-                                        >
-                                            {showConfirmPassword ? (
-                                                <EyeOff className="w-5 h-5" />
-                                            ) : (
-                                                <Eye className="w-5 h-5" />
-                                            )}
-                                        </button>
-                                    </div>
-                                    {errors.confirmPassword && (
-                                        <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>
-                                    )}
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full py-3 bg-gradient-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            <span>Redefinindo...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Check className="w-5 h-5" />
-                                            <span>Redefinir Senha</span>
-                                        </>
-                                    )}
-                                </button>
-                            </form>
+                                    </form>
                                 )}
                             </>
                         )}
