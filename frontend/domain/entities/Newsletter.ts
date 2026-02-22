@@ -17,6 +17,7 @@ export interface NewsletterProps {
     title: string;
     htmlPath: string | null;
     pdfPath: string | null;
+    readTime: number;
 }
 
 export class Newsletter {
@@ -50,6 +51,10 @@ export class Newsletter {
 
     get pdfPath(): string | null {
         return this.props.pdfPath?.trim() || null;
+    }
+
+    get readTime(): number {
+        return this.props.readTime ?? 5;
     }
 
     get createdAt(): Date {

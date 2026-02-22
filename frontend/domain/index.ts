@@ -9,6 +9,21 @@
 export { User } from "./entities/User";
 export type { UserProps } from "./entities/User";
 
+export { Newsletter } from "./entities/Newsletter";
+export type { NewsletterProps } from "./entities/Newsletter";
+
+export { MiniLivro } from "./entities/MiniLivro";
+export type { MiniLivroProps } from "./entities/MiniLivro";
+
+export { BibliotecaItem } from "./entities/BibliotecaItem";
+export type { BibliotecaItemProps } from "./entities/BibliotecaItem";
+
+export { EspecialSemana } from "./entities/EspecialSemana";
+export type { EspecialSemanaProps } from "./entities/EspecialSemana";
+
+export { ContentItem } from "./entities/ContentItem";
+export type { ContentItemProps, ContentType } from "./entities/ContentItem";
+
 // Errors
 export {
     AuthError,

@@ -11,7 +11,7 @@
  * - Immutability: Dados protegidos via getters
  */
 
-export type ContentType = "newsletter" | "mini-livro" | "biblioteca";
+export type ContentType = "newsletter" | "mini-livro" | "biblioteca" | "especial-semana";
 
 export interface ContentItemProps {
     id: number;
@@ -19,7 +19,7 @@ export interface ContentItemProps {
     title: string;
     htmlPath: string | null;
     pdfPath: string | null;
-    readTime: number | null;
+    readTime: number;
 }
 
 export class ContentItem {
@@ -49,8 +49,8 @@ export class ContentItem {
         return this.props.pdfPath?.trim() || null;
     }
 
-    get readTime(): number | null {
-        return this.props.readTime;
+    get readTime(): number {
+        return this.props.readTime ?? 5;
     }
 
     get createdAt(): Date {
@@ -86,10 +86,7 @@ export class ContentItem {
     get formattedDate(): string {
         try {
             if (!this.props.createdAt) return "Data indisponível";
-            const date =
-                this.props.createdAt instanceof Date
-                    ? this.props.createdAt
-                    : new Date(this.props.createdAt);
+            const date = this.props.createdAt instanceof Date ? this.props.createdAt : new Date(this.props.createdAt);
             if (isNaN(date.getTime())) return "Data indisponível";
             return date.toLocaleDateString("pt-BR");
         } catch {

@@ -17,6 +17,7 @@ export interface MiniLivroProps {
     title: string;
     htmlPath: string | null;
     pdfPath: string | null;
+    readTime: number;
 }
 
 export class MiniLivro {
@@ -50,6 +51,10 @@ export class MiniLivro {
 
     get pdfPath(): string | null {
         return this.props.pdfPath?.trim() || null;
+    }
+
+    get readTime(): number {
+        return this.props.readTime ?? 5;
     }
 
     get createdAt(): Date {
@@ -86,10 +91,7 @@ export class MiniLivro {
     get formattedDate(): string {
         try {
             if (!this.props.createdAt) return "Data indisponível";
-            const date =
-                this.props.createdAt instanceof Date
-                    ? this.props.createdAt
-                    : new Date(this.props.createdAt);
+            const date = this.props.createdAt instanceof Date ? this.props.createdAt : new Date(this.props.createdAt);
             if (isNaN(date.getTime())) return "Data indisponível";
             return date.toLocaleDateString("pt-BR");
         } catch {
