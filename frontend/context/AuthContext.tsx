@@ -37,6 +37,7 @@ interface AuthContextType {
     isLoading: boolean;
     error: string | null;
     emailConfirmationRequired: boolean;
+    isRecoveryReady: boolean;
     signUp: (params: SignUpParams) => Promise<{ emailConfirmationRequired: boolean }>;
     signIn: (params: SignInParams) => Promise<void>;
     signOut: () => Promise<void>;
@@ -61,6 +62,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(false);
+    const [isRecoveryReady, setIsRecoveryReady] = useState(false);
 
     // Ref para evitar re-subscrições desnecessárias
     const userRef = useRef<User | null>(null);
@@ -141,6 +143,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
+
+            // Detecta fluxo de recuperação de senha
+            if (event === "PASSWORD_RECOVERY") {
+                console.log("🔐 PASSWORD_RECOVERY event detectado");
+                setIsRecoveryReady(true);
+                return;
+            }
 
             // Ignora eventos de re-autenticação ao verificar senha atual
             if (event === "SIGNED_IN" && userRef.current) {
@@ -279,6 +288,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
             const repository = DIContainer.getAuthRepository();
             await repository.updatePassword({ currentPassword, newPassword });
+            // CRITICAL: Reset isRecoveryReady após password update para evitar state leak
+            setIsRecoveryReady(false);
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar senha.";
             setError(errorMessage);
@@ -379,6 +390,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
             const useCase = DIContainer.getResetPasswordWithTokenUseCase();
             await useCase.execute({ newPassword, confirmPassword });
+            // CRITICAL: Reset isRecoveryReady após password reset para evitar state leak
+            setIsRecoveryReady(false);
             // onAuthStateChange vai atualizar o usuário automaticamente após o reset
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao redefinir senha. Tente novamente.";
@@ -400,6 +413,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 isLoading,
                 error,
                 emailConfirmationRequired,
+                isRecoveryReady,
                 signUp,
                 signIn,
                 signOut,

@@ -1,5 +1,6 @@
 "use client";
 
+import { supabase } from "@/infrastructure/config/supabase";
 import { AlertCircle, Check, Eye, EyeOff, Mail, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -30,9 +31,26 @@ export default function ForgotPasswordModal() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<{ email?: string; newPassword?: string; confirmPassword?: string }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [isFormReady, setIsFormReady] = useState(false);
 
     // Hook para travar scroll do body
     useBodyScrollLock(isOpen);
+
+    // Listener para PASSWORD_RECOVERY event com cleanup obrigatório
+    useEffect(() => {
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange(event => {
+            if (event === "PASSWORD_RECOVERY") {
+                console.log("🔐 ForgotPasswordModal: PASSWORD_RECOVERY detectado");
+                setIsFormReady(true);
+            }
+        });
+        // CRITICAL: Cleanup para evitar listeners duplicados
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
 
     // Inicializa email quando modal abre
     useEffect(() => {
@@ -44,9 +62,13 @@ export default function ForgotPasswordModal() {
             setSuccessMessage(null);
             setShowPassword(false);
             setShowConfirmPassword(false);
+            setIsFormReady(mode === "request"); // Request mode sempre pronto, reset mode aguarda evento
             clearError();
+        } else {
+            // Reset isFormReady ao fechar modal para evitar state leak
+            setIsFormReady(false);
         }
-    }, [isOpen, initialEmail, clearError]);
+    }, [isOpen, initialEmail, mode, clearError]);
 
     /**
      * Valida formulário de solicitação
@@ -252,7 +274,18 @@ export default function ForgotPasswordModal() {
 
                         {/* Reset Form */}
                         {mode === "reset" && !successMessage && (
-                            <form onSubmit={handleResetPassword} className="space-y-4">
+                            <>
+                                {/* Loading state while waiting for PASSWORD_RECOVERY event */}
+                                {!isFormReady && (
+                                    <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                                        <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <p className="text-white/70 text-sm">Preparando formulário...</p>
+                                    </div>
+                                )}
+
+                                {/* Form appears only after isFormReady=true */}
+                                {isFormReady && (
+                                    <form onSubmit={handleResetPassword} className="space-y-4">
                                 <div>
                                     <label htmlFor="newPassword" className="block text-sm font-medium text-white mb-2">
                                         Nova Senha
@@ -352,6 +385,8 @@ export default function ForgotPasswordModal() {
                                     )}
                                 </button>
                             </form>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

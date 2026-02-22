@@ -257,13 +257,22 @@ export class SupabaseAuthRepository implements IAuthRepository {
      */
     async resetPasswordWithToken(newPassword: string): Promise<void> {
         try {
-            const { error } = await this.supabase.auth.updateUser({
+            console.log("🔗 resetPasswordWithToken chamado");
+            const { data, error } = await this.supabase.auth.updateUser({
                 password: newPassword,
             });
 
             if (error) {
                 throw this.mapSupabaseError(error);
             }
+
+            // Valida que o usuário foi atualizado com sucesso
+            if (!data.user) {
+                console.error("⚠️ updateUser retornou sem data.user");
+                throw new UnknownAuthError("Falha ao atualizar senha");
+            }
+
+            console.log("✅ resetPasswordWithToken concluído com sucesso");
         } catch (error) {
             if (error instanceof Error && "status" in error) {
                 throw this.mapSupabaseError(error);
@@ -316,6 +325,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
      */
     async updatePassword(params: { currentPassword: string; newPassword: string }): Promise<void> {
         try {
+            console.log("🔐 updatePassword chamado");
             const {
                 data: { user },
             } = await this.supabase.auth.getUser();
@@ -339,13 +349,21 @@ export class SupabaseAuthRepository implements IAuthRepository {
             // Atualiza a senha
             // Nota: Com "Secure password change" desabilitado, a senha muda imediatamente
             // e um email de confirmação é enviado ao usuário.
-            const { error: updateError } = await this.supabase.auth.updateUser({
+            const { data, error: updateError } = await this.supabase.auth.updateUser({
                 password: params.newPassword,
             });
 
             if (updateError) {
                 throw this.mapSupabaseError(updateError);
             }
+
+            // Valida que o usuário foi atualizado com sucesso
+            if (!data.user) {
+                console.error("⚠️ updateUser retornou sem data.user");
+                throw new UnknownAuthError("Falha ao atualizar senha");
+            }
+
+            console.log("✅ updatePassword concluído com sucesso");
         } catch (error) {
             if (error instanceof AuthError) {
                 throw error;
