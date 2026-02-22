@@ -27,6 +27,7 @@ import { SignInUseCase } from "../../application/usecases/SignInUseCase";
 import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
 import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
+import { VerifyPasswordResetOTPUseCase } from "../../application/usecases/VerifyPasswordResetOTPUseCase";
 import { supabase } from "../config/supabase";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
 import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
@@ -230,6 +231,10 @@ class DIContainer {
 
     static getSendPasswordResetUseCase(): SendPasswordResetUseCase {
         return new SendPasswordResetUseCase(this.getAuthRepository());
+    }
+
+    static getVerifyPasswordResetOTPUseCase(): VerifyPasswordResetOTPUseCase {
+        return new VerifyPasswordResetOTPUseCase(this.getAuthRepository());
     }
 
     static getResetPasswordWithTokenUseCase(): ResetPasswordWithTokenUseCase {

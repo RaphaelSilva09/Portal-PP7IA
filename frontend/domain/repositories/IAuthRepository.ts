@@ -81,15 +81,31 @@ export interface IAuthRepository {
     getCurrentUser(): Promise<User | null>;
 
     /**
-     * Envia email de reset de senha
+     * Envia email de reset de senha com código OTP de 6 dígitos
      */
     sendPasswordReset(email: string): Promise<void>;
 
     /**
-     * Redefine a senha usando token de reset
+     * Verifica código OTP de recuperação de senha
+     * @param params Email e token OTP de 6 dígitos
+     * @throws InvalidOTPError se código inválido
+     * @throws OTPExpiredError se código expirado
+     */
+    verifyPasswordResetOTP(params: { email: string; token: string }): Promise<void>;
+
+    /**
+     * Redefine a senha usando sessão OTP ativa
      * @param newPassword Nova senha do usuário
+     * @deprecated Use verifyPasswordResetOTP + resetPasswordWithOTP
      */
     resetPasswordWithToken(newPassword: string): Promise<void>;
+
+    /**
+     * Redefine a senha após verificação OTP bem-sucedida
+     * @param newPassword Nova senha do usuário
+     * @requires Sessão OTP ativa (verifyPasswordResetOTP deve ser chamado antes)
+     */
+    resetPasswordWithOTP(newPassword: string): Promise<void>;
 
     /**
      * Atualiza o email do usuário

@@ -6,21 +6,18 @@ import { createContext, ReactNode, useCallback, useContext, useMemo, useState } 
  * ForgotPasswordModalContext
  *
  * Gerencia o estado global do modal de recuperação de senha.
- * Permite abrir o modal em modo de solicitação ou reset com token.
+ * O fluxo de recuperação (email → OTP → password) é gerenciado
+ * internamente pelo hook usePasswordRecovery.
  *
  * Princípios aplicados:
- * - SRP: Único responsável pelo estado do ForgotPasswordModal
+ * - SRP: Único responsável pelo estado de abertura/fechamento do modal
  * - Clean Architecture: Mantém lógica de UI separada da lógica de negócio
  * - Context Pattern: Evita prop drilling, facilita acesso global
  */
 
-type ForgotPasswordModalMode = "request" | "reset";
-
 interface ForgotPasswordModalContextType {
     isOpen: boolean;
-    mode: ForgotPasswordModalMode;
-    email: string;
-    openModal: (mode?: ForgotPasswordModalMode, email?: string) => void;
+    openModal: () => void;
     closeModal: () => void;
 }
 
@@ -28,25 +25,16 @@ const ForgotPasswordModalContext = createContext<ForgotPasswordModalContextType 
 
 export function ForgotPasswordModalProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
-    const [mode, setMode] = useState<ForgotPasswordModalMode>("request");
-    const [email, setEmail] = useState("");
 
-    const openModal = useCallback((newMode: ForgotPasswordModalMode = "request", initialEmail = "") => {
-        setMode(newMode);
-        setEmail(initialEmail);
+    const openModal = useCallback(() => {
         setIsOpen(true);
     }, []);
 
     const closeModal = useCallback(() => {
         setIsOpen(false);
-        setEmail("");
-        setMode("request");
     }, []);
 
-    const contextValue = useMemo(
-        () => ({ isOpen, mode, email, openModal, closeModal }),
-        [isOpen, mode, email, openModal, closeModal],
-    );
+    const contextValue = useMemo(() => ({ isOpen, openModal, closeModal }), [isOpen, openModal, closeModal]);
 
     return <ForgotPasswordModalContext.Provider value={contextValue}>{children}</ForgotPasswordModalContext.Provider>;
 }

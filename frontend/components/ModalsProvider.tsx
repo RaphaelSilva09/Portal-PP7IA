@@ -2,7 +2,6 @@
 
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
-import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -42,23 +41,17 @@ export default function ModalsProvider() {
         closeModal: closeAuthModal,
     } = useAuthModal();
     const { isOpen: isInviteOpen, closeModal: closeInviteModal } = useInviteModal();
-    const {
-        isOpen: isForgotPasswordOpen,
-        mode: forgotPasswordMode,
-        openModal: openForgotPasswordModal,
-    } = useForgotPasswordModal();
 
     // Ref para evitar processar os mesmos params múltiplas vezes
     const processedParams = useRef<Set<string>>(new Set());
 
     useEffect(() => {
         const authModalParam = searchParams.get("authModal");
-        const resetTokenParam = searchParams.get("resetToken");
         const accessToken = searchParams.get("access_token");
         const type = searchParams.get("type");
 
         // Cria uma chave única para os params atuais
-        const paramsKey = `${authModalParam}-${resetTokenParam}-${accessToken}-${type}`;
+        const paramsKey = `${authModalParam}-${accessToken}-${type}`;
 
         // Se já processamos esses params, não processa novamente
         if (processedParams.current.has(paramsKey)) {
@@ -71,12 +64,9 @@ export default function ModalsProvider() {
             processedParams.current.add(paramsKey);
         }
 
-        // Só abre modal de reset se o tipo for recovery (não confirmation)
-        if (resetTokenParam && type !== "email_change") {
-            openForgotPasswordModal("reset");
-            router.replace("/", { scroll: false });
-            processedParams.current.add(paramsKey);
-        }
+        // LEGACY: Links de reset token antigos não são mais suportados
+        // O fluxo agora é OTP-based (código de 6 dígitos)
+        // Detecção de links antigos é feita em app/reset-password/page.tsx
 
         // Limpa params processados após um tempo para permitir novas ações
         const timeout = setTimeout(() => {
@@ -84,7 +74,7 @@ export default function ModalsProvider() {
         }, 5000);
 
         return () => clearTimeout(timeout);
-    }, [searchParams, openAuthModal, openForgotPasswordModal, router]);
+    }, [searchParams, openAuthModal, router]);
 
     return (
         <Portal>

@@ -236,28 +236,46 @@ export class SupabaseAuthRepository implements IAuthRepository {
     }
 
     /**
-     * Envia email de reset de senha
+     * Envia email de reset de senha com código OTP de 6 dígitos
+     * OTP expira em 1 hora (configurado no Supabase Dashboard)
      */
     async sendPasswordReset(email: string): Promise<void> {
-        const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/?resetToken=true`,
-        });
+        const { error } = await this.supabase.auth.resetPasswordForEmail(email);
         if (error) {
             throw this.mapSupabaseError(error);
         }
     }
 
     /**
-     * Redefine a senha usando token de recuperação
-     * O token deve estar presente na sessão atual (após clicar no link do email)
-     *
-     * Nota: Quando chamado através do link de recuperação, o token está na URL
-     * e o Supabase automaticamente autentica o usuário temporariamente para permitir
-     * a mudança de senha.
+     * Verifica código OTP de recuperação de senha
+     * Estabelece sessão temporária se código válido
+     */
+    async verifyPasswordResetOTP(params: { email: string; token: string }): Promise<void> {
+        const { error } = await this.supabase.auth.verifyOtp({
+            email: params.email,
+            token: params.token,
+            type: "recovery",
+        });
+
+        if (error) {
+            // Mapeia erros específicos de OTP
+            if (error.message.includes("expired") || error.message.includes("Token has expired")) {
+                throw new UnknownAuthError("Código expirado. Solicite um novo código.");
+            }
+            if (error.message.includes("invalid") || error.message.includes("Invalid")) {
+                throw new UnknownAuthError("Código inválido. Verifique e tente novamente.");
+            }
+            throw this.mapSupabaseError(error);
+        }
+    }
+
+    /**
+     * @deprecated Use verifyPasswordResetOTP + resetPasswordWithOTP
+     * Redefine a senha usando token de recuperação (link-based flow - LEGACY)
      */
     async resetPasswordWithToken(newPassword: string): Promise<void> {
         try {
-            console.log("🔗 resetPasswordWithToken chamado");
+            console.log("🔗 resetPasswordWithToken chamado (DEPRECATED)");
             const { data, error } = await this.supabase.auth.updateUser({
                 password: newPassword,
             });
@@ -266,13 +284,41 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 throw this.mapSupabaseError(error);
             }
 
-            // Valida que o usuário foi atualizado com sucesso
             if (!data.user) {
                 console.error("⚠️ updateUser retornou sem data.user");
                 throw new UnknownAuthError("Falha ao atualizar senha");
             }
 
-            console.log("✅ resetPasswordWithToken concluído com sucesso");
+            console.log("✅ resetPasswordWithToken concluído (LEGACY)");
+        } catch (error) {
+            if (error instanceof Error && "status" in error) {
+                throw this.mapSupabaseError(error);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Redefine a senha após verificação OTP bem-sucedida
+     * Requer sessão ativa estabelecida por verifyPasswordResetOTP
+     */
+    async resetPasswordWithOTP(newPassword: string): Promise<void> {
+        try {
+            console.log("🔐 resetPasswordWithOTP chamado");
+            const { data, error } = await this.supabase.auth.updateUser({
+                password: newPassword,
+            });
+
+            if (error) {
+                throw this.mapSupabaseError(error);
+            }
+
+            if (!data.user) {
+                console.error("⚠️ updateUser retornou sem data.user");
+                throw new UnknownAuthError("Falha ao atualizar senha");
+            }
+
+            console.log("✅ resetPasswordWithOTP concluído com sucesso");
         } catch (error) {
             if (error instanceof Error && "status" in error) {
                 throw this.mapSupabaseError(error);

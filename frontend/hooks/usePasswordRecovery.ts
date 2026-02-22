@@ -1,166 +1,198 @@
 /**
- * usePasswordRecovery Hook
+ * usePasswordRecovery Hook (OTP-based)
  *
- * Hook dedicado para gerenciar o fluxo de recuperação de senha.
+ * Hook dedicado para gerenciar o fluxo de recuperação de senha via código OTP de 6 dígitos.
  * Este é um estado de UI temporário, não pertence ao contexto global de sessão.
  *
  * Princípios aplicados:
- * - SRP: Responsável apenas pelo fluxo de password recovery
+ * - SRP: Responsável apenas pelo fluxo de password recovery OTP
  * - Separation of Concerns: Estado de UI não vaza para camada de domínio
  * - Clean Code: Nomenclatura clara e fluxo explícito
  *
- * Fluxo:
- * 1. Extrai tokens do hash da URL (implicit flow)
- * 2. Estabelece sessão via setSession()
- * 3. Fallback: escuta PASSWORD_RECOVERY event com timeout
- * 4. Permite reset de senha
- * 5. Cleanup: encerra sessão e limpa URL
+ * Fluxo OTP (novo):
+ * 1. requestReset: Envia email com código OTP de 6 dígitos
+ * 2. verifyCode: Valida OTP e estabelece sessão temporária
+ * 3. resetPassword: Atualiza senha com sessão ativa
+ * 4. Cleanup: Encerra sessão e limpa localStorage
  */
 
 "use client";
 
-import { supabase } from "@/infrastructure/config/supabase";
+import DIContainer from "@/infrastructure/di/container";
 import { useCallback, useEffect, useState } from "react";
 
-type RecoveryStatus = "idle" | "loading" | "ready" | "success" | "error";
+type RecoveryStatus =
+    | "idle" // Estado inicial
+    | "awaiting_code" // Email enviado, aguardando usuário digitar OTP
+    | "verifying" // Validando código OTP
+    | "ready" // OTP válido, pode resetar senha
+    | "success" // Senha alterada com sucesso
+    | "error"; // Erro em qualquer etapa
 
 interface UsePasswordRecoveryResult {
     recoveryStatus: RecoveryStatus;
     recoveryError: string | null;
+    userEmail: string | null;
     isLoading: boolean;
+    cooldownRemaining: number; // Segundos até permitir re-envio
+
+    requestReset: (email: string) => Promise<boolean>;
+    verifyCode: (code: string) => Promise<boolean>;
+    resendCode: () => Promise<boolean>;
     resetPassword: (newPassword: string, confirmPassword?: string) => Promise<boolean>;
 }
 
+const COOLDOWN_SECONDS = 60; // 60s entre envios
+const RECOVERY_EMAIL_KEY = "recovery_email";
+
 export function usePasswordRecovery(): UsePasswordRecoveryResult {
-    const [status, setStatus] = useState<RecoveryStatus>("loading");
+    const [status, setStatus] = useState<RecoveryStatus>("idle");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [cooldown, setCooldown] = useState(0);
 
+    // Persiste email entre etapas (localStorage + state fallback)
+    const [email, setEmail] = useState<string | null>(() => {
+        if (typeof window !== "undefined") {
+            return localStorage.getItem(RECOVERY_EMAIL_KEY);
+        }
+        return null;
+    });
+
+    // Cooldown timer
     useEffect(() => {
-        let mounted = true;
-        let timeoutId: NodeJS.Timeout | null = null;
-        let subscription: { unsubscribe: () => void } | null = null;
+        if (cooldown > 0) {
+            const timer = setTimeout(() => setCooldown(c => c - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [cooldown]);
 
-        const establishRecoverySession = async () => {
-            try {
-                // Tenta extrair tokens do hash da URL (implicit flow do Supabase)
-                const hash = window.location.hash;
-                const params = new URLSearchParams(hash.substring(1));
-                const accessToken = params.get("access_token");
-                const refreshToken = params.get("refresh_token");
-                const type = params.get("type");
+    // Salva email no localStorage sempre que mudar
+    useEffect(() => {
+        if (email && typeof window !== "undefined") {
+            localStorage.setItem(RECOVERY_EMAIL_KEY, email);
+        }
+    }, [email]);
 
-                // Se tokens estão no hash e é tipo recovery, estabelece sessão manualmente
-                if (type === "recovery" && accessToken) {
-                    console.log("🔑 Tokens encontrados no hash, estabelecendo sessão...");
-                    const { error } = await supabase.auth.setSession({
-                        access_token: accessToken,
-                        refresh_token: refreshToken ?? "",
-                    });
+    /**
+     * Step 1: Solicita código OTP via email
+     */
+    const requestReset = useCallback(async (emailAddress: string): Promise<boolean> => {
+        setStatus("awaiting_code");
+        setErrorMessage(null);
 
-                    if (error) {
-                        console.error("❌ Erro ao estabelecer sessão:", error);
-                        if (mounted) {
-                            setStatus("error");
-                            setErrorMessage("Link expirado. Solicite um novo link de recuperação.");
-                        }
-                    } else {
-                        console.log("✅ Sessão de recovery estabelecida com sucesso");
-                        if (mounted) {
-                            setStatus("ready");
-                        }
-                    }
+        try {
+            console.log("📧 Solicitando código OTP para:", emailAddress);
+            const useCase = DIContainer.getSendPasswordResetUseCase();
+            await useCase.execute({ email: emailAddress });
 
-                    // Limpa hash da URL para não vazar tokens
-                    window.history.replaceState({}, "", window.location.pathname);
-                    return;
-                }
+            setEmail(emailAddress);
+            setCooldown(COOLDOWN_SECONDS);
+            console.log("✅ Código OTP enviado com sucesso");
+            return true;
+        } catch (err) {
+            console.error("❌ Erro ao solicitar OTP:", err);
+            setStatus("error");
+            setErrorMessage(err instanceof Error ? err.message : "Erro ao enviar código.");
+            return false;
+        }
+    }, []);
 
-                // Fallback: Se hash já foi consumido, escuta o evento PASSWORD_RECOVERY
-                console.log("👂 Aguardando evento PASSWORD_RECOVERY...");
-                const {
-                    data: { subscription: authSubscription },
-                } = supabase.auth.onAuthStateChange((event, session) => {
-                    if (event === "PASSWORD_RECOVERY") {
-                        console.log("🔐 PASSWORD_RECOVERY event detectado via listener");
-                        if (mounted) {
-                            setStatus("ready");
-                        }
-                    }
-                });
-
-                subscription = authSubscription;
-
-                // Timeout de segurança: se em 5s não veio evento, token é inválido
-                timeoutId = setTimeout(() => {
-                    if (mounted && status === "loading") {
-                        console.warn("⏱️ Timeout: PASSWORD_RECOVERY não recebido em 5s");
-                        setStatus("error");
-                        setErrorMessage("Link inválido ou expirado. Solicite um novo link de recuperação.");
-                    }
-                }, 5000);
-            } catch (err) {
-                console.error("❌ Erro ao estabelecer sessão de recovery:", err);
-                if (mounted) {
-                    setStatus("error");
-                    setErrorMessage("Erro ao processar link de recuperação. Tente novamente.");
-                }
-            }
-        };
-
-        establishRecoverySession();
-
-        // Cleanup
-        return () => {
-            mounted = false;
-            if (timeoutId) clearTimeout(timeoutId);
-            if (subscription) subscription.unsubscribe();
-        };
-    }, []); // Roda apenas uma vez na montagem
-
-    const resetPassword = useCallback(
-        async (newPassword: string, confirmPassword?: string): Promise<boolean> => {
-            // Valida senhas se confirmPassword foi fornecida
-            if (confirmPassword !== undefined && newPassword !== confirmPassword) {
+    /**
+     * Step 2: Verifica código OTP de 6 dígitos
+     */
+    const verifyCode = useCallback(
+        async (code: string): Promise<boolean> => {
+            if (!email) {
+                setErrorMessage("Email não encontrado. Reinicie o processo.");
                 setStatus("error");
-                setErrorMessage("As senhas não coincidem");
                 return false;
             }
 
-            setStatus("loading");
+            setStatus("verifying");
             setErrorMessage(null);
 
             try {
-                console.log("🔐 Atualizando senha...");
-                const { error } = await supabase.auth.updateUser({ password: newPassword });
+                console.log("🔐 Verificando código OTP:", code);
+                const useCase = DIContainer.getVerifyPasswordResetOTPUseCase();
+                await useCase.execute({ email, otp: code });
 
-                if (error) {
-                    console.error("❌ Erro ao atualizar senha:", error);
-                    setStatus("error");
-                    setErrorMessage(error.message || "Erro ao redefinir senha. Tente novamente.");
-                    return false;
-                } else {
-                    console.log("✅ Senha atualizada com sucesso");
-                    setStatus("success");
-
-                    // Encerra sessão de recovery após sucesso
-                    await supabase.auth.signOut();
-                    console.log("👋 Sessão de recovery encerrada");
-                    return true;
-                }
+                setStatus("ready");
+                console.log("✅ Código OTP válido - sessão estabelecida");
+                return true;
             } catch (err) {
-                console.error("❌ Erro inesperado ao resetar senha:", err);
+                console.error("❌ Erro ao verificar OTP:", err);
                 setStatus("error");
-                setErrorMessage("Erro inesperado. Tente novamente mais tarde.");
+                setErrorMessage(err instanceof Error ? err.message : "Código inválido ou expirado.");
                 return false;
             }
         },
-        [status],
+        [email],
     );
+
+    /**
+     * Re-envia código OTP (com cooldown)
+     */
+    const resendCode = useCallback(async (): Promise<boolean> => {
+        if (!email) {
+            setErrorMessage("Email não encontrado. Reinicie o processo.");
+            return false;
+        }
+
+        if (cooldown > 0) {
+            setErrorMessage(`Aguarde ${cooldown}s antes de solicitar novo código.`);
+            return false;
+        }
+
+        return requestReset(email);
+    }, [email, cooldown, requestReset]);
+
+    /**
+     * Step 3: Redefine senha após OTP validado
+     */
+    const resetPassword = useCallback(async (newPassword: string, confirmPassword?: string): Promise<boolean> => {
+        // Valida senhas se confirmPassword foi fornecida
+        if (confirmPassword !== undefined && newPassword !== confirmPassword) {
+            setStatus("error");
+            setErrorMessage("As senhas não coincidem");
+            return false;
+        }
+
+        setStatus("verifying"); // Reutiliza estado de loading
+        setErrorMessage(null);
+
+        try {
+            console.log("🔐 Atualizando senha...");
+            const repository = DIContainer.getAuthRepository();
+            await repository.resetPasswordWithOTP(newPassword);
+
+            setStatus("success");
+            console.log("✅ Senha atualizada com sucesso");
+
+            // Cleanup: remove email do localStorage e encerra sessão
+            if (typeof window !== "undefined") {
+                localStorage.removeItem(RECOVERY_EMAIL_KEY);
+            }
+            await repository.signOut();
+            console.log("👋 Sessão de recovery encerrada");
+
+            return true;
+        } catch (err) {
+            console.error("❌ Erro ao resetar senha:", err);
+            setStatus("error");
+            setErrorMessage(err instanceof Error ? err.message : "Erro ao redefinir senha.");
+            return false;
+        }
+    }, []);
 
     return {
         recoveryStatus: status,
         recoveryError: errorMessage,
-        isLoading: status === "loading",
+        userEmail: email,
+        isLoading: status === "verifying",
+        cooldownRemaining: cooldown,
+        requestReset,
+        verifyCode,
+        resendCode,
         resetPassword,
     };
 }
