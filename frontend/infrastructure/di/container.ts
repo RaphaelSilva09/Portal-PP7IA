@@ -23,6 +23,7 @@ import { GetNewslettersUseCase } from "../../application/usecases/GetNewsletters
 import { PromoteUserToAdminUseCase } from "../../application/usecases/PromoteUserToAdminUseCase";
 import { ResetPasswordWithTokenUseCase } from "../../application/usecases/ResetPasswordWithTokenUseCase";
 import { SendPasswordResetUseCase } from "../../application/usecases/SendPasswordResetUseCase";
+import { VerifyPasswordResetOTPUseCase } from "../../application/usecases/VerifyPasswordResetOTPUseCase";
 import { SignInUseCase } from "../../application/usecases/SignInUseCase";
 import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
@@ -230,6 +231,10 @@ class DIContainer {
 
     static getSendPasswordResetUseCase(): SendPasswordResetUseCase {
         return new SendPasswordResetUseCase(this.getAuthRepository());
+    }
+
+    static getVerifyPasswordResetOTPUseCase(): VerifyPasswordResetOTPUseCase {
+        return new VerifyPasswordResetOTPUseCase(this.getAuthRepository());
     }
 
     static getResetPasswordWithTokenUseCase(): ResetPasswordWithTokenUseCase {
