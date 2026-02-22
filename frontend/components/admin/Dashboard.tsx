@@ -22,7 +22,7 @@ interface DashboardStats {
     totalUsers: number;
     totalContent: number;
     totalAdmins: number;
-    newUsersThisWeek: number;
+    newUsersLast30Days: number;
 }
 
 export function Dashboard() {
@@ -30,7 +30,7 @@ export function Dashboard() {
         totalUsers: 0,
         totalContent: 0,
         totalAdmins: 0,
-        newUsersThisWeek: 0,
+        newUsersLast30Days: 0,
     });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -47,7 +47,7 @@ export function Dashboard() {
                 totalUsers: data.users.totalUsers,
                 totalContent: data.content.total,
                 totalAdmins: data.users.totalAdmins,
-                newUsersThisWeek: data.users.newUsersLast30Days,
+                newUsersLast30Days: data.users.newUsersLast30Days,
             });
         } catch (error) {
             console.error("Erro ao carregar estatísticas:", error);
@@ -58,26 +58,26 @@ export function Dashboard() {
 
     const cards = [
         {
-            label: "Leitores",
+            label: "Total de Leitores",
             value: stats.totalUsers,
             icon: Users,
             color: "text-[var(--brand-blue)]",
         },
         {
-            label: "Conteúdos",
+            label: "Total de Conteúdos",
             value: stats.totalContent,
             icon: BookOpen,
             color: "text-[var(--brand-orange)]",
         },
         {
-            label: "Admins",
+            label: "Administradores",
             value: stats.totalAdmins,
             icon: Sparkles,
             color: "text-[var(--brand-green)]",
         },
         {
-            label: "Últimos 30 Dias",
-            value: stats.newUsersThisWeek,
+            label: "Novos Leitores (30 dias)",
+            value: stats.newUsersLast30Days,
             icon: Clock,
             color: "text-[var(--brand-purple)]",
         },
