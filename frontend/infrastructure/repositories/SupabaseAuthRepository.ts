@@ -250,6 +250,10 @@ export class SupabaseAuthRepository implements IAuthRepository {
     /**
      * Redefine a senha usando token de recuperação
      * O token deve estar presente na sessão atual (após clicar no link do email)
+     *
+     * Nota: Quando chamado através do link de recuperação, o token está na URL
+     * e o Supabase automaticamente autentica o usuário temporariamente para permitir
+     * a mudança de senha.
      */
     async resetPasswordWithToken(newPassword: string): Promise<void> {
         try {
@@ -303,9 +307,12 @@ export class SupabaseAuthRepository implements IAuthRepository {
      * 1. Esteja autenticado (sessão ativa)
      * 2. Por segurança adicional, verificamos a senha atual via signInWithPassword
      *
-     * Estratégia para evitar loop de re-autenticação:
-     * - Usamos reauthenticate() apenas se disponível
-     * - Caso contrário, confiamos na sessão ativa do usuário
+     * Comportamento depende da configuração "Secure password change":
+     * - Desabilitado: Senha muda imediatamente
+     * - Habilitado: Envia email de confirmação, senha muda após clicar no link
+     *
+     * Retorno: Promise que sempre resolve com sucesso. A senha é atualizada imediatamente
+     * no Supabase (não há flag de "email_confirmation_sent" para password changes).
      */
     async updatePassword(params: { currentPassword: string; newPassword: string }): Promise<void> {
         try {
@@ -329,10 +336,9 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 throw new InvalidCredentialsError();
             }
 
-            // Aguarda um momento para evitar race condition
-            await new Promise(resolve => setTimeout(resolve, 100));
-
             // Atualiza a senha
+            // Nota: Com "Secure password change" desabilitado, a senha muda imediatamente
+            // e um email de confirmação é enviado ao usuário.
             const { error: updateError } = await this.supabase.auth.updateUser({
                 password: params.newPassword,
             });

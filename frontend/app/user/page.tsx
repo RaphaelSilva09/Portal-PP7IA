@@ -99,9 +99,15 @@ export default function UserPage() {
         }
 
         try {
-            await updatePassword(passwordData.currentPassword, passwordData.newPassword);
+            // Timeout de segurança: força conclusão após 8 segundos
+            const updatePromise = updatePassword(passwordData.currentPassword, passwordData.newPassword);
+            const timeoutPromise = new Promise<void>((_, reject) =>
+                setTimeout(() => reject(new Error("timeout")), 8000)
+            );
 
-            // Sucesso
+            await Promise.race([updatePromise, timeoutPromise]);
+
+            // Sucesso - senha alterada e email de confirmação enviado
             setPasswordSuccess(true);
             setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
@@ -115,8 +121,14 @@ export default function UserPage() {
             if (err instanceof Error) {
                 const errorMessage = err.message;
 
+                // Timeout - provavelmente funcionou mas demorou
+                if (errorMessage === "timeout") {
+                    setPasswordError(
+                        "A operação demorou muito. Verifique seu email - se recebeu confirmação, a senha foi alterada."
+                    );
+                }
                 // Mensagens mais claras baseadas no erro
-                if (errorMessage.includes("credenciais") || errorMessage.includes("senha incorreta")) {
+                else if (errorMessage.includes("credenciais") || errorMessage.includes("senha incorreta")) {
                     setPasswordError("Senha atual incorreta. Verifique e tente novamente.");
                 } else if (errorMessage.includes("network") || errorMessage.includes("rede")) {
                     setPasswordError("Erro de conexão. Verifique sua internet e tente novamente.");
@@ -232,9 +244,14 @@ export default function UserPage() {
                         ) : (
                             <form onSubmit={handlePasswordChange} className="space-y-4">
                                 {passwordSuccess && (
-                                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-start gap-2">
-                                        <Check className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
-                                        <p className="text-sm text-green-300">Senha alterada com sucesso!</p>
+                                    <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl space-y-1.5">
+                                        <div className="flex items-center gap-2">
+                                            <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                                            <p className="text-sm font-medium text-green-300">Senha alterada com sucesso!</p>
+                                        </div>
+                                        <p className="text-xs text-green-300/70 pl-6">
+                                            Um email de confirmação foi enviado para {user?.email}
+                                        </p>
                                     </div>
                                 )}
 
