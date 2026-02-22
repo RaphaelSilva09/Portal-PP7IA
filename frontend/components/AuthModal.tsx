@@ -476,7 +476,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                             type="button"
                                             onClick={() => {
                                                 onClose();
-                                                openForgotPasswordModal("request", formData.email);
+                                                openForgotPasswordModal();
                                             }}
                                             className="text-brand-blue hover:text-blue-400 transition-colors"
                                         >
