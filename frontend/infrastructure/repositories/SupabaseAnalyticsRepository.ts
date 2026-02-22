@@ -78,14 +78,17 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
                 console.error("Erro ao contar novos usuários:", newError.message);
             }
 
-            // Total de admins (não disponível via query simples - retornar 0)
-            // Seria necessário uma função no banco para contar admins em auth.users
-            const totalAdmins = 0;
+            // Contar admins via função SQL segura (valida is_admin internamente)
+            const { data: adminCount, error: adminError } = await this.supabase.rpc("count_admins");
+
+            if (adminError) {
+                console.error("Erro ao contar admins:", adminError.message);
+            }
 
             return {
                 totalUsers: totalUsers ?? 0,
                 newUsersLast30Days: newUsers ?? 0,
-                totalAdmins,
+                totalAdmins: adminCount ?? 0,
             };
         } catch (err) {
             console.error("Erro ao obter estatísticas de usuários:", err);
