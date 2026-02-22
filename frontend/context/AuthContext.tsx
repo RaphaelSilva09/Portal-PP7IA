@@ -4,7 +4,7 @@ import { User } from "@/domain/entities/User";
 import { AuthError } from "@/domain/errors/AuthError";
 import { supabase } from "@/infrastructure/config/supabase";
 import DIContainer from "@/infrastructure/di/container";
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
  * AuthContext - Contexto Global de Autenticação
@@ -58,12 +58,16 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // Começa true para verificar sessão
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(false);
 
+    // Ref para evitar re-subscrições desnecessárias
+    const userRef = useRef<User | null>(null);
+
     /**
      * Obtém usuário atual da sessão
+     * OTIMIZAÇÃO: Só use quando realmente necessário - o onAuthStateChange gerencia automaticamente
      */
     const getCurrentUser = useCallback(async () => {
         setIsLoading(true);
@@ -73,22 +77,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
             const currentUser = await getCurrentUserUseCase.execute();
             setUser(currentUser);
+            userRef.current = currentUser;
         } catch (err) {
-            // Silenciosamente falha se não há usuário logado
             setUser(null);
+            userRef.current = null;
         } finally {
             setIsLoading(false);
         }
     }, []);
 
-    // Escuta mudanças de estado da autenticação do Supabase
+    // OTIMIZAÇÃO: useEffect sem dependências para evitar re-subscrições
+    // onAuthStateChange é o listener principal, gerencia todo o ciclo de vida da sessão
     useEffect(() => {
+        // 1. Verifica sessão inicial usando getSession() (valida localmente primeiro)
+        const checkInitialSession = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+
+            if (session?.user) {
+                try {
+                    const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
+                    const currentUser = await getCurrentUserUseCase.execute();
+                    setUser(currentUser);
+                    userRef.current = currentUser;
+                } catch {
+                    setUser(null);
+                    userRef.current = null;
+                }
+            }
+            setIsLoading(false);
+        };
+
+        checkInitialSession();
+
+        // 2. Escuta mudanças de autenticação
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
-            // Ignora eventos de re-autenticação (como ao verificar senha)
-            // quando já há um usuário logado
-            if (event === "SIGNED_IN" && user) {
+            // Ignora eventos de re-autenticação ao verificar senha atual
+            if (event === "SIGNED_IN" && userRef.current) {
                 return;
             }
 
@@ -97,17 +125,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     const getCurrentUserUseCase = DIContainer.getCurrentUserUseCase();
                     const currentUser = await getCurrentUserUseCase.execute();
                     setUser(currentUser);
+                    userRef.current = currentUser;
                 } catch {
                     setUser(null);
+                    userRef.current = null;
                 }
             } else {
                 setUser(null);
+                userRef.current = null;
             }
             setIsLoading(false);
         });
 
         return () => subscription.unsubscribe();
-    }, [user]);
+    }, []); // Sem dependências - só roda uma vez
 
     /**
      * Cadastra novo usuário
@@ -179,26 +210,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     /**
      * Atualiza email do usuário
+     * OTIMIZAÇÃO: Não precisa chamar getCurrentUser - onAuthStateChange detecta a mudança automaticamente
      */
-    const updateEmail = useCallback(
-        async (newEmail: string) => {
-            setIsLoading(true);
-            setError(null);
+    const updateEmail = useCallback(async (newEmail: string) => {
+        setIsLoading(true);
+        setError(null);
 
-            try {
-                const repository = DIContainer.getAuthRepository();
-                await repository.updateEmail({ newEmail });
-                await getCurrentUser();
-            } catch (err) {
-                const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar email.";
-                setError(errorMessage);
-                throw err;
-            } finally {
-                setIsLoading(false);
-            }
-        },
-        [getCurrentUser],
-    );
+        try {
+            const repository = DIContainer.getAuthRepository();
+            await repository.updateEmail({ newEmail });
+            // onAuthStateChange vai detectar a mudança automaticamente
+        } catch (err) {
+            const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar email.";
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     /**
      * Atualiza senha do usuário
@@ -221,6 +250,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     /**
      * Atualiza preferências de notificação
+     * OTIMIZAÇÃO: Atualiza estado local imediatamente
      */
     const updatePreferences = useCallback(
         async (acceptEmail: boolean, acceptWhatsApp: boolean) => {
@@ -233,7 +263,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     acceptEmailUpdates: acceptEmail,
                     acceptWhatsAppUpdates: acceptWhatsApp,
                 });
-                await getCurrentUser();
+                // Atualiza estado local imediatamente usando User.create()
+                if (user) {
+                    const updatedUser = User.create({
+                        id: user.id,
+                        email: user.email,
+                        nome: user.nome,
+                        celular: user.celular,
+                        acceptEmailUpdates: acceptEmail,
+                        acceptWhatsAppUpdates: acceptWhatsApp,
+                        createdAt: user.createdAt,
+                    });
+                    setUser(updatedUser);
+                    userRef.current = updatedUser;
+                }
             } catch (err) {
                 const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar preferências.";
                 setError(errorMessage);
@@ -242,7 +285,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 setIsLoading(false);
             }
         },
-        [getCurrentUser],
+        [user],
     );
 
     /**
@@ -287,28 +330,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     /**
      * Redefine a senha usando token de recuperação
+     * OTIMIZAÇÃO: onAuthStateChange detecta a mudança automaticamente
      */
-    const resetPasswordWithToken = useCallback(
-        async (newPassword: string, confirmPassword: string) => {
-            setIsLoading(true);
-            setError(null);
+    const resetPasswordWithToken = useCallback(async (newPassword: string, confirmPassword: string) => {
+        setIsLoading(true);
+        setError(null);
 
-            try {
-                const useCase = DIContainer.getResetPasswordWithTokenUseCase();
-                await useCase.execute({ newPassword, confirmPassword });
-                // Recarrega o usuário após reset
-                await getCurrentUser();
-            } catch (err) {
-                const errorMessage =
-                    err instanceof AuthError ? err.message : "Erro ao redefinir senha. Tente novamente.";
-                setError(errorMessage);
-                throw err;
-            } finally {
-                setIsLoading(false);
-            }
-        },
-        [getCurrentUser],
-    );
+        try {
+            const useCase = DIContainer.getResetPasswordWithTokenUseCase();
+            await useCase.execute({ newPassword, confirmPassword });
+            // onAuthStateChange vai atualizar o usuário automaticamente após o reset
+        } catch (err) {
+            const errorMessage = err instanceof AuthError ? err.message : "Erro ao redefinir senha. Tente novamente.";
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     const clearError = useCallback(() => {
         setError(null);

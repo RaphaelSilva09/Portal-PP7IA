@@ -63,11 +63,13 @@ export async function middleware(request: NextRequest) {
     );
 
     // 1. Verifica sessão autenticada
+    // OTIMIZAÇÃO: getSession() valida localmente primeiro (JWT cache),
+    // evitando requests desnecessários ao servidor em toda navegação
     const {
-        data: { user },
-    } = await supabase.auth.getUser();
+        data: { session },
+    } = await supabase.auth.getSession();
 
-    if (!user) {
+    if (!session?.user) {
         return redirectToLogin(request);
     }
 
@@ -77,7 +79,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // 3. Para rotas admin, verifica role no JWT (app_metadata)
-    const isAdmin = user.app_metadata?.role === "admin";
+    const isAdmin = session.user.app_metadata?.role === "admin";
 
     if (!isAdmin) {
         return redirectToHome(request);
