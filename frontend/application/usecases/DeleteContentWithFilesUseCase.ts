@@ -14,21 +14,22 @@
  * - Graceful Degradation: Continua mesmo se arquivos não existirem
  */
 
+import type { ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import type { ContentType } from "@/domain/entities/ContentItem";
 
 /** Mapeamento de tipo de conteúdo para nome do bucket no Supabase Storage */
 const BUCKET_MAP: Record<ContentType, string> = {
     newsletter: "Newsletters",
     "mini-livro": "MiniLivros",
     biblioteca: "Biblioteca",
+    "especial-semana": "especial-semana",
 };
 
 export class DeleteContentWithFilesUseCase {
     constructor(
         private readonly contentRepository: IContentRepository,
-        private readonly storageRepository: IStorageRepository
+        private readonly storageRepository: IStorageRepository,
     ) {}
 
     async execute(type: ContentType, id: number): Promise<void> {
@@ -45,10 +46,7 @@ export class DeleteContentWithFilesUseCase {
         // 2. Deletar arquivos do storage (ignora erros se não existirem)
         try {
             if (content.htmlPath) {
-                await this.storageRepository.delete(
-                    bucket,
-                    `${formattedId}.html`
-                );
+                await this.storageRepository.delete(bucket, `${formattedId}.html`);
             }
         } catch {
             console.warn("HTML file not found, continuing...");
@@ -56,10 +54,7 @@ export class DeleteContentWithFilesUseCase {
 
         try {
             if (content.pdfPath) {
-                await this.storageRepository.delete(
-                    bucket,
-                    `${formattedId}.pdf`
-                );
+                await this.storageRepository.delete(bucket, `${formattedId}.pdf`);
             }
         } catch {
             console.warn("PDF file not found, continuing...");
