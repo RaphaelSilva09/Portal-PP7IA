@@ -9,7 +9,8 @@
  * - Fail Fast: Valida variáveis de ambiente no boot
  */
 
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Cria e configura cliente Supabase
@@ -18,8 +19,6 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 function createSupabaseClient(): SupabaseClient {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    // Nova variável de ambiente para chave publishable (caso necessário no futuro)
-    const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
         throw new Error(
@@ -28,15 +27,7 @@ function createSupabaseClient(): SupabaseClient {
         );
     }
 
-    // Utilize supabasePublishableKey conforme necessário na aplicação
-
-    return createClient(supabaseUrl, supabaseAnonKey, {
-        auth: {
-            autoRefreshToken: true,
-            persistSession: true,
-            detectSessionInUrl: true,
-        },
-    });
+    return createBrowserClient(supabaseUrl, supabaseAnonKey);
 }
 
 export const supabase = createSupabaseClient();
