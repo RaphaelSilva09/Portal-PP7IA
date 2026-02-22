@@ -1,4 +1,5 @@
 -- =====================================================
+-- Migration 003: -- =====================================================
 -- Migration 003: Admin Helper Function (JWT-based)
 -- =====================================================
 -- Cria funcao is_admin() que verifica o role do usuario
@@ -13,20 +14,30 @@
 -- WHERE id = 'UUID';
 -- =====================================================
 
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN
-LANGUAGE sql
+CREATE OR REPLACE FUNCTION public.count_admins()
+RETURNS INTEGER
+LANGUAGE plpgsql  -- ✅ plpgsql (não sql) para suportar IF/RAISE
 SECURITY DEFINER
 STABLE
-SET search_path = public
+SET search_path = public, auth
 AS $$
-    SELECT COALESCE(
-        (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin',
-        false
+BEGIN
+    -- ✅ VALIDAÇÃO OBRIGATÓRIA: apenas admins podem chamar
+    IF NOT public.is_admin() THEN
+        RAISE EXCEPTION 'Acesso negado: apenas administradores';
+    END IF;
+
+    -- Retornar contagem apenas se passou validação acima
+    RETURN (
+        SELECT COUNT(*)::INTEGER
+        FROM auth.users
+        WHERE raw_app_meta_data->>'role' = 'admin'
     );
+END;
 $$;
 
-COMMENT ON FUNCTION public.is_admin() IS 'Verifica se o usuario autenticado tem role admin no JWT';
+COMMENT ON FUNCTION public.count_admins() IS 
+'Retorna o numero total de usuarios com role admin. Requer is_admin() = true';
 
-GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
-GRANT EXECUTE ON FUNCTION public.is_admin() TO anon;
+-- ✅ Grant para authenticated (mas função valida internamente)
+GRANT EXECUTE ON FUNCTION public.count_admins() TO authenticated;

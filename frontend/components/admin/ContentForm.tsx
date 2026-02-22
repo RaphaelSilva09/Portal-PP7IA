@@ -107,12 +107,12 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: C
                     <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                         {isEditing ? "Upload Novo HTML (opcional)" : "Arquivo HTML"}
                     </label>
-                    
+
                     {/* Mostrar arquivo atual ao editar */}
                     {isEditing && editItem?.htmlPath && (
                         <div className="mb-2 flex items-center gap-2 text-sm text-[var(--brand-green)]">
                             <AlertCircle className="w-4 h-4" />
-                            <span>Arquivo HTML atual: {editItem.htmlPath.split('/').pop()}</span>
+                            <span>Arquivo HTML atual: {editItem.htmlPath.split("/").pop()}</span>
                         </div>
                     )}
 
@@ -131,7 +131,11 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: C
                                        text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-blue)]/50 transition-colors"
                         >
                             <Upload className="w-5 h-5" />
-                            {htmlFile ? htmlFile.name : isEditing ? "Escolher novo HTML (substitui o atual)" : "Selecionar arquivo HTML"}
+                            {htmlFile
+                                ? htmlFile.name
+                                : isEditing
+                                  ? "Escolher novo HTML (substitui o atual)"
+                                  : "Selecionar arquivo HTML"}
                         </label>
                     </div>
                 </div>
@@ -146,7 +150,7 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: C
                     {isEditing && editItem?.pdfPath && (
                         <div className="mb-2 flex items-center gap-2 text-sm text-[var(--brand-green)]">
                             <AlertCircle className="w-4 h-4" />
-                            <span>Arquivo PDF atual: {editItem.pdfPath.split('/').pop()}</span>
+                            <span>Arquivo PDF atual: {editItem.pdfPath.split("/").pop()}</span>
                         </div>
                     )}
 
@@ -165,7 +169,11 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: C
                                        text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-orange)]/50 transition-colors"
                         >
                             <Upload className="w-5 h-5" />
-                            {pdfFile ? pdfFile.name : isEditing ? "Escolher novo PDF (substitui o atual)" : "Selecionar arquivo PDF"}
+                            {pdfFile
+                                ? pdfFile.name
+                                : isEditing
+                                  ? "Escolher novo PDF (substitui o atual)"
+                                  : "Selecionar arquivo PDF"}
                         </label>
                     </div>
                 </div>

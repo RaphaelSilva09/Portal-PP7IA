@@ -83,9 +83,7 @@ export function UserManager() {
 
         const query = searchQuery.toLowerCase();
         return users.filter(
-            user =>
-                user.nome.toLowerCase().includes(query) ||
-                user.email.toLowerCase().includes(query)
+            user => user.nome.toLowerCase().includes(query) || user.email.toLowerCase().includes(query),
         );
     }, [users, searchQuery]);
 
