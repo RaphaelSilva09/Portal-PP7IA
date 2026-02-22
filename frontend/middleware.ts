@@ -41,7 +41,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    const response = NextResponse.next();
+    let supabaseResponse = NextResponse.next({
+        request,
+    });
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,7 +54,9 @@ export async function middleware(request: NextRequest) {
                     return request.cookies.getAll();
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+                    cookiesToSet.forEach(({ name, value, options }) => 
+                        supabaseResponse.cookies.set(name, value, options)
+                    );
                 },
             },
         },
@@ -69,7 +73,7 @@ export async function middleware(request: NextRequest) {
 
     // 2. Para rotas de usuário, autenticação é suficiente
     if (isAuthRoute) {
-        return response;
+        return supabaseResponse;
     }
 
     // 3. Para rotas admin, verifica role no JWT (app_metadata)
@@ -79,7 +83,7 @@ export async function middleware(request: NextRequest) {
         return redirectToHome(request);
     }
 
-    return response;
+    return supabaseResponse;
 }
 
 export const config = {
