@@ -298,11 +298,11 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
     /**
      * Atualiza a senha do usuário
-     * 
+     *
      * IMPORTANTE: Para alterar senha, o Supabase requer que o usuário:
      * 1. Esteja autenticado (sessão ativa)
      * 2. Por segurança adicional, verificamos a senha atual via signInWithPassword
-     * 
+     *
      * Estratégia para evitar loop de re-autenticação:
      * - Usamos reauthenticate() apenas se disponível
      * - Caso contrário, confiamos na sessão ativa do usuário
@@ -312,7 +312,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
             const {
                 data: { user },
             } = await this.supabase.auth.getUser();
-            
+
             if (!user?.email) {
                 throw new UnknownAuthError("Usuário não autenticado");
             }

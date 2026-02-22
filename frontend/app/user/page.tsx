@@ -100,11 +100,11 @@ export default function UserPage() {
 
         try {
             await updatePassword(passwordData.currentPassword, passwordData.newPassword);
-            
+
             // Sucesso
             setPasswordSuccess(true);
             setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-            
+
             // Aguarda 3 segundos antes de fechar o formulário
             setTimeout(() => {
                 setShowPasswordForm(false);
@@ -114,7 +114,7 @@ export default function UserPage() {
             // Tratamento de erros específicos
             if (err instanceof Error) {
                 const errorMessage = err.message;
-                
+
                 // Mensagens mais claras baseadas no erro
                 if (errorMessage.includes("credenciais") || errorMessage.includes("senha incorreta")) {
                     setPasswordError("Senha atual incorreta. Verifique e tente novamente.");
@@ -300,7 +300,8 @@ export default function UserPage() {
                                             required
                                             minLength={6}
                                             className={`w-full px-4 pr-10 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none transition-all ${
-                                                passwordData.newPassword.length > 0 && passwordData.newPassword.length < 6
+                                                passwordData.newPassword.length > 0 &&
+                                                passwordData.newPassword.length < 6
                                                     ? "border-yellow-500/50 focus:border-yellow-500"
                                                     : passwordData.newPassword.length >= 6
                                                       ? "border-green-500/50 focus:border-green-500"
