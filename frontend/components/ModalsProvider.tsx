@@ -47,7 +47,7 @@ export default function ModalsProvider() {
         mode: forgotPasswordMode,
         openModal: openForgotPasswordModal,
     } = useForgotPasswordModal();
-    
+
     // Ref para evitar processar os mesmos params múltiplas vezes
     const processedParams = useRef<Set<string>>(new Set());
 
@@ -56,10 +56,10 @@ export default function ModalsProvider() {
         const resetTokenParam = searchParams.get("resetToken");
         const accessToken = searchParams.get("access_token");
         const type = searchParams.get("type");
-        
+
         // Cria uma chave única para os params atuais
         const paramsKey = `${authModalParam}-${resetTokenParam}-${accessToken}-${type}`;
-        
+
         // Se já processamos esses params, não processa novamente
         if (processedParams.current.has(paramsKey)) {
             return;
@@ -77,12 +77,12 @@ export default function ModalsProvider() {
             router.replace("/", { scroll: false });
             processedParams.current.add(paramsKey);
         }
-        
+
         // Limpa params processados após um tempo para permitir novas ações
         const timeout = setTimeout(() => {
             processedParams.current.clear();
         }, 5000);
-        
+
         return () => clearTimeout(timeout);
     }, [searchParams, openAuthModal, openForgotPasswordModal, router]);
 

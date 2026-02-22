@@ -467,7 +467,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                         {toggleButtonText}
                                     </button>
                                 </p>
-                                
+
                                 {/* Link Esqueceu Senha - Apenas no modo Login */}
                                 {mode === "login" && (
                                     <p className="text-xs text-text-secondary mt-2">
