@@ -217,7 +217,6 @@ export default function UserPage() {
                         <div className="flex items-start justify-between mb-4">
                             <div>
                                 <h2 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
-                                    <Key className="w-5 h-5" />
                                     Alterar Senha
                                 </h2>
                                 <p className="text-sm text-text-secondary">

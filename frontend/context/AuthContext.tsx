@@ -92,9 +92,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // onAuthStateChange é o listener principal, gerencia todo o ciclo de vida da sessão
     useEffect(() => {
         let mounted = true;
+        let sessionLoadInProgress = false;
 
         // 1. Verifica sessão inicial usando getSession() (valida localmente primeiro)
         const checkInitialSession = async () => {
+            sessionLoadInProgress = true;
             try {
                 const {
                     data: { session },
@@ -130,6 +132,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     userRef.current = null;
                 }
             } finally {
+                sessionLoadInProgress = false;
                 if (mounted) {
                     setIsLoading(false);
                 }
@@ -143,6 +146,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
+            if (sessionLoadInProgress) return; // Aguarda sessão inicial terminar
 
             // Detecta fluxo de recuperação de senha
             if (event === "PASSWORD_RECOVERY") {
@@ -151,8 +155,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 return;
             }
 
-            // Ignora eventos de re-autenticação ao verificar senha atual
-            if (event === "SIGNED_IN" && userRef.current) {
+            // Só ignora SIGNED_IN se o userId é o mesmo (re-auth do mesmo usuário)
+            // Não ignora se a sessão mudou (refresh de token, recovery, etc.)
+            if (event === "SIGNED_IN" && userRef.current && session?.user?.id === userRef.current.id) {
+                setIsLoading(false);
                 return;
             }
 
