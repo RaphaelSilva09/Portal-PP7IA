@@ -3,7 +3,7 @@
 import { Footer, Navbar } from "@/components";
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/infrastructure/config/supabase";
 import {
     AlertCircle,
     ArrowLeft,

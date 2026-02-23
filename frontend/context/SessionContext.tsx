@@ -54,9 +54,13 @@ export function SessionProvider({ children }: SessionProviderProps) {
      * Monitora mudanças de autenticação via Supabase
      * INITIAL_SESSION é sempre o primeiro evento — fonte única de verdade
      * Elimina race conditions de checkInitialSession paralelo
+     *
+     * GARANTIA DEFENSIVA: getSession() logo após registrar listener
+     * para cobrir caso onde INITIAL_SESSION dispara antes do listener
      */
     useEffect(() => {
         let mounted = true;
+        let initialSessionResolved = false;
 
         const {
             data: { subscription },
@@ -67,6 +71,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
             // INITIAL_SESSION é sempre o primeiro evento — fonte de verdade única
             if (event === "INITIAL_SESSION") {
+                initialSessionResolved = true;
                 if (session?.user) {
                     try {
                         const repository = DIContainer.getAuthRepository();
@@ -135,6 +140,51 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 }
             }
         });
+
+        // GARANTIA DEFENSIVA: getSession() chamado imediatamente após registrar listener
+        // Neste ponto o listener já está ativo, então não há race condition
+        // Se INITIAL_SESSION já processou, initialSessionResolved impede reprocessamento
+        (async () => {
+            try {
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+
+                if (!mounted || initialSessionResolved) return;
+
+                console.log("⚠️ INITIAL_SESSION não recebido - sincronizando via getSession()");
+
+                if (session?.user) {
+                    const repository = DIContainer.getAuthRepository();
+                    const userData = await repository.getCurrentUser();
+                    if (mounted && !initialSessionResolved) {
+                        console.log("✅ Sessão restaurada via getSession() defensivo:", userData?.email);
+                        setUser(userData);
+                        userRef.current = userData;
+                        initialSessionResolved = true;
+                    }
+                } else {
+                    if (mounted && !initialSessionResolved) {
+                        console.log("ℹ️ Nenhuma sessão encontrada (getSession() defensivo)");
+                        setUser(null);
+                        userRef.current = null;
+                        initialSessionResolved = true;
+                    }
+                }
+            } catch (err) {
+                console.error("❌ Erro no getSession() defensivo:", err);
+                if (mounted && !initialSessionResolved) {
+                    setUser(null);
+                    userRef.current = null;
+                    initialSessionResolved = true;
+                }
+            } finally {
+                if (mounted && !initialSessionResolved) {
+                    initialSessionResolved = true;
+                    setIsLoading(false);
+                }
+            }
+        })();
 
         // Cleanup
         return () => {
