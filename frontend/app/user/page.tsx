@@ -4,7 +4,20 @@ import { Footer, Navbar } from "@/components";
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { supabase } from "@/lib/supabase";
-import { AlertCircle, ArrowLeft, Check, Eye, EyeOff, Key, Mail, Phone, Shield, Trash2, User, UserPlus } from "lucide-react";
+import {
+    AlertCircle,
+    ArrowLeft,
+    Check,
+    Eye,
+    EyeOff,
+    Key,
+    Mail,
+    Phone,
+    Shield,
+    Trash2,
+    User,
+    UserPlus,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
