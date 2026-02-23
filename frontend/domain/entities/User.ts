@@ -18,6 +18,7 @@ export interface UserProps {
     acceptEmailUpdates: boolean;
     acceptWhatsAppUpdates: boolean;
     createdAt: Date;
+    role: string; // "user" | "admin"
 }
 
 export class User {
@@ -91,6 +92,14 @@ export class User {
 
     get createdAt(): Date {
         return this.props.createdAt;
+    }
+
+    get role(): string {
+        return this.props.role;
+    }
+
+    get isAdmin(): boolean {
+        return this.props.role === "admin";
     }
 
     /**
