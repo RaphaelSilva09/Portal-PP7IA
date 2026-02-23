@@ -66,7 +66,7 @@ export default function BentoGridMiniLivros() {
                 {/* Editorial sobre os Mini-livros */}
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
                     <a
-                        href="/mini-livros/nota_do_autor_mini-livros.pdf"
+                        href="/mini-livros/nota_do_autor_mini-livros.html"
                         className="text-gray-400 text-base sm:text-1xl leading-relaxed tracking-tight underline md:no-underline md:hover:underline hover:text-gray-300 transition-colors duration-200 animate-fade-in-up"
                         style={{ animationDelay: "0.5s" }}
                     >
