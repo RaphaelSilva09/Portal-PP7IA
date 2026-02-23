@@ -150,6 +150,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     data: { session },
                 } = await supabase.auth.getSession();
 
+                // Se já foi resolvido pelo INITIAL_SESSION, não reprocessa
                 if (!mounted || initialSessionResolved) return;
 
                 console.log("⚠️ INITIAL_SESSION não recebido - sincronizando via getSession()");
@@ -179,8 +180,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     initialSessionResolved = true;
                 }
             } finally {
+                // SEMPRE resolve isLoading se ainda não foi resolvido
                 if (mounted && !initialSessionResolved) {
                     initialSessionResolved = true;
+                }
+                // Garante que isLoading é resolvido independente do estado
+                if (mounted) {
                     setIsLoading(false);
                 }
             }
