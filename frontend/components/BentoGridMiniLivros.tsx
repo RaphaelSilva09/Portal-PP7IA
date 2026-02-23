@@ -156,7 +156,7 @@ export default function BentoGridMiniLivros() {
                                         <span>Ver Capa</span>
                                     </a>
                                     <a
-                                        href="/ebooks/introducao_lideranca_hibrida.pdf"
+                                        href="/ebooks/introducao_lideranca_hibrida.html"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
