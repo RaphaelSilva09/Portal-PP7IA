@@ -20,7 +20,7 @@ import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import DIContainer from "@/infrastructure/di/container";
-import { BookOpen, FileText, Home, Library, Newspaper, Plus, Star, Users } from "lucide-react";
+import { ArrowLeft, BookOpen, FileText, Home, Library, Newspaper, Plus, Star, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -210,7 +210,14 @@ export default function PainelAdminPage() {
         <div className="min-h-screen bg-[var(--bg-primary)] p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="space-y-4">
+                    <button
+                        onClick={() => router.push("/user")}
+                        className="cursor-pointer inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span className="text-lg">Voltar para Perfil</span>
+                    </button>
                     <h1 className="text-4xl font-bold text-[var(--text-primary)]">Painel de Administração</h1>
                 </div>
 
