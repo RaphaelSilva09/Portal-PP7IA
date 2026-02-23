@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
     // Headers de segurança - sem Permissions-Policy para evitar warnings de features experimentais
     async headers() {
         return [
+            // Permite iframes do mesmo domínio (necessário para /view pages com /api/proxy-html)
+            // Bloqueia iframes de origens externas (protege contra clickjacking)
             {
                 source: "/:path*",
                 headers: [
@@ -17,7 +19,7 @@ const nextConfig: NextConfig = {
                     },
                     {
                         key: "X-Frame-Options",
-                        value: "DENY",
+                        value: "SAMEORIGIN", // Alterado de DENY para permitir iframes internos
                     },
                     {
                         key: "X-XSS-Protection",

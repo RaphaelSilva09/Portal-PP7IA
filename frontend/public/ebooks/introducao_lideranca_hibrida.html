@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBook #001 — Liderança Híbrida | PP7+IAS</title>
+    <style>
+        :root {
+            --azul-escuro: #1e40af;
+            --azul-medio: #3b82f6;
+            --azul-claro: #60a5fa;
+            --azul-muito-claro: #93c5fd;
+            --fundo-escuro: #1a237e;
+            --fundo-medio: #283593;
+            --fundo-card: #1a2070;
+            --texto-principal: #e2e8f0;
+            --texto-secundario: #94a3b8;
+            --branco: #ffffff;
+            --amarelo: #fbbf24;
+            --verde: #10b981;
+            --ouro: #f0c950;
+            --ouro-nomes: #ffd966;
+            --ouro-borda: #d4a520;
+            --cor-ebook1: #60a5fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(180deg, var(--fundo-escuro) 0%, var(--fundo-medio) 50%, var(--fundo-escuro) 100%);
+            color: var(--texto-principal);
+            line-height: 1.7;
+            font-size: 16px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+        /* HEADER */
+        header {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(26, 35, 126, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            z-index: 1000;
+            padding: 12px 24px;
+        }
+        .header-content {
+            max-width: 800px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-family: Arial, sans-serif; font-weight: 700;
+            font-size: 1rem; color: var(--branco); text-decoration: none;
+        }
+        .logo span { color: var(--ouro); }
+        .header-nav { display: flex; gap: 1.2rem; }
+        .header-nav a {
+            color: var(--texto-secundario); text-decoration: none;
+            font-family: Arial, sans-serif; font-size: 0.8rem;
+            font-weight: 500; transition: color 0.2s;
+        }
+        .header-nav a:hover { color: var(--branco); }
+        .header-nav a.voltar { color: var(--ouro); }
+        .header-nav a.voltar:hover { color: var(--amarelo); }
+
+        /* HERO */
+        .hero {
+            padding: 7rem 0 3rem; text-align: center; position: relative;
+        }
+        .hero::before {
+            content: '#001';
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 220px; font-weight: 900;
+            color: rgba(96,165,250,0.03);
+            font-family: Georgia, serif; pointer-events: none;
+        }
+        .badge {
+            display: inline-block; background: var(--cor-ebook1); color: var(--fundo-escuro);
+            font-family: Arial, sans-serif; font-weight: 700; font-size: 0.8rem;
+            padding: 6px 20px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 1.5rem;
+        }
+        .badge-parte {
+            display: inline-block; background: rgba(96,165,250,0.15);
+            color: var(--cor-ebook1); border: 1px solid rgba(96,165,250,0.3);
+            font-family: Arial, sans-serif; font-weight: 700; font-size: 0.75rem;
+            padding: 4px 16px; border-radius: 16px; letter-spacing: 1px; margin-bottom: 2rem;
+        }
+        .hero h1 {
+            font-size: 2.8rem; font-weight: 900; color: var(--branco);
+            font-family: Arial Black, Arial, sans-serif;
+            letter-spacing: 1px; margin-bottom: 0.5rem;
+            text-shadow: 0 0 40px rgba(96,165,250,0.2);
+        }
+        .hero .subtitle {
+            font-size: 1.15rem; color: var(--cor-ebook1);
+            font-style: italic; margin-bottom: 1.5rem; line-height: 1.8;
+        }
+        .hero-line {
+            width: 120px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(96,165,250,0.5), transparent);
+            margin: 1.5rem auto;
+        }
+        .hero .descricao {
+            font-size: 1rem; color: var(--texto-secundario);
+            max-width: 580px; margin: 0 auto 2rem;
+        }
+        .hero .autor-label { font-size: 0.95rem; color: var(--texto-secundario); margin-bottom: 0.3rem; }
+        .hero .autor-nome { font-family: Arial, sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--branco); }
+
+        /* EQUAÇÃO */
+        .equacao-box {
+            background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3);
+            border-radius: 8px; padding: 16px 24px; text-align: center;
+            margin: 1.5rem auto; max-width: 600px;
+        }
+        .equacao-box code {
+            font-family: 'Courier New', monospace; font-size: 0.95rem;
+            color: var(--branco); font-weight: 700;
+        }
+        .equacao-box code .dest { color: var(--cor-ebook1); }
+        .equacao-box code .mult { color: var(--ouro); }
+
+        /* SEÇÕES */
+        .section { padding: 2.5rem 0; border-top: 1px solid rgba(59,130,246,0.15); }
+        .section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 1.2rem; }
+        .section h2 {
+            font-family: Arial, sans-serif; font-size: 1.4rem;
+            font-weight: 700; color: var(--cor-ebook1); line-height: 1.3;
+        }
+        .section h3 {
+            font-family: Arial, sans-serif; font-size: 1.1rem;
+            font-weight: 700; color: var(--azul-muito-claro); margin: 1.5rem 0 0.8rem;
+        }
+        .section p { margin-bottom: 1rem; text-align: justify; }
+        .section hr { border: none; height: 1px; background: var(--azul-medio); margin-bottom: 1.2rem; }
+
+        /* CITAÇÃO */
+        .citacao {
+            border-left: 3px solid var(--cor-ebook1); padding: 16px 24px;
+            margin: 1.5rem 0; background: rgba(96,165,250,0.05);
+            border-radius: 0 8px 8px 0;
+        }
+        .citacao p {
+            font-style: italic; color: var(--cor-ebook1);
+            font-size: 1.05rem; line-height: 1.7; margin-bottom: 0;
+        }
+        .citacao .autor-citacao {
+            font-family: Arial, sans-serif; font-style: normal;
+            font-weight: 700; color: var(--branco); font-size: 0.9rem;
+            margin-top: 0.8rem; text-align: right;
+        }
+
+        /* IMPACTO */
+        .impacto-box {
+            text-align: center; padding: 40px 30px; margin: 1.5rem 0;
+            border: 2px solid rgba(96,165,250,0.4); border-radius: 12px;
+            background: rgba(96,165,250,0.04);
+        }
+        .impacto-box p {
+            font-size: 1.3rem; font-style: italic;
+            color: var(--cor-ebook1); font-weight: 700; margin: 0;
+        }
+
+        /* BLOCOS DE PARTE */
+        .bloco-parte {
+            margin: 2.5rem 0 1rem;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(96,165,250,0.03));
+            border-left: 4px solid var(--cor-ebook1);
+            border-radius: 0 8px 8px 0;
+        }
+        .bloco-parte .parte-label {
+            font-family: Arial, sans-serif; font-weight: 700;
+            font-size: 0.75rem; letter-spacing: 2px;
+            color: rgba(96,165,250,0.6); text-transform: uppercase; margin-bottom: 2px;
+        }
+        .bloco-parte .parte-titulo {
+            font-family: Arial, sans-serif; font-weight: 700;
+            font-size: 1.1rem; color: var(--cor-ebook1);
+        }
+        .bloco-parte .parte-desc {
+            font-size: 0.9rem; color: var(--texto-secundario); margin-top: 4px;
+        }
+
+        /* MINILIVRO CARDS */
+        .ml-card {
+            background: var(--fundo-card);
+            border: 1px solid rgba(96,165,250,0.12);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 12px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .ml-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: var(--cor-ebook1);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .ml-card:hover {
+            border-color: rgba(96,165,250,0.35);
+            background: rgba(26,32,112,0.9);
+            transform: translateX(4px);
+        }
+        .ml-card:hover::before { opacity: 1; }
+
+        .ml-numero {
+            font-family: 'Courier New', monospace;
+            font-weight: 700; font-size: 1.8rem;
+            color: var(--cor-ebook1);
+            min-width: 52px; text-align: center;
+            line-height: 1; padding-top: 4px;
+            opacity: 0.7;
+        }
+        .ml-card:hover .ml-numero { opacity: 1; }
+
+        .ml-conteudo { flex: 1; }
+        .ml-titulo {
+            font-family: Arial, sans-serif; font-weight: 700;
+            font-size: 1.05rem; color: var(--branco);
+            margin-bottom: 2px; line-height: 1.3;
+        }
+        .ml-subtitulo {
+            font-size: 0.9rem; color: var(--texto-secundario);
+            font-style: italic; margin-bottom: 8px;
+        }
+        .ml-descricao {
+            font-size: 0.88rem; color: var(--texto-secundario);
+            line-height: 1.6;
+        }
+        .ml-seta {
+            font-size: 1.2rem; color: rgba(96,165,250,0.3);
+            align-self: center; transition: all 0.3s;
+        }
+        .ml-card:hover .ml-seta { color: var(--cor-ebook1); transform: translateX(4px); }
+
+        .ml-status {
+            display: inline-block;
+            font-family: Arial, sans-serif; font-weight: 700;
+            font-size: 0.65rem; letter-spacing: 1px;
+            padding: 2px 10px; border-radius: 10px; margin-top: 8px;
+        }
+        .ml-status.publicado {
+            background: rgba(16,185,129,0.15); color: var(--verde);
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+        .ml-status.em-breve {
+            background: rgba(148,163,184,0.1); color: var(--texto-secundario);
+            border: 1px solid rgba(148,163,184,0.2);
+        }
+
+        /* CARD INFO */
+        .card {
+            background: var(--fundo-card); border: 1px solid rgba(59,130,246,0.15);
+            border-radius: 8px; padding: 20px 24px; margin: 1rem 0;
+        }
+        .card-nivel { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 0.8rem; }
+        .card-nivel:last-child { margin-bottom: 0; }
+        .card-nivel .label {
+            font-family: Arial, sans-serif; font-weight: 700;
+            font-size: 0.9rem; color: var(--cor-ebook1); min-width: 90px;
+        }
+        .card-nivel .desc { color: var(--texto-principal); font-size: 0.95rem; }
+
+        /* MAPA CONTEXTO */
+        .mapa-contexto {
+            margin: 2rem 0; text-align: center;
+        }
+        .mapa-item {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px; border-radius: 8px; margin: 4px;
+            font-family: Arial, sans-serif; font-size: 0.85rem; font-weight: 600;
+        }
+        .mapa-item.ativo {
+            background: rgba(96,165,250,0.2); border: 2px solid var(--cor-ebook1);
+            color: var(--cor-ebook1);
+        }
+        .mapa-item.futuro {
+            background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.2);
+            color: var(--texto-secundario);
+        }
+        .mapa-seta { color: var(--texto-secundario); font-size: 0.9rem; margin: 0 4px; }
+
+        /* AUTOR BOX */
+        .autor-box {
+            background: var(--fundo-card); border: 1px solid var(--azul-medio);
+            border-radius: 10px; padding: 28px; margin: 1.5rem 0; text-align: center;
+        }
+        .autor-box .nome {
+            font-family: Arial Black, Arial, sans-serif;
+            font-size: 1.4rem; color: var(--branco); margin-bottom: 1rem;
+        }
+        .autor-box p { text-align: justify; margin-bottom: 0.8rem; }
+        .assinatura {
+            font-family: Arial, sans-serif; font-weight: 700;
+            color: var(--branco); text-align: right;
+            margin-top: 1rem; font-size: 0.95rem;
+        }
+
+        /* CTA DOWNLOAD */
+        .cta-area { text-align: center; margin: 2rem 0; }
+        .cta-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--cor-ebook1), var(--azul-escuro));
+            color: var(--branco);
+            font-family: Arial, sans-serif; font-weight: 700;
+            font-size: 0.95rem; letter-spacing: 0.5px;
+            padding: 14px 36px; border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s; border: none; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(96,165,250,0.2);
+        }
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(96,165,250,0.3);
+        }
+        .cta-sub {
+            font-size: 0.8rem; color: var(--texto-secundario);
+            margin-top: 8px;
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 2rem 0; text-align: center;
+            border-top: 1px solid rgba(59,130,246,0.15); margin-top: 2rem;
+        }
+        footer p {
+            font-family: Arial, sans-serif; font-size: 0.8rem;
+            color: var(--texto-secundario); margin-bottom: 0.3rem;
+        }
+        footer .frase-final {
+            font-style: italic; color: var(--cor-ebook1);
+            font-family: Georgia, serif; font-size: 0.85rem; margin-top: 0.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .hero::before { font-size: 140px; }
+            .section h2 { font-size: 1.2rem; }
+            .equacao-box code { font-size: 0.8rem; }
+            .header-nav { display: none; }
+            .impacto-box p { font-size: 1.1rem; }
+            .ml-card { padding: 16px; gap: 12px; }
+            .ml-numero { font-size: 1.4rem; min-width: 40px; }
+            .mapa-item { display: block; margin: 6px auto; max-width: 280px; }
+            .mapa-seta { display: block; margin: 2px auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">PP<span>7</span>+IAS</a>
+            <nav class="header-nav">
+                <a href="introducao-geral.html" class="voltar">← Enquanto É Tempo</a>
+                <a href="#sobre">Sobre</a>
+                <a href="#indice">Índice</a>
+                <a href="#autor">Autor</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ===== HERO / CAPA ===== -->
+        <section class="hero">
+            <div class="badge">eBOOK #001 • PARTE I • PP7+IAS</div>
+            <h1>LIDERANÇA HÍBRIDA</h1>
+            <p class="subtitle">Consciência Humana em Alta Frequência</p>
+            <div class="hero-line"></div>
+            <div class="badge-parte">ML01 – ML07 • 7 MINILIVROS</div>
+            <p class="descricao">O que a velha guarda precisa atualizar e a nova geração precisa descobrir. 7 MiniLivros sobre perguntas, decisões, competência, talento, times, reinvenção e o preço da vida boa.</p>
+
+            <div class="equacao-box">
+                <code>(<span class="dest"><strong>Fator Humano</strong></span> + Intuição + Execução) <span class="mult">×</span> Alta Frequência</code>
+            </div>
+
+            <p class="autor-label">Por</p>
+            <p class="autor-nome">Paulo Periquito</p>
+        </section>
+
+        <!-- ===== IMPACTO ===== -->
+        <section class="section">
+            <div class="impacto-box">
+                <p>"O que você evita decidir, decide por você."</p>
+            </div>
+        </section>
+
+        <!-- ===== SOBRE ESTE eBOOK ===== -->
+        <section class="section" id="sobre">
+            <div class="section-header">
+                <h2>SOBRE ESTE eBOOK</h2>
+            </div>
+            <hr>
+
+            <p>Este é o primeiro eBook do projeto <em>Enquanto É Tempo</em> — uma trilogia sobre decisão, coragem e legado. A Parte I trata do <strong style="color:var(--branco);">Fator Humano</strong>: o software que nenhuma máquina replica.</p>
+
+            <p>São 7 MiniLivros independentes, organizados em 3 blocos temáticos. Cada um se lê em cerca de 15 minutos. Juntos, formam uma jornada que começa na engenharia da pergunta e termina no preço da vida boa.</p>
+
+            <p>Você pode ler na ordem — do ML01 ao ML07 — ou pular direto para o tema que mais fala com você agora. Cada MiniLivro funciona sozinho. Mas a soma é maior que as partes.</p>
+
+            <div class="citacao">
+                <p>A Parte I é sobre como pensar. Antes de agir, antes de liderar, antes de decidir — é preciso saber perguntar.</p>
+                <p class="autor-citacao">— PP</p>
+            </div>
+
+            <h3>O que você vai encontrar</h3>
+            <div class="card">
+                <div class="card-nivel">
+                    <span class="label">Formato</span>
+                    <span class="desc">7 MiniLivros com Capa, Dedicatória/Epígrafe, 7 Seções de conteúdo, Seção IA + Prompt, 7 Lições e Citação de fecho.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Tempo</span>
+                    <span class="desc">~15 minutos por MiniLivro. ~2 horas para o eBook completo.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Leitura</span>
+                    <span class="desc">Cada MiniLivro é independente. Leia na ordem ou conforme sua necessidade.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Marca</span>
+                    <span class="desc">Seção IA + prompt prático em todos os 7 MiniLivros — marca registrada PP7+IAS.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ÍNDICE — OS 7 MINILIVROS ===== -->
+        <section class="section" id="indice">
+            <div class="section-header">
+                <h2>OS 7 MINILIVROS</h2>
+            </div>
+            <hr>
+
+            <!-- BLOCO 1 -->
+            <div class="bloco-parte">
+                <div class="parte-label">BLOCO 1 DE 3</div>
+                <div class="parte-titulo">A MENTE — O Software Humano</div>
+                <div class="parte-desc">Como perguntar melhor e decidir sob pressão.</div>
+            </div>
+
+            <a href="ml01.html" class="ml-card">
+                <div class="ml-numero">01</div>
+                <div class="ml-conteudo">
+                    <div class="ml-titulo">A Resposta é o Problema</div>
+                    <div class="ml-subtitulo">Engenharia da Pergunta</div>
+                    <div class="ml-descricao">Quem sabe perguntar lidera a conversa. Quem só responde, segue o roteiro dos outros. O primeiro passo da liderança é reformular a pergunta.</div>
+                    <div class="ml-status publicado">PUBLICADO</div>
+                </div>
+                <div class="ml-seta">→</div>
+            </a>
+
+            <a href="ml02.html" class="ml-card">
+                <div class="ml-numero">02</div>
+                <div class="ml-conteudo">
+                    <div class="ml-titulo">A Ciência da Decisão Difícil</div>
+                    <div class="ml-subtitulo">Carreira, Erros e Opções</div>
+                    <div class="ml-descricao">Toda decisão importante é desconfortável. O custo de não decidir é maior do que decidir errado. Um framework para quando o tempo aperta.</div>
+                    <div class="ml-status publicado">PUBLICADO</div>
+                </div>
+                <div class="ml-seta">→</div>
+            </a>
+
+            <!-- BLOCO 2 -->
+            <div class="bloco-parte">
+                <div class="parte-label">BLOCO 2 DE 3</div>
+                <div class="parte-titulo">A MÁQUINA — A Nova Competência</div>
+                <div class="parte-desc">O que a IA amplifica e o que ela não substitui.</div>
+            </div>
+
+            <a href="ml03.html" class="ml-card">
+                <div class="ml-numero">03</div>
+                <div class="ml-conteudo">
+                    <div class="ml-titulo">O Valor que a Máquina Não Tem</div>
+                    <div class="ml-subtitulo">Competência &amp; Aprendizado</div>
+                    <div class="ml-descricao">A IA processa. O humano discerne. Competência não é saber tudo — é saber o que fazer com o que se sabe. E continuar aprendendo.</div>
+                    <div class="ml-status publicado">PUBLICADO</div>
+                </div>
+                <div class="ml-seta">→</div>
+            </a>
+
+            <a href="ml04.html" class="ml-card">
+                <div class="ml-numero">04</div>
+                <div class="ml-conteudo">
+                    <div class="ml-titulo">A Equação do Talento</div>
+                    <div class="ml-subtitulo">(QI + IE + EX) × IA</div>
+                    <div class="ml-descricao">Inteligência, experiência e inteligência emocional são a base. Mas quando multiplicadas pela IA, o talento ganha uma frequência nova.</div>
+                    <div class="ml-status publicado">PUBLICADO</div>
+                </div>
+                <div class="ml-seta">→</div>
+            </a>
+
+            <!-- BLOCO 3 -->
+            <div class="bloco-parte">
+                <div class="parte-label">BLOCO 3 DE 3</div>
+                <div class="parte-titulo">O LEGADO — A Liderança Real</div>
+                <div class="parte-desc">Times, reinvenção e as escolhas que definem uma vida.</div>
+            </div>
+
+            <a href="ml05.html" class="ml-card">
+                <div class="ml-numero">05</div>
+                <div class="ml-conteudo">
+                    <div class="ml-titulo">Liderança sem Ego</div>
+                    <div class="ml-subtitulo">Times &amp; Autonomia</div>
+                    <div class="ml-descricao">O líder que centraliza, sufoca. O que distribui, multiplica. Liderança real é criar times que não precisem de você para funcionar.</div>
+                    <div class="ml-status publicado">PUBLICADO</div>
+                </div>
+                <div class="ml-seta">→</div>
+            </a>
+
+            <a href="ml06.html" class="ml-card">
+                <div class="ml-numero">06</div>
+                <div class="ml-conteudo">
+                    <div class="ml-titulo">A Arte da Reinvenção</div>
+                    <div class="ml-subtitulo">Sem Virar Personagem</div>
+                    <div class="ml-descricao">Reinventar-se não é abandonar quem você é. É saber o que levar e o que largar. O risco não é mudar — é fingir que não precisa.</div>
+                    <div class="ml-status publicado">PUBLICADO</div>
+                </div>
+                <div class="ml-seta">→</div>
+            </a>
+
+            <a href="ml07.html" class="ml-card">
+                <div class="ml-numero">07</div>
+                <div class="ml-conteudo">
+                    <div class="ml-titulo">O Preço da Vida Boa</div>
+                    <div class="ml-subtitulo">A Conta Final</div>
+                    <div class="ml-descricao">Sucesso tem custo. Omissão também. A diferença é que quem decide paga o preço que escolheu. Quem não decide, paga o que sobrou.</div>
+                    <div class="ml-status publicado">PUBLICADO</div>
+                </div>
+                <div class="ml-seta">→</div>
+            </a>
+        </section>
+
+        <!-- ===== CONTEXTO NA TRILOGIA ===== -->
+        <section class="section" id="contexto">
+            <div class="section-header">
+                <h2>ONDE ESTE eBOOK SE ENCAIXA</h2>
+            </div>
+            <hr>
+            <p>O livro <em>Enquanto É Tempo</em> é composto por 3 Partes. Este eBook é a Parte I — o ponto de partida.</p>
+
+            <div class="mapa-contexto">
+                <div class="mapa-item ativo">📘 Parte I — Liderança Híbrida</div>
+                <span class="mapa-seta">→</span>
+                <div class="mapa-item futuro">📙 Parte II — A Coragem de Executar</div>
+                <span class="mapa-seta">→</span>
+                <div class="mapa-item futuro">📗 Parte III — O Que Fica</div>
+            </div>
+
+            <div class="citacao">
+                <p>A Parte I é sobre como pensar. A Parte II é sobre como agir. A Parte III é sobre o que fica.</p>
+                <p class="autor-citacao">— PP</p>
+            </div>
+        </section>
+
+        <!-- ===== CTA DOWNLOAD ===== -->
+        <section class="section">
+            <div class="cta-area">
+                <a href="/ebooks/introducao_lideranca_hibrida.pdf" class="cta-btn">⬇ Baixar eBook em PDF</a>
+                <p class="cta-sub">Formato PDF • Leitura offline • Gratuito</p>
+            </div>
+        </section>
+
+        <!-- ===== SOBRE O AUTOR ===== -->
+        <section class="section" id="autor">
+            <div class="section-header">
+                <h2>SOBRE O AUTOR</h2>
+            </div>
+            <hr>
+            <div class="autor-box">
+                <p class="nome">Paulo Periquito</p>
+                <p>Mais de 4 décadas de experiência. Ex-CEO em multinacionais como ITT Data Services, Alcoa e Whirlpool. Vive entre o Brasil e Portugal. Poderia ter parado. Decidiu se reinventar.</p>
+                <p>Hoje atua como investidor anjo e mentor. Estuda obsessivamente a intersecção entre sabedoria humana e IA. O projeto PP7+IAS é sua missão: destilar uma vida inteira de gestão em sabedoria prática para as novas gerações.</p>
+            </div>
+
+            <div class="citacao">
+                <p>"Liderar não é sobre cargos; é sobre servir. É sobre evoluir. É sobre aprender e ensinar a aprender; e sobre pessoas, sobre vidas, sobre criar novos líderes."</p>
+            </div>
+
+            <p>Comentários, questionamentos, sugestões — me escreva.</p>
+            <p class="assinatura">— PP</p>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer>
+            <p><strong style="color:var(--branco);">PP7+IAS</strong> | eBook #001 — Liderança Híbrida | 2026</p>
+            <p>pp7ias-portal.com.br</p>
+            <p>Paulo Periquito (PP) + Claude Pro (Anthropic)</p>
+            <p class="frase-final">"Decida. Enquanto é tempo."</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

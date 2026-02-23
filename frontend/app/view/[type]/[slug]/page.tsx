@@ -9,6 +9,7 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     newsletter: { folder: "newsletters", title: "Newsletter" },
     "mini-livro": { folder: "mini-livros", title: "Mini-Livro" },
     biblioteca: { folder: "biblioteca", title: "Biblioteca" },
+    "especial-semana": { folder: "especial-semana", title: "Especial da Semana" },
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -33,7 +34,9 @@ export default async function ViewPage({ params }: Props) {
         notFound();
     }
 
-    const htmlPath = `/${config.folder}/${slug}.html`;
+    // Usa API route proxy para servir HTML do Supabase Storage
+    // Isso resolve problemas de X-Frame-Options e CORS
+    const htmlPath = `/api/proxy-html/${type}/${slug}`;
 
     return (
         <div className="w-full h-screen bg-[var(--background)]">

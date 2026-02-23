@@ -3,7 +3,6 @@
 import { Footer, Navbar } from "@/components";
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
-import { supabase } from "@/lib/supabase";
 import {
     AlertCircle,
     ArrowLeft,
@@ -35,7 +34,6 @@ export default function UserPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasLoaded, setHasLoaded] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
 
     // Estados para alterar senha
     const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -53,21 +51,13 @@ export default function UserPage() {
         confirm: false,
     });
 
+    // Derivado do user entity - sem efeito, sem chamada assíncrona
+    const isAdmin = user?.isAdmin ?? false;
+
     // Marca que o primeiro ciclo de loading completou
     useEffect(() => {
         if (!isLoading) setHasLoaded(true);
     }, [isLoading]);
-
-    // Verifica se o usuário é admin
-    useEffect(() => {
-        const checkAdminStatus = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-            setIsAdmin(session?.user?.app_metadata?.role === "admin");
-        };
-        checkAdminStatus();
-    }, [user]);
 
     // Redireciona para home se não logado (somente após loading inicial)
     useEffect(() => {

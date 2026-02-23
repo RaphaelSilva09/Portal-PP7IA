@@ -86,6 +86,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
                     acceptEmailUpdates: params.acceptEmailUpdates,
                     acceptWhatsAppUpdates: params.acceptWhatsAppUpdates,
                     createdAt: new Date(),
+                    role: "user",
                 });
 
                 return {
@@ -118,6 +119,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 acceptEmailUpdates: userData.accept_email_updates,
                 acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
                 createdAt: new Date(userData.created_at),
+                role: "user",
             });
 
             return {
@@ -172,6 +174,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 acceptEmailUpdates: userData.accept_email_updates,
                 acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
                 createdAt: new Date(userData.created_at),
+                role: "user",
             });
 
             return {
@@ -222,6 +225,9 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 return null;
             }
 
+            // Mapeia role do app_metadata (definido no JWT pelo Supabase)
+            const role = (authUser.app_metadata?.role as string) || "user";
+
             return this.mapToUser(authUser.id, {
                 email: userData.email,
                 nome: userData.nome,
@@ -229,6 +235,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 acceptEmailUpdates: userData.accept_email_updates,
                 acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
                 createdAt: new Date(userData.created_at),
+                role,
             });
         } catch {
             return null;
