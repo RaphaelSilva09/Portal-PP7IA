@@ -75,16 +75,23 @@ export function UserManager() {
         setFeedback({ isVisible: true, type, message });
     };
 
-    // Filtrar usuários por nome ou email
+    // Filtrar usuários por nome ou email e ordenar alfabeticamente
     const filteredUsers = useMemo(() => {
-        if (!searchQuery.trim()) {
-            return users;
+        let result = users;
+
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            result = users.filter(
+                user => user.nome.toLowerCase().includes(query) || user.email.toLowerCase().includes(query),
+            );
         }
 
-        const query = searchQuery.toLowerCase();
-        return users.filter(
-            user => user.nome.toLowerCase().includes(query) || user.email.toLowerCase().includes(query),
-        );
+        // Ordenar alfabeticamente por nome (ou email se não houver nome)
+        return result.sort((a, b) => {
+            const nameA = (a.nome || a.email).toLowerCase();
+            const nameB = (b.nome || b.email).toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
     }, [users, searchQuery]);
 
     const handleDelete = (user: UserListItem) => {
