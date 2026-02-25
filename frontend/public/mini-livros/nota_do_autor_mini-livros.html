@@ -1,294 +1,559 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Doc-Mestre — Enquanto É Tempo | PP7+IAS</title>
-<style>
-:root{--ae:#1a2e4a;--am:#2d5a8e;--ac:#5b9bd5;--bg:#1e3554;--tx:#e2e8f0;--tx2:#94a3b8;--br:#fff;--ouro:#f0c950;--ouro-f:#b8860b;--vd:#0d7a4f;--vdc:#10b981;--vm:#ef4444;--lj:#f59e0b}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Georgia','Times New Roman',serif;background:linear-gradient(180deg,var(--ae) 0%,var(--bg) 50%,var(--ae) 100%);color:var(--tx);line-height:1.7;font-size:16px;min-height:100vh}
-.ct{max-width:820px;margin:0 auto;padding:0 24px}
-header{position:fixed;top:0;left:0;right:0;background:rgba(26,46,74,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(91,155,213,0.2);z-index:1000;padding:12px 24px}
-.hc{max-width:820px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
-.logo{font-family:Arial,sans-serif;font-weight:900;font-size:1.1rem;color:var(--br);text-decoration:none}
-.logo span{color:var(--ac)}
-.bdg{font-family:Arial,sans-serif;font-size:0.7rem;background:var(--ouro-f);color:var(--br);padding:4px 12px;border-radius:20px;font-weight:700;letter-spacing:1px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enquanto É Tempo — Introdução Geral | PP7+IAS</title>
+    <style>
+        :root {
+            --azul-escuro: #1e40af;
+            --azul-medio: #3b82f6;
+            --azul-claro: #60a5fa;
+            --azul-muito-claro: #93c5fd;
+            --fundo-escuro: #1a237e;
+            --fundo-medio: #283593;
+            --fundo-card: #1a2070;
+            --texto-principal: #e2e8f0;
+            --texto-secundario: #94a3b8;
+            --branco: #ffffff;
+            --amarelo: #fbbf24;
+            --verde: #10b981;
+            --ouro: #f0c950;
+            --ouro-nomes: #ffd966;
+            --ouro-borda: #d4a520;
+            --cor-ebook1: #60a5fa;
+            --cor-ebook2: #f59e0b;
+            --cor-ebook3: #10b981;
+        }
 
-.capa{text-align:center;padding:100px 0 40px}
-.capa-code{font-family:'Courier New',monospace;font-size:0.7rem;color:var(--tx2);letter-spacing:2px;margin-bottom:8px}
-.capa h1{font-size:2.2rem;color:var(--ouro);line-height:1.2;margin-bottom:8px;font-family:Arial,sans-serif;font-weight:900}
-.capa-sub{font-size:1.1rem;color:var(--ac);font-style:italic;margin-bottom:16px}
-.capa-desc{font-size:0.9rem;color:var(--tx2);max-width:560px;margin:0 auto 16px}
-.capa-data{font-family:Arial,sans-serif;font-size:0.8rem;color:var(--tx2)}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Georgia', 'Times New Roman', serif; background: linear-gradient(180deg, var(--fundo-escuro) 0%, var(--fundo-medio) 50%, var(--fundo-escuro) 100%); color: var(--texto-principal); line-height: 1.7; font-size: 16px; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
 
-h2{font-family:Arial,sans-serif;font-size:1.3rem;color:var(--ouro);margin:2.5rem 0 1rem;padding-bottom:6px;border-bottom:2px solid rgba(240,201,80,0.3)}
-h3{font-family:Arial,sans-serif;font-size:1.05rem;color:var(--ac);margin:1.5rem 0 0.8rem}
-p{margin-bottom:0.8rem}
+        /* HEADER */
+        header { position: fixed; top: 0; left: 0; right: 0; background: rgba(26, 35, 126, 0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(59, 130, 246, 0.2); z-index: 1000; padding: 12px 24px; }
+        .header-content { max-width: 800px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: Arial, sans-serif; font-weight: 700; font-size: 1rem; color: var(--branco); text-decoration: none; }
+        .logo span { color: var(--ouro); }
+        .header-nav { display: flex; gap: 1.2rem; }
+        .header-nav a { color: var(--texto-secundario); text-decoration: none; font-family: Arial, sans-serif; font-size: 0.8rem; font-weight: 500; transition: color 0.2s; }
+        .header-nav a:hover { color: var(--branco); }
 
-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.88rem}
-th{background:rgba(91,155,213,0.12);font-family:Arial,sans-serif;font-size:0.8rem;color:var(--ac);padding:8px 10px;text-align:left;font-weight:700}
-td{padding:8px 10px;border-bottom:1px solid rgba(91,155,213,0.08);vertical-align:top}
+        /* HERO */
+        .hero { padding: 7rem 0 3rem; text-align: center; position: relative; }
+        .hero::before { content: '21'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 300px; font-weight: 900; color: rgba(255,255,255,0.02); font-family: Georgia, serif; pointer-events: none; }
+        .badge { display: inline-block; background: var(--ouro); color: var(--fundo-escuro); font-family: Arial, sans-serif; font-weight: 700; font-size: 0.8rem; padding: 6px 20px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 2rem; }
+        .hero h1 { font-size: 2.8rem; font-weight: 900; color: var(--ouro); font-family: Arial Black, Arial, sans-serif; letter-spacing: 1px; margin-bottom: 0.5rem; text-shadow: 0 0 30px rgba(240,201,80,0.2); }
+        .hero .subtitle { font-size: 1.15rem; color: var(--texto-secundario); font-style: italic; margin-bottom: 1.5rem; line-height: 1.8; }
+        .hero-line { width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); margin: 1.5rem auto; }
+        .hero .destaque { font-family: Arial, sans-serif; font-weight: 700; font-size: 1rem; color: var(--branco); margin-bottom: 1.5rem; }
+        .hero .descricao { font-size: 1rem; color: var(--texto-secundario); max-width: 560px; margin: 0 auto 2rem; }
+        .hero .tags { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--azul-claro); letter-spacing: 1px; margin-bottom: 2rem; }
+        .hero .tags span { color: var(--texto-secundario); }
+        .hero .autor-label { font-size: 0.95rem; color: var(--texto-secundario); margin-bottom: 0.3rem; }
+        .hero .autor-nome { font-family: Arial, sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--branco); }
 
-.card{background:rgba(45,90,142,0.1);border:1px solid rgba(91,155,213,0.15);border-radius:10px;padding:18px;margin:1rem 0}
-.card-ouro{border-left:4px solid var(--ouro)}
-.card-azul{border-left:4px solid var(--ac)}
-.card-verde{border-left:4px solid var(--vdc)}
+        /* EQUAÇÃO */
+        .equacao-box { background: rgba(30,64,175,0.2); border: 1px solid var(--azul-medio); border-radius: 8px; padding: 16px 24px; text-align: center; margin: 1.5rem auto; max-width: 600px; }
+        .equacao-box code { font-family: 'Courier New', monospace; font-size: 0.95rem; color: var(--branco); font-weight: 700; }
+        .equacao-box code .mult { color: var(--ouro); }
 
-.tag{display:inline-block;font-family:Arial,sans-serif;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:8px;letter-spacing:0.5px}
-.tag-pronto{background:rgba(16,185,129,0.2);color:var(--vdc)}
-.tag-parcial{background:rgba(245,158,11,0.2);color:var(--lj)}
-.tag-criar{background:rgba(239,68,68,0.2);color:var(--vm)}
-.tag-corrigir{background:rgba(239,68,68,0.15);color:var(--vm)}
+        /* SEÇÕES */
+        .section { padding: 2.5rem 0; border-top: 1px solid rgba(59,130,246,0.15); }
+        .section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 1.2rem; }
+        .section h2 { font-family: Arial, sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--azul-claro); line-height: 1.3; }
+        .section h3 { font-family: Arial, sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--azul-muito-claro); margin: 1.5rem 0 0.8rem; }
+        .section p { margin-bottom: 1rem; text-align: justify; }
+        .section hr { border: none; height: 1px; background: var(--azul-medio); margin-bottom: 1.2rem; }
 
-.parte-label{font-family:Arial,sans-serif;font-weight:700;font-size:0.75rem;color:var(--ouro);letter-spacing:1px;text-transform:uppercase;margin:12px 0 4px;padding-top:8px;border-top:1px solid rgba(91,155,213,0.08)}
-.parte-label:first-of-type{border-top:none;padding-top:0}
+        /* CARDS */
+        .card { background: var(--fundo-card); border: 1px solid rgba(59,130,246,0.15); border-radius: 8px; padding: 20px 24px; margin: 1rem 0; }
+        .card-nivel { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 0.8rem; }
+        .card-nivel:last-child { margin-bottom: 0; }
+        .card-nivel .label { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--azul-claro); min-width: 90px; }
+        .card-nivel .desc { color: var(--texto-principal); font-size: 0.95rem; }
 
-.regra{display:flex;gap:12px;margin:8px 0;font-size:0.88rem}
-.regra-ml{font-family:Arial,sans-serif;font-weight:700;color:var(--ac);min-width:100px;font-size:0.85rem}
+        /* CITAÇÃO */
+        .citacao { border-left: 3px solid var(--azul-medio); padding: 16px 24px; margin: 1.5rem 0; background: rgba(59,130,246,0.05); border-radius: 0 8px 8px 0; }
+        .citacao p { font-style: italic; color: var(--azul-claro); font-size: 1.05rem; line-height: 1.7; margin-bottom: 0; }
+        .citacao .autor-citacao { font-family: Arial, sans-serif; font-style: normal; font-weight: 700; color: var(--branco); font-size: 0.9rem; margin-top: 0.8rem; text-align: right; }
 
-.timeline-item{padding:12px 0 12px 20px;border-left:3px solid var(--am);margin-left:8px;position:relative}
-.timeline-item::before{content:'';width:10px;height:10px;border-radius:50%;background:var(--am);position:absolute;left:-7px;top:16px}
-.timeline-item .fase{font-family:Arial,sans-serif;font-weight:700;font-size:0.8rem;color:var(--ouro);letter-spacing:1px;margin-bottom:4px}
-.timeline-item p{font-size:0.9rem;margin:0}
+        /* IMPACTO */
+        .impacto-box { text-align: center; padding: 40px 30px; margin: 1.5rem 0; border: 2px solid var(--ouro-borda); border-radius: 12px; background: rgba(240,201,80,0.04); }
+        .impacto-box p { font-size: 1.3rem; font-style: italic; color: var(--ouro); font-weight: 700; margin: 0; }
 
-footer{text-align:center;padding:2rem 0;border-top:1px solid rgba(91,155,213,0.15);margin-top:2rem;font-family:Arial,sans-serif;font-size:0.8rem;color:var(--tx2)}
-footer .code{font-family:'Courier New',monospace;font-size:0.75rem;margin-bottom:4px}
+        /* MANIFESTO */
+        .manifesto { border: 2px solid var(--ouro-borda); border-radius: 12px; padding: 28px; margin: 1.5rem 0; background: rgba(240,201,80,0.03); text-align: center; }
+        .manifesto .man-titulo { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 2px; color: var(--ouro); margin-bottom: 16px; text-transform: uppercase; }
+        .manifesto p { font-style: italic; color: var(--ouro); font-size: 1.1rem; line-height: 1.7; margin-bottom: 0; }
 
-@media(max-width:640px){.capa h1{font-size:1.7rem}h2{font-size:1.1rem}table{font-size:0.8rem}td,th{padding:6px 8px}.ct{padding:0 16px}}
-</style>
+        /* ESTRUTURA VISUAL */
+        .estrutura-visual { margin: 2rem 0; text-align: center; }
+        .nivel-livro { background: linear-gradient(135deg, rgba(240,201,80,0.15), rgba(240,201,80,0.05)); border: 2px solid var(--ouro-borda); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+        .nivel-livro .titulo-nivel { font-family: Arial Black, Arial, sans-serif; font-size: 1.2rem; color: var(--ouro); margin-bottom: 4px; }
+        .nivel-livro .desc-nivel { font-size: 0.9rem; color: var(--texto-secundario); }
+        .seta-down { font-size: 1.5rem; color: var(--azul-medio); margin: 8px 0; }
+        .nivel-ebook { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.05)); border: 2px solid var(--azul-medio); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+        .nivel-ebook .titulo-nivel { font-family: Arial, sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--azul-claro); margin-bottom: 4px; }
+        .nivel-ebook .desc-nivel { font-size: 0.9rem; color: var(--texto-secundario); }
+        .nivel-mini { background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.03)); border: 2px solid var(--verde); border-radius: 12px; padding: 20px; }
+        .nivel-mini .titulo-nivel { font-family: Arial, sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--verde); margin-bottom: 4px; }
+        .nivel-mini .desc-nivel { font-size: 0.9rem; color: var(--texto-secundario); }
+
+        /* EBOOK CARDS */
+        .ebook-card { border-radius: 12px; padding: 24px; margin: 1.5rem 0; position: relative; overflow: hidden; }
+        .ebook-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .ebook-card.eb1 { background: linear-gradient(135deg, rgba(96,165,250,0.1), rgba(96,165,250,0.03)); border: 1px solid rgba(96,165,250,0.3); }
+        .ebook-card.eb1::before { background: var(--cor-ebook1); }
+        .ebook-card.eb2 { background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.03)); border: 1px solid rgba(245,158,11,0.3); }
+        .ebook-card.eb2::before { background: var(--cor-ebook2); }
+        .ebook-card.eb3 { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.03)); border: 1px solid rgba(16,185,129,0.3); }
+        .ebook-card.eb3::before { background: var(--cor-ebook3); }
+        .ebook-card .eb-numero { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 4px; }
+        .ebook-card.eb1 .eb-numero { color: var(--cor-ebook1); }
+        .ebook-card.eb2 .eb-numero { color: var(--cor-ebook2); }
+        .ebook-card.eb3 .eb-numero { color: var(--cor-ebook3); }
+        .ebook-card .eb-titulo { font-family: Arial Black, Arial, sans-serif; font-size: 1.3rem; color: var(--branco); margin-bottom: 4px; }
+        .ebook-card .eb-subtitulo { font-style: italic; color: var(--texto-secundario); margin-bottom: 12px; font-size: 0.95rem; }
+        .ebook-card .eb-desc { font-size: 0.95rem; color: var(--texto-principal); margin-bottom: 16px; text-align: justify; }
+
+        .mini-list { margin: 0.5rem 0 0; padding: 0; list-style: none; }
+        .mini-list li { padding: 8px 0; border-bottom: 1px solid rgba(59,130,246,0.08); font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px; }
+        .mini-list li:last-child { border-bottom: none; }
+        .mini-num { font-family: Arial, sans-serif; font-weight: 700; min-width: 28px; text-align: center; }
+        .eb1 .mini-num { color: var(--cor-ebook1); }
+        .eb2 .mini-num { color: var(--cor-ebook2); }
+        .eb3 .mini-num { color: var(--cor-ebook3); }
+
+        .parte-label { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; padding: 6px 0 2px; margin-top: 8px; }
+        .eb1 .parte-label { color: rgba(96,165,250,0.6); }
+        .eb2 .parte-label { color: rgba(245,158,11,0.6); }
+        .eb3 .parte-label { color: rgba(16,185,129,0.6); }
+
+        /* MAPA */
+        .mapa-resumo { background: var(--fundo-card); border: 1px solid rgba(59,130,246,0.15); border-radius: 8px; padding: 20px 24px; margin: 1.5rem 0; }
+        .mapa-linha { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(59,130,246,0.08); }
+        .mapa-linha:last-child { border-bottom: none; }
+        .mapa-badge { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.75rem; padding: 3px 10px; border-radius: 10px; min-width: 70px; text-align: center; }
+        .mapa-badge.b1 { background: rgba(96,165,250,0.2); color: var(--cor-ebook1); }
+        .mapa-badge.b2 { background: rgba(245,158,11,0.2); color: var(--cor-ebook2); }
+        .mapa-badge.b3 { background: rgba(16,185,129,0.2); color: var(--cor-ebook3); }
+        .mapa-texto { font-size: 0.9rem; color: var(--texto-principal); }
+
+        /* TIMELINE */
+        .timeline { margin: 2rem 0; position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--verde), var(--azul-medio), var(--ouro), var(--amarelo)); }
+        .timeline-item { position: relative; margin-bottom: 2rem; padding-left: 20px; }
+        .timeline-item::before { content: ''; position: absolute; left: -24px; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--branco); }
+        .timeline-item:nth-child(1)::before { background: var(--verde); }
+        .timeline-item:nth-child(2)::before { background: var(--azul-medio); }
+        .timeline-item:nth-child(3)::before { background: var(--ouro); }
+        .timeline-item:nth-child(4)::before { background: var(--amarelo); }
+        .timeline-item .fase { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 4px; }
+        .timeline-item:nth-child(1) .fase { color: var(--verde); }
+        .timeline-item:nth-child(2) .fase { color: var(--azul-claro); }
+        .timeline-item:nth-child(3) .fase { color: var(--ouro); }
+        .timeline-item:nth-child(4) .fase { color: var(--amarelo); }
+        .timeline-item .fase-titulo { font-family: Arial, sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--branco); margin-bottom: 4px; }
+        .timeline-item .fase-desc { font-size: 0.95rem; color: var(--texto-secundario); line-height: 1.6; }
+
+        /* FORMATOS */
+        .formato-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+        .formato-item { background: var(--fundo-card); border: 1px solid rgba(59,130,246,0.15); border-radius: 8px; padding: 16px; text-align: center; }
+        .formato-item .formato-icon { font-size: 1.8rem; margin-bottom: 8px; }
+        .formato-item .formato-nome { font-family: Arial, sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--azul-claro); margin-bottom: 4px; }
+        .formato-item .formato-desc { font-size: 0.8rem; color: var(--texto-secundario); }
+
+        /* AUTOR */
+        .autor-box { background: var(--fundo-card); border: 1px solid var(--azul-medio); border-radius: 10px; padding: 28px; margin: 1.5rem 0; text-align: center; }
+        .autor-box .nome { font-family: Arial Black, Arial, sans-serif; font-size: 1.4rem; color: var(--branco); margin-bottom: 1rem; }
+        .autor-box p { text-align: justify; margin-bottom: 0.8rem; }
+        .assinatura { font-family: Arial, sans-serif; font-weight: 700; color: var(--branco); text-align: right; margin-top: 1rem; font-size: 0.95rem; }
+
+        /* FOOTER */
+        footer { padding: 2rem 0; text-align: center; border-top: 1px solid rgba(59,130,246,0.15); margin-top: 2rem; }
+        footer p { font-family: Arial, sans-serif; font-size: 0.8rem; color: var(--texto-secundario); margin-bottom: 0.3rem; }
+        footer .frase-final { font-style: italic; color: var(--azul-claro); font-family: Georgia, serif; font-size: 0.85rem; margin-top: 0.5rem; }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .hero::before { font-size: 200px; }
+            .section h2 { font-size: 1.2rem; }
+            .equacao-box code { font-size: 0.8rem; }
+            .header-nav { display: none; }
+            .formato-grid { grid-template-columns: 1fr; }
+            .impacto-box p { font-size: 1.1rem; }
+            .ebook-card .eb-titulo { font-size: 1.1rem; }
+        }
+    </style>
 </head>
 <body>
 
-<header><div class="hc">
-<a href="#" class="logo">PP7<span>+IAS</span></a>
-<div class="bdg">DOC-MESTRE</div>
-</div></header>
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">PP<span>7</span>+IAS</a>
+            <nav class="header-nav">
+                <a href="#porque">Por quê?</a>
+                <a href="#estrutura">Estrutura</a>
+                <a href="#partes">3 Partes</a>
+                <a href="#publicacao">Publicação</a>
+                <a href="#autor">Autor</a>
+            </nav>
+        </div>
+    </header>
 
-<div class="ct">
+    <div class="container">
 
-<!-- CAPA -->
-<div class="capa">
-<div class="capa-code">260221-PP7IAS-DOC-MESTRE-V2</div>
-<h1>ENQUANTO É TEMPO</h1>
-<p class="capa-sub">Uma Trilogia sobre Decisão, Coragem e Legado</p>
-<p class="capa-desc">DOCUMENTO-MESTRE EDITORIAL — A Bíblia do Projeto<br>Todas as Decisões Consolidadas</p>
-<p class="capa-data">Paulo Periquito • Fevereiro 2026</p>
-</div>
+        <!-- ===== HERO / CAPA ===== -->
+        <section class="hero">
+            <div class="badge">INTRODUÇÃO GERAL • PP7+IAS</div>
+            <h1>ENQUANTO É TEMPO</h1>
+            <p class="subtitle">Uma Trilogia sobre Decisão, Coragem e Legado</p>
+            <div class="hero-line"></div>
+            <p class="destaque">3 Partes • 21 MiniLivros • 1 missão</p>
+            <p class="descricao">Obra autoral sobre decisão, responsabilidade e legado. Não é manual, autoajuda ou livro técnico. Leia um MiniLivro, um eBook ou o livro inteiro — você escolhe a profundidade.</p>
 
-<!-- 1. IDENTIDADE -->
-<h2>1. IDENTIDADE DO LIVRO</h2>
+            <div class="equacao-box">
+                <code>(Fator Humano + Intuição + Execução) <span class="mult">×</span> Alta Frequência</code>
+            </div>
 
-<table>
-<tr><th>Campo</th><th>Definição</th></tr>
-<tr><td>Título</td><td><strong style="color:var(--br)">Enquanto É Tempo</strong></td></tr>
-<tr><td>Subtítulo</td><td>Uma Trilogia sobre Decisão, Coragem e Legado</td></tr>
-<tr><td>Autor</td><td>Paulo Periquito</td></tr>
-<tr><td>Selo</td><td>PP7+IAS</td></tr>
-<tr><td>Formato físico</td><td>Livro único, até 200 páginas</td></tr>
-<tr><td>Formato digital</td><td>3 eBooks separados no Portal PP7+IAS</td></tr>
-<tr><td>Estrutura</td><td>3 Partes × 7 MiniLivros = 21 MiniLivros</td></tr>
-<tr><td>Numeração</td><td>Contínua: ML01 a ML21</td></tr>
-<tr><td>Posicionamento</td><td>Obra autoral sobre decisão, responsabilidade e legado. <strong style="color:var(--ouro)">Não é manual, autoajuda ou livro técnico.</strong></td></tr>
-</table>
+            <p class="tags">21 MiniLivros <span>•</span> 3 Partes <span>•</span> 1 Livro</p>
+            <p class="autor-label">Por</p>
+            <p class="autor-nome">Paulo Periquito</p>
+        </section>
 
-<!-- 2. ORDEM DAS PÁGINAS -->
-<h2>2. ORDEM DEFINITIVA DAS PÁGINAS</h2>
+        <!-- ===== IMPACTO ===== -->
+        <section class="section">
+            <div class="impacto-box">
+                <p>"O que você evita decidir, decide por você."</p>
+            </div>
+        </section>
 
-<table>
-<tr><th>#</th><th>Elemento</th><th>Conteúdo</th></tr>
-<tr><td>1</td><td>Capa</td><td>Título + subtítulo + autor + PP7+IAS</td></tr>
-<tr><td>2</td><td>Página em branco</td><td>Respiro editorial</td></tr>
-<tr><td>3</td><td>Página de impacto</td><td>"O que você evita decidir, decide por você."</td></tr>
-<tr><td>4</td><td>Folha de rosto</td><td>Título completo + Volume 1 + Edição Curada</td></tr>
-<tr><td>5</td><td>Ficha catalográfica</td><td>ISBN, direitos, ano, edição</td></tr>
-<tr><td>6</td><td>Dedicatória</td><td>Única consolidada</td></tr>
-<tr><td>7</td><td>Prefácio</td><td>Autor a definir</td></tr>
-<tr><td>8</td><td>Manifesto</td><td>"A autoria é humana. A colaboração é consciente." (v3)</td></tr>
-<tr><td>9</td><td>Introdução</td><td>Fusão Claude + GPT (neta, 2 públicos, edição curada)</td></tr>
-<tr><td>10</td><td>Índice Geral</td><td>3 Partes + ML01 a ML21</td></tr>
-<tr><td>—</td><td>PARTE I (ML01-07)</td><td>Liderança Híbrida</td></tr>
-<tr><td>—</td><td>PARTE II (ML08-14)</td><td>A Coragem de Executar</td></tr>
-<tr><td>—</td><td>PARTE III (ML15-21)</td><td>O Que Fica</td></tr>
-<tr><td>—</td><td>O Teste Final</td><td>7 perguntas estruturadas</td></tr>
-<tr><td>—</td><td>Convocação Final</td><td>"Decida. Enquanto é tempo."</td></tr>
-<tr><td>—</td><td>Quarta Capa</td><td>Versão provocadora</td></tr>
-</table>
+        <!-- ===== POR QUE ESTE FORMATO ===== -->
+        <section class="section" id="porque">
+            <div class="section-header">
+                <h2>POR QUE ESTE FORMATO?</h2>
+            </div>
+            <hr>
+            <h3>O problema do livro tradicional</h3>
+            <p>Eu escrevia há um ano um livro sobre liderança. O conteúdo não estava errado, mas estava deslocado: um manual de respostas num mundo que precisa reaprender a perguntar. E num campo que muda toda semana — liderança, IA, decisão — um livro tradicional envelhece antes de chegar ao leitor.</p>
 
-<!-- 3. OS 21 MINILIVROS -->
-<h2>3. OS 21 MINILIVROS — ÍNDICE DEFINITIVO</h2>
+            <p>Então a pergunta mudou: <strong style="color:var(--branco);">como entregar conhecimento que possa ser atualizado, consumido em pedaços e ainda assim formar um todo coerente?</strong></p>
 
-<h3>PARTE I — Liderança Híbrida</h3>
-<p style="color:var(--tx2);font-style:italic;font-size:0.9rem">Consciência Humana em Alta Frequência</p>
+            <div class="citacao">
+                <p>Um livro tradicional é uma foto. Este projeto é um vídeo — em atualização permanente.</p>
+                <p class="autor-citacao">— PP</p>
+            </div>
 
-<div class="card card-azul">
-<div class="parte-label">A MENTE — O Software Humano</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>01</td><td>A Resposta é o Problema</td><td>Engenharia da Pergunta</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-<tr><td>02</td><td>A Ciência da Decisão Difícil</td><td>Carreira, Erros e Opções</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-</table>
+            <h3>A solução: de baixo para cima</h3>
+            <p>Em vez de escrever um livro e depois quebrá-lo, fiz o contrário. Comecei pelos MiniLivros — textos curtos, independentes, publicáveis um a um. Cada grupo de 7 forma uma Parte com tema próprio. As 3 Partes juntas formam o livro <em>Enquanto É Tempo</em>.</p>
 
-<div class="parte-label">A MÁQUINA — A Nova Competência</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>03</td><td>O Valor que a Máquina Não Tem</td><td>Competência & Aprendizado</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-<tr><td>04</td><td>A Equação do Talento</td><td>(QI + IE + EX) × IA</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-</table>
+            <p>Isso permite publicar rápido, atualizar sempre e deixar o leitor escolher a profundidade: ler um MiniLivro em 15 minutos ou mergulhar no livro inteiro.</p>
 
-<div class="parte-label">O LEGADO — A Liderança Real</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>05</td><td>Liderança sem Ego</td><td>Times & Autonomia</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-<tr><td>06</td><td>A Arte da Reinvenção</td><td>Sem Virar Personagem</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-<tr><td>07</td><td>O Preço da Vida Boa</td><td>A Conta Final</td><td><span class="tag tag-corrigir">CORRIGIR</span></td></tr>
-</table>
-</div>
+            <h3>Por que "explodir" primeiro</h3>
+            <p>O mundo consome informação em fragmentos. Ninguém espera um livro de 200 páginas ficar pronto para começar a aprender. Os MiniLivros saem primeiro — no portal, em HTML para mobile e em PDF para quem prefere imprimir. Depois, os eBooks agrupam e dão contexto. Por fim, o Livro amarra tudo com uma visão completa.</p>
 
-<h3>PARTE II — A Coragem de Executar</h3>
-<p style="color:var(--tx2);font-style:italic;font-size:0.9rem">Responsabilidade em Movimento</p>
+            <div class="citacao">
+                <p>Comece pelo pedaço menor. Depois conecte. Depois expanda.</p>
+                <p class="autor-citacao">— PP7+IAS</p>
+            </div>
+        </section>
 
-<div class="card" style="border-left:4px solid var(--lj)">
-<div class="parte-label">A BÚSSOLA — Direção Antes da Ação</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>08</td><td>O Fim do Longo Prazo</td><td>Bússola vs Mapa</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-<tr><td>09</td><td>A Cultura do Não</td><td>Estratégia é Sacrifício</td><td><span class="tag tag-parcial">PARCIAL</span></td></tr>
-</table>
+        <!-- ===== MANIFESTO ===== -->
+        <section class="section" id="manifesto">
+            <div class="section-header">
+                <h2>MANIFESTO</h2>
+            </div>
+            <hr>
+            <div class="manifesto">
+                <div class="man-titulo">MANIFESTO PP7+IAS</div>
+                <p>A autoria é humana. A colaboração é consciente.</p>
+            </div>
+            <p>Este conteúdo nasce na interseção entre inteligência humana e inteligência artificial. O autor conduz cada tema com experiência real de mais de 4 décadas em cargos de liderança, potencializado por IAs que colaboram na pesquisa, estruturação e refinamento.</p>
+            <p>Não é um livro escrito "pela IA". É um livro escrito <strong style="color:var(--branco);">com</strong> IA — onde a direção, as decisões e a experiência são humanas, e a velocidade, a pesquisa e o polimento são amplificados pela máquina.</p>
 
-<div class="parte-label">O CORTE — Simplificar, Decidir, Reunir</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>10</td><td>Simplicidade Radical</td><td>A Complexidade Mata</td><td><span class="tag tag-parcial">PARCIAL</span></td></tr>
-<tr><td>11</td><td>A Segunda-Feira da Decisão</td><td>Reunião Vira Trabalho</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-</table>
+            <div class="citacao">
+                <p>O autor pergunta. A IA responde. O autor decide. A IA refina. O autor publica. Isso é Alta Frequência.</p>
+                <p class="autor-citacao">— PP7+IAS</p>
+            </div>
+        </section>
 
-<div class="parte-label">O CAMPO — Cliente, Contingência, Transição</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>12</td><td>O Cliente Não Quer IA</td><td>Venda o Fim da Dor</td><td><span class="tag tag-parcial">PARCIAL</span></td></tr>
-<tr><td>13</td><td>Quando a Máquina Para</td><td>O Plano B</td><td><span class="tag tag-criar">CRIAR</span></td></tr>
-<tr><td>14</td><td>O Manual de Terça-Feira</td><td>Da Multi à Startup</td><td><span class="tag tag-parcial">PARCIAL</span></td></tr>
-</table>
-</div>
+        <!-- ===== ESTRUTURA ===== -->
+        <section class="section" id="estrutura">
+            <div class="section-header">
+                <h2>ESTRUTURA DO LIVRO</h2>
+            </div>
+            <hr>
+            <h3>Arquitetura em 3 Níveis</h3>
 
-<h3>PARTE III — O Que Fica</h3>
-<p style="color:var(--tx2);font-style:italic;font-size:0.9rem">Formar Pessoas é o Último Ato de Liderança</p>
+            <div class="estrutura-visual">
+                <div class="nivel-livro">
+                    <div class="titulo-nivel">📖 ENQUANTO É TEMPO</div>
+                    <div class="desc-nivel">Livro único • 3 Partes • 21 MiniLivros • até 200 páginas</div>
+                </div>
+                <div class="seta-down">▼</div>
+                <div class="nivel-ebook">
+                    <div class="titulo-nivel">📘 3 PARTES (eBooks no digital)</div>
+                    <div class="desc-nivel">Cada Parte = 1 tema central + 7 MiniLivros</div>
+                </div>
+                <div class="seta-down">▼</div>
+                <div class="nivel-mini">
+                    <div class="titulo-nivel">📄 21 MINILIVROS</div>
+                    <div class="desc-nivel">Unidade independente • ~15 min de leitura • numeração ML01 a ML21</div>
+                </div>
+            </div>
 
-<div class="card card-verde">
-<div class="parte-label">A SOLIDÃO — Decisões Invisíveis</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>15</td><td>A Solidão do CEO</td><td>Decisões que Ninguém Vê</td><td><span class="tag tag-criar">CRIAR</span></td></tr>
-<tr><td>16</td><td>O Conflito de Gerações</td><td>3 Gerações, 1 Grito</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-</table>
+            <h3>A lógica das 3 Partes</h3>
+            <p>O livro <em>Enquanto É Tempo</em> segue uma progressão natural: primeiro a consciência do líder, depois a coragem de executar, e por fim o que fica quando você já não está na sala.</p>
 
-<div class="parte-label">A CONSTRUÇÃO — Montar e Formar</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>17</td><td>Monte a Equipe, Copie o Mundo</td><td>Diversidade = Estratégia</td><td><span class="tag tag-pronto">PRONTO</span></td></tr>
-<tr><td>18</td><td>Carta ao Jovem Líder</td><td>Os Primeiros 1.000 Dias</td><td><span class="tag tag-parcial">PARCIAL</span></td></tr>
-</table>
+            <div class="citacao">
+                <p>A Parte I é sobre como pensar. A Parte II é sobre como agir. A Parte III é sobre o que fica.</p>
+                <p class="autor-citacao">— PP</p>
+            </div>
 
-<div class="parte-label">A PASSAGEM — Persistir, Suceder, Deixar</div>
-<table>
-<tr><th>ML</th><th>Título</th><th>Subtítulo</th><th>Status</th></tr>
-<tr><td>19</td><td>Quando Insistir e Quando Mudar</td><td>Teimosia vs Persistência</td><td><span class="tag tag-criar">CRIAR</span></td></tr>
-<tr><td>20</td><td>Sucessão: O Teste Final</td><td>Preparar Quem Vem Depois</td><td><span class="tag tag-criar">CRIAR</span></td></tr>
-<tr><td>21</td><td>O Legado que Fica</td><td>7 Pessoas + 7 Livros + 7 Momentos</td><td><span class="tag tag-parcial">PARCIAL</span></td></tr>
-</table>
-</div>
+            <p>Cada Parte corresponde a um elemento da equação central:</p>
 
-<!-- 4. TEMPLATE -->
-<h2>4. TEMPLATE PADRÃO DO MINILIVRO</h2>
-<p>Todo MiniLivro segue esta estrutura obrigatória:</p>
+            <div class="equacao-box">
+                <code>(<strong style="color:var(--cor-ebook1);">Fator Humano</strong> + <strong style="color:var(--cor-ebook2);">Intuição + Execução</strong>) <span class="mult">×</span> <strong style="color:var(--cor-ebook3);">Alta Frequência</strong></code>
+            </div>
 
-<table>
-<tr><th>#</th><th>Elemento</th><th>Descrição</th></tr>
-<tr><td>1</td><td>Capa do ML</td><td>Título, subtítulo, autor, código, tempo de leitura (~15 min)</td></tr>
-<tr><td>2</td><td>Dedicatória / Epígrafe</td><td>Curta, pessoal (se houver)</td></tr>
-<tr><td>3</td><td>Seções I a VII</td><td>7 seções de conteúdo — parágrafos curtos, ritmo respirável</td></tr>
-<tr><td>4</td><td>Seção IA</td><td>Reflexão sobre IA no tema + 1 prompt prático (OBRIGATÓRIO em todos)</td></tr>
-<tr><td>5</td><td>7 Lições</td><td>Cards com numeração, título e parágrafo curto</td></tr>
-<tr><td>6</td><td>Citação de fecho</td><td>Frase dourada de encerramento</td></tr>
-<tr><td>7</td><td>Reconhecimento</td><td>SÓ Parte III: 1 pessoa + 1 livro/curso por ML</td></tr>
-<tr><td>8</td><td>Sobre o Autor</td><td>Bloco padrão PP7+IAS</td></tr>
-<tr><td>9</td><td>Footer</td><td>Código do ML + "Paulo Periquito (PP) + Claude Pro (Anthropic)"</td></tr>
-</table>
+            <p style="text-align:center; font-size:0.9rem; color:var(--texto-secundario);">
+                <span style="color:var(--cor-ebook1);">■</span> Parte I: Liderança Híbrida (a consciência) &nbsp;
+                <span style="color:var(--cor-ebook2);">■</span> Parte II: A Coragem de Executar (a ação) &nbsp;
+                <span style="color:var(--cor-ebook3);">■</span> Parte III: O Que Fica (o legado)
+            </p>
 
-<!-- 5. DIRETRIZES -->
-<h2>5. DIRETRIZES EDITORIAIS</h2>
+            <h3>Cada MiniLivro contém</h3>
+            <div class="card">
+                <div class="card-nivel">
+                    <span class="label">Estrutura</span>
+                    <span class="desc">Capa, Dedicatória/Epígrafe, 7 Seções de conteúdo, Seção IA + Prompt, 7 Lições, Citação de fecho.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Tempo</span>
+                    <span class="desc">~15 minutos de leitura. Parágrafos curtos, ritmo respirável.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Autonomia</span>
+                    <span class="desc">Cada um é independente. Leia na ordem ou conforme sua necessidade.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Marca</span>
+                    <span class="desc">Seção IA + prompt prático em todos os 21 MiniLivros — marca registrada PP7+IAS.</span>
+                </div>
+            </div>
+        </section>
 
-<div class="card card-ouro">
-<p>• Máximo 200 páginas no livro físico</p>
-<p>• Cada MiniLivro inicia em página direita (ímpar)</p>
-<p>• Numeração discreta</p>
-<p>• Parágrafos curtos, ritmo respirável</p>
-<p>• Boxes estratégicos (não excessivos)</p>
-<p>• Linguagem adulta, autoral — sem tom didático, sem marketing, sem excesso tecnológico</p>
-<p>• Posicionamento: obra autoral, não manual, não autoajuda, não livro técnico</p>
-<p>• Seção IA + prompt prático em TODOS os 21 MiniLivros (marca PP7+IAS)</p>
-<p>• Reconhecimentos distribuídos na Parte III (1 pessoa + 1 livro por ML)</p>
-<p>• Cases reais com label visual onde houver</p>
-</div>
+        <!-- ===== AS 3 PARTES COM 21 MINILIVROS ===== -->
+        <section class="section" id="partes">
+            <div class="section-header">
+                <h2>AS 3 PARTES — 21 MINILIVROS</h2>
+            </div>
+            <hr>
 
-<!-- 6. REGRAS SEPARAÇÃO -->
-<h2>6. REGRAS DE SEPARAÇÃO — ANTI-DUPLICIDADE</h2>
+            <!-- PARTE I -->
+            <div class="ebook-card eb1">
+                <div class="eb-numero">PARTE I • eBOOK 1 • ML01–ML07</div>
+                <div class="eb-titulo">Liderança Híbrida</div>
+                <div class="eb-subtitulo">Consciência Humana em Alta Frequência</div>
+                <div class="eb-desc">O que a velha guarda precisa atualizar e a nova geração precisa descobrir. 7 MiniLivros sobre perguntas, decisões, competência, talento, times, reinvenção e o preço da vida boa.</div>
 
-<div class="regra"><span class="regra-ml">ML07 vs ML16</span><span>ML07 = A CONTA (olha pra dentro, SEM gerações) · ML16 = AS GERAÇÕES (grito de alerta, tema exclusivo aqui)</span></div>
-<div class="regra"><span class="regra-ml">ML07 vs ML21</span><span>ML07 = O que VOCÊ pagou (olha pra dentro) · ML21 = O que FICA para os outros (olha pra fora)</span></div>
-<div class="regra"><span class="regra-ml">ML02 vs ML19</span><span>ML02 = COMO decidir (método, frameworks) · ML19 = QUANDO mudar (coragem, teimosia vs persistência)</span></div>
-<div class="regra"><span class="regra-ml">ML06 vs ML19</span><span>ML06 = Reinventar SEM virar personagem (identidade) · ML19 = Decidir insistir ou parar (ação prática)</span></div>
-<div class="regra"><span class="regra-ml">ML05 vs ML17</span><span>ML05 = LIDERAR equipes existentes (ego, autonomia) · ML17 = MONTAR equipes do zero (contratação, diversidade)</span></div>
-<div class="regra"><span class="regra-ml">ML09 vs ML18</span><span>ML09 = Cultura do Não (tema central, framework) · ML18 = Carta ao Jovem (só menção "diga não cedo")</span></div>
+                <div class="parte-label">A MENTE — O Software Humano</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">01</span> A Resposta é o Problema — Engenharia da Pergunta</li>
+                    <li><span class="mini-num">02</span> A Ciência da Decisão Difícil — Carreira, Erros e Opções</li>
+                </ul>
 
-<!-- 7. PLANO -->
-<h2>7. PLANO DE PUBLICAÇÃO</h2>
+                <div class="parte-label">A MÁQUINA — A Nova Competência</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">03</span> O Valor que a Máquina Não Tem — Competência & Aprendizado</li>
+                    <li><span class="mini-num">04</span> A Equação do Talento — (QI + IE + EX) × IA</li>
+                </ul>
 
-<div class="timeline-item">
-<div class="fase">FASE 1 — COMPLETAR eBOOK 1 NO PORTAL</div>
-<p>Publicar ML03 a ML07 (5 restantes) + atualizar ML01 e ML02 já publicados. Inclui: adicionar seção IA + prompt em todos os 7 MLs. Correção urgente: remover conteúdo geracional do ML07.</p>
-</div>
+                <div class="parte-label">O LEGADO — A Liderança Real</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">05</span> Liderança sem Ego — Times & Autonomia</li>
+                    <li><span class="mini-num">06</span> A Arte da Reinvenção — Sem Virar Personagem</li>
+                    <li><span class="mini-num">07</span> O Preço da Vida Boa — A Conta Final</li>
+                </ul>
+            </div>
 
-<div class="timeline-item">
-<div class="fase">FASE 2 — PUBLICAR eBOOK 2 NO PORTAL</div>
-<p>Publicar de 2 em 2 MiniLivros (ML08-ML14). Conceito base GPT, conteúdo ajustado por Claude. Criar ML13 (conteúdo novo) e fundir ML14 (síntese + startup).</p>
-</div>
+            <!-- PARTE II -->
+            <div class="ebook-card eb2">
+                <div class="eb-numero">PARTE II • eBOOK 2 • ML08–ML14</div>
+                <div class="eb-titulo">A Coragem de Executar</div>
+                <div class="eb-subtitulo">Responsabilidade em Movimento</div>
+                <div class="eb-desc">Da estratégia à ação. Como operar, decidir, simplificar e vender quando o ritmo é implacável. 7 MiniLivros sobre a coragem de fazer acontecer.</div>
 
-<div class="timeline-item">
-<div class="fase">FASE 3 — PUBLICAR eBOOK 3 NO PORTAL</div>
-<p>Publicar de 2 em 2 MiniLivros (ML15-ML21). Criar ML15, ML19, ML20 (precisam cases pessoais PP). Cada ML inclui reconhecimento (1 pessoa + 1 livro/curso).</p>
-</div>
+                <div class="parte-label">A BÚSSOLA — Direção Antes da Ação</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">08</span> O Fim do Longo Prazo — Bússola vs Mapa</li>
+                    <li><span class="mini-num">09</span> A Cultura do Não — Estratégia é Sacrifício</li>
+                </ul>
 
-<div class="timeline-item">
-<div class="fase">FASE 4 — REVISÃO FINAL + EDITORA</div>
-<p>Revisão literária fina dos 21 MiniLivros. Montagem dos elementos pré/pós-textuais (manifesto, teste final, convocação). Fusão das introduções Claude + GPT. Diagramação profissional + Resumo Executivo para editora. Livro físico de até 200 páginas.</p>
-</div>
+                <div class="parte-label">O CORTE — Simplificar, Decidir, Reunir</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">10</span> Simplicidade Radical — A Complexidade Mata</li>
+                    <li><span class="mini-num">11</span> A Segunda-Feira da Decisão — Reunião Vira Trabalho</li>
+                </ul>
 
-<!-- 8. SUBTÍTULOS PARTES INTERNAS -->
-<h2>8. SUBTÍTULOS DAS PARTES INTERNAS (NOVO)</h2>
-<p>Cada eBook tem 3 partes internas. Abaixo os subtítulos definidos:</p>
+                <div class="parte-label">O CAMPO — Cliente, Contingência, Transição</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">12</span> O Cliente Não Quer IA — Venda o Fim da Dor</li>
+                    <li><span class="mini-num">13</span> Quando a Máquina Para — O Plano B</li>
+                    <li><span class="mini-num">14</span> O Manual de Terça-Feira — Da Multi à Startup</li>
+                </ul>
+            </div>
 
-<table>
-<tr><th>eBook</th><th>Parte Interna</th><th>Subtítulo</th><th>MiniLivros</th></tr>
-<tr><td rowspan="3" style="color:var(--ac);font-weight:700">Parte I</td><td>A Mente</td><td>O Software Humano</td><td>ML01–02</td></tr>
-<tr><td>A Máquina</td><td>A Nova Competência</td><td>ML03–04</td></tr>
-<tr><td>O Legado</td><td>A Liderança Real</td><td>ML05–07</td></tr>
-<tr><td rowspan="3" style="color:var(--lj);font-weight:700">Parte II</td><td>A Bússola</td><td>Direção Antes da Ação</td><td>ML08–09</td></tr>
-<tr><td>O Corte</td><td>Simplificar, Decidir, Reunir</td><td>ML10–11</td></tr>
-<tr><td>O Campo</td><td>Cliente, Contingência, Transição</td><td>ML12–14</td></tr>
-<tr><td rowspan="3" style="color:var(--vdc);font-weight:700">Parte III</td><td>A Solidão</td><td>Decisões Invisíveis</td><td>ML15–16</td></tr>
-<tr><td>A Construção</td><td>Montar e Formar</td><td>ML17–18</td></tr>
-<tr><td>A Passagem</td><td>Persistir, Suceder, Deixar</td><td>ML19–21</td></tr>
-</table>
+            <!-- PARTE III -->
+            <div class="ebook-card eb3">
+                <div class="eb-numero">PARTE III • eBOOK 3 • ML15–ML21</div>
+                <div class="eb-titulo">O Que Fica</div>
+                <div class="eb-subtitulo">Formar Pessoas é o Último Ato de Liderança</div>
+                <div class="eb-desc">O que a máquina não substitui. Solidão, gerações, equipes, sucessão e legado. 7 MiniLivros sobre o que faz a diferença quando você já não está na sala.</div>
 
-<!-- FOOTER -->
-<footer>
-<div class="code">260221-PP7IAS-DOC-MESTRE-V2</div>
-<p>Documento-Mestre atualizado em 21/02/2026 — Claude (Anthropic)</p>
-<p>PP7+IAS — Enquanto É Tempo</p>
-</footer>
+                <div class="parte-label">A SOLIDÃO — Decisões Invisíveis</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">15</span> A Solidão do CEO — Decisões que Ninguém Vê</li>
+                    <li><span class="mini-num">16</span> O Conflito de Gerações — 3 Gerações, 1 Grito</li>
+                </ul>
 
-</div>
+                <div class="parte-label">A CONSTRUÇÃO — Montar e Formar</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">17</span> Monte a Equipe, Copie o Mundo — Diversidade = Estratégia</li>
+                    <li><span class="mini-num">18</span> Carta ao Jovem Líder — Os Primeiros 1.000 Dias</li>
+                </ul>
+
+                <div class="parte-label">A PASSAGEM — Persistir, Suceder, Deixar</div>
+                <ul class="mini-list">
+                    <li><span class="mini-num">19</span> Quando Insistir e Quando Mudar — Teimosia vs Persistência</li>
+                    <li><span class="mini-num">20</span> Sucessão: O Teste Final — Preparar Quem Vem Depois</li>
+                    <li><span class="mini-num">21</span> O Legado que Fica — 7 Pessoas + 7 Livros + 7 Momentos</li>
+                </ul>
+            </div>
+
+            <!-- MAPA RESUMO -->
+            <h3>Mapa completo</h3>
+            <div class="mapa-resumo">
+                <div class="mapa-linha"><span class="mapa-badge b1">Parte I</span> <span class="mapa-texto">ML01–07 → Liderança Híbrida</span></div>
+                <div class="mapa-linha"><span class="mapa-badge b2">Parte II</span> <span class="mapa-texto">ML08–14 → A Coragem de Executar</span></div>
+                <div class="mapa-linha"><span class="mapa-badge b3">Parte III</span> <span class="mapa-texto">ML15–21 → O Que Fica</span></div>
+            </div>
+        </section>
+
+        <!-- ===== ELEMENTOS ESPECIAIS ===== -->
+        <section class="section" id="elementos">
+            <div class="section-header">
+                <h2>ELEMENTOS ESPECIAIS</h2>
+            </div>
+            <hr>
+            <p>Além dos 21 MiniLivros, o livro <em>Enquanto É Tempo</em> inclui elementos que dão unidade e fechamento à obra:</p>
+
+            <div class="card">
+                <div class="card-nivel">
+                    <span class="label">Impacto</span>
+                    <span class="desc">"O que você evita decidir, decide por você." — página de abertura antes de tudo.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Manifesto</span>
+                    <span class="desc">"A autoria é humana. A colaboração é consciente." — a declaração de princípios do projeto.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Teste Final</span>
+                    <span class="desc">7 perguntas estruturadas — o leitor se confronta com o que leu e o que vai fazer.</span>
+                </div>
+                <div class="card-nivel">
+                    <span class="label">Convocação</span>
+                    <span class="desc">"Decida. Enquanto é tempo." — o encerramento da obra.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PUBLICAÇÃO ===== -->
+        <section class="section" id="publicacao">
+            <div class="section-header">
+                <h2>COMO SERÁ PUBLICADO</h2>
+            </div>
+            <hr>
+            <p>A publicação segue a lógica do formato: do menor para o maior, do digital ao físico.</p>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="fase">FASE 1 — MINILIVROS</div>
+                    <div class="fase-titulo">Publicação individual no portal</div>
+                    <div class="fase-desc">Cada MiniLivro é publicado no <strong style="color:var(--branco);">pp7ias-portal.com.br</strong>. Formato HTML mobile-first + PDF para download. Atualizáveis a qualquer momento.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="fase">FASE 2 — eBOOKS</div>
+                    <div class="fase-titulo">Agrupamento temático</div>
+                    <div class="fase-desc">Quando os 7 MiniLivros de uma Parte estiverem prontos, são reunidos com introdução e índice próprios. Publicados no portal em HTML e em PDF. 3 eBooks no total.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="fase">FASE 3 — LIVRO DIGITAL</div>
+                    <div class="fase-titulo">O todo completo no portal</div>
+                    <div class="fase-desc">Os 3 eBooks + introdução geral + manifesto + teste final + convocação formam o livro <em>Enquanto É Tempo</em> completo em formato digital.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="fase">FASE 4 — LIVRO FÍSICO</div>
+                    <div class="fase-titulo">Revisão final + editora</div>
+                    <div class="fase-desc">Revisão literária fina. Diagramação profissional. Livro único de até 200 páginas. Cada MiniLivro inicia em página ímpar.</div>
+                </div>
+            </div>
+
+            <h3>Formatos de entrega</h3>
+            <div class="formato-grid">
+                <div class="formato-item">
+                    <div class="formato-icon">📱</div>
+                    <div class="formato-nome">HTML Mobile-First</div>
+                    <div class="formato-desc">No portal. Otimizado para celular. Leitura imediata.</div>
+                </div>
+                <div class="formato-item">
+                    <div class="formato-icon">🖨️</div>
+                    <div class="formato-nome">PDF para Impressão</div>
+                    <div class="formato-desc">Download disponível. Formatado para leitura em papel.</div>
+                </div>
+                <div class="formato-item">
+                    <div class="formato-icon">🌐</div>
+                    <div class="formato-nome">Portal Web</div>
+                    <div class="formato-desc">Navegação entre MiniLivros e eBooks.</div>
+                </div>
+                <div class="formato-item">
+                    <div class="formato-icon">📖</div>
+                    <div class="formato-nome">Livro Físico</div>
+                    <div class="formato-desc">Até 200 páginas. Edição curada.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SOBRE O AUTOR ===== -->
+        <section class="section" id="autor">
+            <div class="section-header">
+                <h2>SOBRE O AUTOR</h2>
+            </div>
+            <hr>
+            <div class="autor-box">
+                <p class="nome">Paulo Periquito</p>
+                <p>Mais de 4 décadas de experiência. Ex-CEO em multinacionais como ITT Data Services, Alcoa e Whirlpool. Vive entre o Brasil e Portugal. Poderia ter parado. Decidiu se reinventar.</p>
+                <p>Hoje atua como investidor anjo e mentor. Estuda obsessivamente a intersecção entre sabedoria humana e IA. O projeto PP7+IAS é sua missão: destilar uma vida inteira de gestão em sabedoria prática para as novas gerações.</p>
+            </div>
+
+            <div class="citacao">
+                <p>"Liderar não é sobre cargos; é sobre servir. É sobre evoluir. É sobre aprender e ensinar a aprender; e sobre pessoas, sobre vidas, sobre criar novos líderes."</p>
+            </div>
+
+            <p>Comentários, questionamentos, sugestões — me escreva.</p>
+            <p class="assinatura">— PP</p>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer>
+            <p><strong style="color:var(--branco);">PP7+IAS</strong> | Enquanto É Tempo — Introdução Geral | 2026</p>
+            <p>pp7ias-portal.com.br</p>
+            <p>Paulo Periquito (PP) + Claude Pro (Anthropic)</p>
+            <p class="frase-final">"Decida. Enquanto é tempo."</p>
+        </footer>
+
+    </div>
+
 </body>
 </html>
