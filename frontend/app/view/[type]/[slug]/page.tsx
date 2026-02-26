@@ -12,6 +12,7 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     "especial-semana": { folder: "especial-semana", title: "Especial da Semana" },
     radar_oportunidades: { folder: "radar-de-oportunidades", title: "Radar de Oportunidades" },
     estudar: { folder: "estudar", title: "Estudar" },
+    ebook: { folder: "mini-livros/intros", title: "E-book" },
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

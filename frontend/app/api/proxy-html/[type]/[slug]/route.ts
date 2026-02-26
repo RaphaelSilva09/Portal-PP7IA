@@ -28,6 +28,7 @@ const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
     "especial-semana": { bucket: "materiais", folder: "especial-da-semana" },
     radar_oportunidades: { bucket: "materiais", folder: "radar-de-oportunidades" },
     estudar: { bucket: "materiais", folder: "estudar" },
+    ebook: { bucket: "materiais", folder: "mini-livros/intros" },
 };
 
 // Tipos válidos de conteúdo
