@@ -1,26 +1,18 @@
 /**
- * ContentItem Entity (Domain Layer)
+ * Ebook Entity (Domain Layer)
  *
- * Entidade genérica para conteúdo (Newsletter, MiniLivro, Biblioteca).
- * Usada no contexto admin para operações CRUD unificadas.
+ * Representa a entidade de domínio Ebook seguindo DDD.
+ * HTMLPath aponta para a introdução/conteúdo HTML do e-book.
+ * PDFPath aponta para o PDF completo ou capa.
  *
  * Princípios aplicados:
- * - DRY: Evita duplicação de código entre entidades similares
- * - DDD: Entidade de domínio com comportamentos
+ * - DDD: Entidade de domínio com comportamentos do negócio
+ * - SRP: Responsável apenas por representar e-book
  * - Graceful Degradation: Fallbacks para dados ausentes
  * - Immutability: Dados protegidos via getters
  */
 
-export type ContentType =
-    | "newsletter"
-    | "mini-livro"
-    | "biblioteca"
-    | "especial-semana"
-    | "radar_oportunidades"
-    | "estudar"
-    | "ebook";
-
-export interface ContentItemProps {
+export interface EbookProps {
     id: number;
     createdAt: Date;
     title: string;
@@ -29,27 +21,33 @@ export interface ContentItemProps {
     readTime: number;
 }
 
-export class ContentItem {
-    private constructor(private readonly props: ContentItemProps) {}
+export class Ebook {
+    private constructor(private readonly props: EbookProps) {}
 
     /**
-     * Factory Method para criar ContentItem
+     * Factory Method para criar Ebook
      * Design Pattern: Factory Method
      */
-    static create(props: ContentItemProps): ContentItem {
-        return new ContentItem(props);
+    static create(props: EbookProps): Ebook {
+        return new Ebook(props);
     }
 
+    // Getters com fallbacks seguros
     get id(): number {
         return this.props.id ?? 0;
     }
 
     get title(): string {
-        return this.props.title?.trim() || "Material indisponível";
+        return this.props.title?.trim() || "E-book indisponível";
     }
 
     get htmlPath(): string | null {
-        return this.props.htmlPath?.trim() || null;
+        const rawPath = this.props.htmlPath?.trim();
+        if (!rawPath) return null;
+        const match = rawPath.match(/\/([^/]+)\.html$/);
+        if (!match) return rawPath;
+        const slug = match[1];
+        return `/view/ebook/${slug}`;
     }
 
     get pdfPath(): string | null {
@@ -64,32 +62,18 @@ export class ContentItem {
         return this.props.createdAt;
     }
 
-    /**
-     * Verifica se HTML está disponível
-     */
     get htmlAvailable(): boolean {
         return Boolean(this.props.htmlPath?.trim());
     }
 
-    /**
-     * Verifica se PDF está disponível
-     */
     get pdfAvailable(): boolean {
         return Boolean(this.props.pdfPath?.trim());
     }
 
-    /**
-     * Retorna número formatado com padding (ex: "001")
-     */
     get formattedNumber(): string {
-        const id = this.props.id ?? 0;
-        return id.toString().padStart(3, "0");
+        return this.props.id.toString().padStart(3, "0");
     }
 
-    /**
-     * Retorna data formatada em pt-BR
-     * Fallback: "Data indisponível"
-     */
     get formattedDate(): string {
         try {
             if (!this.props.createdAt) return "Data indisponível";
@@ -101,10 +85,7 @@ export class ContentItem {
         }
     }
 
-    /**
-     * Converte para objeto plano (DTO)
-     */
-    toObject(): ContentItemProps {
+    toObject(): EbookProps {
         return { ...this.props };
     }
 }

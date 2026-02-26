@@ -21,9 +21,12 @@ import { supabase } from "../config/supabase";
 /** Mapeamento de tipo de conteúdo para nome da tabela no Supabase */
 const TABLE_MAP: Record<ContentType, string> = {
     newsletter: "newsletters",
-    "mini-livro": "mini-livros",
+    "mini-livro": "mini_livros",
     biblioteca: "biblioteca",
-    "especial-semana": "especial-semana",
+    "especial-semana": "especial_semana",
+    radar_oportunidades: "radar_oportunidades",
+    estudar: "estudar",
+    ebook: "ebooks",
 };
 
 export class SupabaseContentRepository implements IContentRepository {

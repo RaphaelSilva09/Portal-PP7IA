@@ -61,6 +61,9 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: C
         "mini-livro": "Mini-Livro",
         biblioteca: "Biblioteca",
         "especial-semana": "Especial da Semana",
+        ebook: "E-book",
+        radar_oportunidades: "Radar de Oportunidades",
+        estudar: "Estudar",
     }[type];
 
     return (

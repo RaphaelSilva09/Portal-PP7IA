@@ -40,12 +40,12 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
     async getAll(): Promise<EspecialSemana[]> {
         try {
             const { data, error } = await this.supabase
-                .from("especial-semana")
+                .from("especial_semana")
                 .select("*")
                 .order("id", { ascending: false });
 
             if (error) {
-                console.error("Erro ao buscar especial-semana:", error.message);
+                console.error("Erro ao buscar especial_semana:", error.message);
                 return [];
             }
 
@@ -64,7 +64,7 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
 
     async getById(id: number): Promise<EspecialSemana | null> {
         try {
-            const { data, error } = await this.supabase.from("especial-semana").select("*").eq("id", id).single();
+            const { data, error } = await this.supabase.from("especial_semana").select("*").eq("id", id).single();
 
             if (error || !data) {
                 return null;
@@ -84,7 +84,7 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
     async getLatest(): Promise<EspecialSemana | null> {
         try {
             const { data, error } = await this.supabase
-                .from("especial-semana")
+                .from("especial_semana")
                 .select("*")
                 .order("id", { ascending: false })
                 .limit(1)
@@ -108,7 +108,7 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
     async create(input: CreateEspecialSemanaInput): Promise<EspecialSemana> {
         try {
             const { data, error } = await this.supabase
-                .from("especial-semana")
+                .from("especial_semana")
                 .insert({
                     title: input.title,
                     read_time: input.readTime,
@@ -119,7 +119,7 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
                 .single();
 
             if (error || !data) {
-                throw new Error(`Erro ao criar especial-semana: ${error?.message}`);
+                throw new Error(`Erro ao criar especial_semana: ${error?.message}`);
             }
 
             return this.mapToEntity(data);
@@ -139,7 +139,7 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
             if (input.pdfPath !== undefined) updateData.pdf_path = input.pdfPath;
 
             const { data, error } = await this.supabase
-                .from("especial-semana")
+                .from("especial_semana")
                 .update(updateData)
                 .eq("id", id)
                 .select()
@@ -158,7 +158,7 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
 
     async delete(id: number): Promise<boolean> {
         try {
-            const { error } = await this.supabase.from("especial-semana").delete().eq("id", id);
+            const { error } = await this.supabase.from("especial_semana").delete().eq("id", id);
 
             return !error;
         } catch (err) {
@@ -170,7 +170,7 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
     async count(): Promise<number> {
         try {
             const { count, error } = await this.supabase
-                .from("especial-semana")
+                .from("especial_semana")
                 .select("*", { count: "exact", head: true });
 
             if (error) {

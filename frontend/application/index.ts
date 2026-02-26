@@ -23,3 +23,15 @@ export type { VerifyPasswordResetOTPInput } from "./usecases/VerifyPasswordReset
 
 export { ResetPasswordWithTokenUseCase } from "./usecases/ResetPasswordWithTokenUseCase";
 export type { ResetPasswordWithTokenInput } from "./usecases/ResetPasswordWithTokenUseCase";
+
+export { SearchContentUseCase } from "./usecases/SearchContentUseCase";
+export type { SearchContentInput, SearchFilter, SearchResultItem } from "./usecases/SearchContentUseCase";
+
+export { GetRadarOportunidadesUseCase } from "./usecases/GetRadarOportunidadesUseCase";
+export type { GetRadarOportunidadesResult } from "./usecases/GetRadarOportunidadesUseCase";
+
+export { GetEstudarUseCase } from "./usecases/GetEstudarUseCase";
+export type { GetEstudarResult } from "./usecases/GetEstudarUseCase";
+
+export { GetEbookUseCase } from "./usecases/GetEbookUseCase";
+export type { GetEbookResult } from "./usecases/GetEbookUseCase";

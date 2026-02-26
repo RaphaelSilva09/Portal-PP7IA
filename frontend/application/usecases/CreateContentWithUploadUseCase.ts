@@ -19,14 +19,7 @@
 import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-
-/** Mapeamento de tipo de conteúdo para nome do bucket no Supabase Storage */
-const BUCKET_MAP: Record<ContentType, string> = {
-    newsletter: "Newsletters",
-    "mini-livro": "MiniLivros",
-    biblioteca: "Biblioteca",
-    "especial-semana": "especial-semana",
-};
+import { STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export interface CreateContentWithUploadInput {
     type: ContentType;
@@ -43,7 +36,7 @@ export class CreateContentWithUploadUseCase {
     ) {}
 
     async execute(input: CreateContentWithUploadInput): Promise<ContentItem | null> {
-        const bucket = BUCKET_MAP[input.type];
+        const folder = STORAGE_PATHS[input.type];
 
         // 1. Criar registro no banco primeiro (para obter o ID)
         const content = await this.contentRepository.create(input.type, {
@@ -61,14 +54,14 @@ export class CreateContentWithUploadUseCase {
             // 2. Upload dos arquivos com nome baseado no ID
             if (input.htmlFile) {
                 const htmlFileName = `${formattedId}.html`;
-                await this.storageRepository.upload(bucket, htmlFileName, input.htmlFile);
-                htmlPath = `/${bucket.toLowerCase()}/${htmlFileName}`;
+                await this.storageRepository.upload(STORAGE_BUCKET, `${folder}/${htmlFileName}`, input.htmlFile);
+                htmlPath = `/${STORAGE_BUCKET}/${folder}/${htmlFileName}`;
             }
 
             if (input.pdfFile) {
                 const pdfFileName = `${formattedId}.pdf`;
-                await this.storageRepository.upload(bucket, pdfFileName, input.pdfFile);
-                pdfPath = `/${bucket.toLowerCase()}/${pdfFileName}`;
+                await this.storageRepository.upload(STORAGE_BUCKET, `${folder}/${pdfFileName}`, input.pdfFile);
+                pdfPath = `/${STORAGE_BUCKET}/${folder}/${pdfFileName}`;
             }
 
             // 3. Atualizar registro com os paths dos arquivos

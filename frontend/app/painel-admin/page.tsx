@@ -20,7 +20,20 @@ import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import DIContainer from "@/infrastructure/di/container";
-import { ArrowLeft, BookOpen, FileText, Home, Library, Newspaper, Plus, Star, Users } from "lucide-react";
+import {
+    ArrowLeft,
+    BookMarked,
+    BookOpen,
+    FileText,
+    GraduationCap,
+    Home,
+    Library,
+    Newspaper,
+    Plus,
+    Radar,
+    Star,
+    Users,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -33,6 +46,9 @@ const CONTENT_TABS: { type: ContentType; label: string; icon: typeof Newspaper }
     { type: "mini-livro", label: "Mini-Livros", icon: BookOpen },
     { type: "biblioteca", label: "Biblioteca", icon: Library },
     { type: "especial-semana", label: "Especial da Semana", icon: Star },
+    { type: "ebook", label: "E-books", icon: BookMarked },
+    { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
+    { type: "estudar", label: "Estudar", icon: GraduationCap },
 ];
 
 interface FeedbackState {

@@ -1,165 +1,155 @@
-"use client";
+﻿"use client";
 
-import { Search, Sparkles, X, Mail, Star, BookOpen, Library, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+/**
+ * SearchModal Component (Presentation Layer)
+ *
+ * Modal de busca de conteÃºdo com filtro por tipo, debounce e
+ * proteÃ§Ã£o contra race conditions via useSearch hook.
+ *
+ * PrincÃ­pios aplicados:
+ * - SRP: ApresentaÃ§Ã£o pura â€” lÃ³gica de busca delegada ao hook
+ * - Clean Code: Componentes extraÃ­dos, nomes reveladores
+ * - UX: Estados explÃ­citos (loading, erro, vazio, min-chars, resultados)
+ */
+
+import {
+    BookOpen,
+    ChevronDown,
+    ChevronUp,
+    FileText,
+    Globe,
+    Library,
+    Loader2,
+    Search,
+    Sparkles,
+    Star,
+    X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import type { SearchFilter, SearchResultItem } from "../presentation/hooks/useSearch";
+import { useSearch } from "../presentation/hooks/useSearch";
 
 interface SearchModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-/**
- * SearchModal Component
- * 
- * Modal de pesquisa centralizado com Portal para renderização no body.
- * Versão "Em breve" com índice de navegação rápida enquanto a busca está em desenvolvimento.
- * 
- * Princípios aplicados:
- * - SRP: Única responsabilidade de apresentar UI do modal
- * - Clean Code: Nomes reveladores, código autoexplicativo
- * - UX: Feedback claro ao usuário + navegação útil
- */
+// â”€â”€â”€ ConfiguraÃ§Ã£o de tipos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-// Configuração dos links de navegação rápida
-const quickLinks = [
-    {
-        id: "newsletter",
-        href: "/newsletter",
+const TYPE_CONFIG: Record<
+    SearchResultItem["type"],
+    { bgColor: string; borderColor: string; textColor: string; label: string }
+> = {
+    newsletter: {
+        bgColor: "bg-blue-500/10",
+        borderColor: "border-blue-500/20",
+        textColor: "text-blue-400",
         label: "Newsletter",
-        description: "Publicação semanal",
-        Icon: Mail,
-        bgColor: "bg-blue-500/20",
-        borderColor: "border-blue-500/30",
-        hoverBorder: "hover:border-blue-500/50",
-        iconColor: "text-blue-400",
-        hoverShadow: "hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]",
     },
-    {
-        id: "especial",
-        href: "/especial-semana",
-        label: "Especial da Semana",
-        description: "Destaque editorial semanal",
-        Icon: Star,
-        bgColor: "bg-yellow-500/20",
-        borderColor: "border-yellow-500/30",
-        hoverBorder: "hover:border-yellow-500/50",
-        iconColor: "text-yellow-400",
-        hoverShadow: "hover:shadow-[0_0_20px_rgba(234,179,8,0.2)]",
+    "mini-livro": {
+        bgColor: "bg-green-500/10",
+        borderColor: "border-green-500/20",
+        textColor: "text-green-400",
+        label: "Mini-Livro",
     },
-    {
-        id: "mini-livros",
-        href: "/mini-livros",
-        label: "Mini-Livros",
-        description: "Pessoas, liderança e IA",
-        Icon: BookOpen,
-        bgColor: "bg-green-500/20",
-        borderColor: "border-green-500/30",
-        hoverBorder: "hover:border-green-500/50",
-        iconColor: "text-green-400",
-        hoverShadow: "hover:shadow-[0_0_20px_rgba(34,197,94,0.2)]",
-    },
-    {
-        id: "biblioteca",
-        href: "/biblioteca",
+    biblioteca: {
+        bgColor: "bg-purple-500/10",
+        borderColor: "border-purple-500/20",
+        textColor: "text-purple-400",
         label: "Biblioteca",
-        description: "Prompts, ferramentas e guias",
-        Icon: Library,
-        bgColor: "bg-purple-500/20",
-        borderColor: "border-purple-500/30",
-        hoverBorder: "hover:border-purple-500/50",
-        iconColor: "text-purple-400",
-        hoverShadow: "hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]",
     },
-];
+    "especial-semana": {
+        bgColor: "bg-yellow-500/10",
+        borderColor: "border-yellow-500/20",
+        textColor: "text-yellow-400",
+        label: "Especial da Semana",
+    },
+};
 
-/* ============================================
-   CÓDIGO COMPLETO COMENTADO PARA FUTURA IMPLEMENTAÇÃO
-   ============================================
+// â”€â”€â”€ SearchResultCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-import { ChevronDown, ChevronUp, FileText, Globe } from "lucide-react";
-import { useMemo, useState } from "react";
-import { ContentItem, searchContent } from "../data/content";
-
-type FilterType = "all" | "newsletter" | "mini-livro" | "biblioteca";
-
-// Hook para debounce de valores
-function useDebounce<T>(value: T, delay: number): T {
-    const [debouncedValue, setDebouncedValue] = useState(value);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [value, delay]);
-
-    return debouncedValue;
-}
-
-// Componente de card de resultado da busca
-function SearchResultCard({ item, onClose }: { item: ContentItem; onClose: () => void }) {
-    const typeConfig = {
-        newsletter: {
-            color: "blue",
-            bgColor: "bg-blue-500/10",
-            borderColor: "border-blue-500/20",
-            textColor: "text-blue-400",
-            label: "Newsletter",
-        },
-        "mini-livro": {
-            color: "green",
-            bgColor: "bg-green-500/10",
-            borderColor: "border-green-500/20",
-            textColor: "text-green-400",
-            label: "Mini-Livro",
-        },
-        biblioteca: {
-            color: "purple",
-            bgColor: "bg-purple-500/10",
-            borderColor: "border-purple-500/20",
-            textColor: "text-purple-400",
-            label: "Biblioteca",
-        },
-    };
-
-    const config = typeConfig[item.type];
+function SearchResultCard({ item, onClose }: { item: SearchResultItem; onClose: () => void }) {
+    const config = TYPE_CONFIG[item.type];
 
     return (
-        <div className={`${config.bgColor} border ${config.borderColor} rounded-lg md:rounded-xl p-3 md:p-4 hover:bg-white/10 transition-all duration-200`}>
-            <span className={`inline-block px-2 py-1 ${config.bgColor} ${config.textColor} text-xs font-medium rounded-md mb-2`}>
+        <div
+            className={`${config.bgColor} border ${config.borderColor} rounded-lg md:rounded-xl p-3 md:p-4 hover:bg-white/10 transition-all duration-200`}
+        >
+            <span
+                className={`inline-block px-2 py-1 ${config.bgColor} ${config.textColor} text-xs font-medium rounded-md mb-2`}
+            >
                 {config.label}
             </span>
             <h4 className="text-white font-semibold text-sm mb-1 line-clamp-2">{item.title}</h4>
-            <p className="text-text-secondary text-xs mb-2 md:mb-3">{item.date}</p>
-            <div className="flex gap-2">
-                {item.htmlAvailable && item.htmlUrl && (
-                    <a href={item.htmlUrl} onClick={onClose} className={`flex items-center gap-1.5 px-3 py-1.5 ${config.bgColor} hover:bg-white/10 border ${config.borderColor} rounded-lg text-white text-xs font-medium transition-all duration-200 touch-target`}>
+            <p className="text-text-secondary text-xs mb-3">{item.date}</p>
+            <div className="flex gap-2 flex-wrap">
+                {item.htmlAvailable && item.viewUrl && (
+                    <a
+                        href={item.viewUrl}
+                        onClick={onClose}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 ${config.bgColor} hover:bg-white/10 border ${config.borderColor} rounded-lg text-white text-xs font-medium transition-all duration-200`}
+                    >
                         <Globe className="w-3.5 h-3.5" />
-                        <span>HTML</span>
+                        <span>Ler</span>
                     </a>
                 )}
-                {item.pdfAvailable && item.pdfUrl && (
-                    <a href={item.pdfUrl} onClick={onClose} className={`flex items-center gap-1.5 px-3 py-1.5 ${config.bgColor} hover:bg-white/10 border ${config.borderColor} rounded-lg text-white text-xs font-medium transition-all duration-200 touch-target`}>
+                {item.pdfAvailable && !item.htmlAvailable && (
+                    <span
+                        className={`flex items-center gap-1.5 px-3 py-1.5 ${config.bgColor} border ${config.borderColor} rounded-lg ${config.textColor} text-xs font-medium`}
+                    >
                         <FileText className="w-3.5 h-3.5" />
                         <span>PDF</span>
-                    </a>
+                    </span>
+                )}
+                {!item.htmlAvailable && !item.pdfAvailable && (
+                    <span className="text-xs text-text-secondary italic">IndisponÃ­vel</span>
                 )}
             </div>
         </div>
     );
 }
 
-   ============================================ */
+// â”€â”€â”€ Filtros â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+const FILTERS: {
+    id: SearchFilter;
+    label: string;
+    icon: React.ElementType;
+    activeColor: string;
+}[] = [
+    { id: "all", label: "Todos", icon: Sparkles, activeColor: "text-blue-400" },
+    { id: "newsletter", label: "Newsletter", icon: FileText, activeColor: "text-purple-400" },
+    { id: "mini-livro", label: "Mini-Livros", icon: BookOpen, activeColor: "text-green-400" },
+    { id: "especial-semana", label: "Especial da Semana", icon: Star, activeColor: "text-yellow-400" },
+    { id: "biblioteca", label: "Biblioteca", icon: Library, activeColor: "text-pink-400" },
+];
+
+// â”€â”€â”€ SearchModal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-    // Hook para travar scroll do body (DRY - extraído para hook reutilizável)
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeFilter, setActiveFilter] = useState<SearchFilter>("all");
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
     useBodyScrollLock(isOpen);
 
+    const { results, isLoading, error } = useSearch(searchQuery, activeFilter);
+
+    // Reset ao fechar
+    useEffect(() => {
+        if (!isOpen) {
+            setSearchQuery("");
+            setActiveFilter("all");
+            setIsFiltersOpen(false);
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
+
+    const showMinCharsHint = searchQuery.length > 0 && searchQuery.length < 2;
+    const showEmpty = searchQuery.length >= 2 && !isLoading && results.length === 0 && !error;
+    const showResults = searchQuery.length >= 2 && !isLoading && results.length > 0;
 
     return (
         <div
@@ -167,203 +157,54 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             onClick={onClose}
             style={{ touchAction: "none" }}
         >
-            {/* Backdrop com overlay mais escuro */}
+            {/* Backdrop */}
             <div className="absolute inset-0 bg-black/90 backdrop-blur-md animate-fade-in" />
 
-            {/* Modal Container - Centralizado e responsivo */}
-            <div
-                className="relative w-full max-w-2xl max-h-[90vh] bg-bg-primary/95 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl animate-scale-in flex flex-col overflow-hidden"
-                onClick={e => e.stopPropagation()}
-            >
-                {/* Header com Close Button */}
-                <div className="flex items-center justify-end p-4 md:p-6 pb-0 shrink-0">
-                    <button
-                        onClick={onClose}
-                        className="flex items-center justify-center p-2 md:p-2.5 text-text-secondary hover:text-white bg-bg-primary/80 hover:bg-white/10 rounded-full transition-all duration-200 border border-white/10 touch-target cursor-pointer"
-                        aria-label="Fechar modal"
-                    >
-                        <X className="w-5 h-5 md:w-6 md:h-6" />
-                    </button>
-                </div>
-
-                {/* Content com scroll */}
-                <div className="flex-1 px-4 sm:px-6 md:px-8 pt-4 md:pt-6 pb-6 md:pb-8 flex flex-col overflow-y-auto">
-                    {/* Seção "Em breve" - Compacta */}
-                    <div className="flex flex-col items-center text-center mb-6 md:mb-8">
-                        {/* Ícone animado */}
-                        <div className="relative mb-4 md:mb-5">
-                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-linear-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center animate-pulse-slow">
-                                <Search className="w-8 h-8 md:w-10 md:h-10 text-brand-blue" />
-                            </div>
-                            <div className="absolute -top-1 -right-1">
-                                <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-yellow-400 animate-pulse" />
-                            </div>
-                        </div>
-
-                        {/* Título */}
-                        <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
-                            Busca Inteligente
-                        </h2>
-
-                        {/* Descrição */}
-                        <p className="text-text-secondary text-xs md:text-sm mb-3 max-w-sm leading-relaxed">
-                            Estamos preparando uma experiência de busca poderosa. Por enquanto, navegue rapidamente pelos conteúdos abaixo.
-                        </p>
-
-                        {/* Badge "Em breve" */}
-                        <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-linear-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full">
-                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-                            <span className="text-blue-400 font-semibold text-xs md:text-sm">
-                                Busca em breve
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Divisor */}
-                    <div className="w-full h-px bg-white/10 mb-5 md:mb-6" />
-
-                    {/* Navegação Rápida */}
-                    <div>
-                        <h3 className="text-sm md:text-base font-semibold text-white mb-3 md:mb-4 text-center">
-                            Navegação Rápida
-                        </h3>
-
-                        {/* Grid de links */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {quickLinks.map(link => {
-                                const { Icon } = link;
-                                return (
-                                    <Link
-                                        key={link.id}
-                                        href={link.href}
-                                        onClick={onClose}
-                                        className={`group relative flex items-center gap-3 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/5 border ${link.borderColor} ${link.hoverBorder} ${link.hoverShadow} transition-all duration-300 hover:bg-white/[0.08] hover:scale-[1.02]`}
-                                    >
-                                        {/* Ícone */}
-                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl ${link.bgColor} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-                                            <Icon className={`w-5 h-5 md:w-6 md:h-6 ${link.iconColor}`} />
-                                        </div>
-
-                                        {/* Conteúdo */}
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="text-sm md:text-base font-semibold text-white truncate">
-                                                {link.label}
-                                            </h4>
-                                            <p className="text-xs text-text-secondary truncate">
-                                                {link.description}
-                                            </p>
-                                        </div>
-
-                                        {/* Arrow */}
-                                        <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-gray-500 group-hover:text-white group-hover:scale-110 transition-all duration-300 shrink-0" />
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-/* ============================================
-   LAYOUT COMPLETO COMENTADO PARA FUTURA IMPLEMENTAÇÃO
-   ============================================
-
-export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [activeFilter, setActiveFilter] = useState<FilterType>("all");
-    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-
-    const debouncedQuery = useDebounce(searchQuery, 300);
-
-    const searchResults = useMemo(() => {
-        if (debouncedQuery.length < 2) return [];
-        return searchContent(debouncedQuery, activeFilter);
-    }, [debouncedQuery, activeFilter]);
-
-    useEffect(() => {
-        if (isOpen) {
-            const scrollY = window.scrollY;
-            document.body.style.position = "fixed";
-            document.body.style.top = `-${scrollY}px`;
-            document.body.style.width = "100%";
-            document.body.style.overflow = "hidden";
-
-            return () => {
-                document.body.style.position = "";
-                document.body.style.top = "";
-                document.body.style.width = "";
-                document.body.style.overflow = "";
-                window.scrollTo(0, scrollY);
-            };
-        }
-    }, [isOpen]);
-
-    useEffect(() => {
-        if (!isOpen) {
-            setSearchQuery("");
-            setActiveFilter("all");
-        }
-    }, [isOpen]);
-
-    const filters = [
-        { id: "all" as FilterType, label: "Todos", icon: Sparkles, color: "blue" },
-        { id: "newsletter" as FilterType, label: "Newsletter", icon: FileText, color: "purple" },
-        { id: "mini-livro" as FilterType, label: "Mini-Livros", icon: BookOpen, color: "green" },
-        { id: "biblioteca" as FilterType, label: "Biblioteca", icon: Library, color: "pink" },
-    ];
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-8"
-            onClick={onClose}
-            style={{ touchAction: "none" }}
-        >
-            <div className="absolute inset-0 bg-black/90 backdrop-blur-md animate-fade-in" />
-
+            {/* Modal */}
             <div
                 className="relative w-full max-w-6xl max-h-[90vh] bg-bg-primary/95 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl animate-scale-in flex flex-col overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
+                {/* Header */}
                 <div className="flex items-center justify-end p-3 sm:p-4 md:p-6 pb-0 shrink-0">
                     <button
                         onClick={onClose}
-                        className="p-2 md:p-2.5 text-text-secondary hover:text-white bg-bg-primary/80 hover:bg-white/10 rounded-full transition-all duration-200 border border-white/10 touch-target cursor-pointer"
+                        className="p-2 md:p-2.5 text-text-secondary hover:text-white bg-bg-primary/80 hover:bg-white/10 rounded-full transition-all duration-200 border border-white/10 cursor-pointer"
                         aria-label="Fechar modal"
                     >
                         <X className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                 </div>
 
+                {/* Content */}
                 <div className="flex-1 px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6 pb-3 sm:pb-4 md:pb-6 flex flex-col min-h-0">
                     <div className="flex flex-col gap-3 sm:gap-4 md:gap-6 h-full">
+                        {/* Campo de busca */}
                         <div className="relative shrink-0">
                             <input
                                 type="text"
                                 value={searchQuery}
-                                onChange={handleInputChange}
+                                onChange={e => setSearchQuery(e.target.value)}
                                 placeholder="Pesquise pelo material desejado"
                                 className="w-full px-4 sm:px-5 md:px-6 py-3 md:py-4 pr-12 md:pr-14 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl text-white text-sm md:text-base placeholder:text-gray-500 outline-none focus:outline-none focus:ring-0 focus:border-white focus:bg-white/[0.07] transition-all duration-200"
                                 autoFocus
                             />
                             <div className="absolute right-2 top-1/2 -translate-y-1/2 p-2 md:p-2.5 bg-linear-to-r from-blue-500 to-purple-600 rounded-lg md:rounded-xl">
-                                <Search className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                                {isLoading ? (
+                                    <Loader2 className="w-4 h-4 md:w-5 md:h-5 text-white animate-spin" />
+                                ) : (
+                                    <Search className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                                )}
                             </div>
                         </div>
 
+                        {/* Layout de 2 colunas */}
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 flex-1 min-h-0 overflow-hidden">
+                            {/* Sidebar de filtros */}
                             <div className="lg:col-span-1 glass-card rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6">
                                 <button
                                     onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                                    className="lg:hidden w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-400 tracking-tight uppercase hover:text-white transition-colors touch-target"
+                                    className="lg:hidden w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-400 tracking-tight uppercase hover:text-white transition-colors"
                                 >
                                     <span>Filtrar por tipo</span>
                                     {isFiltersOpen ? (
@@ -378,17 +219,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                 </h3>
 
                                 <div
-                                    className={`space-y-2 max-h-60 sm:max-h-75 hover-scroll overflow-y-auto transition-all duration-500 ${
+                                    className={`space-y-2 max-h-60 sm:max-h-75 overflow-y-auto transition-all duration-300 ${
                                         isFiltersOpen
                                             ? "block mt-3 opacity-100"
                                             : "hidden opacity-0 lg:block lg:opacity-100"
                                     }`}
-                                    style={{ WebkitOverflowScrolling: "touch" }}
                                 >
-                                    {filters.map(filter => {
+                                    {FILTERS.map(filter => {
                                         const Icon = filter.icon;
                                         const isActive = activeFilter === filter.id;
-
                                         return (
                                             <button
                                                 key={filter.id}
@@ -396,16 +235,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                                     setActiveFilter(filter.id);
                                                     setIsFiltersOpen(false);
                                                 }}
-                                                className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl transition-all duration-200 touch-target ${
+                                                className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl transition-all duration-200 ${
                                                     isActive
                                                         ? "bg-white/10 border border-white/20 text-white"
                                                         : "bg-white/5 border border-transparent text-text-secondary hover:bg-white/[0.07] hover:text-white"
                                                 }`}
                                             >
                                                 <Icon
-                                                    className={`w-4 h-4 md:w-5 md:h-5 ${
-                                                        isActive ? "text-" + filter.color + "-400" : ""
-                                                    }`}
+                                                    className={`w-4 h-4 md:w-5 md:h-5 ${isActive ? filter.activeColor : ""}`}
                                                 />
                                                 <span className="font-medium text-xs md:text-sm">{filter.label}</span>
                                             </button>
@@ -414,58 +251,98 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                 </div>
                             </div>
 
+                            {/* Painel de resultados */}
                             <div className="lg:col-span-3 glass-card rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col min-h-0">
-                                {searchQuery.length === 0 ? (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12 overflow-hidden">
+                                {/* Estado: campo vazio */}
+                                {searchQuery.length === 0 && (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
                                         <div className="w-16 h-16 md:w-20 md:h-20 mb-4 md:mb-6 rounded-xl md:rounded-2xl bg-linear-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
                                             <Search className="w-8 h-8 md:w-10 md:h-10 text-brand-blue" />
                                         </div>
-                                        <h3 className="text-lg md:text-2xl font-bold text-white mb-2 md:mb-3">Comece a pesquisar</h3>
+                                        <h3 className="text-lg md:text-2xl font-bold text-white mb-2 md:mb-3">
+                                            Comece a pesquisar
+                                        </h3>
                                         <p className="text-text-secondary text-sm md:text-base max-w-md px-4">
-                                            Digite pelo menos 2 caracteres para encontrar newsletters, mini-livros e
-                                            conteúdos da biblioteca.
+                                            Digite pelo menos 2 caracteres para encontrar newsletters, mini-livros,
+                                            especiais e conteÃºdos da biblioteca.
                                         </p>
                                     </div>
-                                ) : searchQuery.length < 2 ? (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12 overflow-hidden">
+                                )}
+
+                                {/* Estado: menos de 2 chars */}
+                                {showMinCharsHint && (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
                                         <div className="w-14 h-14 md:w-16 md:h-16 mb-3 md:mb-4 rounded-xl md:rounded-2xl bg-yellow-500/20 flex items-center justify-center">
                                             <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-yellow-400" />
                                         </div>
                                         <p className="text-text-secondary text-sm md:text-base px-4">
-                                            Digite mais {2 - searchQuery.length} caractere(s) para iniciar a pesquisa
+                                            Digite mais {2 - searchQuery.length}{" "}
+                                            {2 - searchQuery.length === 1 ? "caractere" : "caracteres"} para iniciar a
+                                            pesquisa
                                         </p>
                                     </div>
-                                ) : searchResults.length === 0 ? (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12 overflow-hidden">
+                                )}
+
+                                {/* Estado: carregando */}
+                                {isLoading && searchQuery.length >= 2 && (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
+                                        <Loader2 className="w-10 h-10 text-brand-blue animate-spin mb-4" />
+                                        <p className="text-text-secondary text-sm">Buscando conteÃºdo...</p>
+                                    </div>
+                                )}
+
+                                {/* Estado: erro */}
+                                {error && !isLoading && (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
+                                        <div className="w-14 h-14 md:w-16 md:h-16 mb-3 md:mb-4 rounded-xl md:rounded-2xl bg-red-500/20 flex items-center justify-center">
+                                            <X className="w-7 h-7 md:w-8 md:h-8 text-red-400" />
+                                        </div>
+                                        <h3 className="text-base md:text-lg font-bold text-white mb-2">
+                                            Erro na busca
+                                        </h3>
+                                        <p className="text-text-secondary text-sm max-w-md px-4">{error}</p>
+                                    </div>
+                                )}
+
+                                {/* Estado: sem resultados */}
+                                {showEmpty && (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
                                         <div className="w-14 h-14 md:w-16 md:h-16 mb-3 md:mb-4 rounded-xl md:rounded-2xl bg-gray-500/20 flex items-center justify-center">
                                             <Search className="w-7 h-7 md:w-8 md:h-8 text-gray-400" />
                                         </div>
-                                        <h3 className="text-base md:text-lg font-bold text-white mb-2">Nenhum resultado</h3>
-                                        <p className="text-text-secondary text-sm md:text-base max-w-md mb-3 md:mb-4 px-4">
-                                            Não encontramos resultados para "{searchQuery}".
+                                        <h3 className="text-base md:text-lg font-bold text-white mb-2">
+                                            Nenhum resultado
+                                        </h3>
+                                        <p className="text-text-secondary text-sm max-w-md mb-3 md:mb-4 px-4">
+                                            NÃ£o encontramos resultados para &quot;{searchQuery}&quot;.
                                         </p>
-                                        <p className="text-xs md:text-sm text-emerald-400">
-                                            Mais conteúdo em breve!
-                                        </p>
+                                        <p className="text-xs md:text-sm text-emerald-400">Mais conteÃºdo em breve!</p>
                                     </div>
-                                ) : (
+                                )}
+
+                                {/* Estado: resultados */}
+                                {showResults && (
                                     <div className="flex flex-col h-full min-h-0">
                                         <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
                                             <h3 className="text-base md:text-lg font-bold text-white">
-                                                Resultados para "{debouncedQuery}"
+                                                Resultados para &quot;{searchQuery}&quot;
                                             </h3>
                                             <span className="text-xs md:text-sm text-text-secondary">
-                                                {searchResults.length} resultado{searchResults.length !== 1 ? "s" : ""}
+                                                {results.length} {results.length !== 1 ? "resultados" : "resultado"}
                                             </span>
                                         </div>
 
                                         <div
-                                            className="flex-1 overflow-y-auto hover-scroll -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-8 px-3 sm:px-4 md:px-6 lg:px-8"
+                                            className="flex-1 overflow-y-auto -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-8 px-3 sm:px-4 md:px-6 lg:px-8"
                                             style={{ WebkitOverflowScrolling: "touch" }}
                                         >
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                                                {searchResults.map(item => (
-                                                    <SearchResultCard key={item.id} item={item} onClose={onClose} />
+                                                {results.map(item => (
+                                                    <SearchResultCard
+                                                        key={`${item.type}-${item.id}`}
+                                                        item={item}
+                                                        onClose={onClose}
+                                                    />
                                                 ))}
                                             </div>
                                         </div>
@@ -479,5 +356,3 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
     );
 }
-
-   ============================================ */

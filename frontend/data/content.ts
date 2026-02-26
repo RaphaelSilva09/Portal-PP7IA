@@ -1,6 +1,11 @@
 /**
- * Dados centralizados de conteúdo do portal
- * Usado pelo SearchModal para busca
+ * @deprecated Substituído por SearchContentUseCase + useSearch hook.
+ * Este arquivo era usado pelo SearchModal para busca client-side com dados estáticos.
+ * A busca agora é feita em tempo real via Supabase.
+ * Mantido apenas como referência — não importar em novos componentes.
+ *
+ * @see frontend/application/usecases/SearchContentUseCase.ts
+ * @see frontend/presentation/hooks/useSearch.ts
  */
 
 export interface ContentItem {
@@ -102,7 +107,10 @@ export const allContent: ContentItem[] = [
  * @param filter - Filtro por tipo (opcional)
  * @returns Array de itens encontrados
  */
-export function searchContent(query: string, filter?: "all" | "newsletter" | "mini-livro" | "biblioteca"): ContentItem[] {
+export function searchContent(
+    query: string,
+    filter?: "all" | "newsletter" | "mini-livro" | "biblioteca",
+): ContentItem[] {
     if (query.length < 2) return [];
 
     const normalizedQuery = query.toLowerCase().trim();

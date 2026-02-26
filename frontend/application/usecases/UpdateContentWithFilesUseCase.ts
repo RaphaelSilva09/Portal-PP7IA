@@ -18,14 +18,7 @@
 import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-
-/** Mapeamento de tipo de conteúdo para nome do bucket no Supabase Storage */
-const BUCKET_MAP: Record<ContentType, string> = {
-    newsletter: "Newsletters",
-    "mini-livro": "MiniLivros",
-    biblioteca: "Biblioteca",
-    "especial-semana": "especial-semana",
-};
+import { STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export interface UpdateContentWithFilesInput {
     type: ContentType;
@@ -43,7 +36,7 @@ export class UpdateContentWithFilesUseCase {
     ) {}
 
     async execute(input: UpdateContentWithFilesInput): Promise<ContentItem | null> {
-        const bucket = BUCKET_MAP[input.type];
+        const folder = STORAGE_PATHS[input.type];
 
         // 1. Verificar se conteúdo existe
         const existingContent = await this.contentRepository.getById(input.type, input.id);
@@ -66,13 +59,13 @@ export class UpdateContentWithFilesUseCase {
                 if (htmlPath) {
                     const oldFileName = htmlPath.split("/").pop();
                     if (oldFileName) {
-                        await this.storageRepository.delete(bucket, oldFileName);
+                        await this.storageRepository.delete(STORAGE_BUCKET, `${folder}/${oldFileName}`);
                     }
                 }
 
                 // Upload novo arquivo
-                await this.storageRepository.upload(bucket, htmlFileName, input.htmlFile);
-                htmlPath = `/${bucket.toLowerCase()}/${htmlFileName}`;
+                await this.storageRepository.upload(STORAGE_BUCKET, `${folder}/${htmlFileName}`, input.htmlFile);
+                htmlPath = `/${STORAGE_BUCKET}/${folder}/${htmlFileName}`;
             }
 
             if (input.pdfFile) {
@@ -82,13 +75,13 @@ export class UpdateContentWithFilesUseCase {
                 if (pdfPath) {
                     const oldFileName = pdfPath.split("/").pop();
                     if (oldFileName) {
-                        await this.storageRepository.delete(bucket, oldFileName);
+                        await this.storageRepository.delete(STORAGE_BUCKET, `${folder}/${oldFileName}`);
                     }
                 }
 
                 // Upload novo arquivo
-                await this.storageRepository.upload(bucket, pdfFileName, input.pdfFile);
-                pdfPath = `/${bucket.toLowerCase()}/${pdfFileName}`;
+                await this.storageRepository.upload(STORAGE_BUCKET, `${folder}/${pdfFileName}`, input.pdfFile);
+                pdfPath = `/${STORAGE_BUCKET}/${folder}/${pdfFileName}`;
             }
 
             // 3. Atualizar registro no banco
