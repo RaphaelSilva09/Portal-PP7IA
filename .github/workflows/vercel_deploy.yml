@@ -10,7 +10,7 @@ jobs:
   deploy:
     if: |
       github.event.pull_request.merged == true &&
-      (github.event.pull_request.merged_by.login == 'RaphaelSilva09')
+      contains(fromJSON('["RaphaelSilva09", "MerigoDavi"]'), github.event.pull_request.merged_by.login)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
