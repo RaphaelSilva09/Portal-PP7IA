@@ -144,9 +144,10 @@ export default function BentoGrid() {
                     </a>
 
                     {/* Card: Radar de Oportunidades */}
-                    <div
+                    <a
+                        href="/radar-oportunidades"
                         id="radar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] block min-h-80"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] block min-h-80"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
@@ -155,11 +156,9 @@ export default function BentoGrid() {
                                 <Search className="w-8 h-8 text-orange-400" />
                             </div>
 
-                            {/* Badge Em Breve */}
+                            {/* Arrow Icon */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-full">
-                                    <span className="text-xs font-medium text-orange-400">Em breve</span>
-                                </span>
+                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-orange-400 group-hover:scale-125 transition-all duration-300" />
                             </div>
 
                             {/* Content */}
@@ -175,7 +174,7 @@ export default function BentoGrid() {
                             {/* Accent Line */}
                             <div className="absolute bottom-0 left-0 right-0 h-2 bg-linear-to-r from-orange-500 to-yellow-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                         </div>
-                    </div>
+                    </a>
 
                     {/* Card: Mini-Livros */}
                     <a
@@ -251,9 +250,10 @@ export default function BentoGrid() {
                     </a>
 
                     {/* Card: Estudar — Aprender — Referências */}
-                    <div
+                    <a
+                        href="/estudar"
                         id="estudar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] block min-h-80"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] block min-h-80"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
@@ -262,11 +262,9 @@ export default function BentoGrid() {
                                 <GraduationCap className="w-8 h-8 text-blue-400" />
                             </div>
 
-                            {/* Badge Em Breve */}
+                            {/* Arrow Icon */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full">
-                                    <span className="text-xs font-medium text-blue-400">Em breve</span>
-                                </span>
+                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-blue-400 group-hover:scale-125 transition-all duration-300" />
                             </div>
 
                             {/* Content */}
@@ -283,7 +281,7 @@ export default function BentoGrid() {
                             {/* Accent Line */}
                             <div className="absolute bottom-0 left-0 right-0 h-2 bg-linear-to-r from-blue-500 to-cyan-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                         </div>
-                    </div>
+                    </a>
 
                     {/* Card: Ensinar */}
                     <div
