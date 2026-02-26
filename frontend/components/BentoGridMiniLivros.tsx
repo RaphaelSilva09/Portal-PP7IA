@@ -104,40 +104,74 @@ export default function BentoGridMiniLivros() {
                             <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700">
                                 <div className="absolute inset-0 shimmer" />
                             </div>
-                            <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-8 sm:p-12">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-4">
-                                    <Sparkles className="w-4 h-4 text-blue-400" />
-                                    <span className="text-blue-400 text-sm font-medium">
-                                        E-book #{latestEbook.formattedNumber}
-                                    </span>
-                                </div>
-                                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight leading-tight">
-                                    {latestEbook.title}
-                                </h3>
-                                <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-2xl">
-                                    Publicado em {latestEbook.formattedDate}
-                                </p>
-                                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
-                                    {latestEbook.htmlAvailable ? (
-                                        <a
-                                            href={latestEbook.htmlPath!}
-                                            className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
-                                        >
-                                            <BookOpen className="w-5 h-5" />
-                                            <span>Ler Introdução</span>
-                                        </a>
-                                    ) : null}
-                                    {latestEbook.pdfAvailable ? (
-                                        <a
-                                            href={latestEbook.pdfPath!}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
-                                        >
-                                            <FileText className="w-5 h-5" />
-                                            <span>Ver Capa PDF</span>
-                                        </a>
-                                    ) : null}
+
+                            {/* Content - Layout com Imagem + Texto */}
+                            <div className="relative z-10 h-full flex flex-col md:flex-row items-center gap-8 p-8 sm:p-12">
+                                {/* Imagem da Capa - Esquerda */}
+                                {latestEbook.coverImagePath && (
+                                    <div className="w-full md:w-1/3 flex-shrink-0">
+                                        <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/20 shadow-2xl">
+                                            <img
+                                                src={latestEbook.coverImagePath}
+                                                alt={`Capa do E-book ${latestEbook.title}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Informações do E-book - Direita */}
+                                <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+                                    {/* Badge */}
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-4">
+                                        <Sparkles className="w-4 h-4 text-blue-400" />
+                                        <span className="text-blue-400 text-sm font-medium">
+                                            E-book #{latestEbook.formattedNumber}
+                                        </span>
+                                    </div>
+
+                                    {/* Título */}
+                                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight leading-tight">
+                                        {latestEbook.title}
+                                    </h3>
+
+                                    {/* Subtítulo */}
+                                    {latestEbook.subtitle && (
+                                        <p className="text-xl sm:text-2xl text-blue-300/80 mb-6 font-medium">
+                                            {latestEbook.subtitle}
+                                        </p>
+                                    )}
+
+                                    {/* Descrição */}
+                                    {latestEbook.description && (
+                                        <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-2xl">
+                                            {latestEbook.description}
+                                        </p>
+                                    )}
+
+                                    {/* Botões de Ação */}
+                                    <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
+                                        {latestEbook.pdfAvailable && (
+                                            <a
+                                                href={latestEbook.pdfPath!}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                            >
+                                                <FileText className="w-5 h-5" />
+                                                <span>Ver Capa</span>
+                                            </a>
+                                        )}
+                                        {latestEbook.htmlAvailable && (
+                                            <a
+                                                href={latestEbook.htmlPath!}
+                                                className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                            >
+                                                <BookOpen className="w-5 h-5" />
+                                                <span>Ler Introdução</span>
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>

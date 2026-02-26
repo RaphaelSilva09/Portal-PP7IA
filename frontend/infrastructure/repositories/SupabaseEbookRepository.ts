@@ -17,6 +17,9 @@ interface SupabaseEbookRow {
     id: number;
     created_at: string;
     title: string;
+    subtitle: string | null;
+    description: string | null;
+    cover_image_path: string | null;
     html_path: string | null;
     pdf_path: string | null;
     read_time: number;
@@ -81,6 +84,9 @@ export class SupabaseEbookRepository implements IEbookRepository {
             id: row.id,
             createdAt: new Date(row.created_at),
             title: row.title,
+            subtitle: row.subtitle ?? null,
+            description: row.description ?? null,
+            coverImagePath: row.cover_image_path ?? null,
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
             readTime: row.read_time,

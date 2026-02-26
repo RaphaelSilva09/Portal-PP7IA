@@ -16,6 +16,9 @@ export interface EbookProps {
     id: number;
     createdAt: Date;
     title: string;
+    subtitle: string | null;
+    description: string | null;
+    coverImagePath: string | null;
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
@@ -39,6 +42,18 @@ export class Ebook {
 
     get title(): string {
         return this.props.title?.trim() || "E-book indisponível";
+    }
+
+    get subtitle(): string | null {
+        return this.props.subtitle?.trim() || null;
+    }
+
+    get description(): string | null {
+        return this.props.description?.trim() || null;
+    }
+
+    get coverImagePath(): string | null {
+        return this.props.coverImagePath?.trim() || null;
     }
 
     get htmlPath(): string | null {
