@@ -3,7 +3,6 @@
 ## 📋 Visão Geral
 
 Sistema de autenticação completo seguindo **Clean Architecture** e **Domain-Driven Design (DDD)**.
-
 ### Arquitetura
 
 ```
