@@ -126,7 +126,7 @@ export default function BentoGridMiniLivros() {
                                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-4">
                                         <Sparkles className="w-4 h-4 text-blue-400" />
                                         <span className="text-blue-400 text-sm font-medium">
-                                            E-book #{latestEbook.formattedNumber}
+                                            {latestEbook.badgeText || `E-book #${latestEbook.formattedNumber}`}
                                         </span>
                                     </div>
 
@@ -151,9 +151,9 @@ export default function BentoGridMiniLivros() {
 
                                     {/* Botões de Ação */}
                                     <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
-                                        {latestEbook.pdfAvailable && (
+                                        {latestEbook.coverPdfAvailable && (
                                             <a
-                                                href={latestEbook.pdfPath!}
+                                                href={latestEbook.coverPdfPath!}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
@@ -164,7 +164,7 @@ export default function BentoGridMiniLivros() {
                                         )}
                                         {latestEbook.htmlAvailable && (
                                             <a
-                                                href={latestEbook.htmlPath!}
+                                                href={latestEbook.introHtmlPath!}
                                                 className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                             >
                                                 <BookOpen className="w-5 h-5" />

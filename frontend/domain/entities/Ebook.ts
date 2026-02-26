@@ -19,8 +19,10 @@ export interface EbookProps {
     subtitle: string | null;
     description: string | null;
     coverImagePath: string | null;
-    htmlPath: string | null;
-    pdfPath: string | null;
+    coverPdfPath: string | null;
+    introHtmlPath: string | null;
+    introPdfPath: string | null;
+    badgeText: string | null;
     readTime: number;
 }
 
@@ -56,8 +58,12 @@ export class Ebook {
         return this.props.coverImagePath?.trim() || null;
     }
 
-    get htmlPath(): string | null {
-        const rawPath = this.props.htmlPath?.trim();
+    get coverPdfPath(): string | null {
+        return this.props.coverPdfPath?.trim() || null;
+    }
+
+    get introHtmlPath(): string | null {
+        const rawPath = this.props.introHtmlPath?.trim();
         if (!rawPath) return null;
         const match = rawPath.match(/\/([^/]+)\.html$/);
         if (!match) return rawPath;
@@ -65,8 +71,12 @@ export class Ebook {
         return `/view/ebook/${slug}`;
     }
 
-    get pdfPath(): string | null {
-        return this.props.pdfPath?.trim() || null;
+    get introPdfPath(): string | null {
+        return this.props.introPdfPath?.trim() || null;
+    }
+
+    get badgeText(): string | null {
+        return this.props.badgeText?.trim() || null;
     }
 
     get readTime(): number {
@@ -78,11 +88,15 @@ export class Ebook {
     }
 
     get htmlAvailable(): boolean {
-        return Boolean(this.props.htmlPath?.trim());
+        return Boolean(this.props.introHtmlPath?.trim());
     }
 
-    get pdfAvailable(): boolean {
-        return Boolean(this.props.pdfPath?.trim());
+    get coverPdfAvailable(): boolean {
+        return Boolean(this.props.coverPdfPath?.trim());
+    }
+
+    get introPdfAvailable(): boolean {
+        return Boolean(this.props.introPdfPath?.trim());
     }
 
     get formattedNumber(): string {

@@ -20,8 +20,10 @@ interface SupabaseEbookRow {
     subtitle: string | null;
     description: string | null;
     cover_image_path: string | null;
-    html_path: string | null;
-    pdf_path: string | null;
+    cover_pdf_path: string | null;
+    intro_html_path: string | null;
+    intro_pdf_path: string | null;
+    badge_text: string | null;
     read_time: number;
 }
 
@@ -87,8 +89,10 @@ export class SupabaseEbookRepository implements IEbookRepository {
             subtitle: row.subtitle ?? null,
             description: row.description ?? null,
             coverImagePath: row.cover_image_path ?? null,
-            htmlPath: row.html_path,
-            pdfPath: row.pdf_path,
+            coverPdfPath: row.cover_pdf_path ?? null,
+            introHtmlPath: row.intro_html_path ?? null,
+            introPdfPath: row.intro_pdf_path ?? null,
+            badgeText: row.badge_text ?? null,
             readTime: row.read_time,
         };
         return Ebook.create(props);
