@@ -167,7 +167,7 @@ export default function BentoGrid() {
                                     Radar de Oportunidades
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    7 itens mensais. Novas ferramentas, startups em alta,  tendências de mercado
+                                    7 itens mensais. Novas ferramentas, startups em alta, tendências de mercado
                                 </p>
                             </div>
 
@@ -200,8 +200,7 @@ export default function BentoGrid() {
                                     Mini-Livros
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    Mini-guias sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
-                                    21 min.
+                                    Mini-guias sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e 21 min.
                                 </p>
                             </div>
 
