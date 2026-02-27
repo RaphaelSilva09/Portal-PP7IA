@@ -15,7 +15,8 @@
  * - DI: Obtém use cases via DIContainer
  */
 
-import { ConfirmDialog, ContentForm, ContentTable, Dashboard, FeedbackMessage, UserManager } from "@/components/admin";
+import { ConfirmDialog, ContentForm, ContentTable, Dashboard, EbookForm, FeedbackMessage, UserManager } from "@/components/admin";
+import type { EbookFormData } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
@@ -180,11 +181,15 @@ export default function PainelAdminPage() {
         setIsSubmitting(true);
         try {
             if (editItem) {
-                // Atualizar
-                const repo = DIContainer.getContentRepository();
-                await repo.update(contentTab, editItem.id, {
+                // Atualizar via use case (com suporte a upload de arquivos)
+                const useCase = DIContainer.getUpdateContentWithFilesUseCase();
+                await useCase.execute({
+                    type: contentTab,
+                    id: editItem.id,
                     title: data.title,
                     readTime: data.readTime,
+                    htmlFile: data.htmlFile,
+                    pdfFile: data.pdfFile,
                 });
                 setFeedback({
                     show: true,
@@ -215,6 +220,66 @@ export default function PainelAdminPage() {
             setFeedback({
                 show: true,
                 message: "Erro ao salvar material. Tente novamente.",
+                type: "error",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleEbookSubmit = async (data: EbookFormData) => {
+        setIsSubmitting(true);
+        try {
+            if (editItem) {
+                // Editar ebook via use case
+                const useCase = DIContainer.getUpdateContentWithFilesUseCase();
+                await useCase.execute({
+                    type: "ebook",
+                    id: editItem.id,
+                    title: data.title,
+                    readTime: data.readTime,
+                    subtitle: data.subtitle,
+                    description: data.description,
+                    badgeText: data.badgeText,
+                    htmlFile: data.introHtmlFile,
+                    pdfFile: data.introPdfFile,
+                    coverImageFile: data.coverImageFile,
+                    coverPdfFile: data.coverPdfFile,
+                });
+                setFeedback({
+                    show: true,
+                    message: "E-book atualizado com sucesso!",
+                    type: "success",
+                });
+            } else {
+                // Criar ebook com upload
+                const useCase = DIContainer.getCreateContentWithUploadUseCase();
+                await useCase.execute({
+                    type: "ebook",
+                    title: data.title,
+                    readTime: data.readTime,
+                    subtitle: data.subtitle,
+                    description: data.description,
+                    badgeText: data.badgeText,
+                    htmlFile: data.introHtmlFile,
+                    pdfFile: data.introPdfFile,
+                    coverImageFile: data.coverImageFile,
+                    coverPdfFile: data.coverPdfFile,
+                });
+                setFeedback({
+                    show: true,
+                    message: "E-book criado com sucesso!",
+                    type: "success",
+                });
+            }
+            setShowForm(false);
+            setEditItem(null);
+            await loadItems();
+        } catch (error) {
+            console.error("Erro ao salvar e-book:", error);
+            setFeedback({
+                show: true,
+                message: "Erro ao salvar e-book. Tente novamente.",
                 type: "error",
             });
         } finally {
@@ -303,16 +368,28 @@ export default function PainelAdminPage() {
 
                         {/* Formulário ou Tabela */}
                         {showForm ? (
-                            <ContentForm
-                                type={contentTab}
-                                editItem={editItem}
-                                onSubmit={handleSubmit}
-                                onCancel={() => {
-                                    setShowForm(false);
-                                    setEditItem(null);
-                                }}
-                                isLoading={isSubmitting}
-                            />
+                            contentTab === "ebook" ? (
+                                <EbookForm
+                                    editItem={editItem}
+                                    onSubmit={handleEbookSubmit}
+                                    onCancel={() => {
+                                        setShowForm(false);
+                                        setEditItem(null);
+                                    }}
+                                    isLoading={isSubmitting}
+                                />
+                            ) : (
+                                <ContentForm
+                                    type={contentTab}
+                                    editItem={editItem}
+                                    onSubmit={handleSubmit}
+                                    onCancel={() => {
+                                        setShowForm(false);
+                                        setEditItem(null);
+                                    }}
+                                    isLoading={isSubmitting}
+                                />
+                            )
                         ) : (
                             <>
                                 {/* Botão Criar */}

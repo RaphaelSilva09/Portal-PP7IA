@@ -17,7 +17,7 @@
 import type { ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import { STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
+import { EBOOK_INTRO_HTML_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export class DeleteContentWithFilesUseCase {
     constructor(
@@ -37,20 +37,39 @@ export class DeleteContentWithFilesUseCase {
         }
 
         // 2. Deletar arquivos do storage (ignora erros se não existirem)
-        try {
-            if (content.htmlPath) {
-                await this.storageRepository.delete(STORAGE_BUCKET, `${folder}/${formattedId}.html`);
+        if (type === "ebook") {
+            // Ebook: múltiplos arquivos em caminhos distintos
+            const filesToDelete = [
+                `${EBOOK_INTRO_HTML_FOLDER}/${formattedId}.html`,
+                `${folder}/${formattedId}-intro.pdf`,
+                `${folder}/${formattedId}-capa.pdf`,
+                `${folder}/${formattedId}-capa.jpg`,
+                `${folder}/${formattedId}-capa.png`,
+                `${folder}/${formattedId}-capa.webp`,
+            ];
+            for (const filePath of filesToDelete) {
+                try {
+                    await this.storageRepository.delete(STORAGE_BUCKET, filePath);
+                } catch {
+                    // Ignora arquivos que não existem
+                }
             }
-        } catch {
-            console.warn("HTML file not found, continuing...");
-        }
+        } else {
+            try {
+                if (content.htmlPath) {
+                    await this.storageRepository.delete(STORAGE_BUCKET, `${folder}/${formattedId}.html`);
+                }
+            } catch {
+                console.warn("HTML file not found, continuing...");
+            }
 
-        try {
-            if (content.pdfPath) {
-                await this.storageRepository.delete(STORAGE_BUCKET, `${folder}/${formattedId}.pdf`);
+            try {
+                if (content.pdfPath) {
+                    await this.storageRepository.delete(STORAGE_BUCKET, `${folder}/${formattedId}.pdf`);
+                }
+            } catch {
+                console.warn("PDF file not found, continuing...");
             }
-        } catch {
-            console.warn("PDF file not found, continuing...");
         }
 
         // 3. Deletar registro do banco

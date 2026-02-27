@@ -15,6 +15,12 @@ import { ContentItem, ContentType } from "../entities/ContentItem";
 export interface CreateContentInput {
     title: string;
     readTime?: number;
+    // Campos específicos de ebook
+    subtitle?: string | null;
+    description?: string | null;
+    badgeText?: string | null;
+    coverImagePath?: string | null;
+    coverPdfPath?: string | null;
 }
 
 export interface UpdateContentInput {
@@ -22,6 +28,12 @@ export interface UpdateContentInput {
     readTime?: number;
     htmlPath?: string | null;
     pdfPath?: string | null;
+    // Campos específicos de ebook
+    subtitle?: string | null;
+    description?: string | null;
+    badgeText?: string | null;
+    coverImagePath?: string | null;
+    coverPdfPath?: string | null;
 }
 
 export interface IContentRepository {

@@ -28,3 +28,10 @@ export const STORAGE_PATHS: Record<ContentType, string> = {
     estudar: "estudar",
     ebook: "ebooks",
 };
+
+/**
+ * Folder especial para HTML de introdução de ebooks.
+ * O proxy-html lê deste folder ao renderizar /view/ebook/{slug}.
+ * Separado de STORAGE_PATHS["ebook"] pois ebooks/ guarda imagens e PDFs de capa.
+ */
+export const EBOOK_INTRO_HTML_FOLDER = "mini-livros/intros";
