@@ -83,6 +83,7 @@ export class SupabaseContentRepository implements IContentRepository {
         const table = TABLE_MAP[type];
 
         // Ebook tem colunas extras no banco — montar objeto de insert apropriado
+        const now = new Date().toISOString();
         const insertData: Record<string, unknown> =
             type === "ebook"
                 ? {
@@ -93,10 +94,12 @@ export class SupabaseContentRepository implements IContentRepository {
                       badge_text: input.badgeText ?? null,
                       cover_image_path: input.coverImagePath ?? null,
                       cover_pdf_path: input.coverPdfPath ?? null,
+                      created_at: now,
                   }
                 : {
                       title: input.title,
                       read_time: input.readTime ?? null,
+                      created_at: now,
                   };
 
         const { data, error } = await supabase.from(table).insert(insertData).select().single();
