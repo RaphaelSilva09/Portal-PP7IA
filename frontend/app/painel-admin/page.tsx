@@ -15,8 +15,16 @@
  * - DI: Obtém use cases via DIContainer
  */
 
-import { ConfirmDialog, ContentForm, ContentTable, Dashboard, EbookForm, FeedbackMessage, UserManager } from "@/components/admin";
 import type { EbookFormData } from "@/components/admin";
+import {
+    ConfirmDialog,
+    ContentForm,
+    ContentTable,
+    Dashboard,
+    EbookForm,
+    FeedbackMessage,
+    UserManager,
+} from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";

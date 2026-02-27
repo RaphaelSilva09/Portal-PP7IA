@@ -67,11 +67,7 @@ export interface IContentRepository {
      * @param input - Dados a atualizar
      * @returns ContentItem atualizado
      */
-    update(
-        type: ContentType,
-        id: number,
-        input: UpdateContentInput
-    ): Promise<ContentItem>;
+    update(type: ContentType, id: number, input: UpdateContentInput): Promise<ContentItem>;
 
     /**
      * Remove um item

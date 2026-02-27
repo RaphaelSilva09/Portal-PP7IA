@@ -29,12 +29,12 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
             const [newsletters, miniLivros, biblioteca, especialSemana, ebooks, radarOportunidades, estudar] =
                 await Promise.all([
                     this.countTable("newsletters"),
-                    this.countTable("mini_livros"),           // corrigido: era "mini-livros"
+                    this.countTable("mini_livros"), // corrigido: era "mini-livros"
                     this.countTable("biblioteca"),
-                    this.countTable("especial_semana"),       // corrigido: era "especial-semana"
-                    this.countTable("ebooks"),                // novo
-                    this.countTable("radar_oportunidades"),   // novo
-                    this.countTable("estudar"),               // novo
+                    this.countTable("especial_semana"), // corrigido: era "especial-semana"
+                    this.countTable("ebooks"), // novo
+                    this.countTable("radar_oportunidades"), // novo
+                    this.countTable("estudar"), // novo
                 ]);
 
             const total =
@@ -155,16 +155,15 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
     > {
         try {
             // Buscar os mais recentes de todos os tipos
-            const [newsletters, miniLivros, biblioteca, especialSemana, ebooks, radar, estudar] =
-                await Promise.all([
-                    this.getRecentFromTable("newsletters", "newsletter", limit),
-                    this.getRecentFromTable("mini_livros", "mini-livro", limit),          // corrigido
-                    this.getRecentFromTable("biblioteca", "biblioteca", limit),
-                    this.getRecentFromTable("especial_semana", "especial-semana", limit), // corrigido
-                    this.getRecentFromTable("ebooks", "ebook", limit),                    // novo
-                    this.getRecentFromTable("radar_oportunidades", "radar_oportunidades", limit), // novo
-                    this.getRecentFromTable("estudar", "estudar", limit),                 // novo
-                ]);
+            const [newsletters, miniLivros, biblioteca, especialSemana, ebooks, radar, estudar] = await Promise.all([
+                this.getRecentFromTable("newsletters", "newsletter", limit),
+                this.getRecentFromTable("mini_livros", "mini-livro", limit), // corrigido
+                this.getRecentFromTable("biblioteca", "biblioteca", limit),
+                this.getRecentFromTable("especial_semana", "especial-semana", limit), // corrigido
+                this.getRecentFromTable("ebooks", "ebook", limit), // novo
+                this.getRecentFromTable("radar_oportunidades", "radar_oportunidades", limit), // novo
+                this.getRecentFromTable("estudar", "estudar", limit), // novo
+            ]);
 
             // Combinar todos e ordenar por data
             const allContent = [

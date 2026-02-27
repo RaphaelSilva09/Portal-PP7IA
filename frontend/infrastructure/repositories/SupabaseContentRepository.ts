@@ -40,12 +40,8 @@ function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
         id: row.id as number,
         createdAt: new Date(row.created_at as string),
         title: row.title as string,
-        htmlPath: isEbook
-            ? (row.intro_html_path as string | null)
-            : (row.html_path as string | null),
-        pdfPath: isEbook
-            ? (row.intro_pdf_path as string | null)
-            : (row.pdf_path as string | null),
+        htmlPath: isEbook ? (row.intro_html_path as string | null) : (row.html_path as string | null),
+        pdfPath: isEbook ? (row.intro_pdf_path as string | null) : (row.pdf_path as string | null),
         readTime: row.read_time as number,
         // Ebook-specific fields
         subtitle: isEbook ? (row.subtitle as string | null) : null,
@@ -61,7 +57,10 @@ export class SupabaseContentRepository implements IContentRepository {
         try {
             const table = TABLE_MAP[type];
             const { data, error } = await supabase.from(table).select("*").order("id", { ascending: false });
-            if (error || !data) { console.error(`Erro ao buscar ${type}:`, error); return []; }
+            if (error || !data) {
+                console.error(`Erro ao buscar ${type}:`, error);
+                return [];
+            }
             return data.map(row => mapRow(type, row));
         } catch (error) {
             console.error(`Erro inesperado ao buscar ${type}:`, error);
