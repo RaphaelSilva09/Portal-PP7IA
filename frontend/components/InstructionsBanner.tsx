@@ -1,6 +1,6 @@
 export default function InstructionsBanner() {
     return (
-        <section className="relative py-8 sm:py-12 md:pt-4 md:pb-0 px-4 sm:px-6 lg:px-8">
+        <section id="instructions" className="relative py-8 sm:py-12 md:pt-4 md:pb-0 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 <div className="glass-card p-6 sm:p-8 bg-brand-blue/5 border-brand-blue/20 shadow-glow-blue-sm">
                     {/* Title */}
@@ -17,9 +17,9 @@ export default function InstructionsBanner() {
                                 <span className="text-brand-blue font-medium">Como se inscrever:</span> Clique em{" "}
                                 <span className="text-brand-blue font-medium">"Quero Fazer Parte"</span> ou{" "}
                                 <span className="text-brand-blue font-medium">"Entrar"</span> no topo da página.
-                                Preencha nome, e-mail, celular e crie uma senha.
-                                Escolha como quer receber atualizações (e-mail e/ou WhatsApp).
-                                Após o cadastro, confirme seu e-mail clicando no link enviado (verifique a pasta de spam).
+                                Preencha nome, e-mail, celular e crie uma senha. Escolha como quer receber atualizações
+                                (e-mail e/ou WhatsApp). Após o cadastro, confirme seu e-mail clicando no link enviado
+                                (verifique a pasta de spam).
                             </p>
                         </div>
 
@@ -28,7 +28,8 @@ export default function InstructionsBanner() {
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
                                 <span className="text-brand-blue font-medium">Já é inscrito?</span> Use o botão{" "}
-                                <span className="text-brand-blue font-medium">"Entrar"</span> no topo para acessar sua conta com e-mail e senha.
+                                <span className="text-brand-blue font-medium">"Entrar"</span> no topo para acessar sua
+                                conta com e-mail e senha.
                             </p>
                         </div>
 
@@ -55,11 +56,12 @@ export default function InstructionsBanner() {
                         <div className="flex gap-3 items-start">
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
-                                <span className="text-brand-blue font-medium">Convide alguém:</span> Após fazer login, clique no botão{" "}
-                                <span className="text-brand-blue font-medium">"Convidar"</span> no topo da página ou na sua{" "}
-                                <span className="text-brand-blue font-medium">página de perfil</span>.
-                                Informe o e-mail da pessoa e ela receberá um convite com link para se cadastrar.
-                                Você pode enviar vários convites de uma vez.
+                                <span className="text-brand-blue font-medium">Convide alguém:</span> Após fazer login,
+                                clique no botão <span className="text-brand-blue font-medium">"Convidar"</span> no topo
+                                da página ou na sua{" "}
+                                <span className="text-brand-blue font-medium">página de perfil</span>. Informe o e-mail
+                                da pessoa e ela receberá um convite com link para se cadastrar. Você pode enviar vários
+                                convites de uma vez.
                             </p>
                         </div>
 
@@ -67,7 +69,8 @@ export default function InstructionsBanner() {
                         <div className="flex gap-3 items-start">
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
-                                <span className="text-brand-blue font-medium">Atualizações frequentes</span>, avisadas por e-mail ou WhatsApp.
+                                <span className="text-brand-blue font-medium">Atualizações frequentes</span>, avisadas
+                                por e-mail ou WhatsApp.
                             </p>
                         </div>
                     </div>
