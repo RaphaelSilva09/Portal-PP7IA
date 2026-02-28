@@ -243,6 +243,37 @@ export class SupabaseAuthRepository implements IAuthRepository {
     }
 
     /**
+     * Obtém perfil do usuário a partir de dados da sessão, sem validar JWT no servidor.
+     * Mais eficiente que getCurrentUser() para uso em onAuthStateChange onde a sessão
+     * já foi validada pelo Supabase internamente.
+     */
+    async getUserFromSession(userId: string, role: string): Promise<User | null> {
+        try {
+            const { data: userData, error } = await this.supabase
+                .from("users")
+                .select("*")
+                .eq("id", userId)
+                .single();
+
+            if (error || !userData) {
+                return null;
+            }
+
+            return this.mapToUser(userId, {
+                email: userData.email,
+                nome: userData.nome,
+                celular: userData.celular,
+                acceptEmailUpdates: userData.accept_email_updates,
+                acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
+                createdAt: new Date(userData.created_at),
+                role,
+            });
+        } catch {
+            return null;
+        }
+    }
+
+    /**
      * Envia email de reset de senha com código OTP de 8 dígitos
      * OTP expira em 1 hora (configurado no Supabase Dashboard)
      */

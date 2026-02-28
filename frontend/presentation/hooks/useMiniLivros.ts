@@ -12,7 +12,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MiniLivro } from "../../domain/entities/MiniLivro";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -24,39 +24,53 @@ interface UseMiniLivrosResult {
     refresh: () => Promise<void>;
 }
 
-/**
- * Hook customizado para mini-livros
- * Custom Hook Pattern
- */
 export function useMiniLivros(): UseMiniLivrosResult {
     const [latest, setLatest] = useState<MiniLivro | null>(null);
     const [older, setOlder] = useState<MiniLivro[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    /**
-     * Busca mini-livros do repositório
-     */
+    const mountedRef = useRef(true);
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
     const fetchMiniLivros = useCallback(async () => {
+        if (!mountedRef.current) return;
         setIsLoading(true);
         setError(null);
+
+        const timeoutId = setTimeout(() => {
+            if (mountedRef.current) {
+                console.warn("⚠️ useMiniLivros: timeout após 10s");
+                setError("Tempo limite excedido. Tente recarregar a página.");
+                setIsLoading(false);
+            }
+        }, 10000);
 
         try {
             const useCase = DIContainer.getMiniLivrosUseCase();
             const result = await useCase.execute();
-            setLatest(result.latest);
-            setOlder(result.older);
+            if (mountedRef.current) {
+                setLatest(result.latest);
+                setOlder(result.older);
+            }
         } catch (err) {
             console.error("Erro ao carregar mini-livros:", err);
-            setError("Erro ao carregar mini-livros. Tente novamente.");
+            if (mountedRef.current) {
+                setError("Erro ao carregar mini-livros. Tente novamente.");
+            }
         } finally {
-            setIsLoading(false);
+            clearTimeout(timeoutId);
+            if (mountedRef.current) {
+                setIsLoading(false);
+            }
         }
     }, []);
 
-    /**
-     * Carrega mini-livros na montagem do componente
-     */
     useEffect(() => {
         fetchMiniLivros();
     }, [fetchMiniLivros]);

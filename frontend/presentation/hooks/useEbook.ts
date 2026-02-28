@@ -10,7 +10,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Ebook } from "../../domain/entities/Ebook";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -28,19 +28,44 @@ export function useEbook(): UseEbookResult {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const mountedRef = useRef(true);
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
     const fetchData = useCallback(async () => {
+        if (!mountedRef.current) return;
         setIsLoading(true);
         setError(null);
+
+        const timeoutId = setTimeout(() => {
+            if (mountedRef.current) {
+                console.warn("⚠️ useEbook: timeout após 10s");
+                setError("Tempo limite excedido. Tente recarregar a página.");
+                setIsLoading(false);
+            }
+        }, 10000);
+
         try {
             const useCase = DIContainer.getEbookUseCase();
             const result = await useCase.execute();
-            setLatest(result.latest);
-            setAll(result.all);
+            if (mountedRef.current) {
+                setLatest(result.latest);
+                setAll(result.all);
+            }
         } catch (err) {
             console.error("Erro ao carregar e-books:", err);
-            setError("Erro ao carregar e-books.");
+            if (mountedRef.current) {
+                setError("Erro ao carregar e-books.");
+            }
         } finally {
-            setIsLoading(false);
+            clearTimeout(timeoutId);
+            if (mountedRef.current) {
+                setIsLoading(false);
+            }
         }
     }, []);
 

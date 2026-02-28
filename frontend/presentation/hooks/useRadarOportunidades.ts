@@ -10,7 +10,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RadarOportunidades } from "../../domain/entities/RadarOportunidades";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -28,19 +28,44 @@ export function useRadarOportunidades(): UseRadarOportunidadesResult {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const mountedRef = useRef(true);
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
     const fetchData = useCallback(async () => {
+        if (!mountedRef.current) return;
         setIsLoading(true);
         setError(null);
+
+        const timeoutId = setTimeout(() => {
+            if (mountedRef.current) {
+                console.warn("⚠️ useRadarOportunidades: timeout após 10s");
+                setError("Tempo limite excedido. Tente recarregar a página.");
+                setIsLoading(false);
+            }
+        }, 10000);
+
         try {
             const useCase = DIContainer.getRadarOportunidadesUseCase();
             const result = await useCase.execute();
-            setLatest(result.latest);
-            setOlder(result.older);
+            if (mountedRef.current) {
+                setLatest(result.latest);
+                setOlder(result.older);
+            }
         } catch (err) {
             console.error("Erro ao carregar radar de oportunidades:", err);
-            setError("Erro ao carregar radar de oportunidades.");
+            if (mountedRef.current) {
+                setError("Erro ao carregar radar de oportunidades.");
+            }
         } finally {
-            setIsLoading(false);
+            clearTimeout(timeoutId);
+            if (mountedRef.current) {
+                setIsLoading(false);
+            }
         }
     }, []);
 

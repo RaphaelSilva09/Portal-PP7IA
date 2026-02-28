@@ -75,7 +75,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 if (session?.user) {
                     try {
                         const repository = DIContainer.getAuthRepository();
-                        const userData = await repository.getCurrentUser();
+                        // Usa getUserFromSession (sem round-trip ao Auth server):
+                        // a sessão já foi validada internamente pelo Supabase.
+                        const role = (session.user.app_metadata?.role as string) || "user";
+                        const userData = await repository.getUserFromSession(session.user.id, role);
                         if (mounted) {
                             console.log("✅ Sessão restaurada:", userData?.email);
                             setUser(userData);
@@ -121,7 +124,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
             if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session?.user) {
                 try {
                     const repository = DIContainer.getAuthRepository();
-                    const userData = await repository.getCurrentUser();
+                    // Usa getUserFromSession (sem round-trip ao Auth server):
+                    // a sessão recebida pelo listener já foi validada pelo Supabase.
+                    const role = (session.user.app_metadata?.role as string) || "user";
+                    const userData = await repository.getUserFromSession(session.user.id, role);
                     if (mounted) {
                         console.log(`✅ Usuário atualizado: ${userData?.email}`);
                         setUser(userData);
@@ -157,7 +163,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
                 if (session?.user) {
                     const repository = DIContainer.getAuthRepository();
-                    const userData = await repository.getCurrentUser();
+                    const role = (session.user.app_metadata?.role as string) || "user";
+                    const userData = await repository.getUserFromSession(session.user.id, role);
                     if (mounted && !initialSessionResolved) {
                         console.log("✅ Sessão restaurada via getSession() defensivo:", userData?.email);
                         setUser(userData);

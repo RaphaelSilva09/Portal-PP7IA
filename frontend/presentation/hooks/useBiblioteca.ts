@@ -12,7 +12,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BibliotecaItem } from "../../domain/entities/BibliotecaItem";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -24,39 +24,53 @@ interface UseBibliotecaResult {
     refresh: () => Promise<void>;
 }
 
-/**
- * Hook customizado para biblioteca
- * Custom Hook Pattern
- */
 export function useBiblioteca(): UseBibliotecaResult {
     const [latest, setLatest] = useState<BibliotecaItem | null>(null);
     const [older, setOlder] = useState<BibliotecaItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    /**
-     * Busca itens da biblioteca do repositório
-     */
+    const mountedRef = useRef(true);
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
     const fetchBiblioteca = useCallback(async () => {
+        if (!mountedRef.current) return;
         setIsLoading(true);
         setError(null);
+
+        const timeoutId = setTimeout(() => {
+            if (mountedRef.current) {
+                console.warn("⚠️ useBiblioteca: timeout após 10s");
+                setError("Tempo limite excedido. Tente recarregar a página.");
+                setIsLoading(false);
+            }
+        }, 10000);
 
         try {
             const useCase = DIContainer.getBibliotecaUseCase();
             const result = await useCase.execute();
-            setLatest(result.latest);
-            setOlder(result.older);
+            if (mountedRef.current) {
+                setLatest(result.latest);
+                setOlder(result.older);
+            }
         } catch (err) {
             console.error("Erro ao carregar biblioteca:", err);
-            setError("Erro ao carregar biblioteca. Tente novamente.");
+            if (mountedRef.current) {
+                setError("Erro ao carregar biblioteca. Tente novamente.");
+            }
         } finally {
-            setIsLoading(false);
+            clearTimeout(timeoutId);
+            if (mountedRef.current) {
+                setIsLoading(false);
+            }
         }
     }, []);
 
-    /**
-     * Carrega biblioteca na montagem do componente
-     */
     useEffect(() => {
         fetchBiblioteca();
     }, [fetchBiblioteca]);
