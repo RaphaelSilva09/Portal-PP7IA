@@ -5,7 +5,7 @@ export default function InstructionsBanner() {
                 <div className="glass-card p-6 sm:p-8 bg-brand-blue/5 border-brand-blue/20 shadow-glow-blue-sm">
                     {/* Title */}
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center">
-                        📋 Instruções de Uso
+                        📋 Observações de Uso
                     </h2>
 
                     {/* Instructions List */}

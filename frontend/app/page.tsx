@@ -8,7 +8,6 @@ import {
     InstructionsBanner,
     Navbar,
     QuemSomosEquipe,
-    WelcomeBanner,
     WhyPP7IASSection,
 } from "@/components";
 
@@ -26,11 +25,7 @@ export default function Home() {
 
             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12 pb-"></div>
             <div className="pb-8"></div>
-            {/* 3. Welcome Banner - Versão Oficial */}
-            <WelcomeBanner />
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
-            <div className="pb-8"></div>
-            {/* 4. Instructions Banner - Como usar o portal */}
+            {/* 3. Instructions Banner - Como usar o portal */}
             <InstructionsBanner />
             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
             {/* 5. Declarações - Propósito, Visão, Problema, Solução, Para Quem */}

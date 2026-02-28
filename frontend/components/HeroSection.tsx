@@ -20,7 +20,11 @@ export default function HeroSection() {
     };
 
     const handleEntrarClick = () => {
-        openAuthModal();
+        openAuthModal({}, "login");
+    };
+
+    const handleCadastroClick = () => {
+        openAuthModal({}, "signup");
     };
 
     return (
@@ -50,39 +54,66 @@ export default function HeroSection() {
             />
             {/* Content */}
             <div className="relative z-10 max-w-4xl mx-auto text-center px-2 sm:px-4">
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6 w-full px-2">
-                    {/* Botão Instruções */}
-                    <a
-                        href="#instructions"
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black text-base sm:text-lg font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
-                        aria-label="Abrir instruções de uso"
-                    >
-                        <span className="text-xl">📋</span>
-                        <span>Instruções</span>
-                    </a>
-
-                    {/* Botão Indicação */}
-                    <button
-                        onClick={handleIndicacaoClick}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black text-base sm:text-lg font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
-                        aria-label="Convidar alguém para o portal"
-                    >
-                        <span className="text-xl">✉️</span>
-                        <span>Indicação</span>
-                    </button>
-
-                    {/* Botão Entrar - apenas quando não logado */}
-                    {!user && (
+                {/* Bloco Comece Aqui */}
+                <div className="bg-[#f0c950]/6 border-2 border-[#b8860b]/40 rounded-2xl px-7 pt-7 pb-6 mb-6 mx-2 text-left">
+                    {/* Botões */}
+                    <div className="flex flex-wrap gap-3 justify-center mb-5 pb-4 border-b border-[#b8860b]/20">
+                        {!user && (
+                            <>
+                                <button
+                                    onClick={handleEntrarClick}
+                                    className="inline-flex items-center gap-2 px-7 py-2.5 bg-[#b8860b] text-white font-bold font-sans text-sm rounded-full tracking-wide transition-all duration-200 hover:bg-[#f0c950] hover:text-[#1a2e4a] hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(240,201,80,0.3)]"
+                                    aria-label="Fazer login"
+                                >
+                                    <span>🔑</span>
+                                    <span>Entrar</span>
+                                </button>
+                                <button
+                                    onClick={handleCadastroClick}
+                                    className="inline-flex items-center gap-2 px-7 py-2.5 bg-[#b8860b] text-white font-bold font-sans text-sm rounded-full tracking-wide transition-all duration-200 hover:bg-[#f0c950] hover:text-[#1a2e4a] hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(240,201,80,0.3)]"
+                                    aria-label="Cadastrar"
+                                >
+                                    <span>✍️</span>
+                                    <span>Cadastrar</span>
+                                </button>
+                            </>
+                        )}
                         <button
-                            onClick={handleEntrarClick}
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black text-base sm:text-lg font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
-                            aria-label="Fazer login ou cadastro"
+                            onClick={handleIndicacaoClick}
+                            className="inline-flex items-center gap-2 px-7 py-2.5 bg-[#b8860b] text-white font-bold font-sans text-sm rounded-full tracking-wide transition-all duration-200 hover:bg-[#f0c950] hover:text-[#1a2e4a] hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(240,201,80,0.3)]"
+                            aria-label="Indicar alguém"
                         >
-                            <span className="text-xl">🔑</span>
-                            <span>Entrar</span>
+                            <span>📨</span>
+                            <span>Indicar</span>
                         </button>
-                    )}
+                    </div>
+
+                    {/* Título do bloco */}
+
+                    <div className="font-bold font-sans text-[#f0c950] text-lg mb-4">Observações de Uso</div>
+
+                    {/* Observações */}
+                    <ul className="space-y-3.5 text-sm">
+                        <li className="flex items-start gap-3">
+                            <div className="w-2 h-2 min-w-2 bg-[#f0c950] rounded-full mt-1.5" />
+                            <div className="text-slate-200 leading-relaxed">
+                                Se algo estiver errado, precisar de ajuda ou tiver sugestões, nos envie.
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <div className="w-2 h-2 min-w-2 bg-[#f0c950] rounded-full mt-1.5" />
+                            <div className="text-slate-200 leading-relaxed">
+                                Na entrada de cada bloco tem instruções específicas de uso. Acesse quando quiser. Leia apenas o que fizer sentido para você.
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <div className="w-2 h-2 min-w-2 bg-[#f0c950] rounded-full mt-1.5" />
+                            <div className="text-slate-200 leading-relaxed">
+                                Atualizações frequentes, avisadas por e-mail ou WhatsApp.
+                            </div>
+                        </li>
+                    </ul>
+                    <p className="text-[#f0c950] italic text-sm text-center mt-4">Muito obrigado e boa leitura!</p>
                 </div>
 
                 {/* Badge - Última Atualização */}
@@ -96,7 +127,7 @@ export default function HeroSection() {
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
                     <span className="text-green-500 text-sm font-medium">
-                        Última atualização: 15.02.2026 • Versão Oficial
+                        Última atualização: 28.02.2026
                     </span>
                 </a>
 

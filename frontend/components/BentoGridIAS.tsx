@@ -93,7 +93,7 @@ export default function BentoGrid() {
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
                                 <Sparkles className="w-4 h-4 text-brand-blue" aria-hidden="true" />
                                 <span className="text-xs font-medium text-gray-300 tracking-tight">
-                                    Última atualização: 25.01.2026
+                                    Última atualização: 28.02.2026
                                 </span>
                             </div>
                         </div>
@@ -194,8 +194,7 @@ export default function BentoGrid() {
                                     Mini-Livros
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    Mini-guias sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e
-                                    21 min.
+                                    Mini-guias sobre pessoas, liderança e IA prática. Tempo de leitura entre 7 e 21 min.
                                 </p>
                             </div>
 
