@@ -103,7 +103,8 @@ export default function HeroSection() {
                         <li className="flex items-start gap-3">
                             <div className="w-2 h-2 min-w-2 bg-[#f0c950] rounded-full mt-1.5" />
                             <div className="text-slate-200 leading-relaxed">
-                                Na entrada de cada bloco tem instruções específicas de uso. Acesse quando quiser. Leia apenas o que fizer sentido para você.
+                                Na entrada de cada bloco tem instruções específicas de uso. Acesse quando quiser. Leia
+                                apenas o que fizer sentido para você.
                             </div>
                         </li>
                         <li className="flex items-start gap-3">
@@ -126,9 +127,7 @@ export default function HeroSection() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-green-500 text-sm font-medium">
-                        Última atualização: 28.02.2026
-                    </span>
+                    <span className="text-green-500 text-sm font-medium">Última atualização: 28.02.2026</span>
                 </a>
 
                 {/* Main Title */}
