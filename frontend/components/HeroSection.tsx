@@ -8,8 +8,8 @@ import HeroTitle from "./HeroTitle";
 
 export default function HeroSection() {
     const { user } = useSession();
-    const { openInviteModal } = useInviteModal();
-    const { openAuthModal } = useAuthModal();
+    const { openModal: openInviteModal } = useInviteModal();
+    const { openModal: openAuthModal } = useAuthModal();
 
     const handleIndicacaoClick = () => {
         if (user) {
