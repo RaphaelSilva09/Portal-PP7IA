@@ -89,14 +89,15 @@ export async function GET(request: NextRequest) {
                 .map(u => u.id),
         );
 
-        // 2. Buscar usuários paginados de public.users
+        // 2. Buscar usuários paginados de public.users ordenados alfabeticamente
         let query = supabase
             .from("users")
             .select(
                 "id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates",
                 { count: "exact" },
             )
-            .order("created_at", { ascending: false })
+            .order("nome", { ascending: true, nullsFirst: false })
+            .order("email", { ascending: true })
             .range(from, to);
 
         // Busca server-side por nome ou email
