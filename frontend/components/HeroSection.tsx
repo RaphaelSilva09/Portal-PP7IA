@@ -1,9 +1,28 @@
 "use client";
 
+import { useAuthModal } from "@/context/AuthModalContext";
+import { useInviteModal } from "@/context/InviteModalContext";
+import { useSession } from "@/context/SessionContext";
 import TopoSvg from "@/public/topo.svg";
 import HeroTitle from "./HeroTitle";
 
 export default function HeroSection() {
+    const { session } = useSession();
+    const { openInviteModal } = useInviteModal();
+    const { openAuthModal } = useAuthModal();
+
+    const handleIndicacaoClick = () => {
+        if (session) {
+            openInviteModal();
+        } else {
+            openAuthModal();
+        }
+    };
+
+    const handleEntrarClick = () => {
+        openAuthModal();
+    };
+
     return (
         <section
             id="hero"
@@ -31,6 +50,41 @@ export default function HeroSection() {
             />
             {/* Content */}
             <div className="relative z-10 max-w-4xl mx-auto text-center px-2 sm:px-4">
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6 w-full px-2">
+                    {/* Botão Instruções */}
+                    <a
+                        href="#instructions"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black text-base sm:text-lg font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
+                        aria-label="Abrir instruções de uso"
+                    >
+                        <span className="text-xl">📋</span>
+                        <span>Instruções</span>
+                    </a>
+
+                    {/* Botão Indicação */}
+                    <button
+                        onClick={handleIndicacaoClick}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black text-base sm:text-lg font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
+                        aria-label="Convidar alguém para o portal"
+                    >
+                        <span className="text-xl">✉️</span>
+                        <span>Indicação</span>
+                    </button>
+
+                    {/* Botão Entrar - apenas quando não logado */}
+                    {!session && (
+                        <button
+                            onClick={handleEntrarClick}
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black text-base sm:text-lg font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
+                            aria-label="Fazer login ou cadastro"
+                        >
+                            <span className="text-xl">🔑</span>
+                            <span>Entrar</span>
+                        </button>
+                    )}
+                </div>
+
                 {/* Badge - Última Atualização */}
                 <a
                     href="#newsletter"
