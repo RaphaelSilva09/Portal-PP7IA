@@ -2,7 +2,7 @@
  * IUserManagementRepository Interface (Domain Layer)
  *
  * Define o contrato para gerenciamento de usuários no contexto admin.
- * Permite listar usuários, promover/demover admins, e deletar usuários.
+ * Permite listar usuários paginados, promover/demover admins, e deletar usuários.
  *
  * Princípios aplicados:
  * - DIP: Abstração que permite inversão de dependência
@@ -21,13 +21,27 @@ export interface UserListItem {
     acceptWhatsappUpdates: boolean;
 }
 
+export interface GetUsersParams {
+    page: number;
+    pageSize: 10 | 25 | 50;
+    search?: string;
+}
+
+export interface PaginatedUsersResult {
+    users: UserListItem[];
+    total: number;
+    page: number;
+    pageSize: number;
+}
+
 export interface IUserManagementRepository {
     /**
-     * Lista todos os usuários cadastrados
+     * Lista usuários com paginação server-side
      * Requer: usuário admin autenticado
-     * @returns Lista de usuários ordenada por data de criação (mais recente primeiro)
+     * @param params - Parâmetros de paginação e busca
+     * @returns Página de usuários e total de registros
      */
-    getAllUsers(): Promise<UserListItem[]>;
+    getUsers(params: GetUsersParams): Promise<PaginatedUsersResult>;
 
     /**
      * Busca um usuário específico por ID

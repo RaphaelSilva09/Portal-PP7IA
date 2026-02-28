@@ -14,7 +14,7 @@ import { CreateContentWithUploadUseCase } from "../../application/usecases/Creat
 import { DeleteContentWithFilesUseCase } from "../../application/usecases/DeleteContentWithFilesUseCase";
 import { DeleteUserAndDataUseCase } from "../../application/usecases/DeleteUserAndDataUseCase";
 import { DemoteUserFromAdminUseCase } from "../../application/usecases/DemoteUserFromAdminUseCase";
-import { GetAllUsersUseCase } from "../../application/usecases/GetAllUsersUseCase";
+import { GetUsersUseCase } from "../../application/usecases/GetAllUsersUseCase";
 import { GetBibliotecaUseCase } from "../../application/usecases/GetBibliotecaUseCase";
 import { GetCurrentUserUseCase } from "../../application/usecases/GetCurrentUserUseCase";
 import { GetDashboardStatsUseCase } from "../../application/usecases/GetDashboardStatsUseCase";
@@ -247,8 +247,8 @@ class DIContainer {
     /**
      * Factory Methods para casos de uso de gerenciamento de usuários
      */
-    static getAllUsersUseCase(): GetAllUsersUseCase {
-        return new GetAllUsersUseCase(this.getUserManagementRepository());
+    static getUsersUseCase(): GetUsersUseCase {
+        return new GetUsersUseCase(this.getUserManagementRepository());
     }
 
     static getPromoteUserToAdminUseCase(): PromoteUserToAdminUseCase {

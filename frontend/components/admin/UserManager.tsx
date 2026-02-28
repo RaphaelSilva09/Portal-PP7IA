@@ -1,31 +1,45 @@
 /**
  * UserManager Component (Admin UI)
  *
- * Gerenciador de usuários do painel admin com busca.
+ * Gerenciador de usuários do painel admin com paginação server-side e busca.
  * Projetado para idosos 80+: cards simples, busca grande, feedback claro.
  *
  * Princípios de UX:
- * - Barra de busca grande (20px font, 56px altura)
- * - Busca por nome ou email
+ * - Barra de busca grande (20px font, 56px altura) com debounce server-side
+ * - Seletor de 10 / 25 / 50 usuários por página
+ * - Paginação no rodapé: ← Anterior | Página X de Y | Próximo →
  * - Cards em layout linear simples
  * - Confirmação em duas etapas para exclusão
+ *
+ * Performance:
+ * - Nenhum dado extra em memória — apenas a página atual
+ * - Busca executada no Supabase via .ilike (server-side)
+ * - isAdmin resolvido corretamente via auth.admin (service_role)
  */
 
 "use client";
 
 import { GlassCard } from "@/components/ui";
-import { UserListItem } from "@/domain/repositories/IUserManagementRepository";
+import { GetUsersParams, UserListItem } from "@/domain/repositories/IUserManagementRepository";
 import DIContainer from "@/infrastructure/di/container";
-import { Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { FeedbackMessage, FeedbackType } from "./FeedbackMessage";
 import { UserCard } from "./UserCard";
 
+const PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
+type PageSize = (typeof PAGE_SIZE_OPTIONS)[number];
+
 export function UserManager() {
     const [users, setUsers] = useState<UserListItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [total, setTotal] = useState(0);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState<PageSize>(25);
     const [searchQuery, setSearchQuery] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
+
+    const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Confirm dialog state
     const [confirmDialog, setConfirmDialog] = useState<{
@@ -53,12 +67,13 @@ export function UserManager() {
         message: "",
     });
 
-    const loadUsers = useCallback(async () => {
+    const loadUsers = useCallback(async (params: GetUsersParams) => {
         setIsLoading(true);
         try {
-            const useCase = DIContainer.getAllUsersUseCase();
-            const data = await useCase.execute();
-            setUsers(data);
+            const useCase = DIContainer.getUsersUseCase();
+            const result = await useCase.execute(params);
+            setUsers(result.users);
+            setTotal(result.total);
         } catch (error) {
             console.error("Erro ao carregar usuários:", error);
             showFeedback("error", "Erro ao carregar usuários");
@@ -67,32 +82,31 @@ export function UserManager() {
         }
     }, []);
 
+    // Carga inicial e ao mudar página ou tamanho
     useEffect(() => {
-        loadUsers();
-    }, [loadUsers]);
+        loadUsers({ page, pageSize, search: searchQuery });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize]);
+
+    // Busca com debounce de 400ms — reseta para página 1
+    const handleSearchChange = (value: string) => {
+        setSearchQuery(value);
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = setTimeout(() => {
+            setPage(1);
+            loadUsers({ page: 1, pageSize, search: value });
+        }, 400);
+    };
+
+    const handlePageSizeChange = (newSize: PageSize) => {
+        setPageSize(newSize);
+        setPage(1);
+        // O useEffect acima vai disparar com os novos valores
+    };
 
     const showFeedback = (type: FeedbackType, message: string) => {
         setFeedback({ isVisible: true, type, message });
     };
-
-    // Filtrar usuários por nome ou email e ordenar alfabeticamente
-    const filteredUsers = useMemo(() => {
-        let result = users;
-
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            result = users.filter(
-                user => user.nome.toLowerCase().includes(query) || user.email.toLowerCase().includes(query),
-            );
-        }
-
-        // Ordenar alfabeticamente por nome (ou email se não houver nome)
-        return result.sort((a, b) => {
-            const nameA = (a.nome || a.email).toLowerCase();
-            const nameB = (b.nome || b.email).toLowerCase();
-            return nameA.localeCompare(nameB);
-        });
-    }, [users, searchQuery]);
 
     const handleDelete = (user: UserListItem) => {
         setConfirmDialog({
@@ -105,7 +119,10 @@ export function UserManager() {
                     const useCase = DIContainer.getDeleteUserAndDataUseCase();
                     await useCase.execute(user.id);
                     showFeedback("success", "✓ Usuário excluído com sucesso");
-                    await loadUsers();
+                    // Recarrega a página atual (pode voltar página se era o único da última página)
+                    const newPage = users.length === 1 && page > 1 ? page - 1 : page;
+                    setPage(newPage);
+                    loadUsers({ page: newPage, pageSize, search: searchQuery });
                 } catch (error) {
                     console.error("Erro ao deletar usuário:", error);
                     showFeedback("error", "Erro ao excluir usuário");
@@ -114,42 +131,63 @@ export function UserManager() {
         });
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <p className="text-xl text-[var(--text-secondary)]">Carregando usuários...</p>
-            </div>
-        );
-    }
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
     return (
         <div className="space-y-6">
-            {/* Barra de Busca */}
+            {/* Barra de Busca + Seletor de itens por página */}
             <GlassCard variant="bordered" padding="lg">
-                <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-[var(--text-secondary)]" />
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        placeholder="Buscar por nome ou email..."
-                        className="w-full pl-14 pr-4 py-4 text-xl bg-[var(--bg-secondary)] border-2 border-[var(--border-glass)] rounded-xl
-                                   text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50
-                                   focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50 focus:border-[var(--brand-blue)]/50
-                                   min-h-[56px] transition-colors"
-                    />
+                <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+                    {/* Campo de busca */}
+                    <div className="relative flex-1">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-[var(--text-secondary)]" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={e => handleSearchChange(e.target.value)}
+                            placeholder="Buscar por nome ou email..."
+                            className="w-full pl-14 pr-4 py-4 text-xl bg-[var(--bg-secondary)] border-2 border-[var(--border-glass)] rounded-xl
+                                       text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50
+                                       focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50 focus:border-[var(--brand-blue)]/50
+                                       min-h-[56px] transition-colors"
+                        />
+                    </div>
+
+                    {/* Seletor de itens por página */}
+                    <div className="flex items-center gap-3 shrink-0">
+                        <label className="text-base text-[var(--text-secondary)] whitespace-nowrap">Por página:</label>
+                        <select
+                            value={pageSize}
+                            onChange={e => handlePageSizeChange(Number(e.target.value) as PageSize)}
+                            className="px-4 py-3 text-lg bg-[var(--bg-secondary)] border-2 border-[var(--border-glass)] rounded-xl
+                                       text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50
+                                       focus:border-[var(--brand-blue)]/50 transition-colors cursor-pointer min-h-[56px]"
+                        >
+                            {PAGE_SIZE_OPTIONS.map(size => (
+                                <option key={size} value={size}>
+                                    {size}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </GlassCard>
 
             {/* Header com contagem */}
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-[var(--text-primary)]">
-                    Gerenciar Usuários ({filteredUsers.length})
+                    Gerenciar Usuários{total > 0 ? ` (${total} no total)` : ""}
                 </h2>
             </div>
 
             {/* Lista de usuários */}
-            {filteredUsers.length === 0 ? (
+            {isLoading ? (
+                <GlassCard variant="bordered" padding="lg">
+                    <div className="text-center py-12">
+                        <p className="text-xl text-[var(--text-secondary)]">Carregando usuários...</p>
+                    </div>
+                </GlassCard>
+            ) : users.length === 0 ? (
                 <GlassCard variant="bordered" padding="lg">
                     <div className="text-center py-12">
                         <p className="text-lg text-[var(--text-secondary)]">
@@ -159,10 +197,57 @@ export function UserManager() {
                 </GlassCard>
             ) : (
                 <div className="space-y-4">
-                    {filteredUsers.map(user => (
+                    {users.map(user => (
                         <UserCard key={user.id} user={user} onDelete={handleDelete} />
                     ))}
                 </div>
+            )}
+
+            {/* Paginação */}
+            {!isLoading && total > pageSize && (
+                <GlassCard variant="bordered" padding="md">
+                    <div className="flex items-center justify-between gap-4">
+                        {/* Botão Anterior */}
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="flex items-center gap-2 px-5 py-3 text-lg font-medium rounded-xl
+                                       bg-[var(--bg-secondary)] border-2 border-[var(--border-glass)]
+                                       text-[var(--text-primary)] transition-colors min-h-[52px]
+                                       disabled:opacity-40 disabled:cursor-not-allowed
+                                       hover:bg-[var(--brand-blue)]/10 hover:border-[var(--brand-blue)]/40
+                                       focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50"
+                            aria-label="Página anterior"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                            Anterior
+                        </button>
+
+                        {/* Info de página */}
+                        <span className="text-lg text-[var(--text-secondary)] font-medium text-center">
+                            Página{" "}
+                            <span className="text-[var(--text-primary)] font-bold">{page}</span>
+                            {" "}de{" "}
+                            <span className="text-[var(--text-primary)] font-bold">{totalPages}</span>
+                        </span>
+
+                        {/* Botão Próximo */}
+                        <button
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            className="flex items-center gap-2 px-5 py-3 text-lg font-medium rounded-xl
+                                       bg-[var(--bg-secondary)] border-2 border-[var(--border-glass)]
+                                       text-[var(--text-primary)] transition-colors min-h-[52px]
+                                       disabled:opacity-40 disabled:cursor-not-allowed
+                                       hover:bg-[var(--brand-blue)]/10 hover:border-[var(--brand-blue)]/40
+                                       focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50"
+                            aria-label="Próxima página"
+                        >
+                            Próximo
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    </div>
+                </GlassCard>
             )}
 
             {/* Confirm Dialog */}
