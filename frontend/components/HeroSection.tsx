@@ -7,12 +7,12 @@ import TopoSvg from "@/public/topo.svg";
 import HeroTitle from "./HeroTitle";
 
 export default function HeroSection() {
-    const { session } = useSession();
+    const { user } = useSession();
     const { openInviteModal } = useInviteModal();
     const { openAuthModal } = useAuthModal();
 
     const handleIndicacaoClick = () => {
-        if (session) {
+        if (user) {
             openInviteModal();
         } else {
             openAuthModal();
@@ -73,7 +73,7 @@ export default function HeroSection() {
                     </button>
 
                     {/* Botão Entrar - apenas quando não logado */}
-                    {!session && (
+                    {!user && (
                         <button
                             onClick={handleEntrarClick}
                             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-400 text-black text-base sm:text-lg font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
