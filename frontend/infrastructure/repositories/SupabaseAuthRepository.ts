@@ -22,7 +22,7 @@ import {
     UserAlreadyExistsError,
     WeakPasswordError,
 } from "../../domain/errors/AuthError";
-import { AuthResult, IAuthRepository, SignInParams, SignUpParams } from "../../domain/repositories/IAuthRepository";
+import { AuthResult, IAuthRepository, SignInParams, SignUpParams, UpdateProfileParams } from "../../domain/repositories/IAuthRepository";
 
 /**
  * Adapter Pattern: Adapta Supabase para nossa interface de domínio
@@ -512,6 +512,53 @@ export class SupabaseAuthRepository implements IAuthRepository {
             // Faz signOut (a deleção completa do Auth requer um endpoint backend)
             await this.supabase.auth.signOut();
         } catch (error) {
+            if (error instanceof Error && "status" in error) {
+                throw this.mapSupabaseError(error);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Atualiza perfil do usuário (nome, email, celular)
+     * Se o email mudou, atualiza também em auth.users via updateUser
+     */
+    async updateProfile(params: UpdateProfileParams): Promise<void> {
+        try {
+            const {
+                data: { user },
+            } = await this.supabase.auth.getUser();
+            if (!user) {
+                throw new UnknownAuthError("Usuário não autenticado");
+            }
+
+            // Atualiza email no auth se mudou
+            if (params.email && params.email !== user.email) {
+                const { error: authError } = await this.supabase.auth.updateUser({
+                    email: params.email,
+                });
+                if (authError) {
+                    throw this.mapSupabaseError(authError);
+                }
+            }
+
+            // Atualiza nome, email e celular na tabela public.users
+            const { error: dbError } = await this.supabase
+                .from("users")
+                .update({
+                    nome: params.nome,
+                    email: params.email,
+                    celular: params.celular,
+                })
+                .eq("id", user.id);
+
+            if (dbError) {
+                throw this.mapSupabaseError(dbError);
+            }
+        } catch (error) {
+            if (error instanceof AuthError) {
+                throw error;
+            }
             if (error instanceof Error && "status" in error) {
                 throw this.mapSupabaseError(error);
             }

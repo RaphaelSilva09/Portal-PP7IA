@@ -17,6 +17,7 @@ import {
     GetUsersParams,
     IUserManagementRepository,
     PaginatedUsersResult,
+    UpdateUserParams,
     UserListItem,
 } from "../../domain/repositories/IUserManagementRepository";
 
@@ -70,11 +71,13 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
                     celular: string;
                     isAdmin: boolean;
                     createdAt: string;
+                    lastSignInAt: string | null;
                     acceptEmailUpdates: boolean;
                     acceptWhatsappUpdates: boolean;
                 }) => ({
                     ...row,
                     createdAt: new Date(row.createdAt),
+                    lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
                 })),
                 total: json.total,
                 page: json.page,
@@ -105,6 +108,7 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
                 celular: data.celular,
                 isAdmin: false,
                 createdAt: new Date(data.created_at),
+                lastSignInAt: null,
                 acceptEmailUpdates: data.accept_email_updates,
                 acceptWhatsappUpdates: data.accept_whatsapp_updates,
             };
@@ -169,6 +173,24 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
         } catch (err) {
             console.error("Erro ao deletar usuário:", err);
             return false;
+        }
+    }
+
+    async updateUser(userId: string, params: UpdateUserParams): Promise<void> {
+        const token = await this.getBearerToken();
+
+        const response = await fetch(`/api/admin/users/${userId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(params),
+        });
+
+        if (!response.ok) {
+            const json = await response.json().catch(() => ({}));
+            throw new Error(json.error ?? "Erro ao atualizar usuário");
         }
     }
 
