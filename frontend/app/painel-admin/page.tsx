@@ -84,6 +84,7 @@ export default function PainelAdminPage() {
     const [contentTab, setContentTab] = useState<ContentType>("newsletter");
     const [items, setItems] = useState<ContentItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [editItem, setEditItem] = useState<ContentItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,8 +116,9 @@ export default function PainelAdminPage() {
         setIsLoading(true);
         try {
             const repo = DIContainer.getContentRepository();
-            const data = await repo.getAll(contentTab);
+            const [data, lu] = await Promise.all([repo.getAll(contentTab), repo.getLastUpdated(contentTab)]);
             setItems(data);
+            setLastUpdated(lu);
         } catch (error) {
             console.error("Erro ao carregar itens:", error);
             setFeedback({
@@ -419,7 +421,12 @@ export default function PainelAdminPage() {
                                         </div>
                                     </GlassCard>
                                 ) : (
-                                    <ContentTable items={items} onEdit={handleEdit} onDelete={handleDelete} />
+                                    <ContentTable
+                                        items={items}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        lastUpdated={lastUpdated}
+                                    />
                                 )}
                             </>
                         )}
