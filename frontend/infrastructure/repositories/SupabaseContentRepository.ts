@@ -138,4 +138,20 @@ export class SupabaseContentRepository implements IContentRepository {
         const { error } = await supabase.from(table).delete().eq("id", id);
         if (error) throw new Error(`Falha ao deletar ${type}: ${error.message}`);
     }
+
+    async getLastUpdated(type: ContentType): Promise<Date | null> {
+        try {
+            const table = TABLE_MAP[type];
+            const { data, error } = await supabase
+                .from(table)
+                .select("updated_at")
+                .order("updated_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+            if (error || !data?.updated_at) return null;
+            return new Date(data.updated_at);
+        } catch {
+            return null;
+        }
+    }
 }
