@@ -75,4 +75,11 @@ export interface IContentRepository {
      * @param id - ID do item
      */
     delete(type: ContentType, id: number): Promise<void>;
+
+    /**
+     * Retorna a data da última atualização de qualquer item do tipo
+     * @param type - Tipo de conteúdo
+     * @returns Date da última atualização, ou null se não houver itens
+     */
+    getLastUpdated(type: ContentType): Promise<Date | null>;
 }
