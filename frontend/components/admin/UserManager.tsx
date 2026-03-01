@@ -27,6 +27,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { FeedbackMessage, FeedbackType } from "./FeedbackMessage";
 import { UserCard } from "./UserCard";
+import { UserEditModal } from "./UserEditModal";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
 type PageSize = (typeof PAGE_SIZE_OPTIONS)[number];
@@ -54,6 +55,15 @@ export function UserManager() {
         message: "",
         variant: "danger",
         onConfirm: () => {},
+    });
+
+    // Edit modal state
+    const [editModal, setEditModal] = useState<{
+        isOpen: boolean;
+        user: UserListItem | null;
+    }>({
+        isOpen: false,
+        user: null,
     });
 
     // Feedback message state
@@ -106,6 +116,16 @@ export function UserManager() {
 
     const showFeedback = (type: FeedbackType, message: string) => {
         setFeedback({ isVisible: true, type, message });
+    };
+
+    const handleEdit = (user: UserListItem) => {
+        setEditModal({ isOpen: true, user });
+    };
+
+    const handleEditSuccess = (updatedUser: UserListItem) => {
+        setUsers(prev => prev.map(u => (u.id === updatedUser.id ? updatedUser : u)));
+        setEditModal({ isOpen: false, user: null });
+        showFeedback("success", `✓ Dados de ${updatedUser.nome || updatedUser.email} atualizados`);
     };
 
     const handleDelete = (user: UserListItem) => {
@@ -198,7 +218,7 @@ export function UserManager() {
             ) : (
                 <div className="space-y-4">
                     {users.map(user => (
-                        <UserCard key={user.id} user={user} onDelete={handleDelete} />
+                        <UserCard key={user.id} user={user} onDelete={handleDelete} onEdit={handleEdit} />
                     ))}
                 </div>
             )}
@@ -258,6 +278,14 @@ export function UserManager() {
                 variant={confirmDialog.variant}
                 onConfirm={confirmDialog.onConfirm}
                 onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+            />
+
+            {/* Edit Modal */}
+            <UserEditModal
+                isOpen={editModal.isOpen}
+                user={editModal.user}
+                onClose={() => setEditModal({ isOpen: false, user: null })}
+                onSuccess={handleEditSuccess}
             />
 
             {/* Feedback Message */}
