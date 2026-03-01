@@ -66,7 +66,9 @@ export function UserCard({ user, onDelete, onEdit }: UserCardProps) {
 
                 {/* Último acesso */}
                 <div className="min-w-[120px]">
-                    <span className="text-base text-[var(--text-secondary)]">{formatLastSignIn(user.lastSignInAt)}</span>
+                    <span className="text-base text-[var(--text-secondary)]">
+                        {formatLastSignIn(user.lastSignInAt)}
+                    </span>
                 </div>
 
                 {/* Separador vertical */}

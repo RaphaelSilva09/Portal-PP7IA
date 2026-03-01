@@ -33,9 +33,13 @@ export interface UserEditModalProps {
 function formatPhone(value: string): string {
     const digits = value.replace(/\D/g, "").slice(0, 11);
     if (digits.length <= 10) {
-        return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, (_, a, b, c) => (c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : ""));
+        return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, (_, a, b, c) =>
+            c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : "",
+        );
     }
-    return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, (_, a, b, c) => (c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : ""));
+    return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, (_, a, b, c) =>
+        c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : "",
+    );
 }
 
 function validateEmail(email: string): string | undefined {
@@ -130,7 +134,9 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
         /* Overlay */
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-            onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+            onClick={e => {
+                if (e.target === e.currentTarget) onClose();
+            }}
         >
             {/* Painel glassmorphism */}
             <div className="w-full max-w-md bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-2xl shadow-2xl">
@@ -173,12 +179,18 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
                         <input
                             type="text"
                             value={nome}
-                            onChange={e => { setNome(e.target.value); setFieldErrors(p => ({ ...p, nome: undefined })); }}
+                            onChange={e => {
+                                setNome(e.target.value);
+                                setFieldErrors(p => ({ ...p, nome: undefined }));
+                            }}
                             placeholder="Nome completo"
                             className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 outline-none focus:bg-white/[0.07] transition-all ${fieldErrors.nome ? "border-red-500/60 focus:border-red-500" : "border-[var(--border-glass)] focus:border-[var(--brand-blue)]"}`}
                         />
                         {fieldErrors.nome && (
-                            <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.nome}</p>
+                            <p className="text-xs text-red-400 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {fieldErrors.nome}
+                            </p>
                         )}
                     </div>
 
@@ -191,12 +203,18 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
                         <input
                             type="email"
                             value={email}
-                            onChange={e => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: undefined })); }}
+                            onChange={e => {
+                                setEmail(e.target.value);
+                                setFieldErrors(p => ({ ...p, email: undefined }));
+                            }}
                             placeholder="email@exemplo.com"
                             className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 outline-none focus:bg-white/[0.07] transition-all ${fieldErrors.email ? "border-red-500/60 focus:border-red-500" : "border-[var(--border-glass)] focus:border-[var(--brand-blue)]"}`}
                         />
                         {fieldErrors.email && (
-                            <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.email}</p>
+                            <p className="text-xs text-red-400 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {fieldErrors.email}
+                            </p>
                         )}
                     </div>
 
@@ -214,7 +232,10 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
                             className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 outline-none focus:bg-white/[0.07] transition-all ${fieldErrors.celular ? "border-red-500/60 focus:border-red-500" : "border-[var(--border-glass)] focus:border-[var(--brand-blue)]"}`}
                         />
                         {fieldErrors.celular && (
-                            <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{fieldErrors.celular}</p>
+                            <p className="text-xs text-red-400 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                {fieldErrors.celular}
+                            </p>
                         )}
                     </div>
 
@@ -234,10 +255,16 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
                             className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                             {isSaving ? (
-                                <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</>
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" /> Salvando...
+                                </>
                             ) : success ? (
-                                <><Check className="w-4 h-4" /> Salvo!</>
-                            ) : "Salvar Alterações"}
+                                <>
+                                    <Check className="w-4 h-4" /> Salvo!
+                                </>
+                            ) : (
+                                "Salvar Alterações"
+                            )}
                         </button>
                     </div>
                 </form>

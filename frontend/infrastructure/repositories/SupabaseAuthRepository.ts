@@ -22,7 +22,13 @@ import {
     UserAlreadyExistsError,
     WeakPasswordError,
 } from "../../domain/errors/AuthError";
-import { AuthResult, IAuthRepository, SignInParams, SignUpParams, UpdateProfileParams } from "../../domain/repositories/IAuthRepository";
+import {
+    AuthResult,
+    IAuthRepository,
+    SignInParams,
+    SignUpParams,
+    UpdateProfileParams,
+} from "../../domain/repositories/IAuthRepository";
 
 /**
  * Adapter Pattern: Adapta Supabase para nossa interface de domínio
@@ -249,11 +255,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
      */
     async getUserFromSession(userId: string, role: string): Promise<User | null> {
         try {
-            const { data: userData, error } = await this.supabase
-                .from("users")
-                .select("*")
-                .eq("id", userId)
-                .single();
+            const { data: userData, error } = await this.supabase.from("users").select("*").eq("id", userId).single();
 
             if (error || !userData) {
                 return null;

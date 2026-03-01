@@ -245,9 +245,7 @@ export function UserManager() {
 
                         {/* Info de página */}
                         <span className="text-lg text-[var(--text-secondary)] font-medium text-center">
-                            Página{" "}
-                            <span className="text-[var(--text-primary)] font-bold">{page}</span>
-                            {" "}de{" "}
+                            Página <span className="text-[var(--text-primary)] font-bold">{page}</span> de{" "}
                             <span className="text-[var(--text-primary)] font-bold">{totalPages}</span>
                         </span>
 

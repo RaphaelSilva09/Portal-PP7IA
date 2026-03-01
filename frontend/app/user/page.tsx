@@ -86,9 +86,13 @@ export default function UserPage() {
     const formatPhone = (value: string): string => {
         const digits = value.replace(/\D/g, "").slice(0, 11);
         if (digits.length <= 10) {
-            return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, (_, a, b, c) => (c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : ""));
+            return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, (_, a, b, c) =>
+                c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : "",
+            );
         }
-        return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, (_, a, b, c) => (c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : ""));
+        return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, (_, a, b, c) =>
+            c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : "",
+        );
     };
 
     const handleEditSubmit = async (e: React.FormEvent) => {
@@ -122,7 +126,8 @@ export default function UserPage() {
         }
     };
 
-    const handleDeleteAccount = async () => {        setIsDeleting(true);
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
         setError(null);
 
         try {
@@ -331,7 +336,8 @@ export default function UserPage() {
                                         <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
                                         <p className="text-sm font-medium text-green-300">
                                             Perfil atualizado!
-                                            {editData.email !== user?.email && " Um email de confirmação foi enviado para o novo endereço."}
+                                            {editData.email !== user?.email &&
+                                                " Um email de confirmação foi enviado para o novo endereço."}
                                         </p>
                                     </div>
                                 )}
@@ -345,7 +351,10 @@ export default function UserPage() {
 
                                 {/* Nome */}
                                 <div className="space-y-1.5">
-                                    <label htmlFor="editNome" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                    <label
+                                        htmlFor="editNome"
+                                        className="flex items-center gap-2 text-sm font-medium text-text-secondary"
+                                    >
                                         <User className="w-4 h-4" />
                                         Nome
                                     </label>
@@ -353,16 +362,26 @@ export default function UserPage() {
                                         id="editNome"
                                         type="text"
                                         value={editData.nome}
-                                        onChange={e => { setEditData(p => ({ ...p, nome: e.target.value })); setEditErrors(p => ({ ...p, nome: undefined })); }}
+                                        onChange={e => {
+                                            setEditData(p => ({ ...p, nome: e.target.value }));
+                                            setEditErrors(p => ({ ...p, nome: undefined }));
+                                        }}
                                         placeholder="Seu nome completo"
                                         className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:bg-white/[0.07] transition-all ${editErrors.nome ? "border-red-500/50 focus:border-red-500" : "border-border-glass focus:border-brand-blue"}`}
                                     />
-                                    {editErrors.nome && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {editErrors.nome}</p>}
+                                    {editErrors.nome && (
+                                        <p className="text-xs text-red-400 flex items-center gap-1">
+                                            <AlertCircle className="w-3 h-3" /> {editErrors.nome}
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* Email */}
                                 <div className="space-y-1.5">
-                                    <label htmlFor="editEmail" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                    <label
+                                        htmlFor="editEmail"
+                                        className="flex items-center gap-2 text-sm font-medium text-text-secondary"
+                                    >
                                         <Mail className="w-4 h-4" />
                                         Email
                                     </label>
@@ -370,16 +389,26 @@ export default function UserPage() {
                                         id="editEmail"
                                         type="email"
                                         value={editData.email}
-                                        onChange={e => { setEditData(p => ({ ...p, email: e.target.value })); setEditErrors(p => ({ ...p, email: undefined })); }}
+                                        onChange={e => {
+                                            setEditData(p => ({ ...p, email: e.target.value }));
+                                            setEditErrors(p => ({ ...p, email: undefined }));
+                                        }}
                                         placeholder="seu@email.com"
                                         className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:bg-white/[0.07] transition-all ${editErrors.email ? "border-red-500/50 focus:border-red-500" : "border-border-glass focus:border-brand-blue"}`}
                                     />
-                                    {editErrors.email && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {editErrors.email}</p>}
+                                    {editErrors.email && (
+                                        <p className="text-xs text-red-400 flex items-center gap-1">
+                                            <AlertCircle className="w-3 h-3" /> {editErrors.email}
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* Celular */}
                                 <div className="space-y-1.5">
-                                    <label htmlFor="editCelular" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                    <label
+                                        htmlFor="editCelular"
+                                        className="flex items-center gap-2 text-sm font-medium text-text-secondary"
+                                    >
                                         <Phone className="w-4 h-4" />
                                         Celular
                                     </label>
@@ -387,18 +416,29 @@ export default function UserPage() {
                                         id="editCelular"
                                         type="tel"
                                         value={editData.celular}
-                                        onChange={e => { setEditData(p => ({ ...p, celular: formatPhone(e.target.value) })); setEditErrors(p => ({ ...p, celular: undefined })); }}
+                                        onChange={e => {
+                                            setEditData(p => ({ ...p, celular: formatPhone(e.target.value) }));
+                                            setEditErrors(p => ({ ...p, celular: undefined }));
+                                        }}
                                         placeholder="(11) 99999-9999"
                                         className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:bg-white/[0.07] transition-all ${editErrors.celular ? "border-red-500/50 focus:border-red-500" : "border-border-glass focus:border-brand-blue"}`}
                                     />
-                                    {editErrors.celular && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {editErrors.celular}</p>}
+                                    {editErrors.celular && (
+                                        <p className="text-xs text-red-400 flex items-center gap-1">
+                                            <AlertCircle className="w-3 h-3" /> {editErrors.celular}
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* Botões */}
                                 <div className="flex gap-3 pt-2">
                                     <button
                                         type="button"
-                                        onClick={() => { setShowEditForm(false); setEditErrors({}); setEditFormError(null); }}
+                                        onClick={() => {
+                                            setShowEditForm(false);
+                                            setEditErrors({});
+                                            setEditFormError(null);
+                                        }}
                                         disabled={isEditSaving}
                                         className="cursor-pointer flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >

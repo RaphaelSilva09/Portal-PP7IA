@@ -83,11 +83,7 @@ export async function GET(request: NextRequest) {
         // 1. Buscar IDs dos admins via auth.admin.listUsers (service_role)
         // Fazemos isso para calcular isAdmin corretamente com dados reais
         const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-        const adminIds = new Set(
-            (authData?.users ?? [])
-                .filter(u => u.app_metadata?.role === "admin")
-                .map(u => u.id),
-        );
+        const adminIds = new Set((authData?.users ?? []).filter(u => u.app_metadata?.role === "admin").map(u => u.id));
         // Mapa de userId -> last_sign_in_at para exibir no painel admin
         const lastSignInMap = new Map<string, string | null>(
             (authData?.users ?? []).map(u => [u.id, u.last_sign_in_at ?? null]),
@@ -96,10 +92,9 @@ export async function GET(request: NextRequest) {
         // 2. Buscar usuários paginados de public.users ordenados alfabeticamente
         let query = supabase
             .from("users")
-            .select(
-                "id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates",
-                { count: "exact" },
-            )
+            .select("id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates", {
+                count: "exact",
+            })
             .order("nome", { ascending: true, nullsFirst: false })
             .order("email", { ascending: true })
             .range(from, to);

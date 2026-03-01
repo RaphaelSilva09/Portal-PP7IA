@@ -64,21 +64,23 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
             const json = await response.json();
 
             return {
-                users: json.users.map((row: {
-                    id: string;
-                    email: string;
-                    nome: string;
-                    celular: string;
-                    isAdmin: boolean;
-                    createdAt: string;
-                    lastSignInAt: string | null;
-                    acceptEmailUpdates: boolean;
-                    acceptWhatsappUpdates: boolean;
-                }) => ({
-                    ...row,
-                    createdAt: new Date(row.createdAt),
-                    lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
-                })),
+                users: json.users.map(
+                    (row: {
+                        id: string;
+                        email: string;
+                        nome: string;
+                        celular: string;
+                        isAdmin: boolean;
+                        createdAt: string;
+                        lastSignInAt: string | null;
+                        acceptEmailUpdates: boolean;
+                        acceptWhatsappUpdates: boolean;
+                    }) => ({
+                        ...row,
+                        createdAt: new Date(row.createdAt),
+                        lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
+                    }),
+                ),
                 total: json.total,
                 page: json.page,
                 pageSize: json.pageSize,
