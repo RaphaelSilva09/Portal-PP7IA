@@ -44,6 +44,7 @@ interface AuthContextType {
     updateEmail: (newEmail: string) => Promise<void>;
     updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
     updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
+    updateProfile: (nome: string, email: string, celular: string) => Promise<void>;
     deleteAccount: () => Promise<void>;
     sendPasswordReset: (email: string) => Promise<void>;
     resetPasswordWithToken: (newPassword: string, confirmPassword: string) => Promise<void>;
@@ -108,6 +109,7 @@ export function useAuth(): AuthContextType {
         updateEmail: actions.updateEmail,
         updatePassword: actions.updatePassword,
         updatePreferences: actions.updatePreferences,
+        updateProfile: actions.updateProfile,
         deleteAccount: actions.deleteAccount,
         sendPasswordReset: actions.sendPasswordReset,
         resetPasswordWithToken: actions.resetPasswordWithToken,

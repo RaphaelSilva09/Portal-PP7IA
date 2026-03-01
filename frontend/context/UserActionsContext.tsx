@@ -19,6 +19,7 @@ interface UserActionsContextType {
     updateEmail: (newEmail: string) => Promise<void>;
     updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
     updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
+    updateProfile: (nome: string, email: string, celular: string) => Promise<void>;
     deleteAccount: () => Promise<void>;
     sendPasswordReset: (email: string) => Promise<void>;
     resetPasswordWithToken: (newPassword: string, confirmPassword: string) => Promise<void>;
@@ -105,6 +106,25 @@ export function UserActionsProvider({ children }: UserActionsProviderProps) {
     }, []);
 
     /**
+     * Atualiza perfil do usuário (nome, email, celular)
+     */
+    const updateProfile = useCallback(async (nome: string, email: string, celular: string) => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const repository = DIContainer.getAuthRepository();
+            await repository.updateProfile({ nome, email, celular });
+        } catch (err) {
+            const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar perfil.";
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    /**
      * Deleta conta do usuário (soft delete)
      * Marca como inativa mas mantém dados para conformidade
      */
@@ -173,6 +193,7 @@ export function UserActionsProvider({ children }: UserActionsProviderProps) {
                 updateEmail,
                 updatePassword,
                 updatePreferences,
+                updateProfile,
                 deleteAccount,
                 sendPasswordReset,
                 resetPasswordWithToken,
