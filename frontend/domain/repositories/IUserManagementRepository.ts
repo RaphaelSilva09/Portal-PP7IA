@@ -17,8 +17,15 @@ export interface UserListItem {
     celular: string;
     isAdmin: boolean;
     createdAt: Date;
+    lastSignInAt: Date | null;
     acceptEmailUpdates: boolean;
     acceptWhatsappUpdates: boolean;
+}
+
+export interface UpdateUserParams {
+    nome: string;
+    email: string;
+    celular: string;
 }
 
 export interface GetUsersParams {
@@ -73,6 +80,14 @@ export interface IUserManagementRepository {
      * @returns true se deletado, false se falha
      */
     deleteUser(userId: string): Promise<boolean>;
+
+    /**
+     * Atualiza dados de um usuário (nome, email, celular)
+     * Requer: service_role key (via API route)
+     * @param userId - ID do usuário
+     * @param params - Dados a atualizar
+     */
+    updateUser(userId: string, params: UpdateUserParams): Promise<void>;
 
     /**
      * Conta total de usuários cadastrados

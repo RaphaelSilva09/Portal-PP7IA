@@ -40,6 +40,12 @@ export interface UpdatePreferencesParams {
     acceptWhatsAppUpdates: boolean;
 }
 
+export interface UpdateProfileParams {
+    nome: string;
+    email: string;
+    celular: string;
+}
+
 export interface AuthResult {
     user: User;
     session: {
@@ -131,6 +137,12 @@ export interface IAuthRepository {
      * Atualiza preferências de notificação
      */
     updatePreferences(params: UpdatePreferencesParams): Promise<void>;
+
+    /**
+     * Atualiza perfil do usuário (nome, email, celular)
+     * Se o email mudou, atualiza também em auth.users
+     */
+    updateProfile(params: UpdateProfileParams): Promise<void>;
 
     /**
      * Deleta a conta do usuário
