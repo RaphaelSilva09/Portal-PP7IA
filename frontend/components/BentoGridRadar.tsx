@@ -11,7 +11,7 @@ import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
  */
 
 export default function BentoGridRadar() {
-    const { latest, older, isLoading, error } = useRadarOportunidades();
+    const { latest, older, isLoading, error, lastUpdated } = useRadarOportunidades();
 
     if (isLoading) {
         return (
@@ -89,6 +89,18 @@ export default function BentoGridRadar() {
                                     <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                                     <span className="text-emerald-400 text-sm font-medium">Gratuito</span>
                                 </div>
+                                {lastUpdated && (
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-full">
+                                        <span className="text-gray-400 text-sm font-medium">
+                                            Atualizado{" "}
+                                            {lastUpdated.toLocaleDateString("pt-BR", {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "2-digit",
+                                            })}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                             <p className="text-violet-400 text-base sm:text-lg font-mono mb-2">
                                 Radar #{latest.formattedNumber}

@@ -2,8 +2,8 @@
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
-import { useNewsletters } from "@/presentation/hooks/useNewsletters";
 import { Newsletter } from "@/domain/entities/Newsletter";
+import { useNewsletters } from "@/presentation/hooks/useNewsletters";
 
 /**
  * BentoGridNewsletter Component
@@ -11,7 +11,7 @@ import { Newsletter } from "@/domain/entities/Newsletter";
  * Dados carregados dinamicamente do Supabase
  */
 export default function BentoGridNewsletter() {
-    const { latest, older, isLoading, error } = useNewsletters();
+    const { latest, older, isLoading, error, lastUpdated } = useNewsletters();
 
     // Estado de carregamento
     if (isLoading) {
@@ -76,7 +76,12 @@ export default function BentoGridNewsletter() {
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                                     </span>
-                                    <span className="text-green-500 text-sm font-medium">Última Edição</span>
+                                    <span className="text-green-500 text-sm font-medium">
+                                        Última Edição
+                                        {lastUpdated
+                                            ? `: ${lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}`
+                                            : ""}
+                                    </span>
                                 </div>
                                 <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                                     <Sparkles className="w-3.5 h-3.5 text-emerald-400" />

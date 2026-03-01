@@ -10,7 +10,7 @@ import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
  */
 
 export default function BentoGridEspecialSemana() {
-    const { latest, older, isLoading, error } = useEspecialSemana();
+    const { latest, older, isLoading, error, lastUpdated } = useEspecialSemana();
 
     if (isLoading) {
         return (
@@ -105,6 +105,18 @@ export default function BentoGridEspecialSemana() {
                                     <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                                     <span className="text-emerald-400 text-sm font-medium">Gratuito</span>
                                 </div>
+                                {lastUpdated && (
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-full">
+                                        <span className="text-gray-400 text-sm font-medium">
+                                            Atualizado{" "}
+                                            {lastUpdated.toLocaleDateString("pt-BR", {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "2-digit",
+                                            })}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Especial Number */}

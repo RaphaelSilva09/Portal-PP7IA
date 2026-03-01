@@ -12,7 +12,7 @@ import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
  * Dados dos mini-livros carregados dinamicamente do Supabase
  */
 export default function BentoGridMiniLivros() {
-    const { latest, older, isLoading, error } = useMiniLivros();
+    const { latest, older, isLoading, error, lastUpdated } = useMiniLivros();
     const { latest: latestEbook } = useEbook();
 
     // Estado de carregamento
@@ -208,7 +208,12 @@ export default function BentoGridMiniLivros() {
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                                     </span>
-                                    <span className="text-green-500 text-sm font-medium">Último Mini-Livro</span>
+                                    <span className="text-green-500 text-sm font-medium">
+                                        Último Mini-Livro
+                                        {lastUpdated
+                                            ? `: ${lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}`
+                                            : ""}
+                                    </span>
                                 </div>
                                 <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                                     <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
