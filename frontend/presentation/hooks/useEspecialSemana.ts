@@ -19,6 +19,7 @@ interface UseEspecialSemanaResult {
     older: EspecialSemana[];
     isLoading: boolean;
     error: string | null;
+    lastUpdated: Date | null;
     reload: () => Promise<void>;
 }
 
@@ -27,6 +28,7 @@ export function useEspecialSemana(): UseEspecialSemanaResult {
     const [older, setOlder] = useState<EspecialSemana[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     const mountedRef = useRef(true);
     useEffect(() => {
@@ -51,11 +53,13 @@ export function useEspecialSemana(): UseEspecialSemanaResult {
 
         try {
             const useCase = DIContainer.getEspecialSemanaUseCase();
-            const all = await useCase.execute();
+            const repo = DIContainer.getContentRepository();
+            const [all, lu] = await Promise.all([useCase.execute(), repo.getLastUpdated("especial-semana")]);
             if (mountedRef.current) {
                 const [first, ...rest] = all;
                 setLatest(first ?? null);
                 setOlder(rest);
+                setLastUpdated(lu);
             }
         } catch (err) {
             console.error("Erro ao carregar especial da semana:", err);
@@ -74,5 +78,5 @@ export function useEspecialSemana(): UseEspecialSemanaResult {
         fetchData();
     }, [fetchData]);
 
-    return { latest, older, isLoading, error, reload: fetchData };
+    return { latest, older, isLoading, error, lastUpdated, reload: fetchData };
 }

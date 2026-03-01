@@ -21,6 +21,7 @@ interface UseMiniLivrosResult {
     older: MiniLivro[];
     isLoading: boolean;
     error: string | null;
+    lastUpdated: Date | null;
     refresh: () => Promise<void>;
 }
 
@@ -29,6 +30,7 @@ export function useMiniLivros(): UseMiniLivrosResult {
     const [older, setOlder] = useState<MiniLivro[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     const mountedRef = useRef(true);
     useEffect(() => {
@@ -53,10 +55,12 @@ export function useMiniLivros(): UseMiniLivrosResult {
 
         try {
             const useCase = DIContainer.getMiniLivrosUseCase();
-            const result = await useCase.execute();
+            const repo = DIContainer.getContentRepository();
+            const [result, lu] = await Promise.all([useCase.execute(), repo.getLastUpdated("mini-livro")]);
             if (mountedRef.current) {
                 setLatest(result.latest);
                 setOlder(result.older);
+                setLastUpdated(lu);
             }
         } catch (err) {
             console.error("Erro ao carregar mini-livros:", err);
@@ -80,6 +84,7 @@ export function useMiniLivros(): UseMiniLivrosResult {
         older,
         isLoading,
         error,
+        lastUpdated,
         refresh: fetchMiniLivros,
     };
 }

@@ -19,6 +19,7 @@ interface UseRadarOportunidadesResult {
     older: RadarOportunidades[];
     isLoading: boolean;
     error: string | null;
+    lastUpdated: Date | null;
     reload: () => Promise<void>;
 }
 
@@ -27,6 +28,7 @@ export function useRadarOportunidades(): UseRadarOportunidadesResult {
     const [older, setOlder] = useState<RadarOportunidades[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     const mountedRef = useRef(true);
     useEffect(() => {
@@ -51,10 +53,12 @@ export function useRadarOportunidades(): UseRadarOportunidadesResult {
 
         try {
             const useCase = DIContainer.getRadarOportunidadesUseCase();
-            const result = await useCase.execute();
+            const repo = DIContainer.getContentRepository();
+            const [result, lu] = await Promise.all([useCase.execute(), repo.getLastUpdated("radar_oportunidades")]);
             if (mountedRef.current) {
                 setLatest(result.latest);
                 setOlder(result.older);
+                setLastUpdated(lu);
             }
         } catch (err) {
             console.error("Erro ao carregar radar de oportunidades:", err);
@@ -73,5 +77,5 @@ export function useRadarOportunidades(): UseRadarOportunidadesResult {
         fetchData();
     }, [fetchData]);
 
-    return { latest, older, isLoading, error, reload: fetchData };
+    return { latest, older, isLoading, error, lastUpdated, reload: fetchData };
 }

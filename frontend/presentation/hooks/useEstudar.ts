@@ -9,6 +9,7 @@ interface UseEstudarResult {
     older: Estudar[];
     isLoading: boolean;
     error: string | null;
+    lastUpdated: Date | null;
     reload: () => Promise<void>;
 }
 
@@ -17,6 +18,7 @@ export function useEstudar(): UseEstudarResult {
     const [older, setOlder] = useState<Estudar[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     // Evita state updates em componentes desmontados
     const mountedRef = useRef(true);
@@ -43,10 +45,12 @@ export function useEstudar(): UseEstudarResult {
 
         try {
             const useCase = DIContainer.getEstudarUseCase();
-            const result = await useCase.execute();
+            const repo = DIContainer.getContentRepository();
+            const [result, lu] = await Promise.all([useCase.execute(), repo.getLastUpdated("estudar")]);
             if (mountedRef.current) {
                 setLatest(result.latest);
                 setOlder(result.older);
+                setLastUpdated(lu);
             }
         } catch (err) {
             console.error("Erro ao carregar estudar:", err);
@@ -65,5 +69,5 @@ export function useEstudar(): UseEstudarResult {
         fetchData();
     }, [fetchData]);
 
-    return { latest, older, isLoading, error, reload: fetchData };
+    return { latest, older, isLoading, error, lastUpdated, reload: fetchData };
 }

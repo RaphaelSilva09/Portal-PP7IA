@@ -21,6 +21,7 @@ interface UseBibliotecaResult {
     older: BibliotecaItem[];
     isLoading: boolean;
     error: string | null;
+    lastUpdated: Date | null;
     refresh: () => Promise<void>;
 }
 
@@ -29,6 +30,7 @@ export function useBiblioteca(): UseBibliotecaResult {
     const [older, setOlder] = useState<BibliotecaItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     const mountedRef = useRef(true);
     useEffect(() => {
@@ -53,10 +55,12 @@ export function useBiblioteca(): UseBibliotecaResult {
 
         try {
             const useCase = DIContainer.getBibliotecaUseCase();
-            const result = await useCase.execute();
+            const repo = DIContainer.getContentRepository();
+            const [result, lu] = await Promise.all([useCase.execute(), repo.getLastUpdated("biblioteca")]);
             if (mountedRef.current) {
                 setLatest(result.latest);
                 setOlder(result.older);
+                setLastUpdated(lu);
             }
         } catch (err) {
             console.error("Erro ao carregar biblioteca:", err);
@@ -80,6 +84,7 @@ export function useBiblioteca(): UseBibliotecaResult {
         older,
         isLoading,
         error,
+        lastUpdated,
         refresh: fetchBiblioteca,
     };
 }
