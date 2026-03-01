@@ -28,12 +28,20 @@ import { useEffect, useState } from "react";
  */
 export default function UserPage() {
     const router = useRouter();
-    const { user, isLoading, deleteAccount, updatePassword } = useAuth();
+    const { user, isLoading, deleteAccount, updatePassword, updateProfile, getCurrentUser } = useAuth();
     const { openModal: openInviteModal } = useInviteModal();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasLoaded, setHasLoaded] = useState(false);
+
+    // Estados para editar perfil
+    const [showEditForm, setShowEditForm] = useState(false);
+    const [editData, setEditData] = useState({ nome: "", email: "", celular: "" });
+    const [editErrors, setEditErrors] = useState<{ nome?: string; email?: string; celular?: string }>({});
+    const [isEditSaving, setIsEditSaving] = useState(false);
+    const [editSuccess, setEditSuccess] = useState(false);
+    const [editFormError, setEditFormError] = useState<string | null>(null);
 
     // Estados para alterar senha
     const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -66,8 +74,55 @@ export default function UserPage() {
         }
     }, [hasLoaded, isLoading, user, router]);
 
-    const handleDeleteAccount = async () => {
-        setIsDeleting(true);
+    const openEditForm = () => {
+        if (!user) return;
+        setEditData({ nome: user.nome || "", email: user.email || "", celular: user.celular || "" });
+        setEditErrors({});
+        setEditFormError(null);
+        setEditSuccess(false);
+        setShowEditForm(true);
+    };
+
+    const formatPhone = (value: string): string => {
+        const digits = value.replace(/\D/g, "").slice(0, 11);
+        if (digits.length <= 10) {
+            return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, (_, a, b, c) => (c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : ""));
+        }
+        return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, (_, a, b, c) => (c ? `(${a}) ${b}-${c}` : b ? `(${a}) ${b}` : a ? `(${a}` : ""));
+    };
+
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setEditFormError(null);
+        const errors: { nome?: string; email?: string; celular?: string } = {};
+        if (!editData.nome.trim() || editData.nome.trim().length < 2)
+            errors.nome = "Nome deve ter pelo menos 2 caracteres";
+        if (!editData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editData.email))
+            errors.email = "Email com formato inválido";
+        const celularDigits = editData.celular.replace(/\D/g, "");
+        if (celularDigits.length > 0 && (celularDigits.length < 10 || celularDigits.length > 11))
+            errors.celular = "Celular deve ter 10 ou 11 dígitos";
+        if (Object.keys(errors).length) {
+            setEditErrors(errors);
+            return;
+        }
+        setIsEditSaving(true);
+        try {
+            await updateProfile(editData.nome.trim(), editData.email.trim(), celularDigits);
+            await getCurrentUser();
+            setEditSuccess(true);
+            setTimeout(() => {
+                setShowEditForm(false);
+                setEditSuccess(false);
+            }, 2000);
+        } catch (err) {
+            setEditFormError(err instanceof Error ? err.message : "Erro ao atualizar perfil");
+        } finally {
+            setIsEditSaving(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {        setIsDeleting(true);
         setError(null);
 
         try {
@@ -245,6 +300,132 @@ export default function UserPage() {
                                 {user.celular}
                             </div>
                         </div>
+                    </div>
+
+                    {/* Seção Editar Perfil */}
+                    <div className="mt-8 bg-bg-secondary border border-border-glass rounded-2xl p-6">
+                        <div className="flex items-start justify-between mb-4">
+                            <div>
+                                <h2 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                                    <User className="w-5 h-5" />
+                                    Editar Perfil
+                                </h2>
+                                <p className="text-sm text-text-secondary">
+                                    Atualize seu nome, email ou celular cadastrado.
+                                </p>
+                            </div>
+                        </div>
+
+                        {!showEditForm ? (
+                            <button
+                                onClick={openEditForm}
+                                className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-3 bg-white/5 hover:bg-white/10 border border-border-glass text-white font-medium rounded-xl transition-all"
+                            >
+                                <User className="w-4 h-4" />
+                                Editar Meus Dados
+                            </button>
+                        ) : (
+                            <form onSubmit={handleEditSubmit} className="space-y-4">
+                                {editSuccess && (
+                                    <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                                        <p className="text-sm font-medium text-green-300">
+                                            Perfil atualizado!
+                                            {editData.email !== user?.email && " Um email de confirmação foi enviado para o novo endereço."}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {editFormError && (
+                                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2">
+                                        <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                                        <p className="text-sm text-red-300">{editFormError}</p>
+                                    </div>
+                                )}
+
+                                {/* Nome */}
+                                <div className="space-y-1.5">
+                                    <label htmlFor="editNome" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                        <User className="w-4 h-4" />
+                                        Nome
+                                    </label>
+                                    <input
+                                        id="editNome"
+                                        type="text"
+                                        value={editData.nome}
+                                        onChange={e => { setEditData(p => ({ ...p, nome: e.target.value })); setEditErrors(p => ({ ...p, nome: undefined })); }}
+                                        placeholder="Seu nome completo"
+                                        className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:bg-white/[0.07] transition-all ${editErrors.nome ? "border-red-500/50 focus:border-red-500" : "border-border-glass focus:border-brand-blue"}`}
+                                    />
+                                    {editErrors.nome && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {editErrors.nome}</p>}
+                                </div>
+
+                                {/* Email */}
+                                <div className="space-y-1.5">
+                                    <label htmlFor="editEmail" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                        <Mail className="w-4 h-4" />
+                                        Email
+                                    </label>
+                                    <input
+                                        id="editEmail"
+                                        type="email"
+                                        value={editData.email}
+                                        onChange={e => { setEditData(p => ({ ...p, email: e.target.value })); setEditErrors(p => ({ ...p, email: undefined })); }}
+                                        placeholder="seu@email.com"
+                                        className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:bg-white/[0.07] transition-all ${editErrors.email ? "border-red-500/50 focus:border-red-500" : "border-border-glass focus:border-brand-blue"}`}
+                                    />
+                                    {editErrors.email && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {editErrors.email}</p>}
+                                </div>
+
+                                {/* Celular */}
+                                <div className="space-y-1.5">
+                                    <label htmlFor="editCelular" className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+                                        <Phone className="w-4 h-4" />
+                                        Celular
+                                    </label>
+                                    <input
+                                        id="editCelular"
+                                        type="tel"
+                                        value={editData.celular}
+                                        onChange={e => { setEditData(p => ({ ...p, celular: formatPhone(e.target.value) })); setEditErrors(p => ({ ...p, celular: undefined })); }}
+                                        placeholder="(11) 99999-9999"
+                                        className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-text-secondary/50 outline-none focus:bg-white/[0.07] transition-all ${editErrors.celular ? "border-red-500/50 focus:border-red-500" : "border-border-glass focus:border-brand-blue"}`}
+                                    />
+                                    {editErrors.celular && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {editErrors.celular}</p>}
+                                </div>
+
+                                {/* Botões */}
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => { setShowEditForm(false); setEditErrors({}); setEditFormError(null); }}
+                                        disabled={isEditSaving}
+                                        className="cursor-pointer flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isEditSaving || editSuccess}
+                                        className="cursor-pointer flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {isEditSaving ? (
+                                            <>
+                                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                <span>Salvando...</span>
+                                            </>
+                                        ) : editSuccess ? (
+                                            <>
+                                                <Check className="w-4 h-4" />
+                                                <span>Salvo!</span>
+                                            </>
+                                        ) : (
+                                            "Salvar Alterações"
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </div>
 
                     {/* Seção Alterar Senha */}
