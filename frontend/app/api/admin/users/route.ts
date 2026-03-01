@@ -88,6 +88,10 @@ export async function GET(request: NextRequest) {
                 .filter(u => u.app_metadata?.role === "admin")
                 .map(u => u.id),
         );
+        // Mapa de userId -> last_sign_in_at para exibir no painel admin
+        const lastSignInMap = new Map<string, string | null>(
+            (authData?.users ?? []).map(u => [u.id, u.last_sign_in_at ?? null]),
+        );
 
         // 2. Buscar usuários paginados de public.users ordenados alfabeticamente
         let query = supabase
@@ -119,6 +123,7 @@ export async function GET(request: NextRequest) {
             celular: row.celular,
             isAdmin: adminIds.has(row.id),
             createdAt: row.created_at,
+            lastSignInAt: lastSignInMap.get(row.id) ?? null,
             acceptEmailUpdates: row.accept_email_updates,
             acceptWhatsappUpdates: row.accept_whatsapp_updates,
         }));
