@@ -1,30 +1,41 @@
 "use client";
 
-import { FileText, Globe, Sparkles } from "lucide-react";
+import { useEspecialSemana } from "@/presentation/hooks/useEspecialSemana";
+import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
 /**
  * BentoGridEspecialSemana Component
  * Exibe o especial da semana em destaque e edições anteriores em grid 3x3
+ * Dados carregados dinamicamente do Supabase
  */
 
-// Dados dos especiais (mock - substituir por dados reais)
-const especialItems = [
-    {
-        id: 1,
-        title: "Brasil no Radar",
-        description: "Destaque editorial semanal com artigos, apps, tutoriais ou pontos de atenção especial.",
-        htmlUrl: "/especial-semana/001.html",
-        pdfUrl: "/especial-semana/001.pdf",
-        date: "25/01/2026",
-        category: "Artigo",
-        htmlAvailable: true,
-        pdfAvailable: false,
-    },
-];
-
 export default function BentoGridEspecialSemana() {
-    const latestItem = especialItems[0];
-    const olderItems = especialItems.slice(1);
+    const { latest, older, isLoading, error, lastUpdated } = useEspecialSemana();
+
+    if (isLoading) {
+        return (
+            <section className="py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
+                    <Loader2 className="w-8 h-8 animate-spin text-yellow-500" />
+                    <p className="text-text-secondary">Carregando especial da semana...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (error || !latest) {
+        return (
+            <section className="py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center py-16">
+                        <p className="text-text-secondary text-lg">
+                            {error || "Nenhum especial da semana disponível no momento."}
+                        </p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
@@ -94,30 +105,40 @@ export default function BentoGridEspecialSemana() {
                                     <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                                     <span className="text-emerald-400 text-sm font-medium">Gratuito</span>
                                 </div>
+                                {lastUpdated && (
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-full">
+                                        <span className="text-gray-400 text-sm font-medium">
+                                            Atualizado{" "}
+                                            {lastUpdated.toLocaleDateString("pt-BR", {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "2-digit",
+                                            })}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Especial Number */}
                             <p className="text-yellow-400 text-base sm:text-lg font-mono mb-2">
-                                Especial #{latestItem.id.toString().padStart(3, "0")}
+                                Especial #{latest.formattedNumber}
                             </p>
 
                             {/* Title */}
                             <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl">
-                                {latestItem.title}
+                                {latest.title}
                             </h3>
 
-                            {/* Category and Date */}
+                            {/* Date */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-text-secondary text-base sm:text-lg mb-8">
-                                <p className="text-yellow-400/80">{latestItem.category}</p>
-                                <span className="hidden sm:inline">•</span>
-                                <p>Publicado em {latestItem.date}</p>
+                                <p>Publicado em {latest.formattedDate}</p>
                             </div>
 
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                                {latestItem.htmlAvailable ? (
+                                {latest.htmlAvailable ? (
                                     <a
-                                        href={latestItem.htmlUrl}
+                                        href={latest.htmlPath!}
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 hover:border-yellow-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <Globe className="w-5 h-5" />
@@ -132,9 +153,9 @@ export default function BentoGridEspecialSemana() {
                                         <span>Indisponível</span>
                                     </button>
                                 )}
-                                {latestItem.pdfAvailable ? (
+                                {latest.pdfAvailable ? (
                                     <a
-                                        href={latestItem.pdfUrl}
+                                        href={latest.pdfPath!}
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <FileText className="w-5 h-5" />
@@ -156,7 +177,7 @@ export default function BentoGridEspecialSemana() {
                     {/* ============================================
                     ESPECIAIS ANTERIORES - GRID 3x3
                     ============================================ */}
-                    {olderItems.map(item => (
+                    {older.map(item => (
                         <div
                             key={item.id}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)]"
@@ -164,7 +185,7 @@ export default function BentoGridEspecialSemana() {
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Especial Number */}
                                 <span className="text-xs font-mono text-yellow-400/80 tracking-tight mb-2">
-                                    Especial #{item.id.toString().padStart(3, "0")}
+                                    Especial #{item.formattedNumber}
                                 </span>
 
                                 {/* Title */}
@@ -172,17 +193,16 @@ export default function BentoGridEspecialSemana() {
                                     {item.title}
                                 </h4>
 
-                                {/* Category and Date */}
+                                {/* Date */}
                                 <div className="flex flex-col gap-1 text-text-secondary text-sm mb-4">
-                                    <p className="text-yellow-400/70">{item.category}</p>
-                                    <p>{item.date}</p>
+                                    <p>{item.formattedDate}</p>
                                 </div>
 
                                 {/* Action Buttons */}
                                 <div className="flex flex-col w-full gap-2 mt-auto">
                                     {item.htmlAvailable ? (
                                         <a
-                                            href={item.htmlUrl}
+                                            href={item.htmlPath!}
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 hover:border-yellow-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <Globe className="w-4 h-4" />
@@ -199,7 +219,7 @@ export default function BentoGridEspecialSemana() {
                                     )}
                                     {item.pdfAvailable ? (
                                         <a
-                                            href={item.pdfUrl}
+                                            href={item.pdfPath!}
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <FileText className="w-4 h-4" />

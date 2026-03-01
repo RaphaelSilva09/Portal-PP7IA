@@ -2,87 +2,102 @@
  * SupabaseUserManagementRepository (Infrastructure Layer)
  *
  * Implementação concreta do IUserManagementRepository usando Supabase.
- * Operações de promote/demote/delete requerem service_role e são
- * executadas via API routes.
+ * Todas as operações admin (listagem, promote/demote/delete) são executadas
+ * via API routes com service_role, enviando o Bearer token do usuário logado.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta APIs Supabase + API routes para nosso domínio
+ * - Adapter Pattern: Adapta API routes para nosso domínio
  * - SRP: Responsável apenas por gerenciamento de usuários
- * - Defense in Depth: Admin operations via API route (service_role)
+ * - Defense in Depth: Todas operações admin via API route (service_role)
  */
 
 import { SupabaseClient } from "@supabase/supabase-js";
-import { IUserManagementRepository, UserListItem } from "../../domain/repositories/IUserManagementRepository";
-
-/**
- * Interface que representa a estrutura da tabela users no Supabase
- */
-interface SupabaseUserRow {
-    id: string;
-    email: string;
-    nome: string;
-    celular: string;
-    created_at: string;
-    accept_email_updates: boolean;
-    accept_whatsapp_updates: boolean;
-}
+import {
+    GetUsersParams,
+    IUserManagementRepository,
+    PaginatedUsersResult,
+    UpdateUserParams,
+    UserListItem,
+} from "../../domain/repositories/IUserManagementRepository";
 
 export class SupabaseUserManagementRepository implements IUserManagementRepository {
     constructor(private readonly supabase: SupabaseClient) {}
 
-    async getAllUsers(): Promise<UserListItem[]> {
+    /**
+     * Obtém o token de acesso do usuário atual para autenticação nas API routes
+     */
+    private async getBearerToken(): Promise<string> {
+        const {
+            data: { session },
+        } = await this.supabase.auth.getSession();
+        if (!session?.access_token) {
+            throw new Error("Sessão não encontrada — faça login novamente");
+        }
+        return session.access_token;
+    }
+
+    async getUsers(params: GetUsersParams): Promise<PaginatedUsersResult> {
         try {
-            // 1. Buscar dados da tabela public.users
-            const { data: usersData, error: usersError } = await this.supabase
-                .from("users")
-                .select("*")
-                .order("created_at", { ascending: false });
+            const token = await this.getBearerToken();
 
-            if (usersError) {
-                console.error("Erro ao buscar usuários:", usersError.message);
-                return [];
+            const searchParams = new URLSearchParams({
+                page: String(params.page),
+                pageSize: String(params.pageSize),
+            });
+
+            if (params.search?.trim()) {
+                searchParams.set("search", params.search.trim());
             }
 
-            if (!usersData || usersData.length === 0) {
-                return [];
+            const response = await fetch(`/api/admin/users?${searchParams.toString()}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                console.error("Erro ao buscar usuários:", response.status);
+                return { users: [], total: 0, page: params.page, pageSize: params.pageSize };
             }
 
-            // 2. Para cada usuário, verificar se é admin via auth.users
-            // Nota: Isso requer uma função no banco ou fazer via service_role
-            // Por simplicidade, vamos fazer client-side via JWT do usuário logado
-            const {
-                data: { user },
-            } = await this.supabase.auth.getUser();
+            const json = await response.json();
 
-            // Se o usuário atual não é admin, não pode ver outros usuários
-            const currentUserRole = user?.app_metadata?.role;
-            if (currentUserRole !== "admin") {
-                return [];
-            }
-
-            // Mapear para UserListItem
-            // Nota: Não temos como saber se outro usuário é admin apenas via public.users
-            // Precisaríamos de uma view ou função no banco
-            return usersData.map(row => ({
-                id: row.id,
-                email: row.email,
-                nome: row.nome,
-                celular: row.celular,
-                isAdmin: false, // Será preenchido via API route se necessário
-                createdAt: new Date(row.created_at),
-                acceptEmailUpdates: row.accept_email_updates,
-                acceptWhatsappUpdates: row.accept_whatsapp_updates,
-            }));
+            return {
+                users: json.users.map(
+                    (row: {
+                        id: string;
+                        email: string;
+                        nome: string;
+                        celular: string;
+                        isAdmin: boolean;
+                        createdAt: string;
+                        lastSignInAt: string | null;
+                        acceptEmailUpdates: boolean;
+                        acceptWhatsappUpdates: boolean;
+                    }) => ({
+                        ...row,
+                        createdAt: new Date(row.createdAt),
+                        lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
+                    }),
+                ),
+                total: json.total,
+                page: json.page,
+                pageSize: json.pageSize,
+            };
         } catch (err) {
             console.error("Erro inesperado ao buscar usuários:", err);
-            return [];
+            return { users: [], total: 0, page: params.page, pageSize: params.pageSize };
         }
     }
 
     async getUserById(userId: string): Promise<UserListItem | null> {
         try {
-            const { data, error } = await this.supabase.from("users").select("*").eq("id", userId).single();
+            const { data, error } = await this.supabase
+                .from("users")
+                .select("id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates")
+                .eq("id", userId)
+                .single();
 
             if (error || !data) {
                 return null;
@@ -93,8 +108,9 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
                 email: data.email,
                 nome: data.nome,
                 celular: data.celular,
-                isAdmin: false, // Seria necessário consultar auth.users
+                isAdmin: false,
                 createdAt: new Date(data.created_at),
+                lastSignInAt: null,
                 acceptEmailUpdates: data.accept_email_updates,
                 acceptWhatsappUpdates: data.accept_whatsapp_updates,
             };
@@ -106,10 +122,14 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
 
     async promoteToAdmin(userId: string): Promise<boolean> {
         try {
-            // Operação via API route (requer service_role)
+            const token = await this.getBearerToken();
+
             const response = await fetch("/api/admin/users/promote", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({ userId }),
             });
 
@@ -122,10 +142,14 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
 
     async demoteFromAdmin(userId: string): Promise<boolean> {
         try {
-            // Operação via API route (requer service_role)
+            const token = await this.getBearerToken();
+
             const response = await fetch("/api/admin/users/demote", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({ userId }),
             });
 
@@ -138,15 +162,37 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
 
     async deleteUser(userId: string): Promise<boolean> {
         try {
-            // Operação via API route (requer service_role)
+            const token = await this.getBearerToken();
+
             const response = await fetch(`/api/admin/users/${userId}`, {
                 method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             return response.ok;
         } catch (err) {
             console.error("Erro ao deletar usuário:", err);
             return false;
+        }
+    }
+
+    async updateUser(userId: string, params: UpdateUserParams): Promise<void> {
+        const token = await this.getBearerToken();
+
+        const response = await fetch(`/api/admin/users/${userId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(params),
+        });
+
+        if (!response.ok) {
+            const json = await response.json().catch(() => ({}));
+            throw new Error(json.error ?? "Erro ao atualizar usuário");
         }
     }
 

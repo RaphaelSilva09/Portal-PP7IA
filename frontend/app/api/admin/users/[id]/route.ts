@@ -95,3 +95,72 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
         return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
     }
 }
+
+/**
+ * PATCH /api/admin/users/[id]
+ * Atualiza nome, email e celular de um usuário
+ */
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        // 1. Verificar admin
+        const isAdmin = await verifyAdminFromRequest(request);
+        if (!isAdmin) {
+            return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+        }
+
+        // 2. Obter userId
+        const { id: userId } = await params;
+        if (!userId) {
+            return NextResponse.json({ error: "userId é obrigatório" }, { status: 400 });
+        }
+
+        // 3. Extrair e validar body
+        const body = await request.json().catch(() => null);
+        if (!body) {
+            return NextResponse.json({ error: "Body inválido" }, { status: 400 });
+        }
+
+        const { nome, email, celular } = body as { nome?: string; email?: string; celular?: string };
+
+        // Validações básicas
+        if (nome !== undefined && nome.trim().length < 2) {
+            return NextResponse.json({ error: "Nome deve ter pelo menos 2 caracteres" }, { status: 422 });
+        }
+        if (email !== undefined && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return NextResponse.json({ error: "Email inválido" }, { status: 422 });
+        }
+        if (celular !== undefined && !/^\d{10,11}$/.test(celular.replace(/\D/g, ""))) {
+            return NextResponse.json({ error: "Celular inválido" }, { status: 422 });
+        }
+
+        const supabase = getServiceRoleClient();
+
+        // 4. Atualizar email no auth.users se fornecido
+        if (email) {
+            const { error: authError } = await supabase.auth.admin.updateUserById(userId, { email });
+            if (authError) {
+                console.error("Erro ao atualizar email no auth:", authError);
+                return NextResponse.json({ error: authError.message }, { status: 500 });
+            }
+        }
+
+        // 5. Atualizar public.users
+        const updateData: Record<string, string> = {};
+        if (nome !== undefined) updateData.nome = nome.trim();
+        if (email !== undefined) updateData.email = email;
+        if (celular !== undefined) updateData.celular = celular.replace(/\D/g, "");
+
+        if (Object.keys(updateData).length > 0) {
+            const { error: dbError } = await supabase.from("users").update(updateData).eq("id", userId);
+            if (dbError) {
+                console.error("Erro ao atualizar public.users:", dbError);
+                return NextResponse.json({ error: dbError.message }, { status: 500 });
+            }
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Erro ao processar PATCH:", error);
+        return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+    }
+}

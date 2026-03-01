@@ -15,6 +15,12 @@ import { ContentItem, ContentType } from "../entities/ContentItem";
 export interface CreateContentInput {
     title: string;
     readTime?: number;
+    // Campos específicos de ebook
+    subtitle?: string | null;
+    description?: string | null;
+    badgeText?: string | null;
+    coverImagePath?: string | null;
+    coverPdfPath?: string | null;
 }
 
 export interface UpdateContentInput {
@@ -22,6 +28,12 @@ export interface UpdateContentInput {
     readTime?: number;
     htmlPath?: string | null;
     pdfPath?: string | null;
+    // Campos específicos de ebook
+    subtitle?: string | null;
+    description?: string | null;
+    badgeText?: string | null;
+    coverImagePath?: string | null;
+    coverPdfPath?: string | null;
 }
 
 export interface IContentRepository {
@@ -55,11 +67,7 @@ export interface IContentRepository {
      * @param input - Dados a atualizar
      * @returns ContentItem atualizado
      */
-    update(
-        type: ContentType,
-        id: number,
-        input: UpdateContentInput
-    ): Promise<ContentItem>;
+    update(type: ContentType, id: number, input: UpdateContentInput): Promise<ContentItem>;
 
     /**
      * Remove um item
@@ -67,4 +75,11 @@ export interface IContentRepository {
      * @param id - ID do item
      */
     delete(type: ContentType, id: number): Promise<void>;
+
+    /**
+     * Retorna a data da última atualização de qualquer item do tipo
+     * @param type - Tipo de conteúdo
+     * @returns Date da última atualização, ou null se não houver itens
+     */
+    getLastUpdated(type: ContentType): Promise<Date | null>;
 }

@@ -2,8 +2,8 @@
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
-import { useBiblioteca } from "@/presentation/hooks/useBiblioteca";
 import { BibliotecaItem } from "@/domain/entities/BibliotecaItem";
+import { useBiblioteca } from "@/presentation/hooks/useBiblioteca";
 
 /**
  * BentoGridBiblioteca Component
@@ -11,7 +11,7 @@ import { BibliotecaItem } from "@/domain/entities/BibliotecaItem";
  * Dados carregados dinamicamente do Supabase
  */
 export default function BentoGridBiblioteca() {
-    const { latest, older, isLoading, error } = useBiblioteca();
+    const { latest, older, isLoading, error, lastUpdated } = useBiblioteca();
 
     // Estado de carregamento
     if (isLoading) {
@@ -76,7 +76,12 @@ export default function BentoGridBiblioteca() {
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
                                     </span>
-                                    <span className="text-purple-500 text-sm font-medium">Última Atualização</span>
+                                    <span className="text-purple-500 text-sm font-medium">
+                                        Última Atualização
+                                        {lastUpdated
+                                            ? `: ${lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}`
+                                            : ""}
+                                    </span>
                                 </div>
                                 <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                                     <Sparkles className="w-3.5 h-3.5 text-emerald-400" />

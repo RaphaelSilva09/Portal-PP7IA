@@ -18,14 +18,7 @@
 import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-
-/** Mapeamento de tipo de conteúdo para nome do bucket no Supabase Storage */
-const BUCKET_MAP: Record<ContentType, string> = {
-    newsletter: "Newsletters",
-    "mini-livro": "MiniLivros",
-    biblioteca: "Biblioteca",
-    "especial-semana": "especial-semana",
-};
+import { EBOOK_INTRO_HTML_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export interface UpdateContentWithFilesInput {
     type: ContentType;
@@ -34,6 +27,12 @@ export interface UpdateContentWithFilesInput {
     readTime?: number;
     htmlFile?: File;
     pdfFile?: File;
+    // Ebook-specific fields
+    subtitle?: string;
+    description?: string;
+    badgeText?: string;
+    coverImageFile?: File;
+    coverPdfFile?: File;
 }
 
 export class UpdateContentWithFilesUseCase {
@@ -43,7 +42,8 @@ export class UpdateContentWithFilesUseCase {
     ) {}
 
     async execute(input: UpdateContentWithFilesInput): Promise<ContentItem | null> {
-        const bucket = BUCKET_MAP[input.type];
+        const folder = STORAGE_PATHS[input.type];
+        const isEbook = input.type === "ebook";
 
         // 1. Verificar se conteúdo existe
         const existingContent = await this.contentRepository.getById(input.type, input.id);
@@ -54,52 +54,90 @@ export class UpdateContentWithFilesUseCase {
         const contentId = existingContent.id;
         const formattedId = contentId.toString().padStart(3, "0");
 
-        let htmlPath = existingContent.htmlPath;
-        let pdfPath = existingContent.pdfPath;
-
         try {
-            // 2. Upload de novos arquivos (se fornecidos)
-            if (input.htmlFile) {
-                const htmlFileName = `${formattedId}.html`;
+            if (isEbook) {
+                // --- Fluxo Ebook ---
+                let introHtmlPath = existingContent.htmlPath;
+                let introPdfPath = existingContent.pdfPath;
+                let coverImagePath = existingContent.coverImagePath;
+                let coverPdfPath = existingContent.coverPdfPath;
 
-                // Deletar arquivo antigo se existir
-                if (htmlPath) {
-                    const oldFileName = htmlPath.split("/").pop();
-                    if (oldFileName) {
-                        await this.storageRepository.delete(bucket, oldFileName);
-                    }
+                // Intro HTML → mini-livros/intros/ (sobrescreve)
+                if (input.htmlFile) {
+                    const htmlKey = `${EBOOK_INTRO_HTML_FOLDER}/${formattedId}.html`;
+                    await this.storageRepository.upload(STORAGE_BUCKET, htmlKey, input.htmlFile);
+                    introHtmlPath = `/${STORAGE_BUCKET}/${htmlKey}`;
                 }
 
-                // Upload novo arquivo
-                await this.storageRepository.upload(bucket, htmlFileName, input.htmlFile);
-                htmlPath = `/${bucket.toLowerCase()}/${htmlFileName}`;
-            }
-
-            if (input.pdfFile) {
-                const pdfFileName = `${formattedId}.pdf`;
-
-                // Deletar arquivo antigo se existir
-                if (pdfPath) {
-                    const oldFileName = pdfPath.split("/").pop();
-                    if (oldFileName) {
-                        await this.storageRepository.delete(bucket, oldFileName);
-                    }
+                // Intro PDF → ebooks/ (sobrescreve)
+                if (input.pdfFile) {
+                    const pdfKey = `${folder}/${formattedId}-intro.pdf`;
+                    await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
+                    introPdfPath = `/${STORAGE_BUCKET}/${pdfKey}`;
                 }
 
-                // Upload novo arquivo
-                await this.storageRepository.upload(bucket, pdfFileName, input.pdfFile);
-                pdfPath = `/${bucket.toLowerCase()}/${pdfFileName}`;
+                // Capa imagem → ebooks/ (sobrescreve)
+                if (input.coverImageFile) {
+                    const ext = input.coverImageFile.name.split(".").pop() ?? "jpg";
+                    const imgKey = `${folder}/${formattedId}-capa.${ext}`;
+                    await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
+                    coverImagePath = `/${STORAGE_BUCKET}/${imgKey}`;
+                }
+
+                // Capa PDF → ebooks/ (sobrescreve)
+                if (input.coverPdfFile) {
+                    const capaPdfKey = `${folder}/${formattedId}-capa.pdf`;
+                    await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
+                    coverPdfPath = `/${STORAGE_BUCKET}/${capaPdfKey}`;
+                }
+
+                return await this.contentRepository.update(input.type, input.id, {
+                    title: input.title,
+                    readTime: input.readTime,
+                    subtitle: input.subtitle,
+                    description: input.description,
+                    badgeText: input.badgeText,
+                    htmlPath: introHtmlPath,
+                    pdfPath: introPdfPath,
+                    coverImagePath,
+                    coverPdfPath,
+                });
+            } else {
+                // --- Fluxo Padrão ---
+                let htmlPath = existingContent.htmlPath;
+                let pdfPath = existingContent.pdfPath;
+
+                if (input.htmlFile) {
+                    const htmlFileName = `${formattedId}.html`;
+                    if (htmlPath) {
+                        const oldFileName = htmlPath.split("/").pop();
+                        if (oldFileName) {
+                            await this.storageRepository.delete(STORAGE_BUCKET, `${folder}/${oldFileName}`);
+                        }
+                    }
+                    await this.storageRepository.upload(STORAGE_BUCKET, `${folder}/${htmlFileName}`, input.htmlFile);
+                    htmlPath = `/${STORAGE_BUCKET}/${folder}/${htmlFileName}`;
+                }
+
+                if (input.pdfFile) {
+                    const pdfFileName = `${formattedId}.pdf`;
+                    if (pdfPath) {
+                        const oldFileName = pdfPath.split("/").pop();
+                        if (oldFileName) {
+                            await this.storageRepository.delete(STORAGE_BUCKET, `${folder}/${oldFileName}`);
+                        }
+                    }
+                    await this.storageRepository.upload(STORAGE_BUCKET, `${folder}/${pdfFileName}`, input.pdfFile);
+                    pdfPath = `/${STORAGE_BUCKET}/${folder}/${pdfFileName}`;
+                }
+
+                return await this.contentRepository.update(input.type, input.id, {
+                    title: input.title,
+                    readTime: input.readTime,
+                    htmlPath,
+                    pdfPath,
+                });
             }
-
-            // 3. Atualizar registro no banco
-            const updatedContent = await this.contentRepository.update(input.type, input.id, {
-                title: input.title,
-                readTime: input.readTime,
-                htmlPath,
-                pdfPath,
-            });
-
-            return updatedContent;
         } catch (error) {
             console.error("Erro ao atualizar conteúdo com arquivos:", error);
             throw error;

@@ -19,13 +19,16 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-// Mapeamento de tipos de conteúdo para buckets e pastas do Supabase
-// Estrutura: Bucket principal "Newsletters" com subpastas por tipo de conteúdo
+// Mapeamento de tipos de conteúdo para bucket e pastas do Supabase Storage
+// Estrutura: Bucket único "materiais" com subpastas por tipo de conteúdo
 const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
-    newsletter: { bucket: "Newsletters", folder: "newsletters" },
-    "mini-livro": { bucket: "Newsletters", folder: "mini-livros" },
-    biblioteca: { bucket: "Newsletters", folder: "biblioteca" },
-    "especial-semana": { bucket: "Newsletters", folder: "especial-semana" },
+    newsletter: { bucket: "materiais", folder: "newsletters" },
+    "mini-livro": { bucket: "materiais", folder: "mini-livros/mini" },
+    biblioteca: { bucket: "materiais", folder: "biblioteca" },
+    "especial-semana": { bucket: "materiais", folder: "especial-da-semana" },
+    radar_oportunidades: { bucket: "materiais", folder: "radar-de-oportunidades" },
+    estudar: { bucket: "materiais", folder: "estudar" },
+    ebook: { bucket: "materiais", folder: "mini-livros/intros" },
 };
 
 // Tipos válidos de conteúdo

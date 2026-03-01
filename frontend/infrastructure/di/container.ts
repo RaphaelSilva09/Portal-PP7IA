@@ -14,14 +14,19 @@ import { CreateContentWithUploadUseCase } from "../../application/usecases/Creat
 import { DeleteContentWithFilesUseCase } from "../../application/usecases/DeleteContentWithFilesUseCase";
 import { DeleteUserAndDataUseCase } from "../../application/usecases/DeleteUserAndDataUseCase";
 import { DemoteUserFromAdminUseCase } from "../../application/usecases/DemoteUserFromAdminUseCase";
-import { GetAllUsersUseCase } from "../../application/usecases/GetAllUsersUseCase";
+import { GetUsersUseCase } from "../../application/usecases/GetAllUsersUseCase";
 import { GetBibliotecaUseCase } from "../../application/usecases/GetBibliotecaUseCase";
 import { GetCurrentUserUseCase } from "../../application/usecases/GetCurrentUserUseCase";
 import { GetDashboardStatsUseCase } from "../../application/usecases/GetDashboardStatsUseCase";
+import { GetEbookUseCase } from "../../application/usecases/GetEbookUseCase";
+import { GetEspecialSemanaUseCase } from "../../application/usecases/GetEspecialSemanaUseCase";
+import { GetEstudarUseCase } from "../../application/usecases/GetEstudarUseCase";
 import { GetMiniLivrosUseCase } from "../../application/usecases/GetMiniLivrosUseCase";
 import { GetNewslettersUseCase } from "../../application/usecases/GetNewslettersUseCase";
+import { GetRadarOportunidadesUseCase } from "../../application/usecases/GetRadarOportunidadesUseCase";
 import { PromoteUserToAdminUseCase } from "../../application/usecases/PromoteUserToAdminUseCase";
 import { ResetPasswordWithTokenUseCase } from "../../application/usecases/ResetPasswordWithTokenUseCase";
+import { SearchContentUseCase } from "../../application/usecases/SearchContentUseCase";
 import { SendPasswordResetUseCase } from "../../application/usecases/SendPasswordResetUseCase";
 import { SignInUseCase } from "../../application/usecases/SignInUseCase";
 import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
@@ -34,9 +39,12 @@ import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRe
 import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
 import { SupabaseBibliotecaRepository } from "../repositories/SupabaseBibliotecaRepository";
 import { SupabaseContentRepository } from "../repositories/SupabaseContentRepository";
+import { SupabaseEbookRepository } from "../repositories/SupabaseEbookRepository";
 import { SupabaseEspecialSemanaRepository } from "../repositories/SupabaseEspecialSemanaRepository";
+import { SupabaseEstudarRepository } from "../repositories/SupabaseEstudarRepository";
 import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
+import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
 import { SupabaseStorageRepository } from "../repositories/SupabaseStorageRepository";
 import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserManagementRepository";
 
@@ -50,6 +58,9 @@ class DIContainer {
     private static miniLivroRepositoryInstance: SupabaseMiniLivroRepository | null = null;
     private static bibliotecaRepositoryInstance: SupabaseBibliotecaRepository | null = null;
     private static especialSemanaRepositoryInstance: SupabaseEspecialSemanaRepository | null = null;
+    private static radarOportunidadesRepositoryInstance: SupabaseRadarOportunidadesRepository | null = null;
+    private static estudarRepositoryInstance: SupabaseEstudarRepository | null = null;
+    private static ebookRepositoryInstance: SupabaseEbookRepository | null = null;
     private static adminRepositoryInstance: SupabaseAdminRepository | null = null;
     private static contentRepositoryInstance: SupabaseContentRepository | null = null;
     private static storageRepositoryInstance: SupabaseStorageRepository | null = null;
@@ -112,6 +123,39 @@ class DIContainer {
     }
 
     /**
+     * Obtém instância do repositório de radar de oportunidades
+     * Singleton Pattern
+     */
+    static getRadarOportunidadesRepository(): SupabaseRadarOportunidadesRepository {
+        if (!this.radarOportunidadesRepositoryInstance) {
+            this.radarOportunidadesRepositoryInstance = new SupabaseRadarOportunidadesRepository(supabase);
+        }
+        return this.radarOportunidadesRepositoryInstance;
+    }
+
+    /**
+     * Obtém instância do repositório de estudar
+     * Singleton Pattern
+     */
+    static getEstudarRepository(): SupabaseEstudarRepository {
+        if (!this.estudarRepositoryInstance) {
+            this.estudarRepositoryInstance = new SupabaseEstudarRepository(supabase);
+        }
+        return this.estudarRepositoryInstance;
+    }
+
+    /**
+     * Obtém instância do repositório de e-books
+     * Singleton Pattern
+     */
+    static getEbookRepository(): SupabaseEbookRepository {
+        if (!this.ebookRepositoryInstance) {
+            this.ebookRepositoryInstance = new SupabaseEbookRepository(supabase);
+        }
+        return this.ebookRepositoryInstance;
+    }
+
+    /**
      * Obtém instância do repositório de gerenciamento de usuários
      * Singleton Pattern
      */
@@ -168,8 +212,21 @@ class DIContainer {
 
     /**
      * Factory Methods para casos de uso
+     */
     static getEspecialSemanaUseCase(): GetEspecialSemanaUseCase {
         return new GetEspecialSemanaUseCase(this.getEspecialSemanaRepository());
+    }
+
+    static getRadarOportunidadesUseCase(): GetRadarOportunidadesUseCase {
+        return new GetRadarOportunidadesUseCase(this.getRadarOportunidadesRepository());
+    }
+
+    static getEstudarUseCase(): GetEstudarUseCase {
+        return new GetEstudarUseCase(this.getEstudarRepository());
+    }
+
+    static getEbookUseCase(): GetEbookUseCase {
+        return new GetEbookUseCase(this.getEbookRepository());
     }
 
     /**
@@ -190,8 +247,8 @@ class DIContainer {
     /**
      * Factory Methods para casos de uso de gerenciamento de usuários
      */
-    static getAllUsersUseCase(): GetAllUsersUseCase {
-        return new GetAllUsersUseCase(this.getUserManagementRepository());
+    static getUsersUseCase(): GetUsersUseCase {
+        return new GetUsersUseCase(this.getUserManagementRepository());
     }
 
     static getPromoteUserToAdminUseCase(): PromoteUserToAdminUseCase {
@@ -257,6 +314,19 @@ class DIContainer {
     }
 
     /**
+     * Factory para busca de conteúdo em paralelo entre os 4 repositórios.
+     * Novo a cada chamada — stateless, depende de repositórios singleton.
+     */
+    static getSearchContentUseCase(): SearchContentUseCase {
+        return new SearchContentUseCase(
+            this.getNewsletterRepository(),
+            this.getMiniLivroRepository(),
+            this.getBibliotecaRepository(),
+            this.getEspecialSemanaRepository(),
+        );
+    }
+
+    /**
      * Reseta container (útil para testes)
      */
     static reset(): void {
@@ -265,6 +335,9 @@ class DIContainer {
         this.miniLivroRepositoryInstance = null;
         this.bibliotecaRepositoryInstance = null;
         this.especialSemanaRepositoryInstance = null;
+        this.radarOportunidadesRepositoryInstance = null;
+        this.estudarRepositoryInstance = null;
+        this.ebookRepositoryInstance = null;
         this.adminRepositoryInstance = null;
         this.contentRepositoryInstance = null;
         this.storageRepositoryInstance = null;

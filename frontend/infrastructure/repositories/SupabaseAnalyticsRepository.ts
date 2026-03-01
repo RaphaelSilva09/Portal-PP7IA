@@ -25,23 +25,22 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
 
     async getContentStats(): Promise<ContentStats> {
         try {
-            // Buscar contadores de cada tabela em paralelo
-            const [newsletters, miniLivros, biblioteca, especialSemana] = await Promise.all([
-                this.countTable("newsletters"),
-                this.countTable("mini-livros"),
-                this.countTable("biblioteca"),
-                this.countTable("especial-semana"),
-            ]);
+            // Buscar contadores de todas as tabelas em paralelo
+            const [newsletters, miniLivros, biblioteca, especialSemana, ebooks, radarOportunidades, estudar] =
+                await Promise.all([
+                    this.countTable("newsletters"),
+                    this.countTable("mini_livros"), // corrigido: era "mini-livros"
+                    this.countTable("biblioteca"),
+                    this.countTable("especial_semana"), // corrigido: era "especial-semana"
+                    this.countTable("ebooks"), // novo
+                    this.countTable("radar_oportunidades"), // novo
+                    this.countTable("estudar"), // novo
+                ]);
 
-            const total = newsletters + miniLivros + biblioteca + especialSemana;
+            const total =
+                newsletters + miniLivros + biblioteca + especialSemana + ebooks + radarOportunidades + estudar;
 
-            return {
-                newsletters,
-                miniLivros,
-                biblioteca,
-                especialSemana,
-                total,
-            };
+            return { newsletters, miniLivros, biblioteca, especialSemana, ebooks, radarOportunidades, estudar, total };
         } catch (err) {
             console.error("Erro ao obter estatísticas de conteúdo:", err);
             return {
@@ -49,6 +48,9 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
                 miniLivros: 0,
                 biblioteca: 0,
                 especialSemana: 0,
+                ebooks: 0,
+                radarOportunidades: 0,
+                estudar: 0,
                 total: 0,
             };
         }
@@ -129,6 +131,9 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
                     miniLivros: 0,
                     biblioteca: 0,
                     especialSemana: 0,
+                    ebooks: 0,
+                    radarOportunidades: 0,
+                    estudar: 0,
                     total: 0,
                 },
                 users: {
@@ -149,16 +154,27 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
         }>
     > {
         try {
-            // Buscar os mais recentes de cada tipo
-            const [newsletters, miniLivros, biblioteca, especialSemana] = await Promise.all([
+            // Buscar os mais recentes de todos os tipos
+            const [newsletters, miniLivros, biblioteca, especialSemana, ebooks, radar, estudar] = await Promise.all([
                 this.getRecentFromTable("newsletters", "newsletter", limit),
-                this.getRecentFromTable("mini-livros", "mini-livro", limit),
+                this.getRecentFromTable("mini_livros", "mini-livro", limit), // corrigido
                 this.getRecentFromTable("biblioteca", "biblioteca", limit),
-                this.getRecentFromTable("especial-semana", "especial-semana", limit),
+                this.getRecentFromTable("especial_semana", "especial-semana", limit), // corrigido
+                this.getRecentFromTable("ebooks", "ebook", limit), // novo
+                this.getRecentFromTable("radar_oportunidades", "radar_oportunidades", limit), // novo
+                this.getRecentFromTable("estudar", "estudar", limit), // novo
             ]);
 
             // Combinar todos e ordenar por data
-            const allContent = [...newsletters, ...miniLivros, ...biblioteca, ...especialSemana];
+            const allContent = [
+                ...newsletters,
+                ...miniLivros,
+                ...biblioteca,
+                ...especialSemana,
+                ...ebooks,
+                ...radar,
+                ...estudar,
+            ];
             allContent.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
             // Retornar apenas os N mais recentes

@@ -5,10 +5,8 @@ import {
     Footer,
     HeroSection,
     IASParceiras,
-    InstructionsBanner,
     Navbar,
     QuemSomosEquipe,
-    WelcomeBanner,
     WhyPP7IASSection,
 } from "@/components";
 
@@ -24,16 +22,7 @@ export default function Home() {
             {/* 2. Quem Somos + Equipe Unificado */}
             <QuemSomosEquipe />
 
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12 pb-"></div>
-            <div className="pb-8"></div>
-            {/* 3. Welcome Banner - Versão Oficial */}
-            <WelcomeBanner />
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
-            <div className="pb-8"></div>
-            {/* 4. Instructions Banner - Como usar o portal */}
-            <InstructionsBanner />
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
-            {/* 5. Declarações - Propósito, Visão, Problema, Solução, Para Quem */}
+            {/* 3. Declarações - Propósito, Visão, Problema, Solução, Para Quem */}
             <Declaracoes />
 
             {/* 6. Bento Grid com 7 blocos de conteúdo */}

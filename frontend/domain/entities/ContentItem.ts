@@ -11,7 +11,14 @@
  * - Immutability: Dados protegidos via getters
  */
 
-export type ContentType = "newsletter" | "mini-livro" | "biblioteca" | "especial-semana";
+export type ContentType =
+    | "newsletter"
+    | "mini-livro"
+    | "biblioteca"
+    | "especial-semana"
+    | "radar_oportunidades"
+    | "estudar"
+    | "ebook";
 
 export interface ContentItemProps {
     id: number;
@@ -20,6 +27,12 @@ export interface ContentItemProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
+    // Ebook-specific fields
+    subtitle?: string | null;
+    description?: string | null;
+    badgeText?: string | null;
+    coverImagePath?: string | null;
+    coverPdfPath?: string | null;
 }
 
 export class ContentItem {
@@ -69,6 +82,27 @@ export class ContentItem {
      */
     get pdfAvailable(): boolean {
         return Boolean(this.props.pdfPath?.trim());
+    }
+
+    // Ebook-specific getters
+    get subtitle(): string | null {
+        return this.props.subtitle?.trim() || null;
+    }
+
+    get description(): string | null {
+        return this.props.description?.trim() || null;
+    }
+
+    get badgeText(): string | null {
+        return this.props.badgeText?.trim() || null;
+    }
+
+    get coverImagePath(): string | null {
+        return this.props.coverImagePath?.trim() || null;
+    }
+
+    get coverPdfPath(): string | null {
+        return this.props.coverPdfPath?.trim() || null;
     }
 
     /**

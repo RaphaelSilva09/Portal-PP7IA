@@ -15,6 +15,9 @@ export interface ContentStats {
     miniLivros: number;
     biblioteca: number;
     especialSemana: number;
+    ebooks: number;
+    radarOportunidades: number;
+    estudar: number;
     total: number;
 }
 

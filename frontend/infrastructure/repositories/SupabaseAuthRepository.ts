@@ -22,7 +22,13 @@ import {
     UserAlreadyExistsError,
     WeakPasswordError,
 } from "../../domain/errors/AuthError";
-import { AuthResult, IAuthRepository, SignInParams, SignUpParams } from "../../domain/repositories/IAuthRepository";
+import {
+    AuthResult,
+    IAuthRepository,
+    SignInParams,
+    SignUpParams,
+    UpdateProfileParams,
+} from "../../domain/repositories/IAuthRepository";
 
 /**
  * Adapter Pattern: Adapta Supabase para nossa interface de domínio
@@ -229,6 +235,33 @@ export class SupabaseAuthRepository implements IAuthRepository {
             const role = (authUser.app_metadata?.role as string) || "user";
 
             return this.mapToUser(authUser.id, {
+                email: userData.email,
+                nome: userData.nome,
+                celular: userData.celular,
+                acceptEmailUpdates: userData.accept_email_updates,
+                acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
+                createdAt: new Date(userData.created_at),
+                role,
+            });
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Obtém perfil do usuário a partir de dados da sessão, sem validar JWT no servidor.
+     * Mais eficiente que getCurrentUser() para uso em onAuthStateChange onde a sessão
+     * já foi validada pelo Supabase internamente.
+     */
+    async getUserFromSession(userId: string, role: string): Promise<User | null> {
+        try {
+            const { data: userData, error } = await this.supabase.from("users").select("*").eq("id", userId).single();
+
+            if (error || !userData) {
+                return null;
+            }
+
+            return this.mapToUser(userId, {
                 email: userData.email,
                 nome: userData.nome,
                 celular: userData.celular,
@@ -481,6 +514,53 @@ export class SupabaseAuthRepository implements IAuthRepository {
             // Faz signOut (a deleção completa do Auth requer um endpoint backend)
             await this.supabase.auth.signOut();
         } catch (error) {
+            if (error instanceof Error && "status" in error) {
+                throw this.mapSupabaseError(error);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Atualiza perfil do usuário (nome, email, celular)
+     * Se o email mudou, atualiza também em auth.users via updateUser
+     */
+    async updateProfile(params: UpdateProfileParams): Promise<void> {
+        try {
+            const {
+                data: { user },
+            } = await this.supabase.auth.getUser();
+            if (!user) {
+                throw new UnknownAuthError("Usuário não autenticado");
+            }
+
+            // Atualiza email no auth se mudou
+            if (params.email && params.email !== user.email) {
+                const { error: authError } = await this.supabase.auth.updateUser({
+                    email: params.email,
+                });
+                if (authError) {
+                    throw this.mapSupabaseError(authError);
+                }
+            }
+
+            // Atualiza nome, email e celular na tabela public.users
+            const { error: dbError } = await this.supabase
+                .from("users")
+                .update({
+                    nome: params.nome,
+                    email: params.email,
+                    celular: params.celular,
+                })
+                .eq("id", user.id);
+
+            if (dbError) {
+                throw this.mapSupabaseError(dbError);
+            }
+        } catch (error) {
+            if (error instanceof AuthError) {
+                throw error;
+            }
             if (error instanceof Error && "status" in error) {
                 throw this.mapSupabaseError(error);
             }

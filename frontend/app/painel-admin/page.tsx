@@ -15,12 +15,34 @@
  * - DI: Obtém use cases via DIContainer
  */
 
-import { ConfirmDialog, ContentForm, ContentTable, Dashboard, FeedbackMessage, UserManager } from "@/components/admin";
+import type { EbookFormData } from "@/components/admin";
+import {
+    ConfirmDialog,
+    ContentForm,
+    ContentTable,
+    Dashboard,
+    EbookForm,
+    FeedbackMessage,
+    UserManager,
+} from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import DIContainer from "@/infrastructure/di/container";
-import { ArrowLeft, BookOpen, FileText, Home, Library, Newspaper, Plus, Star, Users } from "lucide-react";
+import {
+    ArrowLeft,
+    BookMarked,
+    BookOpen,
+    FileText,
+    GraduationCap,
+    Home,
+    Library,
+    Newspaper,
+    Plus,
+    Radar,
+    Star,
+    Users,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -33,6 +55,9 @@ const CONTENT_TABS: { type: ContentType; label: string; icon: typeof Newspaper }
     { type: "mini-livro", label: "Mini-Livros", icon: BookOpen },
     { type: "biblioteca", label: "Biblioteca", icon: Library },
     { type: "especial-semana", label: "Especial da Semana", icon: Star },
+    { type: "ebook", label: "E-books", icon: BookMarked },
+    { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
+    { type: "estudar", label: "Estudar", icon: GraduationCap },
 ];
 
 interface FeedbackState {
@@ -59,6 +84,7 @@ export default function PainelAdminPage() {
     const [contentTab, setContentTab] = useState<ContentType>("newsletter");
     const [items, setItems] = useState<ContentItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [editItem, setEditItem] = useState<ContentItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,8 +116,9 @@ export default function PainelAdminPage() {
         setIsLoading(true);
         try {
             const repo = DIContainer.getContentRepository();
-            const data = await repo.getAll(contentTab);
+            const [data, lu] = await Promise.all([repo.getAll(contentTab), repo.getLastUpdated(contentTab)]);
             setItems(data);
+            setLastUpdated(lu);
         } catch (error) {
             console.error("Erro ao carregar itens:", error);
             setFeedback({
@@ -164,11 +191,15 @@ export default function PainelAdminPage() {
         setIsSubmitting(true);
         try {
             if (editItem) {
-                // Atualizar
-                const repo = DIContainer.getContentRepository();
-                await repo.update(contentTab, editItem.id, {
+                // Atualizar via use case (com suporte a upload de arquivos)
+                const useCase = DIContainer.getUpdateContentWithFilesUseCase();
+                await useCase.execute({
+                    type: contentTab,
+                    id: editItem.id,
                     title: data.title,
                     readTime: data.readTime,
+                    htmlFile: data.htmlFile,
+                    pdfFile: data.pdfFile,
                 });
                 setFeedback({
                     show: true,
@@ -199,6 +230,66 @@ export default function PainelAdminPage() {
             setFeedback({
                 show: true,
                 message: "Erro ao salvar material. Tente novamente.",
+                type: "error",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleEbookSubmit = async (data: EbookFormData) => {
+        setIsSubmitting(true);
+        try {
+            if (editItem) {
+                // Editar ebook via use case
+                const useCase = DIContainer.getUpdateContentWithFilesUseCase();
+                await useCase.execute({
+                    type: "ebook",
+                    id: editItem.id,
+                    title: data.title,
+                    readTime: data.readTime,
+                    subtitle: data.subtitle,
+                    description: data.description,
+                    badgeText: data.badgeText,
+                    htmlFile: data.introHtmlFile,
+                    pdfFile: data.introPdfFile,
+                    coverImageFile: data.coverImageFile,
+                    coverPdfFile: data.coverPdfFile,
+                });
+                setFeedback({
+                    show: true,
+                    message: "E-book atualizado com sucesso!",
+                    type: "success",
+                });
+            } else {
+                // Criar ebook com upload
+                const useCase = DIContainer.getCreateContentWithUploadUseCase();
+                await useCase.execute({
+                    type: "ebook",
+                    title: data.title,
+                    readTime: data.readTime,
+                    subtitle: data.subtitle,
+                    description: data.description,
+                    badgeText: data.badgeText,
+                    htmlFile: data.introHtmlFile,
+                    pdfFile: data.introPdfFile,
+                    coverImageFile: data.coverImageFile,
+                    coverPdfFile: data.coverPdfFile,
+                });
+                setFeedback({
+                    show: true,
+                    message: "E-book criado com sucesso!",
+                    type: "success",
+                });
+            }
+            setShowForm(false);
+            setEditItem(null);
+            await loadItems();
+        } catch (error) {
+            console.error("Erro ao salvar e-book:", error);
+            setFeedback({
+                show: true,
+                message: "Erro ao salvar e-book. Tente novamente.",
                 type: "error",
             });
         } finally {
@@ -287,16 +378,28 @@ export default function PainelAdminPage() {
 
                         {/* Formulário ou Tabela */}
                         {showForm ? (
-                            <ContentForm
-                                type={contentTab}
-                                editItem={editItem}
-                                onSubmit={handleSubmit}
-                                onCancel={() => {
-                                    setShowForm(false);
-                                    setEditItem(null);
-                                }}
-                                isLoading={isSubmitting}
-                            />
+                            contentTab === "ebook" ? (
+                                <EbookForm
+                                    editItem={editItem}
+                                    onSubmit={handleEbookSubmit}
+                                    onCancel={() => {
+                                        setShowForm(false);
+                                        setEditItem(null);
+                                    }}
+                                    isLoading={isSubmitting}
+                                />
+                            ) : (
+                                <ContentForm
+                                    type={contentTab}
+                                    editItem={editItem}
+                                    onSubmit={handleSubmit}
+                                    onCancel={() => {
+                                        setShowForm(false);
+                                        setEditItem(null);
+                                    }}
+                                    isLoading={isSubmitting}
+                                />
+                            )
                         ) : (
                             <>
                                 {/* Botão Criar */}
@@ -318,7 +421,12 @@ export default function PainelAdminPage() {
                                         </div>
                                     </GlassCard>
                                 ) : (
-                                    <ContentTable items={items} onEdit={handleEdit} onDelete={handleDelete} />
+                                    <ContentTable
+                                        items={items}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        lastUpdated={lastUpdated}
+                                    />
                                 )}
                             </>
                         )}

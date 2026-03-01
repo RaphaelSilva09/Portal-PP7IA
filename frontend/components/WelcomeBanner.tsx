@@ -8,11 +8,23 @@ export default function WelcomeBanner() {
                         🎉 Bem-vindos à Versão Oficial do Portal!
                     </h2>
 
+                    {/* Prominent Instructions CTA for 80+ audience */}
+                    <div className="mt-4 flex justify-center">
+                        <a
+                            href="#instructions"
+                            className="w-full max-w-xl inline-flex items-center justify-center gap-3 px-6 py-4 bg-yellow-400 text-black text-lg sm:text-xl font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
+                            aria-label="Abrir instruções de uso"
+                        >
+                            <span className="text-2xl">📋</span>
+                            <span>Instruções — Clique aqui</span>
+                        </a>
+                    </div>
+
                     {/* Message */}
-                    <p className="text-sm sm:text-base md:text-lg text-text-secondary leading-relaxed text-left">
-                        <span className="text-brand-green font-medium">Não mais em versão beta.</span>{" "}
-                        Você está acessando um espaço criado para compartilhar conhecimento prático, testado e vivido.{" "}
-                        Aqui, <span className="text-brand-blue font-medium">7 IAs colaboram</span>, mas{" "}
+                    <p className="mt-6 text-sm sm:text-base md:text-lg text-text-secondary leading-relaxed text-left">
+                        <span className="text-brand-green font-medium">Não mais em versão beta.</span> Você está
+                        acessando um espaço criado para compartilhar conhecimento prático, testado e vivido. Aqui,{" "}
+                        <span className="text-brand-blue font-medium">7 IAs colaboram</span>, mas{" "}
                         <span className="text-brand-blue font-medium">pessoas decidem</span>.
                     </p>
 

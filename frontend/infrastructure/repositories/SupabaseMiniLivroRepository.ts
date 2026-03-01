@@ -40,7 +40,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
     async getAll(): Promise<MiniLivro[]> {
         try {
             const { data, error } = await this.supabase
-                .from("mini-livros")
+                .from("mini_livros")
                 .select("*")
                 .order("created_at", { ascending: false });
 
@@ -68,7 +68,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
     async getLatest(): Promise<MiniLivro | null> {
         try {
             const { data, error } = await this.supabase
-                .from("mini-livros")
+                .from("mini_livros")
                 .select("*")
                 .order("created_at", { ascending: false })
                 .limit(1)
@@ -94,7 +94,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
      */
     async getById(id: number): Promise<MiniLivro | null> {
         try {
-            const { data, error } = await this.supabase.from("mini-livros").select("*").eq("id", id).single();
+            const { data, error } = await this.supabase.from("mini_livros").select("*").eq("id", id).single();
 
             if (error || !data) {
                 return null;

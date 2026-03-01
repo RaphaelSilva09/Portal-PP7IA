@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 interface Props {
     params: Promise<{ type: string; slug: string }>;
@@ -10,6 +10,9 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     "mini-livro": { folder: "mini-livros", title: "Mini-Livro" },
     biblioteca: { folder: "biblioteca", title: "Biblioteca" },
     "especial-semana": { folder: "especial-semana", title: "Especial da Semana" },
+    radar_oportunidades: { folder: "radar-de-oportunidades", title: "Radar de Oportunidades" },
+    estudar: { folder: "estudar", title: "Estudar" },
+    ebook: { folder: "mini-livros/intros", title: "E-book" },
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

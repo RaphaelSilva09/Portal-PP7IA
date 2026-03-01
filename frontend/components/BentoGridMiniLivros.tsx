@@ -2,8 +2,9 @@
 
 import { BookOpen, FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
-import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
 import { MiniLivro } from "@/domain/entities/MiniLivro";
+import { useEbook } from "@/presentation/hooks/useEbook";
+import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
 
 /**
  * BentoGridMiniLivros Component
@@ -11,7 +12,8 @@ import { MiniLivro } from "@/domain/entities/MiniLivro";
  * Dados dos mini-livros carregados dinamicamente do Supabase
  */
 export default function BentoGridMiniLivros() {
-    const { latest, older, isLoading, error } = useMiniLivros();
+    const { latest, older, isLoading, error, lastUpdated } = useMiniLivros();
+    const { latest: latestEbook } = useEbook();
 
     // Estado de carregamento
     if (isLoading) {
@@ -88,86 +90,92 @@ export default function BentoGridMiniLivros() {
                     E-BOOK EM DESTAQUE
                     1 Card - col-span-3 - min-h-80
                     ============================================ */}
-                    <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
-                        {/* Gradient Background - Azul/Roxo para E-book */}
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                background:
-                                    "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 129, 242, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99, 102, 241, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
-                            }}
-                        />
-
-                        {/* Subtle Border */}
-                        <div className="absolute inset-0 rounded-3xl border border-white/10" />
-
-                        {/* Shimmer on Hover - Efeito muito sutil */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700">
-                            <div className="absolute inset-0 shimmer" />
-                        </div>
-
-                        {/* Content - Layout com Imagem + Texto */}
-                        <div className="relative z-10 h-full flex flex-col md:flex-row items-center gap-8 p-8 sm:p-12">
-                            {/* Imagem da Capa - Esquerda */}
-                            <div className="w-full md:w-1/3 flex-shrink-0">
-                                <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/20 shadow-2xl">
-                                    <img
-                                        src="/ebooks/capa_lideranca_hibrida.png"
-                                        alt="Capa do E-book Liderança Híbrida"
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
+                    {latestEbook && (
+                        <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
+                            {/* Gradient Background - Azul/Roxo para E-book */}
+                            <div
+                                className="absolute inset-0"
+                                style={{
+                                    background:
+                                        "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 129, 242, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99, 102, 241, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
+                                }}
+                            />
+                            <div className="absolute inset-0 rounded-3xl border border-white/10" />
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700">
+                                <div className="absolute inset-0 shimmer" />
                             </div>
 
-                            {/* Informações do E-book - Direita */}
-                            <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
-                                {/* Badge */}
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-4">
-                                    <Sparkles className="w-4 h-4 text-blue-400" />
-                                    <span className="text-blue-400 text-sm font-medium">E-book #001</span>
-                                </div>
+                            {/* Content - Layout com Imagem + Texto */}
+                            <div className="relative z-10 h-full flex flex-col md:flex-row items-center gap-8 p-8 sm:p-12">
+                                {/* Imagem da Capa - Esquerda */}
+                                {latestEbook.coverImagePath && (
+                                    <div className="w-full md:w-1/3 flex-shrink-0">
+                                        <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/20 shadow-2xl">
+                                            <img
+                                                src={latestEbook.coverImagePath}
+                                                alt={`Capa do E-book ${latestEbook.title}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
 
-                                {/* Título */}
-                                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight leading-tight">
-                                    Liderança Híbrida
-                                </h3>
+                                {/* Informações do E-book - Direita */}
+                                <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+                                    {/* Badge */}
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-4">
+                                        <Sparkles className="w-4 h-4 text-blue-400" />
+                                        <span className="text-blue-400 text-sm font-medium">
+                                            {latestEbook.badgeText || `E-book #${latestEbook.formattedNumber}`}
+                                        </span>
+                                    </div>
 
-                                {/* Subtítulo */}
-                                <p className="text-xl sm:text-2xl text-blue-300/80 mb-6 font-medium">
-                                    O código-fonte da Inteligência em Alta Frequência
-                                </p>
+                                    {/* Título */}
+                                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight leading-tight">
+                                        {latestEbook.title}
+                                    </h3>
 
-                                {/* Descrição */}
-                                <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-2xl">
-                                    O que a velha guarda precisa atualizar e a nova geração precisa descobrir. 7
-                                    MiniLivros que formam um eBook sobre liderança, decisões e IA. Escritos por quem
-                                    liderou por mais de 4 décadas e agora testa IA todos os dias.
-                                </p>
+                                    {/* Subtítulo */}
+                                    {latestEbook.subtitle && (
+                                        <p className="text-xl sm:text-2xl text-blue-300/80 mb-6 font-medium">
+                                            {latestEbook.subtitle}
+                                        </p>
+                                    )}
 
-                                {/* Botões de Ação */}
-                                <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
-                                    <a
-                                        href="/ebooks/capa_lideranca_hibrida.pdf"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
-                                    >
-                                        <FileText className="w-5 h-5" />
-                                        <span>Ver Capa</span>
-                                    </a>
-                                    <a
-                                        href="/ebooks/introducao_lideranca_hibrida.html"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
-                                    >
-                                        <BookOpen className="w-5 h-5" />
-                                        <span>Ler Introdução</span>
-                                    </a>
+                                    {/* Descrição */}
+                                    {latestEbook.description && (
+                                        <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-2xl">
+                                            {latestEbook.description}
+                                        </p>
+                                    )}
+
+                                    {/* Botões de Ação */}
+                                    <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
+                                        {latestEbook.coverPdfAvailable && (
+                                            <a
+                                                href={latestEbook.coverPdfPath!}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                            >
+                                                <FileText className="w-5 h-5" />
+                                                <span>Ver Capa</span>
+                                            </a>
+                                        )}
+                                        {latestEbook.htmlAvailable && (
+                                            <a
+                                                href={latestEbook.introHtmlPath!}
+                                                className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                            >
+                                                <BookOpen className="w-5 h-5" />
+                                                <span>Ler Introdução</span>
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* ============================================
                     MINI-LIVRO MAIS RECENTE - DESTAQUE
@@ -200,7 +208,12 @@ export default function BentoGridMiniLivros() {
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                                     </span>
-                                    <span className="text-green-500 text-sm font-medium">Último Mini-Livro</span>
+                                    <span className="text-green-500 text-sm font-medium">
+                                        Último Mini-Livro
+                                        {lastUpdated
+                                            ? `: ${lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}`
+                                            : ""}
+                                    </span>
                                 </div>
                                 <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                                     <Sparkles className="w-3.5 h-3.5 text-emerald-400" />

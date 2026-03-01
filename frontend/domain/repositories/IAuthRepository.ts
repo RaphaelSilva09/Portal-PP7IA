@@ -40,6 +40,12 @@ export interface UpdatePreferencesParams {
     acceptWhatsAppUpdates: boolean;
 }
 
+export interface UpdateProfileParams {
+    nome: string;
+    email: string;
+    celular: string;
+}
+
 export interface AuthResult {
     user: User;
     session: {
@@ -76,9 +82,19 @@ export interface IAuthRepository {
 
     /**
      * Obtém o usuário autenticado atual
+     * Faz validação JWT servidor (round-trip). Preferir getUserFromSession quando possível.
      * @returns User ou null se não autenticado
      */
     getCurrentUser(): Promise<User | null>;
+
+    /**
+     * Obtém perfil do usuário a partir de dados da sessão (sem round-trip ao servidor Auth).
+     * Uso ideal: onAuthStateChange handlers onde a sessão já foi validada pelo Supabase.
+     * @param userId ID do usuário da sessão
+     * @param role Role do app_metadata da sessão
+     * @returns User ou null se perfil não encontrado
+     */
+    getUserFromSession(userId: string, role: string): Promise<User | null>;
 
     /**
      * Envia email de reset de senha com código OTP de 8 dígitos
@@ -121,6 +137,12 @@ export interface IAuthRepository {
      * Atualiza preferências de notificação
      */
     updatePreferences(params: UpdatePreferencesParams): Promise<void>;
+
+    /**
+     * Atualiza perfil do usuário (nome, email, celular)
+     * Se o email mudou, atualiza também em auth.users
+     */
+    updateProfile(params: UpdateProfileParams): Promise<void>;
 
     /**
      * Deleta a conta do usuário

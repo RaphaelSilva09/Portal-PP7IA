@@ -21,6 +21,15 @@ export type { BibliotecaItemProps } from "./entities/BibliotecaItem";
 export { EspecialSemana } from "./entities/EspecialSemana";
 export type { EspecialSemanaProps } from "./entities/EspecialSemana";
 
+export { RadarOportunidades } from "./entities/RadarOportunidades";
+export type { RadarOportunidadesProps } from "./entities/RadarOportunidades";
+
+export { Estudar } from "./entities/Estudar";
+export type { EstudarProps } from "./entities/Estudar";
+
+export { Ebook } from "./entities/Ebook";
+export type { EbookProps } from "./entities/Ebook";
+
 export { ContentItem } from "./entities/ContentItem";
 export type { ContentItemProps, ContentType } from "./entities/ContentItem";
 
