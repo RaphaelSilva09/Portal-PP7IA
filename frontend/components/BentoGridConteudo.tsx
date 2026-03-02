@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sparkles, Star } from "lucide-react";
+import { useHomePageDates } from "../presentation/hooks/useHomePageDates";
 
 /**
  * BentoGrid Component - Layout "1x3x3 Hierarchy"
@@ -8,7 +9,35 @@ import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sp
  * Regra de Negócio: O número 7
  */
 
+type BadgeColor = "blue" | "yellow" | "orange" | "green" | "purple";
+
+const colorMap: Record<BadgeColor, { bg: string; border: string; dot: string; ping: string; text: string }> = {
+    blue:   { bg: "bg-blue-500/10",   border: "border-blue-500/20",   dot: "bg-blue-500",   ping: "bg-blue-400",   text: "text-blue-400" },
+    yellow: { bg: "bg-yellow-500/10", border: "border-yellow-500/20", dot: "bg-yellow-500", ping: "bg-yellow-400", text: "text-yellow-400" },
+    orange: { bg: "bg-orange-500/10", border: "border-orange-500/20", dot: "bg-orange-500", ping: "bg-orange-400", text: "text-orange-400" },
+    green:  { bg: "bg-green-500/10",  border: "border-green-500/20",  dot: "bg-green-500",  ping: "bg-green-400",  text: "text-green-400" },
+    purple: { bg: "bg-purple-500/10", border: "border-purple-500/20", dot: "bg-purple-500", ping: "bg-purple-400", text: "text-purple-400" },
+};
+
+function NovoBadge({ color }: { color: BadgeColor }) {
+    const c = colorMap[color];
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 ${c.bg} border ${c.border} rounded-full`}>
+            <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${c.ping} opacity-75`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${c.dot}`} />
+            </span>
+            <span className={`text-xs font-medium ${c.text}`}>Novo</span>
+        </span>
+    );
+}
+
+function BadgeSkeleton() {
+    return <div className="h-8 w-20 rounded-full bg-white/10 animate-pulse" />;
+}
+
 export default function BentoGrid() {
+    const { isNew, mostRecentDate, isLoading } = useHomePageDates();
     return (
         <section id="indice" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
             <div className="max-w-7xl mx-auto">
@@ -70,9 +99,15 @@ export default function BentoGrid() {
                                     {/* Block Label */}
                                 </div>
 
-                                {/* Arrow Icon */}
+                                {/* Arrow Icon / Badge Novo */}
                                 <div className="absolute top-8 right-8 sm:top-12 sm:right-12">
-                                    <ArrowUpRight className="w-8 h-8 text-gray-400 opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+                                    {isLoading ? (
+                                        <BadgeSkeleton />
+                                    ) : isNew.newsletter ? (
+                                        <NovoBadge color="blue" />
+                                    ) : (
+                                        <ArrowUpRight className="w-8 h-8 text-gray-400 opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+                                    )}
                                 </div>
                             </div>
 
@@ -90,12 +125,16 @@ export default function BentoGrid() {
                             </div>
 
                             {/* Badge */}
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
-                                <Sparkles className="w-4 h-4 text-brand-blue" aria-hidden="true" />
-                                <span className="text-xs font-medium text-gray-300 tracking-tight">
-                                    Última atualização: 28.02.2026
-                                </span>
-                            </div>
+                            {isLoading ? (
+                                <div className="h-7 w-52 rounded-full bg-white/10 animate-pulse" />
+                            ) : (
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
+                                    <Sparkles className="w-4 h-4 text-brand-blue" aria-hidden="true" />
+                                    <span className="text-xs font-medium text-gray-300 tracking-tight">
+                                        Última atualização: {mostRecentDate || "—"}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </a>
 
@@ -117,15 +156,15 @@ export default function BentoGrid() {
                                 <Star className="w-8 h-8 text-yellow-400" />
                             </div>
 
-                            {/* Badge Novo */}
+                            {/* Badge Novo / Arrow */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" />
-                                    </span>
-                                    <span className="text-xs font-medium text-yellow-400">Novo</span>
-                                </span>
+                                {isLoading ? (
+                                    <BadgeSkeleton />
+                                ) : isNew.especial ? (
+                                    <NovoBadge color="yellow" />
+                                ) : (
+                                    <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-yellow-400 group-hover:scale-125 transition-all duration-300" />
+                                )}
                             </div>
 
                             {/* Content */}
@@ -156,9 +195,15 @@ export default function BentoGrid() {
                                 <Search className="w-8 h-8 text-orange-400" />
                             </div>
 
-                            {/* Arrow Icon */}
+                            {/* Arrow Icon / Badge Novo */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-orange-400 group-hover:scale-125 transition-all duration-300" />
+                                {isLoading ? (
+                                    <BadgeSkeleton />
+                                ) : isNew.radar ? (
+                                    <NovoBadge color="orange" />
+                                ) : (
+                                    <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-orange-400 group-hover:scale-125 transition-all duration-300" />
+                                )}
                             </div>
 
                             {/* Content */}
@@ -189,9 +234,15 @@ export default function BentoGrid() {
                                 <BookOpen className="w-8 h-8 text-green-400" />
                             </div>
 
-                            {/* Arrow Icon */}
+                            {/* Arrow Icon / Badge Novo */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-green-400 group-hover:scale-125 transition-all duration-300" />
+                                {isLoading ? (
+                                    <BadgeSkeleton />
+                                ) : isNew.miniLivros ? (
+                                    <NovoBadge color="green" />
+                                ) : (
+                                    <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-green-400 group-hover:scale-125 transition-all duration-300" />
+                                )}
                             </div>
 
                             {/* Content */}
@@ -227,9 +278,15 @@ export default function BentoGrid() {
                                 <Library className="w-8 h-8 text-purple-400" />
                             </div>
 
-                            {/* Arrow Icon */}
+                            {/* Arrow Icon / Badge Novo */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-purple-400 group-hover:scale-125 transition-all duration-300" />
+                                {isLoading ? (
+                                    <BadgeSkeleton />
+                                ) : isNew.biblioteca ? (
+                                    <NovoBadge color="purple" />
+                                ) : (
+                                    <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-purple-400 group-hover:scale-125 transition-all duration-300" />
+                                )}
                             </div>
 
                             {/* Content */}
@@ -261,9 +318,15 @@ export default function BentoGrid() {
                                 <GraduationCap className="w-8 h-8 text-blue-400" />
                             </div>
 
-                            {/* Arrow Icon */}
+                            {/* Arrow Icon / Badge Novo */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-blue-400 group-hover:scale-125 transition-all duration-300" />
+                                {isLoading ? (
+                                    <BadgeSkeleton />
+                                ) : isNew.estudar ? (
+                                    <NovoBadge color="blue" />
+                                ) : (
+                                    <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-blue-400 group-hover:scale-125 transition-all duration-300" />
+                                )}
                             </div>
 
                             {/* Content */}
