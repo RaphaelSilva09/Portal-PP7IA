@@ -99,11 +99,7 @@ export default function HeroSection() {
                 </p>
                 
                 {/* Botões */}
-<<<<<<< HEAD
                 <div className="flex flex-wrap gap-3 justify-center mb-5">
-=======
-                <div className="flex flex-wrap gap-3 justify-center mb-5 pb-4 border-b border-[#b8860b]/20">
->>>>>>> 7521b8c (feat(hero): insert PortalNewsWidget and update buttons to header gradient style)
                     {!user && (
                         <>
                             <button
