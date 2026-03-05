@@ -23,6 +23,7 @@ import { GetEspecialSemanaUseCase } from "../../application/usecases/GetEspecial
 import { GetEstudarUseCase } from "../../application/usecases/GetEstudarUseCase";
 import { GetMiniLivrosUseCase } from "../../application/usecases/GetMiniLivrosUseCase";
 import { GetNewslettersUseCase } from "../../application/usecases/GetNewslettersUseCase";
+import { GetPortalNewsUseCase } from "../../application/usecases/GetPortalNewsUseCase";
 import { GetRadarOportunidadesUseCase } from "../../application/usecases/GetRadarOportunidadesUseCase";
 import { PromoteUserToAdminUseCase } from "../../application/usecases/PromoteUserToAdminUseCase";
 import { ResetPasswordWithTokenUseCase } from "../../application/usecases/ResetPasswordWithTokenUseCase";
@@ -44,6 +45,7 @@ import { SupabaseEspecialSemanaRepository } from "../repositories/SupabaseEspeci
 import { SupabaseEstudarRepository } from "../repositories/SupabaseEstudarRepository";
 import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
+import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNewsRepository";
 import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
 import { SupabaseStorageRepository } from "../repositories/SupabaseStorageRepository";
 import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserManagementRepository";
@@ -66,6 +68,7 @@ class DIContainer {
     private static storageRepositoryInstance: SupabaseStorageRepository | null = null;
     private static userManagementRepositoryInstance: SupabaseUserManagementRepository | null = null;
     private static analyticsRepositoryInstance: SupabaseAnalyticsRepository | null = null;
+    private static portalNewsRepositoryInstance: SupabasePortalNewsRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -229,6 +232,17 @@ class DIContainer {
         return new GetEbookUseCase(this.getEbookRepository());
     }
 
+    static getPortalNewsRepository(): SupabasePortalNewsRepository {
+        if (!this.portalNewsRepositoryInstance) {
+            this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository(supabase);
+        }
+        return this.portalNewsRepositoryInstance;
+    }
+
+    static getPortalNewsUseCase(): GetPortalNewsUseCase {
+        return new GetPortalNewsUseCase(this.getPortalNewsRepository());
+    }
+
     /**
      * Factory Methods para casos de uso de admin
      */
@@ -343,6 +357,7 @@ class DIContainer {
         this.storageRepositoryInstance = null;
         this.userManagementRepositoryInstance = null;
         this.analyticsRepositoryInstance = null;
+        this.portalNewsRepositoryInstance = null;
     }
 }
 
