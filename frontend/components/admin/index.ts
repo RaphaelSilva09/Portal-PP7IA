@@ -4,6 +4,7 @@
  * Exporta componentes do módulo admin para facilitar imports.
  */
 
+export { AdminPortalNews } from "./AdminPortalNews";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { ContentForm } from "./ContentForm";
 export { ContentTable } from "./ContentTable";
@@ -14,3 +15,4 @@ export { FeedbackMessage } from "./FeedbackMessage";
 export { UserCard } from "./UserCard";
 export { UserEditModal } from "./UserEditModal";
 export { UserManager } from "./UserManager";
+
