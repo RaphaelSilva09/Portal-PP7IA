@@ -99,7 +99,7 @@ export default function HeroSection() {
                 </p>
                 
                 {/* Botões */}
-                <div className="flex flex-wrap gap-3 justify-center mb-5 pb-4 border-b border-[#b8860b]/20">
+                <div className="flex flex-wrap gap-3 justify-center mb-5">
                     {!user && (
                         <>
                             <button
