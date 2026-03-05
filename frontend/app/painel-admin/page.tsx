@@ -17,6 +17,7 @@
 
 import type { EbookFormData } from "@/components/admin";
 import {
+    AdminPortalNews,
     ConfirmDialog,
     ContentForm,
     ContentTable,
@@ -31,6 +32,7 @@ import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import DIContainer from "@/infrastructure/di/container";
 import {
     ArrowLeft,
+    Bell,
     BookMarked,
     BookOpen,
     FileText,
@@ -47,7 +49,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades";
 
 // Tabs de conteúdo (sub-navegação)
 const CONTENT_TABS: { type: ContentType; label: string; icon: typeof Newspaper }[] = [
@@ -348,6 +350,17 @@ export default function PainelAdminPage() {
                             <Users className="w-6 h-6" />
                             Usuários
                         </button>
+                        <button
+                            onClick={() => handleMainSectionChange("novidades")}
+                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
+                                mainSection === "novidades"
+                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
+                            }`}
+                        >
+                            <Bell className="w-6 h-6" />
+                            Novidades
+                        </button>
                     </div>
                 </GlassCard>
 
@@ -434,6 +447,8 @@ export default function PainelAdminPage() {
                 )}
 
                 {mainSection === "usuarios" && <UserManager />}
+
+                {mainSection === "novidades" && <AdminPortalNews />}
             </div>
 
             {/* Componentes Globais */}
