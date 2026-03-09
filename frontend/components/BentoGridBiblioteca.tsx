@@ -73,10 +73,11 @@ export default function BentoGridBiblioteca() {
                     className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.4s" }}
                 >
-                    Cada aba abaixo corresponde a um tipo de material. 
+                    Cada aba abaixo corresponde a um tipo de material.
                     Clique em qualquer aba para navegar entre as categorias e explorar os conteúdos disponíveis.
                 </p>
             </div>
+
 
             <div className="max-w-7xl mx-auto">
                 {/* ============================================
