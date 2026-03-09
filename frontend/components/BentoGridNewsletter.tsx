@@ -42,6 +42,32 @@ export default function BentoGridNewsletter() {
 
     return (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
+            {/* Introdução Newsletter */}
+            <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
+                {/* Título da Introdução */}
+                <h3
+                    id="titulo"
+                    className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto animate-fade-in-up"
+                    style={{ animationDelay: "0.3s" }}
+                >
+                    Mini-livros
+                </h3>
+
+                {/* Descrição Newsletter */}
+                <p
+                    id="descricao"
+                    className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
+                    style={{ animationDelay: "0.4s" }}
+                >
+                    Notícias semanais sobre as principais tecnologias
+                </p>
+            </div>
+
+            {/* Linha divisória cinza */}
+            <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
+                <div className="border-t border-white/10"></div>
+            </div>
+
             <div className="max-w-7xl mx-auto">
                 {/* Bento Grid - 3 Columns Layout */}
                 <div id="last-newsletter" className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
