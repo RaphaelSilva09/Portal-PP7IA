@@ -3,7 +3,7 @@
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSession } from "@/context/SessionContext";
-import TopoSvg from "@/public/topo.svg";
+import TopoSvg from "@/assets/topo.svg";
 import HeroTitle from "./HeroTitle";
 import PortalNewsWidget from "./PortalNewsWidget";
 
