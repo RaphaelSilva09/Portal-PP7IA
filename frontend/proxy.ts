@@ -1,5 +1,5 @@
 /**
- * Middleware de Autenticação e Autorização
+ * Proxy de Autenticação e Autorização
  *
  * Intercepta rotas protegidas antes de renderizar.
  * - /painel-admin: requer autenticação + admin
@@ -10,7 +10,7 @@
  * - Autenticado não-admin em /painel-admin -> / (home)
  *
  * Princípios aplicados:
- * - Defense in Depth: Primeira camada de segurança (middleware)
+ * - Defense in Depth: Primeira camada de segurança (proxy)
  * - Fail Secure: Redireciona para home/login se não autorizado
  * - Performance: Evita renderização desnecessária
  */
@@ -31,7 +31,7 @@ function redirectToHome(request: NextRequest): NextResponse {
     return NextResponse.redirect(new URL("/", request.url));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     const isAdminRoute = pathname.startsWith(ADMIN_ROUTES);
