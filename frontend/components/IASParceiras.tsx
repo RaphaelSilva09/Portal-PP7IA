@@ -1,12 +1,9 @@
 "use client";
 
+import { Claude, Gemini, Grok, Manus, OpenAI, Perplexity } from "@lobehub/icons";
+import { ArrowUpRight, Bot } from "lucide-react";
 import Image from "next/image";
-import {
-    Bot,
-    ArrowUpRight,
-    Lightbulb,
-} from "lucide-react";
-import { Claude, OpenAI, Gemini, Grok, Perplexity, Manus } from "@lobehub/icons";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 // Dados detalhados das 7 IAs Parceiras
@@ -27,9 +24,19 @@ const iasData: IAData[] = [
         name: "Adapta.org",
         subtitle: "Plataforma brasileira multimodal",
         href: "https://adapta.org",
-        icon: <Image src="/IAs-logo/adapta.png" alt="Adapta.org" width={32} height={32} className="w-8 h-8 object-contain" />,
+        icon: (
+            <Image
+                src="/IAs-logo/adapta.png"
+                alt="Adapta.org"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain"
+            />
+        ),
         features: [
-            <span key="1"><strong>Reúne os melhores modelos de IA</strong></span>,
+            <span key="1">
+                <strong>Reúne os melhores modelos de IA</strong>
+            </span>,
             "Seleciona automaticamente o modelo ideal",
             "Cursos, tutoriais e suporte em português",
             "Combina múltiplas IAs para respostas otimizadas",
@@ -45,9 +52,13 @@ const iasData: IAData[] = [
         href: "https://grok.x.ai",
         icon: <Grok size={32} />,
         features: [
-            <span key="1"><strong>Excelente em matemática e ciência</strong></span>,
+            <span key="1">
+                <strong>Excelente em matemática e ciência</strong>
+            </span>,
             "Raciocínio lógico avançado",
-            <span key="3"><strong>Integração com dados do X em tempo real</strong></span>,
+            <span key="3">
+                <strong>Integração com dados do X em tempo real</strong>
+            </span>,
             "Treinada em 200.000 GPUs",
         ],
         hoverBorderColor: "hover:border-gray-400/30",
@@ -61,7 +72,9 @@ const iasData: IAData[] = [
         href: "https://gemini.google.com",
         icon: <Gemini.Color size={32} />,
         features: [
-            <span key="1"><strong>Contexto ampliado de 1 milhão de tokens</strong></span>,
+            <span key="1">
+                <strong>Contexto ampliado de 1 milhão de tokens</strong>
+            </span>,
             "Líder em compreensão multimodal",
             "Excelente para textos longos",
             "Integração com Google Workspace",
@@ -77,10 +90,14 @@ const iasData: IAData[] = [
         href: "https://chatgpt.com",
         icon: <OpenAI size={32} />,
         features: [
-            <span key="1"><strong>Modelo mais avançado para trabalho profissional</strong></span>,
+            <span key="1">
+                <strong>Modelo mais avançado para trabalho profissional</strong>
+            </span>,
             "Superior em planilhas e apresentações",
             "Ideal para projetos complexos",
-            <span key="4"><strong>Estado da arte em benchmarks</strong></span>,
+            <span key="4">
+                <strong>Estado da arte em benchmarks</strong>
+            </span>,
         ],
         hoverBorderColor: "hover:border-emerald-500/30",
         hoverShadowColor: "hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]",
@@ -93,7 +110,9 @@ const iasData: IAData[] = [
         href: "https://claude.ai",
         icon: <Claude.Color size={32} />,
         features: [
-            <span key="1"><strong>Melhor IA para codificação e agentes autônomos</strong></span>,
+            <span key="1">
+                <strong>Melhor IA para codificação e agentes autônomos</strong>
+            </span>,
             "Foco em segurança e precisão",
             "Excelente em análise de dados e documentos",
             "Contexto de 200K tokens",
@@ -109,7 +128,9 @@ const iasData: IAData[] = [
         href: "https://manus.im",
         icon: <Manus size={32} />,
         features: [
-            <span key="1"><strong>Primeiro agente de IA autônomo do mundo</strong></span>,
+            <span key="1">
+                <strong>Primeiro agente de IA autônomo do mundo</strong>
+            </span>,
             "Executa tarefas sem supervisão humana",
             "Transforma pensamentos em ações",
             "Ideal para pesquisa e automação",
@@ -125,9 +146,13 @@ const iasData: IAData[] = [
         href: "https://perplexity.ai",
         icon: <Perplexity.Color size={32} />,
         features: [
-            <span key="1"><strong>Especializada em pesquisas na internet</strong></span>,
+            <span key="1">
+                <strong>Especializada em pesquisas na internet</strong>
+            </span>,
             "Respostas com citações verificáveis",
-            <span key="3"><strong>780 milhões de consultas/mês</strong></span>,
+            <span key="3">
+                <strong>780 milhões de consultas/mês</strong>
+            </span>,
             "Perfeita para pesquisas acadêmicas",
         ],
         hoverBorderColor: "hover:border-cyan-500/30",
@@ -148,7 +173,9 @@ function AICard({ ia }: { ia: IAData }) {
         >
             <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-4">
                 {/* Icon */}
-                <div className={`w-16 h-16 rounded-2xl ${ia.iconBgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                <div
+                    className={`w-16 h-16 rounded-2xl ${ia.iconBgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+                >
                     {ia.icon}
                 </div>
 
@@ -159,12 +186,8 @@ function AICard({ ia }: { ia: IAData }) {
 
                 {/* Content */}
                 <div className="flex-1">
-                    <h4 className="text-xl sm:text-2xl font-bold text-white mb-1 tracking-tight">
-                        {ia.name}
-                    </h4>
-                    <p className="text-sm text-gray-500 mb-4 tracking-tight">
-                        {ia.subtitle}
-                    </p>
+                    <h4 className="text-xl sm:text-2xl font-bold text-white mb-1 tracking-tight">{ia.name}</h4>
+                    <p className="text-sm text-gray-500 mb-4 tracking-tight">{ia.subtitle}</p>
 
                     {/* Features list - sem ícones */}
                     <ul className="space-y-1.5">
@@ -178,7 +201,9 @@ function AICard({ ia }: { ia: IAData }) {
             </div>
 
             {/* Accent Line */}
-            <div className={`absolute bottom-0 left-0 right-0 h-1.5 bg-linear-to-r ${ia.accentGradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
+            <div
+                className={`absolute bottom-0 left-0 right-0 h-1.5 bg-linear-to-r ${ia.accentGradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`}
+            />
         </a>
     );
 }
@@ -198,50 +223,65 @@ export default function IASParceiras() {
                             <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6">
                                 <Bot className="w-8 h-8 text-cyan-400" />
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">As 7 IAs parceiras</h2>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">
+                                As 7 IAs parceiras
+                            </h2>
                             <p className="text-gray-400 text-base sm:text-lg tracking-tight mb-4 max-w-md">
                                 A IA amplifica; o julgamento editorial é humano.
                             </p>
-
                         </div>
 
                         {/* Divider (Desktop Only) */}
-                        <div className="hidden lg:block w-px h-32 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+                        <div className="hidden lg:block w-px h-32 bg-linear-to-b from-transparent via-white/10 to-transparent" />
 
-                        {/* Right: Minha Visão (Minimalist) */}
-                        <div className="flex-1 relative">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Lightbulb className="w-4 h-4 text-yellow-500/90" />
-                                <h3 className="text-xs font-bold text-yellow-500/90 tracking-widest uppercase">
-                                    Minha visão sobre IA
-                                </h3>
+                        {/* Right: CTA "Conheça as 7 IAs" */}
+                        <Link
+                            href="/biblioteca"
+                            className="flex-1 group relative overflow-hidden rounded-2xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 block"
+                        >
+                            <div
+                                className="absolute inset-0"
+                                style={{
+                                    background:
+                                        "linear-gradient(135deg, rgba(6,182,212,0.10) 0%, rgba(99,102,241,0.08) 100%)",
+                                }}
+                            />
+                            <div className="relative z-10 flex items-center gap-4 p-6">
+                                <div className="flex-1">
+                                    <p className="text-xs font-bold text-cyan-400/80 tracking-widest uppercase mb-1">
+                                        Novo
+                                    </p>
+                                    <h3 className="text-lg font-bold text-white mb-1 tracking-tight">
+                                        Conheça as 7 IAs
+                                    </h3>
+                                    <p className="text-sm text-gray-400">
+                                        Descubra como cada IA pode transformar seu trabalho e aprendizado.
+                                    </p>
+                                </div>
+                                <ArrowUpRight className="w-6 h-6 text-cyan-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 shrink-0" />
                             </div>
-                            <p className="text-gray-400 text-sm leading-relaxed">
-                                Dominar a IA hoje é tão vital quanto foi adotar a internet. Ela redefine como empresas lucram e pessoas aprendem. Quem usa ganha tempo e relevância; quem rejeita perde espaço.
-                            </p>
-                            <p className="mt-2 text-sm font-medium text-gray-300">
-                                O futuro já está acontecendo. <span className="text-white">E você, vai ficar de fora?</span>
-                            </p>
-                        </div>
+                            {/* Accent Line */}
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-cyan-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                        </Link>
                     </div>
 
                     {/* Cards Grid: 4 + 3 layout */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                         {/* First row: 4 cards */}
-                        {iasData.slice(0, 4).map((ia) => (
+                        {iasData.slice(0, 4).map(ia => (
                             <AICard key={ia.name} ia={ia} />
                         ))}
                     </div>
 
                     {/* Second row: 3 cards centered */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-4 sm:mt-6 max-w-5xl mx-auto">
-                        {iasData.slice(4).map((ia) => (
+                        {iasData.slice(4).map(ia => (
                             <AICard key={ia.name} ia={ia} />
                         ))}
                     </div>
                 </div>
             </div>
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
+            <div className="w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
         </section>
     );
 }
