@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sparkles, Star } from "lucide-react";
+import { useHomePageDates } from "../presentation/hooks/useHomePageDates";
 
 /**
  * BentoGrid Component - Layout "1x3x3 Hierarchy"
@@ -9,6 +10,7 @@ import { ArrowUpRight, BookOpen, GraduationCap, Heart, Library, Mail, Search, Sp
  */
 
 export default function BentoGrid() {
+    const { mostRecentDate, isLoading } = useHomePageDates();
     return (
         <section className="py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
@@ -90,12 +92,16 @@ export default function BentoGrid() {
                             </div>
 
                             {/* Badge */}
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
-                                <Sparkles className="w-4 h-4 text-brand-blue" aria-hidden="true" />
-                                <span className="text-xs font-medium text-gray-300 tracking-tight">
-                                    Última atualização: 28.02.2026
-                                </span>
-                            </div>
+                            {isLoading ? (
+                                <div className="h-7 w-52 rounded-full bg-white/10 animate-pulse" />
+                            ) : (
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
+                                    <Sparkles className="w-4 h-4 text-brand-blue" aria-hidden="true" />
+                                    <span className="text-xs font-medium text-gray-300 tracking-tight">
+                                        Última atualização: {mostRecentDate || "—"}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </a>
 

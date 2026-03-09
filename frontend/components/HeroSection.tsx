@@ -3,6 +3,7 @@
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSession } from "@/context/SessionContext";
+import { useHomePageDates } from "@/presentation/hooks/useHomePageDates";
 import TopoSvg from "@/assets/topo.svg";
 import HeroTitle from "./HeroTitle";
 import PortalNewsWidget from "./PortalNewsWidget";
@@ -11,6 +12,7 @@ export default function HeroSection() {
     const { user } = useSession();
     const { openModal: openInviteModal } = useInviteModal();
     const { openModal: openAuthModal } = useAuthModal();
+    const { mostRecentDate } = useHomePageDates();
 
     const handleIndicacaoClick = () => {
         if (user) {
@@ -66,7 +68,9 @@ export default function HeroSection() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                     </span>
-                    <span className="text-green-500 text-sm font-medium">Última atualização: 28.02.2026</span>
+                    <span className="text-green-500 text-sm font-medium">
+                        Última atualização: {mostRecentDate || "—"}
+                    </span>
                 </a>
 
                 {/* Main Title */}
