@@ -10,7 +10,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { PortalNewsItem } from "../../domain/entities/PortalNewsItem";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -25,49 +25,42 @@ export function usePortalNews(): UsePortalNewsResult {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const mountedRef = useRef(true);
     useEffect(() => {
-        mountedRef.current = true;
-        return () => {
-            mountedRef.current = false;
-        };
-    }, []);
-
-    const fetchData = useCallback(async () => {
-        if (!mountedRef.current) return;
-        setIsLoading(true);
-        setError(null);
+        let cancelled = false;
 
         const timeoutId = setTimeout(() => {
-            if (mountedRef.current) {
+            if (!cancelled) {
                 console.warn("⚠️ usePortalNews: timeout após 10s");
                 setError("Tempo limite excedido. Tente recarregar a página.");
                 setIsLoading(false);
             }
         }, 10000);
 
-        try {
-            const useCase = DIContainer.getPortalNewsUseCase();
-            const result = await useCase.execute();
-            if (mountedRef.current) {
-                setItems(result);
+        (async () => {
+            try {
+                const useCase = DIContainer.getPortalNewsUseCase();
+                const result = await useCase.execute();
+                if (!cancelled) {
+                    setItems(result);
+                }
+            } catch (err) {
+                console.error("Erro ao carregar novidades do portal:", err);
+                if (!cancelled) {
+                    setError("Erro ao carregar novidades.");
+                }
+            } finally {
+                clearTimeout(timeoutId);
+                if (!cancelled) {
+                    setIsLoading(false);
+                }
             }
-        } catch (err) {
-            console.error("Erro ao carregar novidades do portal:", err);
-            if (mountedRef.current) {
-                setError("Erro ao carregar novidades.");
-            }
-        } finally {
-            clearTimeout(timeoutId);
-            if (mountedRef.current) {
-                setIsLoading(false);
-            }
-        }
-    }, []);
+        })();
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        return () => {
+            cancelled = true;
+            clearTimeout(timeoutId);
+        };
+    }, []);
 
     return { items, isLoading, error };
 }

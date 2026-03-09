@@ -187,14 +187,13 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     initialSessionResolved = true;
                 }
             } finally {
-                // SEMPRE resolve isLoading se ainda não foi resolvido
+                // SEMPRE resolve isLoading — sem guarda de mounted.
+                // Em React 18+, state updates em componentes desmontados são no-ops seguros.
+                // Isso garante que isLoading nunca fique preso em `true` no React Strict Mode.
                 if (mounted && !initialSessionResolved) {
                     initialSessionResolved = true;
                 }
-                // Garante que isLoading é resolvido independente do estado
-                if (mounted) {
-                    setIsLoading(false);
-                }
+                setIsLoading(false);
             }
         })();
 
