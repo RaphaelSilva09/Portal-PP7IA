@@ -4,15 +4,6 @@ import { ArrowRight, Award, Lightbulb, Target } from "lucide-react";
 import Link from "next/link";
 
 export default function AuthorProfile() {
-    const mantras = [
-        "Sempre deixe uma alternativa (brecha) para tudo.",
-        "Visão sem ação não tem valor.",
-        "Planeje no curto (3-6 meses): execute, corrija, execute.",
-        "Erros pequenos, correções rápidas.",
-        "Resiliência: erros são degraus. Desistir, nunca!",
-        "Liderar é servir, evoluir e criar novos líderes que formem outros.",
-        "Humildade, ética, respeito, honestidade e ouvir são valores inegociáveis.",
-    ];
 
     return (
         <div className="flex flex-col gap-8">
@@ -68,41 +59,6 @@ export default function AuthorProfile() {
                         potencial da <span className="text-white font-medium">IA</span>.
                     </p>
                 </div>
-            </div>
-
-            {/* Mantras Section — Títulos como links para a Biblioteca */}
-            <div className="glass-card p-8">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-lg bg-brand-purple/10 flex items-center justify-center">
-                        <Lightbulb className="w-5 h-5 text-brand-purple" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white">7 Mantras do PP</h3>
-                </div>
-
-                <div className="relative">
-                    {/* Linha divisória vertical - visível apenas em desktop */}
-                    <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-white/10" />
-
-                    <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-x-8">
-                        {mantras.map((mantra, index) => (
-                            <li key={index}>
-                                <Link
-                                    href="/biblioteca"
-                                    className="flex items-center gap-3 group px-3 py-2.5 rounded-xl hover:bg-brand-purple/10 transition-all duration-200"
-                                >
-                                    <span className="flex items-center justify-center w-6 h-6 rounded-md bg-brand-purple/15 text-brand-purple text-xs font-bold shrink-0">
-                                        {index + 1}
-                                    </span>
-                                    <span className="text-sm text-text-secondary group-hover:text-white transition-colors duration-200 leading-snug flex-1">
-                                        {mantra}
-                                    </span>
-                                    <ArrowRight className="w-3.5 h-3.5 text-brand-purple/50 group-hover:text-brand-purple group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-        </div>
+            </div> </div>
     );
 }
