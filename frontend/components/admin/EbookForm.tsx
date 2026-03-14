@@ -88,8 +88,8 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange, isEd
                         {file
                             ? file.name
                             : isEditing
-                              ? `Escolher novo ${label.replace(/\s*\(.*\)/, "")} (substitui o atual)`
-                              : `Selecionar ${label.replace(/\s*\(.*\)/, "")}`}
+                                ? `Escolher novo ${label.replace(/\s*\(.*\)/, "")} (substitui o atual)`
+                                : `Selecionar ${label.replace(/\s*\(.*\)/, "")}`}
                     </span>
                 </label>
                 {file && (
