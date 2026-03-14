@@ -277,20 +277,18 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                 )}
 
                 {/* Ações */}
-                <div className="flex gap-3 pt-2">
-                    <GradientButton type="submit" variant="cta" disabled={isLoading || !title.trim()}>
-                        {isLoading ? "Salvando..." : isEditing ? "Salvar Alterações" : "Criar E-book"}
-                    </GradientButton>
+                <div className="flex items-center justify-end gap-4 pt-4">
                     <button
                         type="button"
                         onClick={onCancel}
                         disabled={isLoading}
-                        className="px-6 py-3 rounded-lg border-2 border-[var(--border-glass)] text-[var(--text-secondary)]
-                                   hover:text-[var(--text-primary)] hover:border-[var(--brand-blue)]/50 transition-all
-                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Cancelar
                     </button>
+                    <GradientButton type="submit" variant="cta" disabled={isLoading || !title.trim()}>
+                        {isLoading ? "Salvando..." : isEditing ? "Salvar Alterações" : "Criar E-book"}
+                    </GradientButton>
                 </div>
             </form>
         </GlassCard>
