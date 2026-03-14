@@ -148,200 +148,200 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                 className="space-y-6"
             >
 
-                    {/* — Conteúdo — */}
-                    <SectionDivider label="Conteúdo" />
+                {/* — Conteúdo — */}
+                <SectionDivider label="Conteúdo" />
 
-                    {/* Ícone + Título */}
-                    <div className="grid grid-cols-1 md:grid-cols-[90px_1fr] gap-4">
-                        <div>
-                            <label className={LABEL_CLASS}>Ícone</label>
-                            <input
-                                className={`${INPUT_CLASS} text-center text-xl`}
-                                value={form.icon}
-                                onChange={e => onChange("icon", e.target.value)}
-                                placeholder="📌"
-                                maxLength={4}
-                                aria-label="Ícone da novidade"
-                            />
-                        </div>
-                        <div className="flex-1">
-                            <label className={LABEL_CLASS}>
-                                Título <span className="text-red-400">*</span>
-                            </label>
-                            <input
-                                ref={titleInputRef}
-                                className={`${INPUT_CLASS} ${titleEmpty ? "border-red-500/60" : ""}`}
-                                value={form.title}
-                                onChange={e => onChange("title", e.target.value)}
-                                placeholder="Ex: Novo bloco disponível!"
-                                aria-required="true"
-                                aria-invalid={titleEmpty}
-                            />
-                            {titleEmpty && (
-                                <p className="text-xs text-red-400 mt-1">Campo obrigatório.</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Descrição */}
+                {/* Ícone + Título */}
+                <div className="grid grid-cols-1 md:grid-cols-[90px_1fr] gap-4">
                     <div>
-                        <label className={LABEL_CLASS}>
-                            Descrição <span className="font-normal text-[var(--text-secondary)]/70">(opcional)</span>
-                        </label>
-                        <textarea
-                            className={`${INPUT_CLASS} resize-y min-h-[68px]`}
-                            value={form.description}
-                            onChange={e => onChange("description", e.target.value)}
-                            placeholder="Subtítulo ou detalhes que aparecem abaixo do título..."
+                        <label className={LABEL_CLASS}>Ícone</label>
+                        <input
+                            className={`${INPUT_CLASS} text-center text-xl`}
+                            value={form.icon}
+                            onChange={e => onChange("icon", e.target.value)}
+                            placeholder="📌"
+                            maxLength={4}
+                            aria-label="Ícone da novidade"
                         />
                     </div>
-
-                    {/* — Aparência — */}
-                    <SectionDivider label="Aparência" />
-
-                    {/* Categoria */}
-                    <div>
-                        <label className={LABEL_CLASS}>Categoria</label>
-                        <select
-                            className={INPUT_CLASS}
-                            value={form.category}
-                            onChange={e => {
-                                const cat = e.target.value as PortalNewsCategory;
-                                onChange("category", cat);
-                                onChange("accentColor", CATEGORY_DEFAULT_COLORS[cat]);
-                            }}
-                        >
-                            {(Object.keys(CATEGORY_LABELS) as PortalNewsCategory[]).map(cat => (
-                                <option key={cat} value={cat}>
-                                    {CATEGORY_LABELS[cat]}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="flex-1">
+                        <label className={LABEL_CLASS}>
+                            Título <span className="text-red-400">*</span>
+                        </label>
+                        <input
+                            ref={titleInputRef}
+                            className={`${INPUT_CLASS} ${titleEmpty ? "border-red-500/60" : ""}`}
+                            value={form.title}
+                            onChange={e => onChange("title", e.target.value)}
+                            placeholder="Ex: Novo bloco disponível!"
+                            aria-required="true"
+                            aria-invalid={titleEmpty}
+                        />
+                        {titleEmpty && (
+                            <p className="text-xs text-red-400 mt-1">Campo obrigatório.</p>
+                        )}
                     </div>
+                </div>
 
-                    {/* Cor da barra */}
-                    <div>
-                        <label className={LABEL_CLASS}>Cor da barra lateral</label>
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="color"
-                                className="h-12 w-14 rounded-lg cursor-pointer border border-[var(--border-glass)] bg-transparent flex-shrink-0"
-                                value={form.accentColor}
-                                onChange={e => onChange("accentColor", e.target.value)}
-                                aria-label="Selecionar cor"
-                            />
-                            <input
-                                className={`${INPUT_CLASS} font-mono text-xs flex-1`}
-                                value={form.accentColor}
-                                onChange={e => onChange("accentColor", e.target.value)}
-                                maxLength={7}
-                                placeholder="#f97316"
-                            />
-                            {/* Chips de atalho por categoria */}
-                            <div className="flex gap-1 flex-shrink-0">
-                                {(Object.keys(CATEGORY_DEFAULT_COLORS) as PortalNewsCategory[]).map(cat => (
-                                    <button
-                                        key={cat}
-                                        type="button"
-                                        title={CATEGORY_LABELS[cat]}
-                                        onClick={() => onChange("accentColor", CATEGORY_DEFAULT_COLORS[cat])}
-                                        className="w-5 h-5 rounded-full border-2 transition-transform hover:scale-110"
-                                        style={{
-                                            backgroundColor: CATEGORY_DEFAULT_COLORS[cat],
-                                            borderColor:
-                                                form.accentColor === CATEGORY_DEFAULT_COLORS[cat]
-                                                    ? "white"
-                                                    : "transparent",
-                                        }}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+                {/* Descrição */}
+                <div>
+                    <label className={LABEL_CLASS}>
+                        Descrição <span className="font-normal text-[var(--text-secondary)]/70">(opcional)</span>
+                    </label>
+                    <textarea
+                        className={`${INPUT_CLASS} resize-y min-h-[68px]`}
+                        value={form.description}
+                        onChange={e => onChange("description", e.target.value)}
+                        placeholder="Subtítulo ou detalhes que aparecem abaixo do título..."
+                    />
+                </div>
 
-                    {/* — Publicação — */}
-                    <SectionDivider label="Publicação" />
+                {/* — Aparência — */}
+                <SectionDivider label="Aparência" />
 
-                    <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_auto] gap-4 items-start">
-                        <div>
-                            <label className={LABEL_CLASS}>Data de publicação</label>
-                            <input
-                                type="date"
-                                className={INPUT_CLASS}
-                                value={form.publishedAt}
-                                onChange={e => onChange("publishedAt", e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <label className={LABEL_CLASS}>Ordem</label>
-                            <input
-                                type="number"
-                                className={INPUT_CLASS}
-                                value={form.displayOrder}
-                                onChange={e => onChange("displayOrder", Number(e.target.value))}
-                                min={0}
-                            />
-                        </div>
-                        <div className="flex flex-col">
-                            <label className={LABEL_CLASS}>Visível</label>
-                            <button
-                                type="button"
-                                role="switch"
-                                aria-checked={form.isActive}
-                                onClick={() => onChange("isActive", !form.isActive)}
-                                className={`mt-1 relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${form.isActive ? "bg-[var(--brand-blue)]" : "bg-[var(--surface-glass)] border border-[var(--border-subtle)]"
-                                    }`}
-                            >
-                                <span
-                                    className={`inline-block h-6 w-6 rounded-full bg-white shadow-md transition-transform ${form.isActive ? "translate-x-7" : "translate-x-1"
-                                        }`}
+                {/* Categoria */}
+                <div>
+                    <label className={LABEL_CLASS}>Categoria</label>
+                    <select
+                        className={INPUT_CLASS}
+                        value={form.category}
+                        onChange={e => {
+                            const cat = e.target.value as PortalNewsCategory;
+                            onChange("category", cat);
+                            onChange("accentColor", CATEGORY_DEFAULT_COLORS[cat]);
+                        }}
+                    >
+                        {(Object.keys(CATEGORY_LABELS) as PortalNewsCategory[]).map(cat => (
+                            <option key={cat} value={cat}>
+                                {CATEGORY_LABELS[cat]}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Cor da barra */}
+                <div>
+                    <label className={LABEL_CLASS}>Cor da barra lateral</label>
+                    <div className="flex items-center gap-3">
+                        <input
+                            type="color"
+                            className="h-12 w-14 rounded-lg cursor-pointer border border-[var(--border-glass)] bg-transparent flex-shrink-0"
+                            value={form.accentColor}
+                            onChange={e => onChange("accentColor", e.target.value)}
+                            aria-label="Selecionar cor"
+                        />
+                        <input
+                            className={`${INPUT_CLASS} font-mono text-xs flex-1`}
+                            value={form.accentColor}
+                            onChange={e => onChange("accentColor", e.target.value)}
+                            maxLength={7}
+                            placeholder="#f97316"
+                        />
+                        {/* Chips de atalho por categoria */}
+                        <div className="flex gap-1 flex-shrink-0">
+                            {(Object.keys(CATEGORY_DEFAULT_COLORS) as PortalNewsCategory[]).map(cat => (
+                                <button
+                                    key={cat}
+                                    type="button"
+                                    title={CATEGORY_LABELS[cat]}
+                                    onClick={() => onChange("accentColor", CATEGORY_DEFAULT_COLORS[cat])}
+                                    className="w-5 h-5 rounded-full border-2 transition-transform hover:scale-110"
+                                    style={{
+                                        backgroundColor: CATEGORY_DEFAULT_COLORS[cat],
+                                        borderColor:
+                                            form.accentColor === CATEGORY_DEFAULT_COLORS[cat]
+                                                ? "white"
+                                                : "transparent",
+                                    }}
                                 />
-                            </button>
-                            <span className="text-xs text-[var(--text-secondary)] mt-1 text-center">
-                                {form.isActive ? "Sim" : "Não"}
-                            </span>
+                            ))}
                         </div>
                     </div>
+                </div>
 
-                    {/* — Preview — */}
-                    <SectionDivider label="Preview" />
+                {/* — Publicação — */}
+                <SectionDivider label="Publicação" />
 
-                    <div className="bg-[#111111] border border-[#b8860b]/20 rounded-xl overflow-hidden">
-                        <div className="flex items-stretch">
-                            <div
-                                className="w-1 flex-shrink-0"
-                                style={{ backgroundColor: form.accentColor }}
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_auto] gap-4 items-start">
+                    <div>
+                        <label className={LABEL_CLASS}>Data de publicação</label>
+                        <input
+                            type="date"
+                            className={INPUT_CLASS}
+                            value={form.publishedAt}
+                            onChange={e => onChange("publishedAt", e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label className={LABEL_CLASS}>Ordem</label>
+                        <input
+                            type="number"
+                            className={INPUT_CLASS}
+                            value={form.displayOrder}
+                            onChange={e => onChange("displayOrder", Number(e.target.value))}
+                            min={0}
+                        />
+                    </div>
+                    <div className="flex flex-col">
+                        <label className={LABEL_CLASS}>Visível</label>
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={form.isActive}
+                            onClick={() => onChange("isActive", !form.isActive)}
+                            className={`mt-1 relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${form.isActive ? "bg-[var(--brand-blue)]" : "bg-[var(--surface-glass)] border border-[var(--border-subtle)]"
+                                }`}
+                        >
+                            <span
+                                className={`inline-block h-6 w-6 rounded-full bg-white shadow-md transition-transform ${form.isActive ? "translate-x-7" : "translate-x-1"
+                                    }`}
                             />
-                            <div className="flex-1 px-4 py-3">
-                                <div className="flex items-start gap-2">
-                                    <span className="text-base leading-none mt-0.5 flex-shrink-0">
-                                        {form.icon || "📌"}
-                                    </span>
-                                    <div className="min-w-0">
-                                        <p className="text-white text-sm font-semibold leading-snug">
-                                            {form.title || <span className="text-white/30 italic">Título da novidade...</span>}
-                                        </p>
-                                        {form.description && (
-                                            <p className="text-white/60 text-xs mt-0.5 leading-relaxed">{form.description}</p>
-                                        )}
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <p className="text-white/30 text-xs">Publicado em {previewDate}</p>
-                                            <span
-                                                className="text-[10px] font-semibold px-1.5 py-px rounded-full"
-                                                style={{
-                                                    backgroundColor: form.accentColor + "33",
-                                                    color: form.accentColor,
-                                                    border: `1px solid ${form.accentColor}66`,
-                                                }}
-                                            >
-                                                {CATEGORY_LABELS[form.category]}
-                                            </span>
-                                        </div>
+                        </button>
+                        <span className="text-xs text-[var(--text-secondary)] mt-1 text-center">
+                            {form.isActive ? "Sim" : "Não"}
+                        </span>
+                    </div>
+                </div>
+
+                {/* — Preview — */}
+                <SectionDivider label="Preview" />
+
+                <div className="bg-[#111111] border border-[#b8860b]/20 rounded-xl overflow-hidden">
+                    <div className="flex items-stretch">
+                        <div
+                            className="w-1 flex-shrink-0"
+                            style={{ backgroundColor: form.accentColor }}
+                        />
+                        <div className="flex-1 px-4 py-3">
+                            <div className="flex items-start gap-2">
+                                <span className="text-base leading-none mt-0.5 flex-shrink-0">
+                                    {form.icon || "📌"}
+                                </span>
+                                <div className="min-w-0">
+                                    <p className="text-white text-sm font-semibold leading-snug">
+                                        {form.title || <span className="text-white/30 italic">Título da novidade...</span>}
+                                    </p>
+                                    {form.description && (
+                                        <p className="text-white/60 text-xs mt-0.5 leading-relaxed">{form.description}</p>
+                                    )}
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <p className="text-white/30 text-xs">Publicado em {previewDate}</p>
+                                        <span
+                                            className="text-[10px] font-semibold px-1.5 py-px rounded-full"
+                                            style={{
+                                                backgroundColor: form.accentColor + "33",
+                                                color: form.accentColor,
+                                                border: `1px solid ${form.accentColor}66`,
+                                            }}
+                                        >
+                                            {CATEGORY_LABELS[form.category]}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
                 <div className="flex items-center justify-end gap-4 pt-4">
                     <button
