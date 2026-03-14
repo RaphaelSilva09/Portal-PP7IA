@@ -34,10 +34,10 @@ interface PortalNewsRow {
 }
 
 const CATEGORY_LABELS: Record<PortalNewsCategory, string> = {
-    launch:     "Lançamento",
+    launch: "Lançamento",
     newsletter: "Newsletter",
-    content:    "Conteúdo",
-    tool:       "Ferramenta",
+    content: "Conteúdo",
+    tool: "Ferramenta",
 };
 
 interface FormState {
@@ -61,27 +61,27 @@ function toDateInputValue(date: Date | string): string {
 
 function rowToFormState(row: PortalNewsRow): FormState {
     return {
-        title:        row.title,
-        description:  row.description ?? "",
-        icon:         row.icon,
-        category:     row.category,
-        accentColor:  row.accent_color ?? CATEGORY_DEFAULT_COLORS[row.category],
-        publishedAt:  toDateInputValue(row.published_at),
+        title: row.title,
+        description: row.description ?? "",
+        icon: row.icon,
+        category: row.category,
+        accentColor: row.accent_color ?? CATEGORY_DEFAULT_COLORS[row.category],
+        publishedAt: toDateInputValue(row.published_at),
         displayOrder: row.display_order,
-        isActive:     row.is_active,
+        isActive: row.is_active,
     };
 }
 
 function emptyFormState(): FormState {
     return {
-        title:        "",
-        description:  "",
-        icon:         "📌",
-        category:     "launch",
-        accentColor:  CATEGORY_DEFAULT_COLORS["launch"],
-        publishedAt:  toDateInputValue(new Date()),
+        title: "",
+        description: "",
+        icon: "📌",
+        category: "launch",
+        accentColor: CATEGORY_DEFAULT_COLORS["launch"],
+        publishedAt: toDateInputValue(new Date()),
         displayOrder: 0,
-        isActive:     true,
+        isActive: true,
     };
 }
 
@@ -133,9 +133,9 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
     // Formata a data de publicação para o preview
     const previewDate = form.publishedAt
         ? (() => {
-              const [y, m, d] = form.publishedAt.split("-");
-              return `${d}.${m}.${y}`;
-          })()
+            const [y, m, d] = form.publishedAt.split("-");
+            return `${d}.${m}.${y}`;
+        })()
         : "—";
 
     return (
@@ -314,14 +314,12 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                                 role="switch"
                                 aria-checked={form.isActive}
                                 onClick={() => onChange("isActive", !form.isActive)}
-                                className={`mt-1 relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${
-                                    form.isActive ? "bg-[var(--brand-blue)]" : "bg-[var(--surface-glass)] border border-[var(--border-subtle)]"
-                                }`}
+                                className={`mt-1 relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${form.isActive ? "bg-[var(--brand-blue)]" : "bg-[var(--surface-glass)] border border-[var(--border-subtle)]"
+                                    }`}
                             >
                                 <span
-                                    className={`inline-block h-6 w-6 rounded-full bg-white shadow-md transition-transform ${
-                                        form.isActive ? "translate-x-7" : "translate-x-1"
-                                    }`}
+                                    className={`inline-block h-6 w-6 rounded-full bg-white shadow-md transition-transform ${form.isActive ? "translate-x-7" : "translate-x-1"
+                                        }`}
                                 />
                             </button>
                             <span className="text-xs text-[var(--text-secondary)] mt-1 text-center">
@@ -371,30 +369,30 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                     </div>
 
                     <div className="flex items-center justify-end gap-4 pt-4 border-t border-[var(--border-subtle)]">
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        disabled={isSubmitting}
-                        className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isSubmitting || titleEmpty}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--brand-blue)] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Salvando...
-                            </>
-                        ) : isEdit ? (
-                            "Salvar alterações"
-                        ) : (
-                            "Publicar novidade"
-                        )}
-                    </button>
+                        <button
+                            type="button"
+                            onClick={onCancel}
+                            disabled={isSubmitting}
+                            className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isSubmitting || titleEmpty}
+                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--brand-blue)] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Salvando...
+                                </>
+                            ) : isEdit ? (
+                                "Salvar alterações"
+                            ) : (
+                                "Publicar novidade"
+                            )}
+                        </button>
                     </div>
                 </form>
             </GlassCard>
@@ -480,14 +478,14 @@ export function AdminPortalNews() {
         setIsSubmitting(true);
         try {
             const payload = {
-                title:         form.title.trim(),
-                description:   form.description.trim() || null,
-                icon:          form.icon.trim() || "📌",
-                category:      form.category,
-                accent_color:  form.accentColor || CATEGORY_DEFAULT_COLORS[form.category],
-                published_at:  form.publishedAt,
+                title: form.title.trim(),
+                description: form.description.trim() || null,
+                icon: form.icon.trim() || "📌",
+                category: form.category,
+                accent_color: form.accentColor || CATEGORY_DEFAULT_COLORS[form.category],
+                published_at: form.publishedAt,
                 display_order: form.displayOrder,
-                is_active:     form.isActive,
+                is_active: form.isActive,
             };
 
             if (editRow) {
