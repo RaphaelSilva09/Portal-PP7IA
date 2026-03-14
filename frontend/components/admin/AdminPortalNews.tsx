@@ -341,7 +341,6 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                             </div>
                         </div>
                     </div>
-                </div>
 
                 <div className="flex items-center justify-end gap-4 pt-4">
                     <button
