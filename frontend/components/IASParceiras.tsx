@@ -1,10 +1,7 @@
 "use client";
 
-import { Claude, Gemini, Grok, Manus, OpenAI, Perplexity } from "@lobehub/icons";
 import { ArrowUpRight, Bot } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
 
 export default function IASParceiras() {
     return (
@@ -34,7 +31,7 @@ export default function IASParceiras() {
 
                         {/* Right: CTA "Conheça as 7 IAs" */}
                         <Link
-                            href="/biblioteca"
+                            href="/view/biblioteca/009"
                             className="flex-1 group relative overflow-hidden rounded-2xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 block"
                         >
                             <div
