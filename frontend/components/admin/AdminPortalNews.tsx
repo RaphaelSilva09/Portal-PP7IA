@@ -95,15 +95,15 @@ interface ItemModalProps {
     onCancel: () => void;
 }
 
-// Classes reutilizáveis — DRY
-const LABEL_CLASS = "block text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)] mb-1.5";
+// Classes reutilizáveis — mantém padrão visual do formulário de Conteúdos
+const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
 const INPUT_CLASS =
-    "w-full px-3 py-2 text-sm rounded-lg bg-[var(--surface-glass)] border border-[var(--border-subtle)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--brand-blue)] focus:ring-1 focus:ring-[var(--brand-blue)]/30 transition-all placeholder:text-white/20";
+    "w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50";
 
 function SectionDivider({ label }: { label: string }) {
     return (
         <div className="flex items-center gap-3 pt-1">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)]/60 whitespace-nowrap">
+            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]/70 whitespace-nowrap">
                 {label}
             </span>
             <div className="flex-1 h-px bg-[var(--border-subtle)]" />
@@ -146,15 +146,13 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
             onClick={e => { if (e.target === e.currentTarget) onCancel(); }}
         >
-            <div className="w-full max-w-lg bg-[var(--bg-primary)] border border-[var(--border-glass)] rounded-2xl shadow-2xl flex flex-col max-h-[92vh]">
-
-                {/* ── Header fixo ── */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-subtle)] flex-shrink-0">
+            <GlassCard variant="elevated" padding="lg" className="w-full max-w-3xl max-h-[92vh] overflow-y-auto">
+                <div className="flex items-start justify-between gap-4 mb-6">
                     <div>
-                        <h2 className="text-lg font-bold text-[var(--text-primary)] leading-none">
+                        <h2 className="text-xl font-semibold text-[var(--text-primary)]">
                             {isEdit ? "Editar Novidade" : "Nova Novidade"}
                         </h2>
-                        <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                        <p className="text-sm text-[var(--text-secondary)] mt-1">
                             {isEdit ? "Altere os campos e salve." : "Preencha os campos e publique."}
                         </p>
                     </div>
@@ -167,15 +165,20 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                     </button>
                 </div>
 
-                {/* ── Corpo com scroll ── */}
-                <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+                <form
+                    onSubmit={e => {
+                        e.preventDefault();
+                        onSubmit();
+                    }}
+                    className="space-y-6"
+                >
 
                     {/* — Conteúdo — */}
                     <SectionDivider label="Conteúdo" />
 
                     {/* Ícone + Título */}
-                    <div className="flex gap-3">
-                        <div className="w-20">
+                    <div className="grid grid-cols-1 md:grid-cols-[90px_1fr] gap-4">
+                        <div>
                             <label className={LABEL_CLASS}>Ícone</label>
                             <input
                                 className={`${INPUT_CLASS} text-center text-xl`}
@@ -192,7 +195,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                             </label>
                             <input
                                 ref={titleInputRef}
-                                className={`${INPUT_CLASS} ${titleEmpty ? "border-red-500/50" : ""}`}
+                                className={`${INPUT_CLASS} ${titleEmpty ? "border-red-500/60" : ""}`}
                                 value={form.title}
                                 onChange={e => onChange("title", e.target.value)}
                                 placeholder="Ex: Novo bloco disponível!"
@@ -207,7 +210,9 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
 
                     {/* Descrição */}
                     <div>
-                        <label className={LABEL_CLASS}>Descrição <span className="normal-case font-normal text-white/30">(opcional)</span></label>
+                        <label className={LABEL_CLASS}>
+                            Descrição <span className="font-normal text-[var(--text-secondary)]/70">(opcional)</span>
+                        </label>
                         <textarea
                             className={`${INPUT_CLASS} resize-y min-h-[68px]`}
                             value={form.description}
@@ -245,7 +250,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                         <div className="flex items-center gap-3">
                             <input
                                 type="color"
-                                className="h-10 w-12 rounded-lg cursor-pointer border border-[var(--border-subtle)] bg-transparent flex-shrink-0"
+                                className="h-12 w-14 rounded-lg cursor-pointer border border-[var(--border-glass)] bg-transparent flex-shrink-0"
                                 value={form.accentColor}
                                 onChange={e => onChange("accentColor", e.target.value)}
                                 aria-label="Selecionar cor"
@@ -282,8 +287,8 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                     {/* — Publicação — */}
                     <SectionDivider label="Publicação" />
 
-                    <div className="flex gap-3">
-                        <div className="flex-1">
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_auto] gap-4 items-start">
+                        <div>
                             <label className={LABEL_CLASS}>Data de publicação</label>
                             <input
                                 type="date"
@@ -292,7 +297,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                                 onChange={e => onChange("publishedAt", e.target.value)}
                             />
                         </div>
-                        <div className="w-28">
+                        <div>
                             <label className={LABEL_CLASS}>Ordem</label>
                             <input
                                 type="number"
@@ -309,13 +314,13 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                                 role="switch"
                                 aria-checked={form.isActive}
                                 onClick={() => onChange("isActive", !form.isActive)}
-                                className={`mt-1 relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${
+                                className={`mt-1 relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${
                                     form.isActive ? "bg-[var(--brand-blue)]" : "bg-[var(--surface-glass)] border border-[var(--border-subtle)]"
                                 }`}
                             >
                                 <span
-                                    className={`inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-                                        form.isActive ? "translate-x-6" : "translate-x-1"
+                                    className={`inline-block h-6 w-6 rounded-full bg-white shadow-md transition-transform ${
+                                        form.isActive ? "translate-x-7" : "translate-x-1"
                                     }`}
                                 />
                             </button>
@@ -364,21 +369,20 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* ── Footer fixo ── */}
-                <div className="flex gap-3 px-6 py-4 border-t border-[var(--border-subtle)] flex-shrink-0">
+                    <div className="flex items-center justify-end gap-4 pt-4 border-t border-[var(--border-subtle)]">
                     <button
+                        type="button"
                         onClick={onCancel}
                         disabled={isSubmitting}
-                        className="flex-1 px-4 py-3 rounded-lg border-2 border-[var(--border-subtle)] text-[var(--text-secondary)] font-semibold text-sm hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)] transition-colors min-h-[48px] disabled:opacity-40"
+                        className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"
                     >
                         Cancelar
                     </button>
                     <button
-                        onClick={onSubmit}
+                        type="submit"
                         disabled={isSubmitting || titleEmpty}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--brand-blue)] text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px] disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--brand-blue)] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? (
                             <>
@@ -391,8 +395,9 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                             "Publicar novidade"
                         )}
                     </button>
-                </div>
-            </div>
+                    </div>
+                </form>
+            </GlassCard>
         </div>
     );
 }
