@@ -15,7 +15,7 @@ import { ConfirmDialog, FeedbackMessage } from "@/components/admin";
 import { GlassCard } from "@/components/ui";
 import { CATEGORY_DEFAULT_COLORS, PortalNewsCategory } from "@/domain/entities/PortalNewsItem";
 import { supabase } from "@/infrastructure/config/supabase";
-import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Tipo local para row do Supabase (snake_case)
@@ -85,7 +85,7 @@ function emptyFormState(): FormState {
     };
 }
 
-// —— Subcomponente: Modal de criação/edição ——
+// —— Subcomponente: Formulário de criação/edição ——
 interface ItemModalProps {
     form: FormState;
     isSubmitting: boolean;
@@ -115,15 +115,6 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
     const titleInputRef = useRef<HTMLInputElement>(null);
     const titleEmpty = !form.title.trim();
 
-    // Fechar com ESC
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onCancel();
-        };
-        document.addEventListener("keydown", handleKeyDown);
-        return () => document.removeEventListener("keydown", handleKeyDown);
-    }, [onCancel]);
-
     // Focar o campo título ao abrir
     useEffect(() => {
         const timer = setTimeout(() => titleInputRef.current?.focus(), 50);
@@ -139,39 +130,23 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
         : "—";
 
     return (
-        <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={isEdit ? "Editar Novidade" : "Nova Novidade"}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-            onClick={e => { if (e.target === e.currentTarget) onCancel(); }}
-        >
-            <GlassCard variant="elevated" padding="lg" className="w-full max-w-3xl max-h-[92vh] overflow-y-auto">
-                <div className="flex items-start justify-between gap-4 mb-6">
-                    <div>
-                        <h2 className="text-xl font-semibold text-[var(--text-primary)]">
-                            {isEdit ? "Editar Novidade" : "Nova Novidade"}
-                        </h2>
-                        <p className="text-sm text-[var(--text-secondary)] mt-1">
-                            {isEdit ? "Altere os campos e salve." : "Preencha os campos e publique."}
-                        </p>
-                    </div>
-                    <button
-                        onClick={onCancel}
-                        aria-label="Fechar modal"
-                        className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
+        <GlassCard variant="elevated" padding="lg">
+            <div className="mb-6">
+                <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+                    {isEdit ? "Editar Novidade" : "Nova Novidade"}
+                </h2>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                    {isEdit ? "Altere os campos e salve." : "Preencha os campos e publique."}
+                </p>
+            </div>
 
-                <form
-                    onSubmit={e => {
-                        e.preventDefault();
-                        onSubmit();
-                    }}
-                    className="space-y-6"
-                >
+            <form
+                onSubmit={e => {
+                    e.preventDefault();
+                    onSubmit();
+                }}
+                className="space-y-6"
+            >
 
                     {/* — Conteúdo — */}
                     <SectionDivider label="Conteúdo" />
@@ -368,35 +343,34 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-4 pt-4 border-t border-[var(--border-subtle)]">
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            disabled={isSubmitting}
-                            className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting || titleEmpty}
-                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--brand-blue)] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    Salvando...
-                                </>
-                            ) : isEdit ? (
-                                "Salvar alterações"
-                            ) : (
-                                "Publicar novidade"
-                            )}
-                        </button>
-                    </div>
-                </form>
-            </GlassCard>
-        </div>
+                <div className="flex items-center justify-end gap-4 pt-4">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={isSubmitting}
+                        className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isSubmitting || titleEmpty}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--brand-green)] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Salvando...
+                            </>
+                        ) : isEdit ? (
+                            "Salvar alterações"
+                        ) : (
+                            "Publicar novidade"
+                        )}
+                    </button>
+                </div>
+            </form>
+        </GlassCard>
     );
 }
 
@@ -406,7 +380,7 @@ export function AdminPortalNews() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Modal de criação/edição
+    // Formulário de criação/edição
     const [showModal, setShowModal] = useState(false);
     const [editRow, setEditRow] = useState<PortalNewsRow | null>(null);
     const [form, setForm] = useState<FormState>(emptyFormState());
@@ -571,6 +545,18 @@ export function AdminPortalNews() {
                 </button>
             </div>
 
+            {/* Formulário criar/editar (inline) */}
+            {showModal && (
+                <ItemModal
+                    form={form}
+                    isSubmitting={isSubmitting}
+                    isEdit={editRow !== null}
+                    onChange={handleFormChange}
+                    onSubmit={handleSubmit}
+                    onCancel={handleCloseModal}
+                />
+            )}
+
             {/* Tabela */}
             <GlassCard variant="bordered" padding="none">
                 {isLoading ? (
@@ -690,18 +676,6 @@ export function AdminPortalNews() {
                     </div>
                 )}
             </GlassCard>
-
-            {/* Modal criar/editar */}
-            {showModal && (
-                <ItemModal
-                    form={form}
-                    isSubmitting={isSubmitting}
-                    isEdit={editRow !== null}
-                    onChange={handleFormChange}
-                    onSubmit={handleSubmit}
-                    onCancel={handleCloseModal}
-                />
-            )}
 
             {/* Confirmação de delete */}
             <ConfirmDialog
