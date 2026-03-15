@@ -6,11 +6,12 @@
  * Princípios aplicados:
  * - Facade Pattern: Simplifica interface para componentes
  * - SRP: Responsável apenas por gerenciar estado das novidades
+ * - React Query: Cache automático, retry e otimizações
  */
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { PortalNewsItem } from "../../domain/entities/PortalNewsItem";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -21,46 +22,18 @@ interface UsePortalNewsResult {
 }
 
 export function usePortalNews(): UsePortalNewsResult {
-    const [items, setItems] = useState<PortalNewsItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data, isLoading, error } = useQuery({
+        queryKey: ["portalNews"],
+        queryFn: async () => {
+            const useCase = DIContainer.getPortalNewsUseCase();
+            return await useCase.execute();
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
 
-    useEffect(() => {
-        let cancelled = false;
-
-        const timeoutId = setTimeout(() => {
-            if (!cancelled) {
-                console.warn("⚠️ usePortalNews: timeout após 10s");
-                setError("Tempo limite excedido. Tente recarregar a página.");
-                setIsLoading(false);
-            }
-        }, 10000);
-
-        (async () => {
-            try {
-                const useCase = DIContainer.getPortalNewsUseCase();
-                const result = await useCase.execute();
-                if (!cancelled) {
-                    setItems(result);
-                }
-            } catch (err) {
-                console.error("Erro ao carregar novidades do portal:", err);
-                if (!cancelled) {
-                    setError("Erro ao carregar novidades.");
-                }
-            } finally {
-                clearTimeout(timeoutId);
-                if (!cancelled) {
-                    setIsLoading(false);
-                }
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-            clearTimeout(timeoutId);
-        };
-    }, []);
-
-    return { items, isLoading, error };
+    return {
+        items: data ?? [],
+        isLoading,
+        error: error ? "Erro ao carregar novidades." : null,
+    };
 }
