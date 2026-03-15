@@ -1,4 +1,5 @@
 import ModalsProvider from "@/components/ModalsProvider";
+import Providers from "@/components/Providers";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
@@ -49,22 +50,24 @@ export default function RootLayout({
     return (
         <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
-                <AuthProvider>
-                    <SearchModalProvider>
-                        <AuthModalProvider>
-                            <ForgotPasswordModalProvider>
-                                <FirstVisitModalProvider>
-                                    <InviteModalProvider>
-                                        {children}
-                                        <Suspense fallback={null}>
-                                            <ModalsProvider />
-                                        </Suspense>
-                                    </InviteModalProvider>
-                                </FirstVisitModalProvider>
-                            </ForgotPasswordModalProvider>
-                        </AuthModalProvider>
-                    </SearchModalProvider>
-                </AuthProvider>
+                <Providers>
+                    <AuthProvider>
+                        <SearchModalProvider>
+                            <AuthModalProvider>
+                                <ForgotPasswordModalProvider>
+                                    <FirstVisitModalProvider>
+                                        <InviteModalProvider>
+                                            {children}
+                                            <Suspense fallback={null}>
+                                                <ModalsProvider />
+                                            </Suspense>
+                                        </InviteModalProvider>
+                                    </FirstVisitModalProvider>
+                                </ForgotPasswordModalProvider>
+                            </AuthModalProvider>
+                        </SearchModalProvider>
+                    </AuthProvider>
+                </Providers>
                 {showAnalytics && <Analytics />}
             </body>
         </html>
