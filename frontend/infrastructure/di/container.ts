@@ -43,6 +43,7 @@ import { SupabaseContentRepository } from "../repositories/SupabaseContentReposi
 import { SupabaseEbookRepository } from "../repositories/SupabaseEbookRepository";
 import { SupabaseEspecialSemanaRepository } from "../repositories/SupabaseEspecialSemanaRepository";
 import { SupabaseEstudarRepository } from "../repositories/SupabaseEstudarRepository";
+import { SupabaseHomeDatesRepository } from "../repositories/SupabaseHomeDatesRepository";
 import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
 import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNewsRepository";
@@ -69,6 +70,7 @@ class DIContainer {
     private static userManagementRepositoryInstance: SupabaseUserManagementRepository | null = null;
     private static analyticsRepositoryInstance: SupabaseAnalyticsRepository | null = null;
     private static portalNewsRepositoryInstance: SupabasePortalNewsRepository | null = null;
+    private static homeDatesRepositoryInstance: SupabaseHomeDatesRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -244,6 +246,17 @@ class DIContainer {
     }
 
     /**
+     * Obtém instância do repositório de home dates (materialized view)
+     * Singleton Pattern
+     */
+    static getHomeDatesRepository(): SupabaseHomeDatesRepository {
+        if (!this.homeDatesRepositoryInstance) {
+            this.homeDatesRepositoryInstance = new SupabaseHomeDatesRepository(supabase);
+        }
+        return this.homeDatesRepositoryInstance;
+    }
+
+    /**
      * Factory Methods para casos de uso de admin
      */
     static getCreateContentWithUploadUseCase(): CreateContentWithUploadUseCase {
@@ -358,6 +371,7 @@ class DIContainer {
         this.userManagementRepositoryInstance = null;
         this.analyticsRepositoryInstance = null;
         this.portalNewsRepositoryInstance = null;
+        this.homeDatesRepositoryInstance = null;
     }
 }
 
