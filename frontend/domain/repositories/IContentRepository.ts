@@ -15,6 +15,8 @@ import { ContentItem, ContentType } from "../entities/ContentItem";
 export interface CreateContentInput {
     title: string;
     readTime?: number;
+    // Campos específicos de biblioteca
+    tema?: string | null;
     // Campos específicos de ebook
     subtitle?: string | null;
     description?: string | null;
@@ -28,6 +30,8 @@ export interface UpdateContentInput {
     readTime?: number;
     htmlPath?: string | null;
     pdfPath?: string | null;
+    // Campos específicos de biblioteca
+    tema?: string | null;
     // Campos específicos de ebook
     subtitle?: string | null;
     description?: string | null;
