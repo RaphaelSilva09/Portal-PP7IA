@@ -13,7 +13,8 @@
  */
 
 import { GlassCard } from "@/components/ui";
-import { ContentItem } from "@/domain/entities/ContentItem";
+import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
+import { BIBLIOTECA_TEMAS } from "@/domain/entities/BibliotecaItem";
 import { File, FileText, Pencil, Trash2 } from "lucide-react";
 
 interface ContentTableProps {
@@ -21,9 +22,17 @@ interface ContentTableProps {
     onEdit: (item: ContentItem) => void;
     onDelete: (item: ContentItem) => void;
     lastUpdated?: Date | null;
+    type?: ContentType;
 }
 
-export function ContentTable({ items, onEdit, onDelete, lastUpdated }: ContentTableProps) {
+export function ContentTable({ items, onEdit, onDelete, lastUpdated, type }: ContentTableProps) {
+    const isBiblioteca = type === "biblioteca";
+
+    const getTemaLabel = (tema: string | null | undefined): string => {
+        if (!tema) return "-";
+        return BIBLIOTECA_TEMAS.find(t => t.slug === tema)?.label ?? tema;
+    };
+
     return (
         <GlassCard variant="bordered" padding="none">
             {lastUpdated && (
@@ -43,6 +52,11 @@ export function ContentTable({ items, onEdit, onDelete, lastUpdated }: ContentTa
                             <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">
                                 Leitura
                             </th>
+                            {isBiblioteca && (
+                                <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">
+                                    Tema
+                                </th>
+                            )}
                             <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium">
                                 HTML
                             </th>
@@ -64,6 +78,11 @@ export function ContentTable({ items, onEdit, onDelete, lastUpdated }: ContentTa
                                 <td className="px-4 py-3 text-[var(--text-secondary)]">
                                     {item.readTime ? `${item.readTime} min` : "-"}
                                 </td>
+                                {isBiblioteca && (
+                                    <td className="px-4 py-3 text-[var(--text-secondary)]">
+                                        {getTemaLabel(item.tema)}
+                                    </td>
+                                )}
                                 <td className="px-4 py-3 text-center">
                                     {item.htmlAvailable ? (
                                         <FileText className="w-5 h-5 text-[var(--brand-green)] mx-auto" />

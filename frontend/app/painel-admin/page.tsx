@@ -189,7 +189,7 @@ export default function PainelAdminPage() {
         });
     };
 
-    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File }) => {
+    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string }) => {
         setIsSubmitting(true);
         try {
             if (editItem) {
@@ -202,6 +202,7 @@ export default function PainelAdminPage() {
                     readTime: data.readTime,
                     htmlFile: data.htmlFile,
                     pdfFile: data.pdfFile,
+                    tema: data.tema,
                 });
                 setFeedback({
                     show: true,
@@ -217,6 +218,7 @@ export default function PainelAdminPage() {
                     readTime: data.readTime,
                     htmlFile: data.htmlFile,
                     pdfFile: data.pdfFile,
+                    tema: data.tema,
                 });
                 setFeedback({
                     show: true,
@@ -439,6 +441,7 @@ export default function PainelAdminPage() {
                                         onEdit={handleEdit}
                                         onDelete={handleDelete}
                                         lastUpdated={lastUpdated}
+                                        type={contentTab}
                                     />
                                 )}
                             </>

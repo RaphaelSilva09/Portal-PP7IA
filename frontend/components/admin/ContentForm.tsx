@@ -17,6 +17,7 @@
  */
 
 import { GlassCard, GradientButton } from "@/components/ui";
+import { BIBLIOTECA_TEMAS, BibliotecaTema } from "@/domain/entities/BibliotecaItem";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import { AlertCircle, Upload } from "lucide-react";
 import { useState } from "react";
@@ -24,7 +25,7 @@ import { useState } from "react";
 interface ContentFormProps {
     type: ContentType;
     editItem?: ContentItem | null;
-    onSubmit: (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File }) => Promise<void>;
+    onSubmit: (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string }) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
 }
@@ -32,6 +33,7 @@ interface ContentFormProps {
 export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: ContentFormProps) {
     const [title, setTitle] = useState(editItem?.title || "");
     const [readTime, setReadTime] = useState(editItem?.readTime?.toString() || "");
+    const [tema, setTema] = useState<BibliotecaTema>((editItem?.tema as BibliotecaTema) || "diversos");
     const [htmlFile, setHtmlFile] = useState<File | null>(null);
     const [pdfFile, setPdfFile] = useState<File | null>(null);
     const [formatError, setFormatError] = useState("");
@@ -53,6 +55,7 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: C
             readTime: readTime ? parseInt(readTime, 10) : undefined,
             htmlFile: htmlFile || undefined,
             pdfFile: pdfFile || undefined,
+            tema: type === "biblioteca" ? tema : undefined,
         });
     };
 
@@ -104,6 +107,29 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: C
                         placeholder="Ex: 5"
                     />
                 </div>
+
+                {/* Tema (apenas para Biblioteca) */}
+                {type === "biblioteca" && (
+                    <div>
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                            Tema *
+                        </label>
+                        <select
+                            value={tema}
+                            onChange={e => setTema(e.target.value as BibliotecaTema)}
+                            required
+                            className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
+                                       text-[var(--text-primary)]
+                                       focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50"
+                        >
+                            {BIBLIOTECA_TEMAS.map(({ slug, label }) => (
+                                <option key={slug} value={slug}>
+                                    {label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 {/* Upload HTML */}
                 <div>
