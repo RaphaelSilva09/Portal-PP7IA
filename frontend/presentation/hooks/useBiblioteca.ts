@@ -3,6 +3,7 @@
  *
  * Hook React para gerenciar dados da biblioteca.
  * Fornece interface simples para componentes consumirem casos de uso.
+ * Suporta filtragem client-side por tema.
  *
  * Princípios aplicados:
  * - Facade Pattern: Simplifica interface para componentes
@@ -14,11 +15,18 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BibliotecaItem } from "../../domain/entities/BibliotecaItem";
+import type { BibliotecaTema } from "../../domain/entities/BibliotecaItem";
 import DIContainer from "../../infrastructure/di/container";
 
 interface UseBibliotecaResult {
     latest: BibliotecaItem | null;
     older: BibliotecaItem[];
+    /** Item em destaque para o tema ativo (ou global quando "Todos") */
+    activeLatest: BibliotecaItem | null;
+    /** Demais itens do tema ativo, excluindo o destaque */
+    filteredOlder: BibliotecaItem[];
+    activeTema: BibliotecaTema | null;
+    setActiveTema: (tema: BibliotecaTema | null) => void;
     isLoading: boolean;
     error: string | null;
     lastUpdated: Date | null;
@@ -28,6 +36,7 @@ interface UseBibliotecaResult {
 export function useBiblioteca(): UseBibliotecaResult {
     const [latest, setLatest] = useState<BibliotecaItem | null>(null);
     const [older, setOlder] = useState<BibliotecaItem[]>([]);
+    const [activeTema, setActiveTema] = useState<BibliotecaTema | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -79,9 +88,25 @@ export function useBiblioteca(): UseBibliotecaResult {
         fetchBiblioteca();
     }, [fetchBiblioteca]);
 
+    // Filtragem client-side por tema (null = Todos)
+    // allItems = latest + older em ordem cronológica (latest já é o primeiro)
+    const allItems = latest ? [latest, ...older] : older;
+
+    const activeLatest: BibliotecaItem | null = activeTema
+        ? (allItems.find(item => item.tema === activeTema) ?? null)
+        : latest;
+
+    const filteredOlder: BibliotecaItem[] = activeTema
+        ? allItems.filter(item => item.tema === activeTema && item !== activeLatest)
+        : older;
+
     return {
         latest,
         older,
+        activeLatest,
+        filteredOlder,
+        activeTema,
+        setActiveTema,
         isLoading,
         error,
         lastUpdated,
