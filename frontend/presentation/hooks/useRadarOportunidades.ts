@@ -6,11 +6,13 @@
  * Princípios aplicados:
  * - Facade Pattern: Simplifica interface para componentes
  * - SRP: Responsável apenas por gerenciar estado do radar de oportunidades
+ * - React Query: Cache automático, retry e cancelamento na desmontagem
  */
 
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RadarOportunidades } from "../../domain/entities/RadarOportunidades";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -20,62 +22,35 @@ interface UseRadarOportunidadesResult {
     isLoading: boolean;
     error: string | null;
     lastUpdated: Date | null;
-    reload: () => Promise<void>;
+    reload: () => void;
 }
 
 export function useRadarOportunidades(): UseRadarOportunidadesResult {
-    const [latest, setLatest] = useState<RadarOportunidades | null>(null);
-    const [older, setOlder] = useState<RadarOportunidades[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const queryClient = useQueryClient();
 
-    const mountedRef = useRef(true);
-    useEffect(() => {
-        mountedRef.current = true;
-        return () => {
-            mountedRef.current = false;
-        };
-    }, []);
-
-    const fetchData = useCallback(async () => {
-        if (!mountedRef.current) return;
-        setIsLoading(true);
-        setError(null);
-
-        const timeoutId = setTimeout(() => {
-            if (mountedRef.current) {
-                console.warn("⚠️ useRadarOportunidades: timeout após 10s");
-                setError("Tempo limite excedido. Tente recarregar a página.");
-                setIsLoading(false);
-            }
-        }, 10000);
-
-        try {
+    const { data, isLoading, error } = useQuery({
+        queryKey: ["radar-oportunidades"],
+        queryFn: async () => {
             const useCase = DIContainer.getRadarOportunidadesUseCase();
             const repo = DIContainer.getContentRepository();
-            const [result, lu] = await Promise.all([useCase.execute(), repo.getLastUpdated("radar_oportunidades")]);
-            if (mountedRef.current) {
-                setLatest(result.latest);
-                setOlder(result.older);
-                setLastUpdated(lu);
-            }
-        } catch (err) {
-            console.error("Erro ao carregar radar de oportunidades:", err);
-            if (mountedRef.current) {
-                setError("Erro ao carregar radar de oportunidades.");
-            }
-        } finally {
-            clearTimeout(timeoutId);
-            if (mountedRef.current) {
-                setIsLoading(false);
-            }
-        }
-    }, []);
+            const [result, lastUpdated] = await Promise.all([
+                useCase.execute(),
+                repo.getLastUpdated("radar_oportunidades"),
+            ]);
+            return { ...result, lastUpdated };
+        },
+    });
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    const reload = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ["radar-oportunidades"] });
+    }, [queryClient]);
 
-    return { latest, older, isLoading, error, lastUpdated, reload: fetchData };
+    return {
+        latest: data?.latest ?? null,
+        older: data?.older ?? [],
+        isLoading,
+        error: error ? "Erro ao carregar radar de oportunidades." : null,
+        lastUpdated: data?.lastUpdated ?? null,
+        reload,
+    };
 }
