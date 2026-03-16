@@ -27,6 +27,8 @@ export interface ContentItemProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
+    // Biblioteca-specific fields
+    tema?: string | null;
     // Ebook-specific fields
     subtitle?: string | null;
     description?: string | null;
@@ -82,6 +84,11 @@ export class ContentItem {
      */
     get pdfAvailable(): boolean {
         return Boolean(this.props.pdfPath?.trim());
+    }
+
+    // Biblioteca-specific getters
+    get tema(): string | null {
+        return this.props.tema?.trim() || null;
     }
 
     // Ebook-specific getters

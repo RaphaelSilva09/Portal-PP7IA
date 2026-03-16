@@ -11,6 +11,25 @@
  * - Immutability: Dados protegidos via getters
  */
 
+export type BibliotecaTema =
+    | "biblioteca-dos-7"
+    | "saude"
+    | "investimentos-financas"
+    | "viagens-restaurantes"
+    | "tecnologia"
+    | "prompts"
+    | "diversos";
+
+export const BIBLIOTECA_TEMAS: { slug: BibliotecaTema; label: string }[] = [
+    { slug: "biblioteca-dos-7",       label: "Biblioteca dos 7"         },
+    { slug: "saude",                   label: "Saúde"                    },
+    { slug: "investimentos-financas",  label: "Investimentos | Finanças"  },
+    { slug: "viagens-restaurantes",    label: "Viagens | Restaurantes"   },
+    { slug: "tecnologia",              label: "Tecnologia"               },
+    { slug: "prompts",                 label: "Prompts"                  },
+    { slug: "diversos",                label: "Diversos"                 },
+];
+
 export interface BibliotecaItemProps {
     id: number;
     createdAt: Date;
@@ -18,6 +37,7 @@ export interface BibliotecaItemProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
+    tema: BibliotecaTema;
 }
 
 export class BibliotecaItem {
@@ -59,6 +79,10 @@ export class BibliotecaItem {
 
     get createdAt(): Date {
         return this.props.createdAt;
+    }
+
+    get tema(): BibliotecaTema {
+        return this.props.tema ?? "diversos";
     }
 
     /**
