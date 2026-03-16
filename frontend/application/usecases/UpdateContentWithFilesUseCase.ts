@@ -27,6 +27,8 @@ export interface UpdateContentWithFilesInput {
     readTime?: number;
     htmlFile?: File;
     pdfFile?: File;
+    // Biblioteca-specific fields
+    tema?: string;
     // Ebook-specific fields
     subtitle?: string;
     description?: string;
@@ -136,6 +138,7 @@ export class UpdateContentWithFilesUseCase {
                     readTime: input.readTime,
                     htmlPath,
                     pdfPath,
+                    tema: input.tema,
                 });
             }
         } catch (error) {
