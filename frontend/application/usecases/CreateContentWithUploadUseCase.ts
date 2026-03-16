@@ -27,6 +27,8 @@ export interface CreateContentWithUploadInput {
     readTime?: number;
     htmlFile?: File;
     pdfFile?: File;
+    // Biblioteca-specific fields
+    tema?: string;
     // Ebook-specific fields
     subtitle?: string;
     description?: string;
@@ -49,6 +51,7 @@ export class CreateContentWithUploadUseCase {
         const content = await this.contentRepository.create(input.type, {
             title: input.title,
             readTime: input.readTime,
+            tema: input.tema,
             subtitle: input.subtitle,
             description: input.description,
             badgeText: input.badgeText,
