@@ -12,7 +12,7 @@
  */
 
 import { SupabaseClient } from "@supabase/supabase-js";
-import { BibliotecaItem, BibliotecaItemProps } from "../../domain/entities/BibliotecaItem";
+import { BibliotecaItem, BibliotecaItemProps, BibliotecaTema } from "../../domain/entities/BibliotecaItem";
 import { IBibliotecaRepository } from "../../domain/repositories/IBibliotecaRepository";
 
 /**
@@ -25,6 +25,24 @@ interface SupabaseBibliotecaRow {
     html_path: string | null;
     pdf_path: string | null;
     read_time: number;
+    tema: string;
+}
+
+const VALID_TEMAS: BibliotecaTema[] = [
+    "biblioteca-dos-7",
+    "saude",
+    "investimentos-financas",
+    "viagens-restaurantes",
+    "tecnologia",
+    "prompts",
+    "diversos",
+];
+
+function parseTema(raw: unknown): BibliotecaTema {
+    if (typeof raw === "string" && (VALID_TEMAS as string[]).includes(raw)) {
+        return raw as BibliotecaTema;
+    }
+    return "diversos";
 }
 
 /**
@@ -132,6 +150,7 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
             readTime: row.read_time,
+            tema: parseTema(row.tema),
         };
         return BibliotecaItem.create(props);
     }

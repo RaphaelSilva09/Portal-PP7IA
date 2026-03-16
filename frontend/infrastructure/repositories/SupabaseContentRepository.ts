@@ -36,6 +36,7 @@ const TABLE_MAP: Record<ContentType, string> = {
  */
 function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
     const isEbook = type === "ebook";
+    const isBiblioteca = type === "biblioteca";
     return ContentItem.create({
         id: row.id as number,
         createdAt: new Date(row.created_at as string),
@@ -43,6 +44,8 @@ function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
         htmlPath: isEbook ? (row.intro_html_path as string | null) : (row.html_path as string | null),
         pdfPath: isEbook ? (row.intro_pdf_path as string | null) : (row.pdf_path as string | null),
         readTime: row.read_time as number,
+        // Biblioteca-specific fields
+        tema: isBiblioteca ? (row.tema as string | null) : null,
         // Ebook-specific fields
         subtitle: isEbook ? (row.subtitle as string | null) : null,
         description: isEbook ? (row.description as string | null) : null,
@@ -96,11 +99,18 @@ export class SupabaseContentRepository implements IContentRepository {
                       cover_pdf_path: input.coverPdfPath ?? null,
                       created_at: now,
                   }
-                : {
-                      title: input.title,
-                      read_time: input.readTime ?? null,
-                      created_at: now,
-                  };
+                : type === "biblioteca"
+                  ? {
+                        title: input.title,
+                        read_time: input.readTime ?? null,
+                        tema: input.tema ?? "diversos",
+                        created_at: now,
+                    }
+                  : {
+                        title: input.title,
+                        read_time: input.readTime ?? null,
+                        created_at: now,
+                    };
 
         const { data, error } = await supabase.from(table).insert(insertData).select().single();
         if (error || !data) throw new Error(`Falha ao criar ${type}: ${error?.message}`);
@@ -123,6 +133,10 @@ export class SupabaseContentRepository implements IContentRepository {
             if (input.badgeText !== undefined) updateData.badge_text = input.badgeText;
             if (input.coverImagePath !== undefined) updateData.cover_image_path = input.coverImagePath;
             if (input.coverPdfPath !== undefined) updateData.cover_pdf_path = input.coverPdfPath;
+        } else if (type === "biblioteca") {
+            if (input.htmlPath !== undefined) updateData.html_path = input.htmlPath;
+            if (input.pdfPath !== undefined) updateData.pdf_path = input.pdfPath;
+            if (input.tema !== undefined) updateData.tema = input.tema;
         } else {
             if (input.htmlPath !== undefined) updateData.html_path = input.htmlPath;
             if (input.pdfPath !== undefined) updateData.pdf_path = input.pdfPath;
