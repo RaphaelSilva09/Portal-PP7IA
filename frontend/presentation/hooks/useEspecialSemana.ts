@@ -6,11 +6,13 @@
  * Princípios aplicados:
  * - Facade Pattern: Simplifica interface para componentes
  * - SRP: Responsável apenas por gerenciar estado do especial da semana
+ * - React Query: Cache automático, retry e cancelamento na desmontagem
  */
 
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { EspecialSemana } from "../../domain/entities/EspecialSemana";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -20,63 +22,36 @@ interface UseEspecialSemanaResult {
     isLoading: boolean;
     error: string | null;
     lastUpdated: Date | null;
-    reload: () => Promise<void>;
+    reload: () => void;
 }
 
 export function useEspecialSemana(): UseEspecialSemanaResult {
-    const [latest, setLatest] = useState<EspecialSemana | null>(null);
-    const [older, setOlder] = useState<EspecialSemana[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const queryClient = useQueryClient();
 
-    const mountedRef = useRef(true);
-    useEffect(() => {
-        mountedRef.current = true;
-        return () => {
-            mountedRef.current = false;
-        };
-    }, []);
-
-    const fetchData = useCallback(async () => {
-        if (!mountedRef.current) return;
-        setIsLoading(true);
-        setError(null);
-
-        const timeoutId = setTimeout(() => {
-            if (mountedRef.current) {
-                console.warn("⚠️ useEspecialSemana: timeout após 10s");
-                setError("Tempo limite excedido. Tente recarregar a página.");
-                setIsLoading(false);
-            }
-        }, 10000);
-
-        try {
+    const { data, isLoading, error } = useQuery({
+        queryKey: ["especial-semana"],
+        queryFn: async () => {
             const useCase = DIContainer.getEspecialSemanaUseCase();
             const repo = DIContainer.getContentRepository();
-            const [all, lu] = await Promise.all([useCase.execute(), repo.getLastUpdated("especial-semana")]);
-            if (mountedRef.current) {
-                const [first, ...rest] = all;
-                setLatest(first ?? null);
-                setOlder(rest);
-                setLastUpdated(lu);
-            }
-        } catch (err) {
-            console.error("Erro ao carregar especial da semana:", err);
-            if (mountedRef.current) {
-                setError("Erro ao carregar especial da semana.");
-            }
-        } finally {
-            clearTimeout(timeoutId);
-            if (mountedRef.current) {
-                setIsLoading(false);
-            }
-        }
-    }, []);
+            const [all, lastUpdated] = await Promise.all([
+                useCase.execute(),
+                repo.getLastUpdated("especial-semana"),
+            ]);
+            const [first, ...rest] = all;
+            return { latest: first ?? null, older: rest, lastUpdated };
+        },
+    });
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    const reload = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ["especial-semana"] });
+    }, [queryClient]);
 
-    return { latest, older, isLoading, error, lastUpdated, reload: fetchData };
+    return {
+        latest: data?.latest ?? null,
+        older: data?.older ?? [],
+        isLoading,
+        error: error ? "Erro ao carregar especial da semana." : null,
+        lastUpdated: data?.lastUpdated ?? null,
+        reload,
+    };
 }

@@ -8,11 +8,13 @@
  * - Facade Pattern: Simplifica interface para componentes
  * - SRP: Responsável apenas por gerenciar estado de newsletters
  * - Clean Architecture: Camada de apresentação depende de casos de uso
+ * - React Query: Cache automático, retry e cancelamento na desmontagem
  */
 
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Newsletter } from "../../domain/entities/Newsletter";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -22,69 +24,35 @@ interface UseNewslettersResult {
     isLoading: boolean;
     error: string | null;
     lastUpdated: Date | null;
-    refresh: () => Promise<void>;
+    refresh: () => void;
 }
 
 export function useNewsletters(): UseNewslettersResult {
-    const [latest, setLatest] = useState<Newsletter | null>(null);
-    const [older, setOlder] = useState<Newsletter[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const queryClient = useQueryClient();
 
-    const mountedRef = useRef(true);
-    useEffect(() => {
-        mountedRef.current = true;
-        return () => {
-            mountedRef.current = false;
-        };
-    }, []);
-
-    const fetchNewsletters = useCallback(async () => {
-        if (!mountedRef.current) return;
-        setIsLoading(true);
-        setError(null);
-
-        const timeoutId = setTimeout(() => {
-            if (mountedRef.current) {
-                console.warn("⚠️ useNewsletters: timeout após 10s");
-                setError("Tempo limite excedido. Tente recarregar a página.");
-                setIsLoading(false);
-            }
-        }, 10000);
-
-        try {
+    const { data, isLoading, error } = useQuery({
+        queryKey: ["newsletters"],
+        queryFn: async () => {
             const useCase = DIContainer.getNewslettersUseCase();
             const repo = DIContainer.getContentRepository();
-            const [result, lu] = await Promise.all([useCase.execute(), repo.getLastUpdated("newsletter")]);
-            if (mountedRef.current) {
-                setLatest(result.latest);
-                setOlder(result.older);
-                setLastUpdated(lu);
-            }
-        } catch (err) {
-            console.error("Erro ao carregar newsletters:", err);
-            if (mountedRef.current) {
-                setError("Erro ao carregar newsletters. Tente novamente.");
-            }
-        } finally {
-            clearTimeout(timeoutId);
-            if (mountedRef.current) {
-                setIsLoading(false);
-            }
-        }
-    }, []);
+            const [result, lastUpdated] = await Promise.all([
+                useCase.execute(),
+                repo.getLastUpdated("newsletter"),
+            ]);
+            return { ...result, lastUpdated };
+        },
+    });
 
-    useEffect(() => {
-        fetchNewsletters();
-    }, [fetchNewsletters]);
+    const refresh = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ["newsletters"] });
+    }, [queryClient]);
 
     return {
-        latest,
-        older,
+        latest: data?.latest ?? null,
+        older: data?.older ?? [],
         isLoading,
-        error,
-        lastUpdated,
-        refresh: fetchNewsletters,
+        error: error ? "Erro ao carregar newsletters. Tente novamente." : null,
+        lastUpdated: data?.lastUpdated ?? null,
+        refresh,
     };
 }
