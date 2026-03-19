@@ -11,6 +11,8 @@
  */
 
 import { CreateContentWithUploadUseCase } from "../../application/usecases/CreateContentWithUploadUseCase";
+import { GetEditorialUseCase } from "../../application/usecases/GetEditorialUseCase";
+import { SaveEditorialUseCase } from "../../application/usecases/SaveEditorialUseCase";
 import { DeleteContentWithFilesUseCase } from "../../application/usecases/DeleteContentWithFilesUseCase";
 import { DeleteUserAndDataUseCase } from "../../application/usecases/DeleteUserAndDataUseCase";
 import { DemoteUserFromAdminUseCase } from "../../application/usecases/DemoteUserFromAdminUseCase";
@@ -46,6 +48,7 @@ import { SupabaseEstudarRepository } from "../repositories/SupabaseEstudarReposi
 import { SupabaseHomeDatesRepository } from "../repositories/SupabaseHomeDatesRepository";
 import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
+import { SupabaseEditorialRepository } from "../repositories/SupabaseEditorialRepository";
 import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNewsRepository";
 import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
 import { SupabaseStorageRepository } from "../repositories/SupabaseStorageRepository";
@@ -69,6 +72,7 @@ class DIContainer {
     private static storageRepositoryInstance: SupabaseStorageRepository | null = null;
     private static userManagementRepositoryInstance: SupabaseUserManagementRepository | null = null;
     private static analyticsRepositoryInstance: SupabaseAnalyticsRepository | null = null;
+    private static editorialRepositoryInstance: SupabaseEditorialRepository | null = null;
     private static portalNewsRepositoryInstance: SupabasePortalNewsRepository | null = null;
     private static homeDatesRepositoryInstance: SupabaseHomeDatesRepository | null = null;
 
@@ -234,6 +238,21 @@ class DIContainer {
         return new GetEbookUseCase(this.getEbookRepository());
     }
 
+    static getEditorialRepository(): SupabaseEditorialRepository {
+        if (!this.editorialRepositoryInstance) {
+            this.editorialRepositoryInstance = new SupabaseEditorialRepository(supabase);
+        }
+        return this.editorialRepositoryInstance;
+    }
+
+    static getEditorialUseCase(): GetEditorialUseCase {
+        return new GetEditorialUseCase(this.getEditorialRepository());
+    }
+
+    static getSaveEditorialUseCase(): SaveEditorialUseCase {
+        return new SaveEditorialUseCase(this.getEditorialRepository());
+    }
+
     static getPortalNewsRepository(): SupabasePortalNewsRepository {
         if (!this.portalNewsRepositoryInstance) {
             this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository(supabase);
@@ -370,6 +389,7 @@ class DIContainer {
         this.storageRepositoryInstance = null;
         this.userManagementRepositoryInstance = null;
         this.analyticsRepositoryInstance = null;
+        this.editorialRepositoryInstance = null;
         this.portalNewsRepositoryInstance = null;
         this.homeDatesRepositoryInstance = null;
     }
