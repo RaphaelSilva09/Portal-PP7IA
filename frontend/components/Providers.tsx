@@ -44,15 +44,15 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 defaultOptions: {
                     queries: {
                         // Cache configuration
-                        staleTime: 0, // Sempre verifica o dado mais recente na API (força refetch em background)
+                        staleTime: 1000 * 30, // 30s de cache - reduz refetches desnecessários
 
                         // Força revalidação ao focar a aba ou montar o componente
                         refetchOnWindowFocus: true,
                         refetchOnMount: true,
 
                         // Retry configuration
-                        retry: 3, // Retry failed requests 3 times
-                        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff: 1s, 2s, 4s (max 30s)
+                        retry: 1, // Reduzido de 3 para 1 tentativa (diminui tempo de tela branca em falha)
+                        retryDelay: 1000, // Delay fixo de 1s ao invés de exponencial
 
                         // Disable background refetch while window is not visible
                         // Reduces unnecessary network activity
