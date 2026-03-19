@@ -14,6 +14,7 @@ import { IMiniLivroRepository } from "../../domain/repositories/IMiniLivroReposi
 export interface GetMiniLivrosOutput {
     latest: MiniLivro | null;
     older: MiniLivro[];
+    all: MiniLivro[];
 }
 
 export class GetMiniLivrosUseCase {
@@ -26,12 +27,13 @@ export class GetMiniLivrosUseCase {
         const all = await this.miniLivroRepository.getAll();
 
         if (all.length === 0) {
-            return { latest: null, older: [] };
+            return { latest: null, older: [], all: [] };
         }
 
         return {
             latest: all[0],
             older: all.slice(1),
+            all,
         };
     }
 }

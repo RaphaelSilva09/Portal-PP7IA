@@ -21,6 +21,7 @@ import DIContainer from "../../infrastructure/di/container";
 interface UseMiniLivrosResult {
     latest: MiniLivro | null;
     older: MiniLivro[];
+    all: MiniLivro[];
     isLoading: boolean;
     error: string | null;
     lastUpdated: Date | null;
@@ -50,6 +51,7 @@ export function useMiniLivros(): UseMiniLivrosResult {
     return {
         latest: data?.latest ?? null,
         older: data?.older ?? [],
+        all: data?.all ?? [],
         isLoading,
         error: error ? "Erro ao carregar mini-livros. Tente novamente." : null,
         lastUpdated: data?.lastUpdated ?? null,
