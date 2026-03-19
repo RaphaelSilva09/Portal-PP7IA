@@ -6,6 +6,7 @@ import { BookOpen, FileText, Globe, Loader2, Sparkles } from "lucide-react";
 import { MiniLivro } from "@/domain/entities/MiniLivro";
 import { useEbook } from "@/presentation/hooks/useEbook";
 import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
+import BookCard from "./BookCard";
 
 /**
  * BentoGridMiniLivros Component
@@ -96,7 +97,7 @@ export default function BentoGridMiniLivros() {
             */}
 
             {/* Título e descrição da seção de E-books */}
-            <div className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
+            <div className="text-center mx-auto mb-8">
                 <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto">
                     Mini-livros
                 </h3>
@@ -112,27 +113,37 @@ export default function BentoGridMiniLivros() {
                         Leia aqui o Editorial
                     </a>
                 </div>
-                <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
-                    <div className="border-t border-white/10"></div>
-                </div>
-                <p className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 leading-relaxed">
-                    Cada aba abaixo corresponde a um e-book e seus 7 Mini-livros. Clique em qualquer aba para navegar entre os e-books e explorar os conteúdos disponíveis.
-                </p>
             </div>
+
+            {/* Card do Livro principal — abaixo do "Leia aqui o Editorial", acima da linha cinza */}
+            <div className="max-w-7xl mx-auto">
+                <BookCard />
+            </div>
+
+            {/* Linha cinza divisória */}
+            <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
+                <div className="border-t border-white/10"></div>
+            </div>
+
+            {/* Descrição das abas */}
+            <p className="text-center text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed">
+                Cada aba abaixo corresponde a um e-book e seus 7 Mini-livros. Clique em qualquer aba para navegar entre os e-books e explorar os conteúdos disponíveis.
+            </p>
 
             {/* Conteúdo principal */}
             <div className="max-w-7xl mx-auto">
-
-                {/* TODO: LIVRO — Adicionar futuramente quando o livro estiver disponível */}
-                {/* <div className="col-span-1 md:col-span-3 ..."> card do livro </div> */}
 
                 {/* ============================================
                 ABAS DE E-BOOKS — sempre 3 slots fixos
                 ============================================ */}
                 <div className="grid grid-cols-3 gap-3 mb-6 w-full items-stretch">
                     {[0, 1, 2].map(slotIndex => {
-                        const ebook = allEbooks[slotIndex] ?? null;
-                        const label = ebook ? ebook.title : `Ebook ${slotIndex + 1}`;
+                        const fixedTitles = [
+                            "Parte I — Liderança Híbrida",
+                            "Parte II — A Coragem de Executar",
+                            "Parte III — O Que Fica"
+                        ];
+                        const label = fixedTitles[slotIndex];
                         const isSelected = selectedEbookIndex === slotIndex;
                         return (
                             <button
