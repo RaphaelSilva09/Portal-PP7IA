@@ -60,41 +60,50 @@ export default function BentoGridBiblioteca() {
                     className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.4s" }}
                 >
-                    Materiais, livros, artigos e outras recomendações pessoais do PP7+IAS
+                    Materiais, livros, artigos e outras recomendações pessoais do PP7+IAS.
                 </p>
-            </div>
 
-            {/* Linha divisória cinza */}
-            <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
-                <div className="border-t border-white/10"></div>
+                {/* Linha divisória cinza */}
+                <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
+                    <div className="border-t border-white/10"></div>
+                </div>
+
+                <p
+                    id="descricao"
+                    className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
+                    style={{ animationDelay: "0.4s" }}
+                >
+                    Cada aba abaixo corresponde a um tipo de material. 
+                    Clique em qualquer aba para navegar entre as categorias e explorar os conteúdos disponíveis.
+                </p>
             </div>
 
             <div className="max-w-7xl mx-auto">
                 {/* ============================================
                 TABS DE TEMAS
                 ============================================ */}
-                <div className="flex flex-wrap justify-center gap-2 mb-8">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8 w-full items-stretch">
                     <button
                         onClick={() => setActiveTema(null)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+                        className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${
                             activeTema === null
-                                ? "bg-purple-500/20 border-purple-500/50 text-purple-300"
-                                : "bg-white/5 border-white/10 text-text-secondary hover:bg-white/10 hover:border-white/20"
+                                ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
+                                : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
                         }`}
                     >
-                        Todos
+                        <span className="break-words">Todos</span>
                     </button>
                     {BIBLIOTECA_TEMAS.map(({ slug, label }) => (
                         <button
                             key={slug}
                             onClick={() => setActiveTema(slug)}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+                            className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${
                                 activeTema === slug
-                                    ? "bg-purple-500/20 border-purple-500/50 text-purple-300"
-                                    : "bg-white/5 border-white/10 text-text-secondary hover:bg-white/10 hover:border-white/20"
+                                    ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
+                                    : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
                             }`}
                         >
-                            {label}
+                            <span className="break-words">{label}</span>
                         </button>
                     ))}
                 </div>

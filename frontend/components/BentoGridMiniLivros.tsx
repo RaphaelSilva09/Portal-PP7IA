@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { BookOpen, FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
 import { MiniLivro } from "@/domain/entities/MiniLivro";
@@ -8,15 +9,17 @@ import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
 
 /**
  * BentoGridMiniLivros Component
- * Exibe o e-book em destaque, último mini-livro e edições anteriores em grid 3x3
- * Dados dos mini-livros carregados dinamicamente do Supabase
+ * Exibe a hierarquia Ebooks → Mini-livros com abas por ebook
+ * Dados carregados dinamicamente do Supabase
  */
 export default function BentoGridMiniLivros() {
-    const { latest, older, isLoading, error, lastUpdated } = useMiniLivros();
-    const { latest: latestEbook } = useEbook();
+    const { all: allMiniLivros, isLoading, error } = useMiniLivros();
+    const { all: allEbooks, isLoading: ebooksLoading } = useEbook();
+
+    const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
 
     // Estado de carregamento
-    if (isLoading) {
+    if (isLoading || ebooksLoading) {
         return (
             <section className="py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
@@ -27,45 +30,55 @@ export default function BentoGridMiniLivros() {
         );
     }
 
-    // Estado de erro ou sem dados
-    if (error || !latest) {
+    // Estado de erro
+    if (error) {
         return (
             <section className="py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center py-16">
-                        <p className="text-text-secondary text-lg">
-                            {error || "Nenhum mini-livro disponível no momento."}
-                        </p>
+                        <p className="text-text-secondary text-lg">{error}</p>
                     </div>
                 </div>
             </section>
         );
     }
 
+    const selectedEbook = allEbooks[selectedEbookIndex] ?? null;
+    const ebookMiniLivros = selectedEbook
+        ? allMiniLivros.filter(ml => ml.relativeEbook === selectedEbook.order)
+        : [];
+    const featuredMiniLivro = ebookMiniLivros[0] ?? null;
+    const gridMiniLivros = ebookMiniLivros.slice(1);
+
+    const ebookHasContent = Boolean(
+        selectedEbook &&
+            (selectedEbook.subtitle ||
+                selectedEbook.description ||
+                selectedEbook.coverImagePath ||
+                selectedEbook.htmlAvailable ||
+                selectedEbook.coverPdfAvailable),
+    );
+    const hasMiniLivros = ebookMiniLivros.length > 0;
+
     return (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
-            {/* Introdução Mini-livros */}
+            {/* Introdução Mini-livros — TEMPORARIAMENTE COMENTADO
             <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
-                {/* Título da Introdução */}
                 <h3
                     id="titulo"
                     className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto animate-fade-in-up"
                     style={{ animationDelay: "0.3s" }}
                 >
-                    Mini-livros
+                    Livro
                 </h3>
-
-                {/* Descrição Mini-livros */}
                 <p
                     id="descricao"
                     className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.4s" }}
                 >
-                    Em vez de um livro tradicional, publicarei uma série de textos curtos — MiniLivros — aqui mesmo,
-                    para vocês. Sendo eles o equivalente a capítulos de um livro.
+                    Em vez de um livro tradicional, publicarei uma série de textos menores — denominados MiniLivros — aqui mesmo.
+                    Sendo eles o equivalente a capítulos de um livro. A cada 7 "capítulos" compilarei-os em "E-books", versões menores de um Livro.
                 </p>
-
-                {/* Editorial sobre os Mini-livros */}
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
                     <a
                         href="/mini-livros/nota_do_autor_mini-livros.html"
@@ -77,20 +90,81 @@ export default function BentoGridMiniLivros() {
                 </div>
             </div>
 
-            {/* Linha divisória cinza */}
             <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
                 <div className="border-t border-white/10"></div>
             </div>
+            */}
 
-            {/* Mini-livros */}
+            {/* Título e descrição da seção de E-books */}
+            <div className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto">
+                    Mini-livros
+                </h3>
+                <p className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 leading-relaxed">
+                    Em vez de um livro tradicional, publicarei uma série de textos menores — denominados MiniLivros — aqui mesmo.
+                    Sendo eles o equivalente a capítulos de um livro. A cada 7 "capítulos" compilarei-os em "E-books", versões menores de um Livro.
+                </p>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
+                    <a
+                        href="/mini-livros/nota_do_autor_mini-livros.html"
+                        className="text-gray-400 text-base leading-relaxed tracking-tight underline md:no-underline md:hover:underline hover:text-gray-300 transition-colors duration-200"
+                    >
+                        Leia aqui o Editorial
+                    </a>
+                </div>
+                <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
+                    <div className="border-t border-white/10"></div>
+                </div>
+                <p className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 leading-relaxed">
+                    Cada aba abaixo corresponde a um e-book e seus 7 Mini-livros. Clique em qualquer aba para navegar entre os e-books e explorar os conteúdos disponíveis.
+                </p>
+            </div>
+
+            {/* Conteúdo principal */}
             <div className="max-w-7xl mx-auto">
+
+                {/* TODO: LIVRO — Adicionar futuramente quando o livro estiver disponível */}
+                {/* <div className="col-span-1 md:col-span-3 ..."> card do livro </div> */}
+
+                {/* ============================================
+                ABAS DE E-BOOKS — sempre 3 slots fixos
+                ============================================ */}
+                <div className="grid grid-cols-3 gap-3 mb-6 w-full items-stretch">
+                    {[0, 1, 2].map(slotIndex => {
+                        const ebook = allEbooks[slotIndex] ?? null;
+                        const label = ebook ? ebook.title : `Ebook ${slotIndex + 1}`;
+                        const isSelected = selectedEbookIndex === slotIndex;
+                        return (
+                            <button
+                                key={slotIndex}
+                                onClick={() => setSelectedEbookIndex(slotIndex)}
+                                className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${
+                                    isSelected
+                                        ? "bg-green-500/10 border-green-500/30 text-green-400"
+                                        : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                                }`}
+                            >
+                                <span className="break-words">{label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+
                 {/* Bento Grid - 3 Columns Layout */}
-                <div id="last-mini-livro" className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+
                     {/* ============================================
                     E-BOOK EM DESTAQUE
                     1 Card - col-span-3 - min-h-80
                     ============================================ */}
-                    {latestEbook && (
+                    {/* Placeholder quando ebook não tem conteúdo nem mini-livros */}
+                    {!ebookHasContent && !hasMiniLivros && (
+                        <div className="col-span-1 md:col-span-3 flex flex-col items-center justify-center text-center py-20 rounded-3xl border border-white/10 bg-white/[0.02]">
+                            <p className="text-text-secondary text-xl font-medium">Ainda estamos trabalhando por aqui. Volte em breve!</p>
+                        </div>
+                    )}
+
+                    {selectedEbook && ebookHasContent && (
                         <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
                             {/* Gradient Background - Azul/Roxo para E-book */}
                             <div
@@ -108,12 +182,12 @@ export default function BentoGridMiniLivros() {
                             {/* Content - Layout com Imagem + Texto */}
                             <div className="relative z-10 h-full flex flex-col md:flex-row items-center gap-8 p-8 sm:p-12">
                                 {/* Imagem da Capa - Esquerda */}
-                                {latestEbook.coverImagePath && (
+                                {selectedEbook.coverImagePath && (
                                     <div className="w-full md:w-1/3 flex-shrink-0">
                                         <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/20 shadow-2xl">
                                             <img
-                                                src={latestEbook.coverImagePath}
-                                                alt={`Capa do E-book ${latestEbook.title}`}
+                                                src={selectedEbook.coverImagePath}
+                                                alt={`Capa do E-book ${selectedEbook.title}`}
                                                 className="w-full h-full object-cover"
                                             />
                                         </div>
@@ -126,34 +200,34 @@ export default function BentoGridMiniLivros() {
                                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-4">
                                         <Sparkles className="w-4 h-4 text-blue-400" />
                                         <span className="text-blue-400 text-sm font-medium">
-                                            {latestEbook.badgeText || `E-book #${latestEbook.formattedNumber}`}
+                                            {selectedEbook.badgeText || `E-book #${selectedEbook.formattedNumber}`}
                                         </span>
                                     </div>
 
                                     {/* Título */}
                                     <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight leading-tight">
-                                        {latestEbook.title}
+                                        {selectedEbook.title}
                                     </h3>
 
                                     {/* Subtítulo */}
-                                    {latestEbook.subtitle && (
+                                    {selectedEbook.subtitle && (
                                         <p className="text-xl sm:text-2xl text-blue-300/80 mb-6 font-medium">
-                                            {latestEbook.subtitle}
+                                            {selectedEbook.subtitle}
                                         </p>
                                     )}
 
                                     {/* Descrição */}
-                                    {latestEbook.description && (
+                                    {selectedEbook.description && (
                                         <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-2xl">
-                                            {latestEbook.description}
+                                            {selectedEbook.description}
                                         </p>
                                     )}
 
                                     {/* Botões de Ação */}
                                     <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
-                                        {latestEbook.coverPdfAvailable && (
+                                        {selectedEbook.coverPdfAvailable && (
                                             <a
-                                                href={latestEbook.coverPdfPath!}
+                                                href={selectedEbook.coverPdfPath!}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
@@ -162,9 +236,9 @@ export default function BentoGridMiniLivros() {
                                                 <span>Ver Capa</span>
                                             </a>
                                         )}
-                                        {latestEbook.htmlAvailable && (
+                                        {selectedEbook.htmlAvailable && (
                                             <a
-                                                href={latestEbook.introHtmlPath!}
+                                                href={selectedEbook.introHtmlPath!}
                                                 className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                             >
                                                 <BookOpen className="w-5 h-5" />
@@ -178,108 +252,105 @@ export default function BentoGridMiniLivros() {
                     )}
 
                     {/* ============================================
-                    MINI-LIVRO MAIS RECENTE - DESTAQUE
+                    MINI-LIVRO DESTAQUE — 1º do ebook selecionado
                     1 Card - col-span-3 - min-h-80
                     ============================================ */}
-                    <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
-                        {/* Gradient Background */}
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                background:
-                                    "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
-                            }}
-                        />
+                    {featuredMiniLivro && (
+                        <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
+                            {/* Gradient Background */}
+                            <div
+                                className="absolute inset-0"
+                                style={{
+                                    background:
+                                        "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
+                                }}
+                            />
 
-                        {/* Subtle Border */}
-                        <div className="absolute inset-0 rounded-3xl border border-white/10" />
+                            {/* Subtle Border */}
+                            <div className="absolute inset-0 rounded-3xl border border-white/10" />
 
-                        {/* Shimmer on Hover */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                            <div className="absolute inset-0 shimmer" />
-                        </div>
-
-                        {/* Content */}
-                        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-8 sm:p-12">
-                            {/* Badges */}
-                            <div className="flex items-center gap-2 mb-6">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                                    </span>
-                                    <span className="text-green-500 text-sm font-medium">
-                                        Último Mini-Livro
-                                        {lastUpdated
-                                            ? `: ${lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}`
-                                            : ""}
-                                    </span>
-                                </div>
-                                <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                                    <span className="text-emerald-400 text-sm font-medium">Gratuito</span>
-                                </div>
+                            {/* Shimmer on Hover */}
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                                <div className="absolute inset-0 shimmer" />
                             </div>
 
-                            {/* Mini-Livro Number */}
-                            <p className="text-green-400 text-base sm:text-lg font-mono mb-2">
-                                Mini-Livro #{latest.formattedNumber}
-                            </p>
+                            {/* Content */}
+                            <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-8 sm:p-12">
+                                {/* Badges */}
+                                <div className="flex items-center gap-2 mb-6">
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                                        </span>
+                                        <span className="text-green-500 text-sm font-medium">Mini-Livro em Destaque</span>
+                                    </div>
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                                        <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                                        <span className="text-emerald-400 text-sm font-medium">Gratuito</span>
+                                    </div>
+                                </div>
 
-                            {/* Title */}
-                            <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl">
-                                {latest.title}
-                            </h3>
+                                {/* Mini-Livro Number */}
+                                <p className="text-green-400 text-base sm:text-lg font-mono mb-2">
+                                    Mini-Livro #{featuredMiniLivro.formattedNumber}
+                                </p>
 
-                            {/* Date */}
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-text-secondary text-base sm:text-lg mb-8">
-                                <p>Publicado em {latest.formattedDate}</p>
-                            </div>
+                                {/* Title */}
+                                <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl">
+                                    {featuredMiniLivro.title}
+                                </h3>
 
-                            {/* Action Buttons */}
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                                {latest.htmlAvailable ? (
-                                    <a
-                                        href={latest.htmlPath!}
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-40"
-                                    >
-                                        <Globe className="w-5 h-5" />
-                                        <span>Ver HTML</span>
-                                    </a>
-                                ) : (
-                                    <button
-                                        disabled
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-40 opacity-50"
-                                    >
-                                        <Globe className="w-5 h-5" />
-                                        <span>Indisponível</span>
-                                    </button>
-                                )}
-                                {latest.pdfAvailable ? (
-                                    <a
-                                        href={latest.pdfPath!}
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-40"
-                                    >
-                                        <FileText className="w-5 h-5" />
-                                        <span>Baixar PDF</span>
-                                    </a>
-                                ) : (
-                                    <button
-                                        disabled
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-40 opacity-50"
-                                    >
-                                        <FileText className="w-5 h-5" />
-                                        <span>Indisponível</span>
-                                    </button>
-                                )}
+                                {/* Date */}
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-text-secondary text-base sm:text-lg mb-8">
+                                    <p>Publicado em {featuredMiniLivro.formattedDate}</p>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                                    {featuredMiniLivro.htmlAvailable ? (
+                                        <a
+                                            href={featuredMiniLivro.htmlPath!}
+                                            className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-40"
+                                        >
+                                            <Globe className="w-5 h-5" />
+                                            <span>Ver HTML</span>
+                                        </a>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-40 opacity-50"
+                                        >
+                                            <Globe className="w-5 h-5" />
+                                            <span>Indisponível</span>
+                                        </button>
+                                    )}
+                                    {featuredMiniLivro.pdfAvailable ? (
+                                        <a
+                                            href={featuredMiniLivro.pdfPath!}
+                                            className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-40"
+                                        >
+                                            <FileText className="w-5 h-5" />
+                                            <span>Baixar PDF</span>
+                                        </a>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-40 opacity-50"
+                                        >
+                                            <FileText className="w-5 h-5" />
+                                            <span>Indisponível</span>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* ============================================
-                    MINI-LIVROS ANTERIORES - GRID 3x3
+                    GRID DE MINI-LIVROS — demais do ebook selecionado
                     ============================================ */}
-                    {older.map((miniLivro: MiniLivro) => (
+                    {gridMiniLivros.map((miniLivro: MiniLivro) => (
                         <div
                             key={miniLivro.id}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
