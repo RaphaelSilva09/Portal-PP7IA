@@ -48,7 +48,7 @@ export default function RootLayout({
     const showAnalytics = process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === "true";
 
     return (
-        <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
+        <html lang="pt-BR" className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
                 <Providers>
                     <AuthProvider>
