@@ -6,6 +6,7 @@ import { BookOpen, FileText, Globe, Loader2, Sparkles } from "lucide-react";
 import { MiniLivro } from "@/domain/entities/MiniLivro";
 import { useEbook } from "@/presentation/hooks/useEbook";
 import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
+import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
 import BookCard from "./BookCard";
 
 /**
@@ -16,6 +17,7 @@ import BookCard from "./BookCard";
 export default function BentoGridMiniLivros() {
     const { all: allMiniLivros, isLoading, error } = useMiniLivros();
     const { all: allEbooks, isLoading: ebooksLoading } = useEbook();
+    useScrollToHash(!isLoading && !ebooksLoading);
 
     const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
 
@@ -77,8 +79,8 @@ export default function BentoGridMiniLivros() {
                     className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.4s" }}
                 >
-                    Em vez de um livro tradicional, publicarei uma série de textos menores — denominados MiniLivros — aqui mesmo.
-                    Sendo eles o equivalente a capítulos de um livro. A cada 7 "capítulos" compilarei-os em "E-books", versões menores de um Livro.
+                    Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
+                    Eles funcionarão como os capítulos de um livro. A cada 7 "capítulos", eu os compilarei em e-books (versões menores do livro).
                 </p>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
                     <a
@@ -86,7 +88,7 @@ export default function BentoGridMiniLivros() {
                         className="text-gray-400 text-base sm:text-1xl leading-relaxed tracking-tight underline md:no-underline md:hover:underline hover:text-gray-300 transition-colors duration-200 animate-fade-in-up"
                         style={{ animationDelay: "0.5s" }}
                     >
-                        Leia aqui o Editorial
+                        Leia o Editorial aqui
                     </a>
                 </div>
             </div>
@@ -96,21 +98,21 @@ export default function BentoGridMiniLivros() {
             </div>
             */}
 
-            {/* Título e descrição da seção de E-books */}
+            {/* Título e descrição da seção de e-books */}
             <div className="text-center mx-auto mb-8">
                 <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto">
                     Mini-livros
                 </h3>
                 <p className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 leading-relaxed">
-                    Em vez de um livro tradicional, publicarei uma série de textos menores — denominados MiniLivros — aqui mesmo.
-                    Sendo eles o equivalente a capítulos de um livro. A cada 7 "capítulos" compilarei-os em "E-books", versões menores de um Livro.
+                    Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
+                    Eles funcionarão como os capítulos de um livro. A cada 7 "capítulos", eu os compilarei em e-books (versões menores do livro).
                 </p>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
                     <a
                         href="/mini-livros/nota_do_autor_mini-livros.html"
                         className="text-gray-400 text-base leading-relaxed tracking-tight underline md:no-underline md:hover:underline hover:text-gray-300 transition-colors duration-200"
                     >
-                        Leia aqui o Editorial
+                        Leia o Editorial aqui
                     </a>
                 </div>
             </div>
@@ -127,7 +129,7 @@ export default function BentoGridMiniLivros() {
 
             {/* Descrição das abas */}
             <p className="text-center text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed">
-                Cada aba abaixo corresponde a um e-book e seus 7 Mini-livros. Clique em qualquer aba para navegar entre os e-books e explorar os conteúdos disponíveis.
+                Cada aba abaixo corresponde a um e-book e seus respectivos sete mini-livros. Clique em qualquer aba para navegar entre os e-books e explorar os conteúdos disponíveis.
             </p>
 
             {/* Conteúdo principal */}
@@ -267,7 +269,7 @@ export default function BentoGridMiniLivros() {
                     1 Card - col-span-3 - min-h-80
                     ============================================ */}
                     {featuredMiniLivro && (
-                        <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
+                        <div id={`item-${featuredMiniLivro.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
                             {/* Gradient Background */}
                             <div
                                 className="absolute inset-0"
@@ -364,6 +366,8 @@ export default function BentoGridMiniLivros() {
                     {gridMiniLivros.map((miniLivro: MiniLivro) => (
                         <div
                             key={miniLivro.id}
+                            id={`item-${miniLivro.id}`}
+                            style={{ scrollMarginTop: "80px" }}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
