@@ -3,6 +3,7 @@
 import { ArrowUpRight, Bot } from "lucide-react";
 import Link from "next/link";
 
+
 export default function IASParceiras() {
     return (
         <section id="ias-parceiras" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>

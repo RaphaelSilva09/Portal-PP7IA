@@ -18,6 +18,7 @@ export interface MiniLivroProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
+    relativeEbook: number | null;
 }
 
 export class MiniLivro {
@@ -59,6 +60,10 @@ export class MiniLivro {
 
     get createdAt(): Date {
         return this.props.createdAt;
+    }
+
+    get relativeEbook(): number | null {
+        return this.props.relativeEbook ?? null;
     }
 
     /**
