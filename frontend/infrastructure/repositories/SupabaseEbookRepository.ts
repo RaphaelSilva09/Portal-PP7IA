@@ -25,6 +25,7 @@ interface SupabaseEbookRow {
     intro_pdf_path: string | null;
     badge_text: string | null;
     read_time: number;
+    order: number;
 }
 
 export class SupabaseEbookRepository implements IEbookRepository {
@@ -32,7 +33,7 @@ export class SupabaseEbookRepository implements IEbookRepository {
 
     async getAll(): Promise<Ebook[]> {
         try {
-            const { data, error } = await this.supabase.from("ebooks").select("*").order("id", { ascending: false });
+            const { data, error } = await this.supabase.from("ebooks").select("*");
 
             if (error || !data) {
                 console.error("Erro ao buscar ebooks:", error?.message);
@@ -41,7 +42,8 @@ export class SupabaseEbookRepository implements IEbookRepository {
 
             return data
                 .filter((row): row is SupabaseEbookRow => this.isValidRow(row))
-                .map(row => this.mapToEntity(row));
+                .map(row => this.mapToEntity(row))
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         } catch (err) {
             console.error("Erro inesperado ao buscar ebooks:", err);
             return [];
@@ -94,6 +96,7 @@ export class SupabaseEbookRepository implements IEbookRepository {
             introPdfPath: row.intro_pdf_path ?? null,
             badgeText: row.badge_text ?? null,
             readTime: row.read_time,
+            order: row.order,
         };
         return Ebook.create(props);
     }

@@ -24,6 +24,7 @@ export interface EbookProps {
     introPdfPath: string | null;
     badgeText: string | null;
     readTime: number;
+    order: number;
 }
 
 export class Ebook {
@@ -87,6 +88,10 @@ export class Ebook {
         return this.props.createdAt;
     }
 
+    get order(): number {
+        return this.props.order ?? 0;
+    }
+
     get htmlAvailable(): boolean {
         return Boolean(this.props.introHtmlPath?.trim());
     }
@@ -100,7 +105,7 @@ export class Ebook {
     }
 
     get formattedNumber(): string {
-        return this.props.id.toString().padStart(3, "0");
+        return this.props.order.toString().padStart(3, "0");
     }
 
     get formattedDate(): string {
