@@ -81,16 +81,13 @@ export function usePasswordRecovery(): UsePasswordRecoveryResult {
         setErrorMessage(null);
 
         try {
-            console.log("📧 Solicitando código OTP para:", emailAddress);
             const useCase = DIContainer.getSendPasswordResetUseCase();
             await useCase.execute({ email: emailAddress });
 
             setEmail(emailAddress);
             setCooldown(COOLDOWN_SECONDS);
-            console.log("✅ Código OTP enviado com sucesso");
             return true;
         } catch (err) {
-            console.error("❌ Erro ao solicitar OTP:", err);
             setStatus("error");
             setErrorMessage(err instanceof Error ? err.message : "Erro ao enviar código.");
             return false;
@@ -112,15 +109,12 @@ export function usePasswordRecovery(): UsePasswordRecoveryResult {
             setErrorMessage(null);
 
             try {
-                console.log("🔐 Verificando código OTP:", code);
                 const useCase = DIContainer.getVerifyPasswordResetOTPUseCase();
                 await useCase.execute({ email, otp: code });
 
                 setStatus("ready");
-                console.log("✅ Código OTP válido - sessão estabelecida");
                 return true;
             } catch (err) {
-                console.error("❌ Erro ao verificar OTP:", err);
                 setStatus("error");
                 setErrorMessage(err instanceof Error ? err.message : "Código inválido ou expirado.");
                 return false;
@@ -161,23 +155,19 @@ export function usePasswordRecovery(): UsePasswordRecoveryResult {
         setErrorMessage(null);
 
         try {
-            console.log("🔐 Atualizando senha...");
             const repository = DIContainer.getAuthRepository();
             await repository.resetPasswordWithOTP(newPassword);
 
             setStatus("success");
-            console.log("✅ Senha atualizada com sucesso");
 
             // Cleanup: remove email do localStorage e encerra sessão
             if (typeof window !== "undefined") {
                 localStorage.removeItem(RECOVERY_EMAIL_KEY);
             }
             await repository.signOut();
-            console.log("👋 Sessão de recovery encerrada");
 
             return true;
         } catch (err) {
-            console.error("❌ Erro ao resetar senha:", err);
             setStatus("error");
             setErrorMessage(err instanceof Error ? err.message : "Erro ao redefinir senha.");
             return false;

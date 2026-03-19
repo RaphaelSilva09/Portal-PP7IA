@@ -67,8 +67,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
         } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
 
-            console.log(`🔔 Auth event: ${event}`);
-
             // INITIAL_SESSION é sempre o primeiro evento — fonte de verdade única
             if (event === "INITIAL_SESSION") {
                 initialSessionResolved = true;
@@ -80,19 +78,16 @@ export function SessionProvider({ children }: SessionProviderProps) {
                         const role = (session.user.app_metadata?.role as string) || "user";
                         const userData = await repository.getUserFromSession(session.user.id, role);
                         if (mounted) {
-                            console.log("✅ Sessão restaurada:", userData?.email);
                             setUser(userData);
                             userRef.current = userData;
                         }
                     } catch (err) {
-                        console.error("❌ Erro ao restaurar sessão:", err);
                         if (mounted) {
                             setUser(null);
                             userRef.current = null;
                         }
                     }
                 } else {
-                    console.log("ℹ️ Nenhuma sessão encontrada");
                     setUser(null);
                     userRef.current = null;
                 }
@@ -102,12 +97,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
             // PASSWORD_RECOVERY é tratado pelo hook dedicado usePasswordRecovery
             if (event === "PASSWORD_RECOVERY") {
-                console.log("ℹ️ PASSWORD_RECOVERY ignorado - tratado por usePasswordRecovery");
                 return;
             }
 
             if (event === "SIGNED_OUT") {
-                console.log("👋 Usuário desconectado");
                 setUser(null);
                 userRef.current = null;
                 setIsLoading(false);
@@ -116,7 +109,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
             // Ignora SIGNED_IN se o userId é o mesmo (evita re-fetch desnecessário)
             if (event === "SIGNED_IN" && session?.user?.id === userRef.current?.id) {
-                console.log(`ℹ️ SIGNED_IN ignorado - usuário ${userRef.current?.email} já autenticado`);
                 setIsLoading(false);
                 return;
             }
@@ -129,12 +121,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     const role = (session.user.app_metadata?.role as string) || "user";
                     const userData = await repository.getUserFromSession(session.user.id, role);
                     if (mounted) {
-                        console.log(`✅ Usuário atualizado: ${userData?.email}`);
                         setUser(userData);
                         userRef.current = userData;
                     }
                 } catch (err) {
-                    console.error(`❌ Erro ao buscar usuário no ${event}:`, err);
                     if (mounted) {
                         setUser(null);
                         userRef.current = null;
@@ -166,37 +156,23 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 // Se já foi resolvido pelo INITIAL_SESSION, não reprocessa
                 if (!mounted || initialSessionResolved) return;
 
-                console.log("⚠️ INITIAL_SESSION não recebido - sincronizando via getSession()");
-
                 if (session?.user) {
                     const repository = DIContainer.getAuthRepository();
                     const role = (session.user.app_metadata?.role as string) || "user";
                     const userData = await repository.getUserFromSession(session.user.id, role);
                     if (mounted && !initialSessionResolved) {
-                        console.log("✅ Sessão restaurada via getSession() defensivo:", userData?.email);
                         setUser(userData);
                         userRef.current = userData;
                         initialSessionResolved = true;
                     }
                 } else {
                     if (mounted && !initialSessionResolved) {
-                        console.log("ℹ️ Nenhuma sessão encontrada (getSession() defensivo)");
                         setUser(null);
                         userRef.current = null;
                         initialSessionResolved = true;
                     }
                 }
             } catch (err) {
-                // Timeout no cold start não é erro crítico. Next.js captura console.error
-                const isTimeout = err instanceof Error && err.message.includes('Auth timeout');
-                if (isTimeout) {
-                    console.info("ℹ️ Timeout na autenticação defensiva — assumindo sessão não autenticada no initial load.");
-                } else {
-                    console.warn("⚠️ Erro no getSession() defensivo:", err);
-                }
-
-
-
                 if (mounted && !initialSessionResolved) {
                     setUser(null);
                     userRef.current = null;

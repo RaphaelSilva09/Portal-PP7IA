@@ -4,6 +4,7 @@ import { useAuthModal } from "@/context/AuthModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSession } from "@/context/SessionContext";
 import { useHomePageDates } from "@/presentation/hooks/useHomePageDates";
+import { useEditorial } from "@/presentation/hooks/useEditorial";
 import TopoSvg from "@/assets/topo.svg";
 import HeroTitle from "./HeroTitle";
 import PortalNewsWidget from "./PortalNewsWidget";
@@ -13,6 +14,7 @@ export default function HeroSection() {
     const { openModal: openInviteModal } = useInviteModal();
     const { openModal: openAuthModal } = useAuthModal();
     const { mostRecentDate } = useHomePageDates();
+    const { content: editorialContent } = useEditorial();
 
     const handleIndicacaoClick = () => {
         if (user) {
@@ -130,37 +132,16 @@ export default function HeroSection() {
                 {/* Widget de Novidades do Portal */}
                 <PortalNewsWidget />
 
-                {/* Bloco Comece Aqui */}
-                <div className="bg-[#f0c950]/6 border-2 border-[#b8860b]/40 rounded-2xl px-7 pt-7 pb-6 mb-6 mx-2 text-left">
-
-                    {/* Título do bloco */}
-
-                    <div className="font-bold font-sans text-[#f0c950] text-lg mb-4">Observações de Uso</div>
-
-                    {/* Observações */}
-                    <ul className="space-y-3.5 text-sm">
-                        <li className="flex items-start gap-3">
-                            <div className="w-2 h-2 min-w-2 bg-[#f0c950] rounded-full mt-1.5" />
-                            <div className="text-slate-200 leading-relaxed">
-                                Se algo estiver errado, precisar de ajuda ou tiver sugestões, nos envie.
-                            </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <div className="w-2 h-2 min-w-2 bg-[#f0c950] rounded-full mt-1.5" />
-                            <div className="text-slate-200 leading-relaxed">
-                                Na entrada de cada bloco tem instruções específicas de uso. Acesse quando quiser. Leia
-                                apenas o que fizer sentido para você.
-                            </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <div className="w-2 h-2 min-w-2 bg-[#f0c950] rounded-full mt-1.5" />
-                            <div className="text-slate-200 leading-relaxed">
-                                Atualizações frequentes, avisadas por e-mail ou WhatsApp.
-                            </div>
-                        </li>
-                    </ul>
-                    <p className="text-[#f0c950] italic text-sm text-center mt-4">Muito obrigado e boa leitura!</p>
-                </div>
+                {/* Bloco Editorial (dinâmico) */}
+                {editorialContent && editorialContent !== "<p></p>" && (
+                    <div className="bg-white/5 border border-white/10 rounded-2xl px-7 pt-7 pb-6 mb-6 mx-2 text-left">
+                        <div className="font-bold font-sans text-slate-200 text-lg mb-4">Editorial</div>
+                        <div
+                            className="prose prose-invert prose-sm max-w-none text-slate-300"
+                            dangerouslySetInnerHTML={{ __html: editorialContent }}
+                        />
+                    </div>
+                )}
             </div>
         </section>
     );

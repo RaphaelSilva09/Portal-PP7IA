@@ -4,6 +4,8 @@
  * Exporta componentes do módulo admin para facilitar imports.
  */
 
+export { AdminBook } from "./AdminBook";
+export { AdminEditorial } from "./AdminEditorial";
 export { AdminPortalNews } from "./AdminPortalNews";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { ContentForm } from "./ContentForm";

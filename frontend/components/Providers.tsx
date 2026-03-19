@@ -69,7 +69,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         const handlePageShow = (event: PageTransitionEvent) => {
             // event.persisted = true means page was restored from bfcache
             if (event.persisted) {
-                console.log("[React Query] Page restored from bfcache, invalidating queries");
                 queryClient.invalidateQueries();
             }
         };

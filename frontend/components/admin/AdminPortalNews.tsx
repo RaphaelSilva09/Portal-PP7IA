@@ -15,7 +15,7 @@ import { ConfirmDialog, FeedbackMessage } from "@/components/admin";
 import { GlassCard } from "@/components/ui";
 import { CATEGORY_DEFAULT_COLORS, PortalNewsCategory } from "@/domain/entities/PortalNewsItem";
 import { supabase } from "@/infrastructure/config/supabase";
-import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Tipo local para row do Supabase (snake_case)
@@ -31,7 +31,18 @@ interface PortalNewsRow {
     is_active: boolean;
     created_at: string;
     updated_at: string;
+    link_type: string | null;
+    link_item_id: number | null;
 }
+
+const LINK_TYPE_CONFIG: Record<string, { label: string; table: string }> = {
+    "newsletter":          { label: "Newsletter",              table: "newsletters" },
+    "mini-livro":          { label: "Mini-Livros",             table: "mini_livros" },
+    "biblioteca":          { label: "Biblioteca",              table: "biblioteca" },
+    "especial-semana":     { label: "Especial da Semana",      table: "especial_semana" },
+    "radar-oportunidades": { label: "Radar de Oportunidades",  table: "radar_oportunidades" },
+    "estudar":             { label: "Estudar",                 table: "estudar" },
+};
 
 const CATEGORY_LABELS: Record<PortalNewsCategory, string> = {
     launch: "Lançamento",
@@ -49,6 +60,8 @@ interface FormState {
     publishedAt: string; // "YYYY-MM-DD" para o input date
     displayOrder: number;
     isActive: boolean;
+    linkType: string;
+    linkItemId: number | null;
 }
 
 function toDateInputValue(date: Date | string): string {
@@ -69,6 +82,8 @@ function rowToFormState(row: PortalNewsRow): FormState {
         publishedAt: toDateInputValue(row.published_at),
         displayOrder: row.display_order,
         isActive: row.is_active,
+        linkType: row.link_type ?? "",
+        linkItemId: row.link_item_id ?? null,
     };
 }
 
@@ -82,6 +97,8 @@ function emptyFormState(): FormState {
         publishedAt: toDateInputValue(new Date()),
         displayOrder: 0,
         isActive: true,
+        linkType: "",
+        linkItemId: null,
     };
 }
 
@@ -90,9 +107,11 @@ interface ItemModalProps {
     form: FormState;
     isSubmitting: boolean;
     isEdit: boolean;
-    onChange: (field: keyof FormState, value: string | boolean | number) => void;
+    onChange: (field: keyof FormState, value: string | boolean | number | null) => void;
     onSubmit: () => void;
     onCancel: () => void;
+    linkItems: Array<{ id: number; title: string }>;
+    isLoadingLinkItems: boolean;
 }
 
 // Classes reutilizáveis — mantém padrão visual do formulário de Conteúdos
@@ -111,7 +130,7 @@ function SectionDivider({ label }: { label: string }) {
     );
 }
 
-function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }: ItemModalProps) {
+function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, linkItems, isLoadingLinkItems }: ItemModalProps) {
     const titleInputRef = useRef<HTMLInputElement>(null);
     const titleEmpty = !form.title.trim();
 
@@ -303,6 +322,81 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel }:
                     </div>
                 </div>
 
+                {/* — Vincular Material — */}
+                <SectionDivider label="Vincular Material (opcional)" />
+
+                <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                            <label className={LABEL_CLASS}>Tema</label>
+                            <select
+                                className={INPUT_CLASS}
+                                value={form.linkType}
+                                onChange={e => {
+                                    onChange("linkType", e.target.value);
+                                    onChange("linkItemId", null);
+                                }}
+                            >
+                                <option value="">Nenhum</option>
+                                {Object.entries(LINK_TYPE_CONFIG).map(([key, { label }]) => (
+                                    <option key={key} value={key}>{label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {form.linkType && (
+                            <div className="flex flex-col">
+                                <label className={LABEL_CLASS}>&nbsp;</label>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        onChange("linkType", "");
+                                        onChange("linkItemId", null);
+                                    }}
+                                    className="mt-1 p-2.5 rounded-lg border border-[var(--border-subtle)] hover:bg-red-500/10 hover:border-red-500/30 transition-colors"
+                                    title="Remover vínculo"
+                                >
+                                    <X className="w-4 h-4 text-red-400" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {form.linkType && (
+                        <div>
+                            <label className={LABEL_CLASS}>Material</label>
+                            {isLoadingLinkItems ? (
+                                <div className="flex items-center gap-2 py-3 text-[var(--text-secondary)] text-sm">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Carregando...
+                                </div>
+                            ) : (
+                                <select
+                                    className={INPUT_CLASS}
+                                    value={form.linkItemId ?? ""}
+                                    onChange={e => onChange("linkItemId", e.target.value ? Number(e.target.value) : null)}
+                                >
+                                    <option value="">Selecionar item...</option>
+                                    {linkItems.map(item => (
+                                        <option key={item.id} value={item.id}>{item.title}</option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
+                    )}
+
+                    {form.linkType && form.linkItemId && (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-[var(--surface-glass)] rounded-lg border border-[var(--border-subtle)]">
+                            <span className="text-sm">📎</span>
+                            <span className="text-sm text-[var(--text-secondary)]">
+                                {LINK_TYPE_CONFIG[form.linkType]?.label} ›{" "}
+                                <span className="text-[var(--text-primary)]">
+                                    {linkItems.find(i => i.id === form.linkItemId)?.title ?? `ID ${form.linkItemId}`}
+                                </span>
+                            </span>
+                        </div>
+                    )}
+                </div>
+
                 {/* — Preview — */}
                 <SectionDivider label="Preview" />
 
@@ -385,6 +479,10 @@ export function AdminPortalNews() {
     const [editRow, setEditRow] = useState<PortalNewsRow | null>(null);
     const [form, setForm] = useState<FormState>(emptyFormState());
 
+    // Estado de vínculo de material
+    const [linkItems, setLinkItems] = useState<Array<{ id: number; title: string }>>([]);
+    const [isLoadingLinkItems, setIsLoadingLinkItems] = useState(false);
+
     // Confirmação de delete
     const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; row: PortalNewsRow | null }>({
         show: false,
@@ -426,9 +524,28 @@ export function AdminPortalNews() {
     }, [loadRows]);
 
     // —— Handlers do formulário ——
-    const handleFormChange = (field: keyof FormState, value: string | boolean | number) => {
+    const handleFormChange = (field: keyof FormState, value: string | boolean | number | null) => {
         setForm(prev => ({ ...prev, [field]: value }));
     };
+
+    // Carrega itens quando linkType muda
+    useEffect(() => {
+        if (!form.linkType || !showModal) {
+            setLinkItems([]);
+            return;
+        }
+        const config = LINK_TYPE_CONFIG[form.linkType];
+        if (!config) return;
+        setIsLoadingLinkItems(true);
+        supabase
+            .from(config.table)
+            .select("id, title")
+            .order("id", { ascending: false })
+            .then(({ data }) => {
+                setLinkItems((data ?? []) as Array<{ id: number; title: string }>);
+                setIsLoadingLinkItems(false);
+            });
+    }, [form.linkType, showModal]);
 
     const handleOpenCreate = () => {
         setEditRow(null);
@@ -445,6 +562,7 @@ export function AdminPortalNews() {
     const handleCloseModal = () => {
         setShowModal(false);
         setEditRow(null);
+        setLinkItems([]);
     };
 
     const handleSubmit = async () => {
@@ -460,6 +578,8 @@ export function AdminPortalNews() {
                 published_at: form.publishedAt,
                 display_order: form.displayOrder,
                 is_active: form.isActive,
+                link_type: form.linkType || null,
+                link_item_id: form.linkItemId,
             };
 
             if (editRow) {
@@ -554,6 +674,8 @@ export function AdminPortalNews() {
                     onChange={handleFormChange}
                     onSubmit={handleSubmit}
                     onCancel={handleCloseModal}
+                    linkItems={linkItems}
+                    isLoadingLinkItems={isLoadingLinkItems}
                 />
             )}
 

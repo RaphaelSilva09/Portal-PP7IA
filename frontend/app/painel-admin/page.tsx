@@ -17,6 +17,8 @@
 
 import type { EbookFormData } from "@/components/admin";
 import {
+    AdminBook,
+    AdminEditorial,
     AdminPortalNews,
     ConfirmDialog,
     ContentForm,
@@ -35,11 +37,13 @@ import {
     Bell,
     BookMarked,
     BookOpen,
+    BookText,
     FileText,
     GraduationCap,
     Home,
     Library,
     Newspaper,
+    NotebookPen,
     Plus,
     Radar,
     Star,
@@ -49,15 +53,18 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial";
+
+type ContentTab = ContentType | "livro";
 
 // Tabs de conteúdo (sub-navegação)
-const CONTENT_TABS: { type: ContentType; label: string; icon: typeof Newspaper }[] = [
+const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
     { type: "mini-livro", label: "Mini-Livros", icon: BookOpen },
     { type: "biblioteca", label: "Biblioteca", icon: Library },
     { type: "especial-semana", label: "Especial da Semana", icon: Star },
     { type: "ebook", label: "E-books", icon: BookMarked },
+    { type: "livro", label: "Livro", icon: BookText },
     { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
     { type: "estudar", label: "Estudar", icon: GraduationCap },
 ];
@@ -83,7 +90,7 @@ export default function PainelAdminPage() {
     const [mainSection, setMainSection] = useState<MainSection>("inicio");
 
     // Estado da seção Conteúdo
-    const [contentTab, setContentTab] = useState<ContentType>("newsletter");
+    const [contentTab, setContentTab] = useState<ContentTab>("newsletter");
     const [items, setItems] = useState<ContentItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -114,11 +121,12 @@ export default function PainelAdminPage() {
     // Carregar itens de conteúdo quando tab muda
     const loadItems = useCallback(async () => {
         if (mainSection !== "conteudo") return;
+        if (contentTab === "livro") return; // singleton gerenciado pelo AdminBook
 
         setIsLoading(true);
         try {
             const repo = DIContainer.getContentRepository();
-            const [data, lu] = await Promise.all([repo.getAll(contentTab), repo.getLastUpdated(contentTab)]);
+            const [data, lu] = await Promise.all([repo.getAll(contentTab as ContentType), repo.getLastUpdated(contentTab as ContentType)]);
             setItems(data);
             setLastUpdated(lu);
         } catch (error) {
@@ -144,7 +152,7 @@ export default function PainelAdminPage() {
         setEditItem(null);
     };
 
-    const handleContentTabChange = (type: ContentType) => {
+    const handleContentTabChange = (type: ContentTab) => {
         setContentTab(type);
         setShowForm(false);
         setEditItem(null);
@@ -170,7 +178,7 @@ export default function PainelAdminPage() {
                 setConfirmDialog({ ...confirmDialog, show: false });
                 try {
                     const useCase = DIContainer.getDeleteContentWithFilesUseCase();
-                    await useCase.execute(contentTab, item.id);
+                    await useCase.execute(contentTab as ContentType, item.id);
                     await loadItems();
                     setFeedback({
                         show: true,
@@ -196,7 +204,7 @@ export default function PainelAdminPage() {
                 // Atualizar via use case (com suporte a upload de arquivos)
                 const useCase = DIContainer.getUpdateContentWithFilesUseCase();
                 await useCase.execute({
-                    type: contentTab,
+                    type: contentTab as ContentType,
                     id: editItem.id,
                     title: data.title,
                     readTime: data.readTime,
@@ -213,7 +221,7 @@ export default function PainelAdminPage() {
                 // Criar com upload
                 const useCase = DIContainer.getCreateContentWithUploadUseCase();
                 await useCase.execute({
-                    type: contentTab,
+                    type: contentTab as ContentType,
                     title: data.title,
                     readTime: data.readTime,
                     htmlFile: data.htmlFile,
@@ -363,6 +371,17 @@ export default function PainelAdminPage() {
                             <Bell className="w-6 h-6" />
                             Novidades
                         </button>
+                        <button
+                            onClick={() => handleMainSectionChange("editorial")}
+                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
+                                mainSection === "editorial"
+                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
+                            }`}
+                        >
+                            <NotebookPen className="w-6 h-6" />
+                            Editorial
+                        </button>
                     </div>
                 </GlassCard>
 
@@ -373,7 +392,7 @@ export default function PainelAdminPage() {
                     <div className="space-y-6">
                         {/* Sub-navegação de Conteúdo */}
                         <GlassCard variant="bordered" padding="md">
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex flex-wrap gap-3 justify-center">
                                 {CONTENT_TABS.map(({ type, label, icon: Icon }) => (
                                     <button
                                         key={type}
@@ -391,8 +410,10 @@ export default function PainelAdminPage() {
                             </div>
                         </GlassCard>
 
-                        {/* Formulário ou Tabela */}
-                        {showForm ? (
+                        {/* Aba Livro — singleton, gerenciado pelo AdminBook */}
+                        {contentTab === "livro" ? (
+                            <AdminBook />
+                        ) : showForm ? (
                             contentTab === "ebook" ? (
                                 <EbookForm
                                     editItem={editItem}
@@ -405,7 +426,7 @@ export default function PainelAdminPage() {
                                 />
                             ) : (
                                 <ContentForm
-                                    type={contentTab}
+                                    type={contentTab as ContentType}
                                     editItem={editItem}
                                     onSubmit={handleSubmit}
                                     onCancel={() => {
@@ -441,7 +462,7 @@ export default function PainelAdminPage() {
                                         onEdit={handleEdit}
                                         onDelete={handleDelete}
                                         lastUpdated={lastUpdated}
-                                        type={contentTab}
+                                        type={contentTab as ContentType}
                                     />
                                 )}
                             </>
@@ -452,6 +473,8 @@ export default function PainelAdminPage() {
                 {mainSection === "usuarios" && <UserManager />}
 
                 {mainSection === "novidades" && <AdminPortalNews />}
+
+                {mainSection === "editorial" && <AdminEditorial />}
             </div>
 
             {/* Componentes Globais */}

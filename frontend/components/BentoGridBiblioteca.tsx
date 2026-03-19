@@ -1,9 +1,11 @@
 "use client";
 
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
+import { useEffect } from "react";
 
 import { BIBLIOTECA_TEMAS, BibliotecaItem } from "@/domain/entities/BibliotecaItem";
 import { useBiblioteca } from "@/presentation/hooks/useBiblioteca";
+import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
 
 /**
  * BentoGridBiblioteca Component
@@ -13,6 +15,14 @@ import { useBiblioteca } from "@/presentation/hooks/useBiblioteca";
  */
 export default function BentoGridBiblioteca() {
     const { latest, activeLatest, filteredOlder, activeTema, setActiveTema, isLoading, error, lastUpdated } = useBiblioteca();
+    useScrollToHash(!isLoading);
+
+    useEffect(() => {
+        if (window.location.hash) {
+            setActiveTema(null);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Estado de carregamento
     if (isLoading) {
@@ -116,7 +126,7 @@ export default function BentoGridBiblioteca() {
                     1 Card - col-span-3
                     ============================================ */}
                     {activeLatest ? (
-                    <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-100 cursor-pointer transition-all duration-500 hover:scale-[1.01]">
+                    <div id={`item-${activeLatest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-100 cursor-pointer transition-all duration-500 hover:scale-[1.01]">
                         {/* Gradient Background */}
                         <div
                             className="absolute inset-0"
@@ -223,6 +233,8 @@ export default function BentoGridBiblioteca() {
                         filteredOlder.map((item: BibliotecaItem) => (
                             <div
                                 key={item.id}
+                                id={`item-${item.id}`}
+                                style={{ scrollMarginTop: "80px" }}
                                 className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
                             >
                                 <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">

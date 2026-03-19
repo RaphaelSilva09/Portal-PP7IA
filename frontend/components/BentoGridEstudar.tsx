@@ -2,6 +2,7 @@
 
 import { Estudar } from "@/domain/entities/Estudar";
 import { useEstudar } from "@/presentation/hooks/useEstudar";
+import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
 import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
 /**
@@ -12,6 +13,7 @@ import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
 
 export default function BentoGridEstudar() {
     const { latest, older, isLoading, error, lastUpdated } = useEstudar();
+    useScrollToHash(!isLoading);
 
     if (isLoading) {
         return (
@@ -64,7 +66,7 @@ export default function BentoGridEstudar() {
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                     {/* MATERIAL MAIS RECENTE - DESTAQUE */}
-                    <div className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-100 cursor-pointer transition-all duration-500 hover:scale-[1.01]">
+                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-100 cursor-pointer transition-all duration-500 hover:scale-[1.01]">
                         <div
                             className="absolute inset-0"
                             style={{
@@ -154,6 +156,8 @@ export default function BentoGridEstudar() {
                     {older.map((item: Estudar) => (
                         <div
                             key={item.id}
+                            id={`item-${item.id}`}
+                            style={{ scrollMarginTop: "80px" }}
                             className="col-span-1 group relative overflow-hidden rounded-3xl min-h-80 bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-cyan-500/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
