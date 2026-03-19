@@ -34,6 +34,8 @@ interface SupabasePortalNewsRow {
     is_active: boolean;
     created_at: string;
     updated_at: string;
+    link_type: string | null;
+    link_item_id: number | null;
 }
 
 /**
@@ -103,6 +105,8 @@ export class SupabasePortalNewsRepository implements IPortalNewsRepository {
             isActive:     row.is_active,
             createdAt:    new Date(row.created_at),
             updatedAt:    new Date(row.updated_at),
+            linkType:     row.link_type,
+            linkItemId:   row.link_item_id,
         };
         return PortalNewsItem.create(props);
     }

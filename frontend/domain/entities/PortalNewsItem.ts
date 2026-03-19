@@ -24,6 +24,8 @@ export interface PortalNewsItemProps {
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
+    linkType: string | null;
+    linkItemId: number | null;
 }
 
 /**
@@ -92,6 +94,28 @@ export class PortalNewsItem {
 
     get updatedAt(): Date {
         return this.props.updatedAt;
+    }
+
+    get linkType(): string | null {
+        return this.props.linkType;
+    }
+
+    get linkItemId(): number | null {
+        return this.props.linkItemId;
+    }
+
+    get linkUrl(): string | null {
+        if (!this.props.linkType || !this.props.linkItemId) return null;
+        const routes: Record<string, string> = {
+            "newsletter":          "/newsletter",
+            "mini-livro":          "/mini-livros",
+            "biblioteca":          "/biblioteca",
+            "especial-semana":     "/especial-semana",
+            "radar-oportunidades": "/radar-oportunidades",
+            "estudar":             "/estudar",
+        };
+        const page = routes[this.props.linkType];
+        return page ? `${page}#item-${this.props.linkItemId}` : null;
     }
 
     /**
