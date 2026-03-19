@@ -13,8 +13,6 @@ import { supabase } from "@/infrastructure/config/supabase";
 import DIContainer from "@/infrastructure/di/container";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Check, Loader2, Save, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, ReactNode } from "react";
@@ -106,9 +104,10 @@ export function AdminEditorial() {
 
     const editor = useEditor({
         extensions: [
-            StarterKit,
-            Underline,
-            Link.configure({ openOnClick: false }),
+            StarterKit.configure({
+                underline: {},
+                link: { openOnClick: false },
+            }),
             TextAlign.configure({ types: ["heading", "paragraph"] }),
         ],
         immediatelyRender: false,
