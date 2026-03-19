@@ -194,7 +194,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 } else {
                     console.warn("⚠️ Erro no getSession() defensivo:", err);
                 }
-                
+
                 if (mounted && !initialSessionResolved) {
                     setUser(null);
                     userRef.current = null;
