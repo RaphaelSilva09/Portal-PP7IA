@@ -196,6 +196,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 }
 
 
+
                 if (mounted && !initialSessionResolved) {
                     setUser(null);
                     userRef.current = null;
