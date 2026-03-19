@@ -8,6 +8,18 @@ const nextConfig: NextConfig = {
     // Headers de segurança - sem Permissions-Policy para evitar warnings de features experimentais
     async headers() {
         return [
+            // no-cache nas páginas: força revalidação com o servidor antes de usar cache
+            // Garante que após deploys o browser busca o HTML atualizado (sem precisar de hard refresh)
+            // Não afeta /_next/static/ (bundles com content-hash → cache imutável seguro)
+            {
+                source: "/((?!_next|api|favicon\\.ico).*)",
+                headers: [
+                    {
+                        key: "Cache-Control",
+                        value: "no-cache",
+                    },
+                ],
+            },
             // Permite iframes do mesmo domínio (necessário para /view pages com /api/proxy-html)
             // Bloqueia iframes de origens externas (protege contra clickjacking)
             {
