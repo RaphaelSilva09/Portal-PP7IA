@@ -152,9 +152,16 @@ export function SessionProvider({ children }: SessionProviderProps) {
         // Se INITIAL_SESSION já processou, initialSessionResolved impede reprocessamento
         (async () => {
             try {
+                // Implementação de Promise.race com timeout de 3s para evitar bloqueio infinito
+                // caso o Supabase falhe ou apresente lag extremo (cold start) no carregamento frio
+                const sessionPromise = supabase.auth.getSession();
+                const timeoutPromise = new Promise<any>((_, reject) =>
+                    setTimeout(() => reject(new Error('Auth timeout: getSession() não respondeu em 3 segundos')), 3000)
+                );
+
                 const {
                     data: { session },
-                } = await supabase.auth.getSession();
+                } = await Promise.race([sessionPromise, timeoutPromise]);
 
                 // Se já foi resolvido pelo INITIAL_SESSION, não reprocessa
                 if (!mounted || initialSessionResolved) return;
@@ -180,7 +187,14 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     }
                 }
             } catch (err) {
-                console.error("❌ Erro no getSession() defensivo:", err);
+                // Timeout no cold start não é erro crítico. Next.js captura console.error
+                const isTimeout = err instanceof Error && err.message.includes('Auth timeout');
+                if (isTimeout) {
+                    console.info("ℹ️ Timeout na autenticação defensiva — assumindo sessão não autenticada no initial load.");
+                } else {
+                    console.warn("⚠️ Erro no getSession() defensivo:", err);
+                }
+
                 if (mounted && !initialSessionResolved) {
                     setUser(null);
                     userRef.current = null;
