@@ -2,6 +2,7 @@
 
 import { PortalNewsItem } from "@/domain/entities/PortalNewsItem";
 import { usePortalNews } from "@/presentation/hooks/usePortalNews";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -47,9 +48,17 @@ function SkeletonItem() {
 
 function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }) {
     const barColor = CATEGORY_COLORS[item.category] ?? "#b8860b";
+    const linkUrl = item.linkUrl;
+    const router = useRouter();
 
     return (
-        <div className={`flex items-stretch gap-0 ${!isLast ? "border-b border-white/5" : ""}`}>
+        <div
+            className={`flex items-stretch gap-0 ${!isLast ? "border-b border-white/5" : ""} ${linkUrl ? "cursor-pointer hover:bg-white/[0.04] transition-colors" : ""}`}
+            role={linkUrl ? "button" : undefined}
+            tabIndex={linkUrl ? 0 : undefined}
+            onClick={linkUrl ? () => router.push(linkUrl) : undefined}
+            onKeyDown={linkUrl ? (e) => { if (e.key === "Enter" || e.key === " ") router.push(linkUrl); } : undefined}
+        >
             {/* Barra colorida lateral */}
             <div
                 className="w-1 flex-shrink-0 rounded-l-sm"
@@ -59,7 +68,7 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
             <div className="flex-1 px-4 py-3">
                 <div className="flex items-start gap-2">
                     <span className="text-base leading-none mt-0.5 flex-shrink-0">{item.icon}</span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <p className="text-white text-sm font-semibold leading-snug">{item.title}</p>
                         {item.description && (
                             <p className="text-white/70 text-xs mt-0.5 leading-relaxed">{item.description}</p>
@@ -68,6 +77,9 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
                             Publicado em {item.formattedDate}
                         </p>
                     </div>
+                    {linkUrl && (
+                        <span className="text-white/30 text-sm flex-shrink-0 mt-0.5">→</span>
+                    )}
                 </div>
             </div>
         </div>
