@@ -86,4 +86,12 @@ export interface IContentRepository {
      * @returns Date da última atualização, ou null se não houver itens
      */
     getLastUpdated(type: ContentType): Promise<Date | null>;
+
+    /**
+     * Reordena itens atribuindo index = posição + 1 para cada ID na ordem recebida.
+     * Não suportado para ebook e livro.
+     * @param type - Tipo de conteúdo
+     * @param orderedIds - IDs na nova ordem desejada
+     */
+    reorderItems(type: ContentType, orderedIds: number[]): Promise<void>;
 }

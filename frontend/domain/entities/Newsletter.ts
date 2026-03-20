@@ -18,6 +18,7 @@ export interface NewsletterProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
+    index: number;
 }
 
 export class Newsletter {
@@ -61,6 +62,10 @@ export class Newsletter {
         return this.props.createdAt;
     }
 
+    get index(): number {
+        return this.props.index;
+    }
+
     /**
      * Verifica se HTML está disponível
      */
@@ -79,8 +84,7 @@ export class Newsletter {
      * Retorna número formatado com padding (ex: "001")
      */
     get formattedNumber(): string {
-        const id = this.props.id ?? 0;
-        return id.toString().padStart(3, "0");
+        return this.props.index.toString().padStart(3, "0");
     }
 
     /**
