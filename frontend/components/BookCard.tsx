@@ -4,53 +4,17 @@
  * BookCard Component
  *
  * Exibe o card do Livro principal, alimentado pela tabela `book` (singleton).
- * Busca o registro ativo diretamente via Supabase.
  */
 
-import { supabase } from "@/infrastructure/config/supabase";
+import { useBook } from "@/presentation/hooks/useBook";
 import { BookOpen, FileText, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
-
-interface BookRow {
-    id: number;
-    title: string;
-    subtitle: string | null;
-    description: string | null;
-    cover_image_path: string | null;
-    cover_pdf_path: string | null;
-    intro_pdf_path: string | null;
-    intro_html_path: string | null;
-    badge_text: string | null;
-    is_active: boolean;
-}
-
-/** Extrai o slug do nome do arquivo HTML para usar na rota /view/ebook/<slug> */
-function htmlPathToRoute(rawUrl: string): string {
-    const match = rawUrl.match(/\/([^/]+)\.html$/);
-    if (!match) return rawUrl;
-    return `/view/ebook/${match[1]}`;
-}
 
 export default function BookCard() {
-    const [book, setBook] = useState<BookRow | null>(null);
-    const [loaded, setLoaded] = useState(false);
+    const { book, isLoading } = useBook();
 
-    useEffect(() => {
-        supabase
-            .from("book")
-            .select("*")
-            .eq("is_active", true)
-            .limit(1)
-            .then(({ data, error }) => {
-                if (error) console.error("BookCard fetch error:", error);
-                setBook(data?.[0] ?? null);
-                setLoaded(true);
-            });
-    }, []);
+    if (isLoading || !book) return null;
 
-    if (!loaded || !book) return null;
-
-    const introHref = book.intro_html_path ? htmlPathToRoute(book.intro_html_path) : null;
+    const introHref = book.introHtmlPath;
 
     return (
         <div className="group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01] mb-6">
@@ -70,11 +34,11 @@ export default function BookCard() {
             {/* Content */}
             <div className="relative z-10 h-full flex flex-col md:flex-row items-center gap-8 p-8 sm:p-12">
                 {/* Capa — esquerda */}
-                {book.cover_image_path && (
+                {book.coverImagePath && (
                     <div className="w-full md:w-1/3 flex-shrink-0">
                         <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-amber-500/20 shadow-2xl">
                             <img
-                                src={book.cover_image_path}
+                                src={book.coverImagePath}
                                 alt={`Capa do livro ${book.title}`}
                                 className="w-full h-full object-cover"
                             />
@@ -88,7 +52,7 @@ export default function BookCard() {
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-full mb-4">
                         <Sparkles className="w-4 h-4 text-amber-400" />
                         <span className="text-amber-400 text-sm font-medium">
-                            {book.badge_text || "Livro"}
+                            {book.badgeText || "Livro"}
                         </span>
                     </div>
 
@@ -113,9 +77,9 @@ export default function BookCard() {
 
                     {/* Botões */}
                     <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
-                        {book.cover_pdf_path && (
+                        {book.coverPdfPath && (
                             <a
-                                href={book.cover_pdf_path}
+                                href={book.coverPdfPath}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
@@ -127,6 +91,8 @@ export default function BookCard() {
                         {introHref && (
                             <a
                                 href={introHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="flex items-center justify-center gap-2 px-6 py-3 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 hover:border-orange-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                             >
                                 <BookOpen className="w-5 h-5" />

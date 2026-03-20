@@ -142,16 +142,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
         // Se INITIAL_SESSION já processou, initialSessionResolved impede reprocessamento
         (async () => {
             try {
-                // Implementação de Promise.race com timeout de 3s para evitar bloqueio infinito
-                // caso o Supabase falhe ou apresente lag extremo (cold start) no carregamento frio
-                const sessionPromise = supabase.auth.getSession();
-                const timeoutPromise = new Promise<any>((_, reject) =>
-                    setTimeout(() => reject(new Error('Auth timeout: getSession() não respondeu em 3 segundos')), 3000)
-                );
-
+                // Await direto — a proteção de timeout está no fetch (10s via createFetchWithTimeout)
                 const {
                     data: { session },
-                } = await Promise.race([sessionPromise, timeoutPromise]);
+                } = await supabase.auth.getSession();
 
                 // Se já foi resolvido pelo INITIAL_SESSION, não reprocessa
                 if (!mounted || initialSessionResolved) return;
@@ -189,10 +183,18 @@ export function SessionProvider({ children }: SessionProviderProps) {
             }
         })();
 
+        // Re-verifica sessão ao retornar à aba após inatividade (browser throttle)
+        const handleVisibilityChange = async () => {
+            if (document.visibilityState !== 'visible') return;
+            await supabase.auth.getSession();
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
         // Cleanup
         return () => {
             mounted = false;
             subscription.unsubscribe();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, []);
 
@@ -229,13 +231,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
         try {
             const useCase = DIContainer.getSignInUseCase();
             await useCase.execute(params);
-            // onAuthStateChange vai atualizar o usuário automaticamente
+            // onAuthStateChange vai atualizar o usuário e chamar setIsLoading(false)
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer login.";
             setError(errorMessage);
-            throw err;
-        } finally {
             setIsLoading(false);
+            throw err;
         }
     }, []);
 

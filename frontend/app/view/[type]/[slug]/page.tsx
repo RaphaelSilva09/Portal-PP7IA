@@ -13,6 +13,7 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     radar_oportunidades: { folder: "radar-de-oportunidades", title: "Radar de Oportunidades" },
     estudar: { folder: "estudar", title: "Estudar" },
     ebook: { folder: "mini-livros/intros", title: "E-book" },
+    book: { folder: "mini-livros/livro", title: "Livro" },
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

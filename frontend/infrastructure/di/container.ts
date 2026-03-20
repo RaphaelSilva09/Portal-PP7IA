@@ -11,16 +11,16 @@
  */
 
 import { CreateContentWithUploadUseCase } from "../../application/usecases/CreateContentWithUploadUseCase";
-import { GetEditorialUseCase } from "../../application/usecases/GetEditorialUseCase";
-import { SaveEditorialUseCase } from "../../application/usecases/SaveEditorialUseCase";
 import { DeleteContentWithFilesUseCase } from "../../application/usecases/DeleteContentWithFilesUseCase";
 import { DeleteUserAndDataUseCase } from "../../application/usecases/DeleteUserAndDataUseCase";
 import { DemoteUserFromAdminUseCase } from "../../application/usecases/DemoteUserFromAdminUseCase";
+import { GetActiveBookUseCase } from "../../application/usecases/GetActiveBookUseCase";
 import { GetUsersUseCase } from "../../application/usecases/GetAllUsersUseCase";
 import { GetBibliotecaUseCase } from "../../application/usecases/GetBibliotecaUseCase";
 import { GetCurrentUserUseCase } from "../../application/usecases/GetCurrentUserUseCase";
 import { GetDashboardStatsUseCase } from "../../application/usecases/GetDashboardStatsUseCase";
 import { GetEbookUseCase } from "../../application/usecases/GetEbookUseCase";
+import { GetEditorialUseCase } from "../../application/usecases/GetEditorialUseCase";
 import { GetEspecialSemanaUseCase } from "../../application/usecases/GetEspecialSemanaUseCase";
 import { GetEstudarUseCase } from "../../application/usecases/GetEstudarUseCase";
 import { GetMiniLivrosUseCase } from "../../application/usecases/GetMiniLivrosUseCase";
@@ -29,6 +29,7 @@ import { GetPortalNewsUseCase } from "../../application/usecases/GetPortalNewsUs
 import { GetRadarOportunidadesUseCase } from "../../application/usecases/GetRadarOportunidadesUseCase";
 import { PromoteUserToAdminUseCase } from "../../application/usecases/PromoteUserToAdminUseCase";
 import { ResetPasswordWithTokenUseCase } from "../../application/usecases/ResetPasswordWithTokenUseCase";
+import { SaveEditorialUseCase } from "../../application/usecases/SaveEditorialUseCase";
 import { SearchContentUseCase } from "../../application/usecases/SearchContentUseCase";
 import { SendPasswordResetUseCase } from "../../application/usecases/SendPasswordResetUseCase";
 import { SignInUseCase } from "../../application/usecases/SignInUseCase";
@@ -41,14 +42,15 @@ import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository
 import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
 import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
 import { SupabaseBibliotecaRepository } from "../repositories/SupabaseBibliotecaRepository";
+import { SupabaseBookRepository } from "../repositories/SupabaseBookRepository";
 import { SupabaseContentRepository } from "../repositories/SupabaseContentRepository";
 import { SupabaseEbookRepository } from "../repositories/SupabaseEbookRepository";
+import { SupabaseEditorialRepository } from "../repositories/SupabaseEditorialRepository";
 import { SupabaseEspecialSemanaRepository } from "../repositories/SupabaseEspecialSemanaRepository";
 import { SupabaseEstudarRepository } from "../repositories/SupabaseEstudarRepository";
 import { SupabaseHomeDatesRepository } from "../repositories/SupabaseHomeDatesRepository";
 import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
-import { SupabaseEditorialRepository } from "../repositories/SupabaseEditorialRepository";
 import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNewsRepository";
 import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
 import { SupabaseStorageRepository } from "../repositories/SupabaseStorageRepository";
@@ -66,6 +68,7 @@ class DIContainer {
     private static especialSemanaRepositoryInstance: SupabaseEspecialSemanaRepository | null = null;
     private static radarOportunidadesRepositoryInstance: SupabaseRadarOportunidadesRepository | null = null;
     private static estudarRepositoryInstance: SupabaseEstudarRepository | null = null;
+    private static bookRepositoryInstance: SupabaseBookRepository | null = null;
     private static ebookRepositoryInstance: SupabaseEbookRepository | null = null;
     private static adminRepositoryInstance: SupabaseAdminRepository | null = null;
     private static contentRepositoryInstance: SupabaseContentRepository | null = null;
@@ -154,6 +157,17 @@ class DIContainer {
     }
 
     /**
+     * Obtém instância do repositório de livros principais
+     * Singleton Pattern
+     */
+    static getBookRepository(): SupabaseBookRepository {
+        if (!this.bookRepositoryInstance) {
+            this.bookRepositoryInstance = new SupabaseBookRepository(supabase);
+        }
+        return this.bookRepositoryInstance;
+    }
+
+    /**
      * Obtém instância do repositório de e-books
      * Singleton Pattern
      */
@@ -236,6 +250,10 @@ class DIContainer {
 
     static getEbookUseCase(): GetEbookUseCase {
         return new GetEbookUseCase(this.getEbookRepository());
+    }
+
+    static getActiveBookUseCase(): GetActiveBookUseCase {
+        return new GetActiveBookUseCase(this.getBookRepository());
     }
 
     static getEditorialRepository(): SupabaseEditorialRepository {
@@ -383,6 +401,7 @@ class DIContainer {
         this.especialSemanaRepositoryInstance = null;
         this.radarOportunidadesRepositoryInstance = null;
         this.estudarRepositoryInstance = null;
+        this.bookRepositoryInstance = null;
         this.ebookRepositoryInstance = null;
         this.adminRepositoryInstance = null;
         this.contentRepositoryInstance = null;
