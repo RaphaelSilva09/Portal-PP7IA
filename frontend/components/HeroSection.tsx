@@ -8,6 +8,7 @@ import { useEditorial } from "@/presentation/hooks/useEditorial";
 import TopoSvg from "@/assets/topo.svg";
 import HeroTitle from "./HeroTitle";
 import PortalNewsWidget from "./PortalNewsWidget";
+import DOMPurify from "dompurify";
 
 export default function HeroSection() {
     const { user } = useSession();
@@ -138,7 +139,7 @@ export default function HeroSection() {
                         <div className="font-bold font-sans text-slate-200 text-lg mb-4">Editorial</div>
                         <div
                             className="prose prose-invert prose-sm max-w-none text-slate-300"
-                            dangerouslySetInnerHTML={{ __html: editorialContent }}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(editorialContent) }}
                         />
                     </div>
                 )}

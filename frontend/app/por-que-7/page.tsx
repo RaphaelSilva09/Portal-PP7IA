@@ -16,6 +16,7 @@ import {
     metodoEditorial,
     resumoExecutivo,
 } from "@/data/porque7";
+import DOMPurify from "dompurify";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -64,7 +65,7 @@ export default function PorQue7Page() {
                             <p
                                 key={index}
                                 className="text-text-secondary leading-relaxed mb-4 last:mb-0"
-                                dangerouslySetInnerHTML={{ __html: para }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(para) }}
                             />
                         ))}
                     </section>
