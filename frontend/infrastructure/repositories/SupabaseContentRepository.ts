@@ -29,6 +29,18 @@ const TABLE_MAP: Record<ContentType, string> = {
     ebook: "ebooks",
 };
 
+/** Tipos que possuem coluna index para ordenação manual */
+const INDEXABLE_TYPES = new Set<ContentType>(["newsletter", "mini-livro", "biblioteca", "especial-semana", "radar_oportunidades", "estudar"]);
+
+/**
+ * Ordena itens por index: index > 0 crescente primeiro, index = 0 por created_at DESC.
+ */
+function sortByIndex(items: ContentItem[]): ContentItem[] {
+    const indexed = items.filter(i => i.index > 0).sort((a, b) => a.index - b.index);
+    const unindexed = items.filter(i => i.index === 0).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return [...indexed, ...unindexed];
+}
+
 /**
  * Mapeia uma row do Supabase para ContentItem.
  * Para ebook: intro_html_path → htmlPath, intro_pdf_path → pdfPath.
@@ -44,6 +56,7 @@ function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
         htmlPath: isEbook ? (row.intro_html_path as string | null) : (row.html_path as string | null),
         pdfPath: isEbook ? (row.intro_pdf_path as string | null) : (row.pdf_path as string | null),
         readTime: row.read_time as number,
+        index: (row.index as number) ?? 0,
         // Biblioteca-specific fields
         tema: isBiblioteca ? (row.tema as string | null) : null,
         // Ebook-specific fields
@@ -59,12 +72,15 @@ export class SupabaseContentRepository implements IContentRepository {
     async getAll(type: ContentType): Promise<ContentItem[]> {
         try {
             const table = TABLE_MAP[type];
-            const { data, error } = await supabase.from(table).select("*").order("id", { ascending: false });
+            const { data, error } = await supabase.from(table).select("*");
             if (error || !data) {
                 console.error(`Erro ao buscar ${type}:`, error);
                 return [];
             }
-            return data.map(row => mapRow(type, row));
+            const items = data.map(row => mapRow(type, row));
+            if (INDEXABLE_TYPES.has(type)) return sortByIndex(items);
+            // ebook: sem coluna index, ordenar por id DESC
+            return items.sort((a, b) => b.id - a.id);
         } catch (error) {
             console.error(`Erro inesperado ao buscar ${type}:`, error);
             return [];
@@ -167,5 +183,13 @@ export class SupabaseContentRepository implements IContentRepository {
         } catch {
             return null;
         }
+    }
+
+    async reorderItems(type: ContentType, orderedIds: number[]): Promise<void> {
+        if (!INDEXABLE_TYPES.has(type)) return;
+        const table = TABLE_MAP[type];
+        await Promise.all(
+            orderedIds.map((id, i) => supabase.from(table).update({ index: i + 1 }).eq("id", id))
+        );
     }
 }

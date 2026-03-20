@@ -26,6 +26,7 @@ interface SupabaseMiniLivroRow {
     pdf_path: string | null;
     read_time: number;
     relative_ebook: number | null;
+    index: number;
 }
 
 /**
@@ -40,10 +41,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
      */
     async getAll(): Promise<MiniLivro[]> {
         try {
-            const { data, error } = await this.supabase
-                .from("mini_livros")
-                .select("*")
-                .order("created_at", { ascending: false });
+            const { data, error } = await this.supabase.from("mini_livros").select("*");
 
             if (error) {
                 console.error("Erro ao buscar mini-livros:", error.message);
@@ -54,9 +52,10 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
                 return [];
             }
 
-            return data
+            const items = data
                 .filter((row): row is SupabaseMiniLivroRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
+            return this.sortByIndex(items);
         } catch (err) {
             console.error("Erro inesperado ao buscar mini-livros:", err);
             return [];
@@ -64,26 +63,12 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
     }
 
     /**
-     * Obtém o mini-livro mais recente
+     * Obtém o mini-livro com menor index (primeiro na ordenação definida pelo admin)
      */
     async getLatest(): Promise<MiniLivro | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("mini_livros")
-                .select("*")
-                .order("created_at", { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error || !data) {
-                return null;
-            }
-
-            if (!this.isValidRow(data)) {
-                return null;
-            }
-
-            return this.mapToEntity(data);
+            const all = await this.getAll();
+            return all[0] ?? null;
         } catch (err) {
             console.error("Erro ao buscar último mini-livro:", err);
             return null;
@@ -134,7 +119,14 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
             pdfPath: row.pdf_path,
             readTime: row.read_time,
             relativeEbook: row.relative_ebook ?? null,
+            index: row.index ?? 0,
         };
         return MiniLivro.create(props);
+    }
+
+    private sortByIndex(items: MiniLivro[]): MiniLivro[] {
+        const indexed = items.filter(i => i.index > 0).sort((a, b) => a.index - b.index);
+        const unindexed = items.filter(i => i.index === 0).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return [...indexed, ...unindexed];
     }
 }

@@ -25,6 +25,7 @@ interface SupabaseNewsletterRow {
     html_path: string | null;
     pdf_path: string | null;
     read_time: number;
+    index: number;
 }
 
 /**
@@ -39,10 +40,7 @@ export class SupabaseNewsletterRepository implements INewsletterRepository {
      */
     async getAll(): Promise<Newsletter[]> {
         try {
-            const { data, error } = await this.supabase
-                .from("newsletters")
-                .select("*")
-                .order("created_at", { ascending: false });
+            const { data, error } = await this.supabase.from("newsletters").select("*");
 
             if (error) {
                 console.error("Erro ao buscar newsletters:", error.message);
@@ -53,9 +51,10 @@ export class SupabaseNewsletterRepository implements INewsletterRepository {
                 return [];
             }
 
-            return data
+            const items = data
                 .filter((row): row is SupabaseNewsletterRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
+            return this.sortByIndex(items);
         } catch (err) {
             console.error("Erro inesperado ao buscar newsletters:", err);
             return [];
@@ -63,26 +62,12 @@ export class SupabaseNewsletterRepository implements INewsletterRepository {
     }
 
     /**
-     * Obtém a newsletter mais recente
+     * Obtém a newsletter com menor index (primeira na ordenação definida pelo admin)
      */
     async getLatest(): Promise<Newsletter | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("newsletters")
-                .select("*")
-                .order("created_at", { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error || !data) {
-                return null;
-            }
-
-            if (!this.isValidRow(data)) {
-                return null;
-            }
-
-            return this.mapToEntity(data);
+            const all = await this.getAll();
+            return all[0] ?? null;
         } catch (err) {
             console.error("Erro ao buscar última newsletter:", err);
             return null;
@@ -132,7 +117,14 @@ export class SupabaseNewsletterRepository implements INewsletterRepository {
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
             readTime: row.read_time,
+            index: row.index ?? 0,
         };
         return Newsletter.create(props);
+    }
+
+    private sortByIndex(items: Newsletter[]): Newsletter[] {
+        const indexed = items.filter(i => i.index > 0).sort((a, b) => a.index - b.index);
+        const unindexed = items.filter(i => i.index === 0).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return [...indexed, ...unindexed];
     }
 }
