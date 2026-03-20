@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { BookOpen, FileText, Globe, Loader2, Sparkles } from "lucide-react";
+import { useState } from "react";
 
 import { MiniLivro } from "@/domain/entities/MiniLivro";
 import { useEbook } from "@/presentation/hooks/useEbook";
@@ -55,11 +55,11 @@ export default function BentoGridMiniLivros() {
 
     const ebookHasContent = Boolean(
         selectedEbook &&
-            (selectedEbook.subtitle ||
-                selectedEbook.description ||
-                selectedEbook.coverImagePath ||
-                selectedEbook.htmlAvailable ||
-                selectedEbook.coverPdfAvailable),
+        (selectedEbook.subtitle ||
+            selectedEbook.description ||
+            selectedEbook.coverImagePath ||
+            selectedEbook.htmlAvailable ||
+            selectedEbook.coverPdfAvailable),
     );
     const hasMiniLivros = ebookMiniLivros.length > 0;
 
@@ -151,11 +151,10 @@ export default function BentoGridMiniLivros() {
                             <button
                                 key={slotIndex}
                                 onClick={() => setSelectedEbookIndex(slotIndex)}
-                                className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${
-                                    isSelected
+                                className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${isSelected
                                         ? "bg-green-500/10 border-green-500/30 text-green-400"
                                         : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
-                                }`}
+                                    }`}
                             >
                                 <span className="break-words">{label}</span>
                             </button>
@@ -252,6 +251,8 @@ export default function BentoGridMiniLivros() {
                                         {selectedEbook.htmlAvailable && (
                                             <a
                                                 href={selectedEbook.introHtmlPath!}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                                 className="flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                             >
                                                 <BookOpen className="w-5 h-5" />
