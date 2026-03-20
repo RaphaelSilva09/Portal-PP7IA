@@ -16,7 +16,7 @@ import {
     metodoEditorial,
     resumoExecutivo,
 } from "@/data/porque7";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
