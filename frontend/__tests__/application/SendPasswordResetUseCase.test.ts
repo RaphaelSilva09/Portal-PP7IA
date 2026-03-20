@@ -6,7 +6,7 @@ const mockRepo = {
     sendPasswordReset: vi.fn(),
 } satisfies Partial<IAuthRepository>;
 
-const useCase = new SendPasswordResetUseCase(mockRepo as IAuthRepository);
+const useCase = new SendPasswordResetUseCase(mockRepo as unknown as IAuthRepository);
 
 describe('SendPasswordResetUseCase', () => {
     beforeEach(() => {

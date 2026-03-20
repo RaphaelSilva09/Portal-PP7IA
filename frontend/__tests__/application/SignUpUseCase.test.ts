@@ -18,7 +18,7 @@ const mockRepo = {
     signUp: vi.fn(),
 } satisfies Partial<IAuthRepository>;
 
-const useCase = new SignUpUseCase(mockRepo as IAuthRepository);
+const useCase = new SignUpUseCase(mockRepo as unknown as IAuthRepository);
 
 const validInput: SignUpInput = {
     email: 'test@example.com',
@@ -99,7 +99,7 @@ describe('SignUpUseCase', () => {
         expect(result.accessToken).toBeNull();
     });
 
-    it('sem emailConfirmationRequired → padrão false no output', async () => {
+    it('sem emailConfirmationRequired → undefined no output', async () => {
         mockRepo.signUp.mockResolvedValue({
             user: mockUser,
             session: { accessToken: 'token', refreshToken: 'refresh' },

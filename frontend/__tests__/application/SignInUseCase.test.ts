@@ -19,7 +19,7 @@ const mockRepo = {
     signIn: vi.fn(),
 } satisfies Partial<IAuthRepository>;
 
-const useCase = new SignInUseCase(mockRepo as IAuthRepository);
+const useCase = new SignInUseCase(mockRepo as unknown as IAuthRepository);
 
 describe('SignInUseCase', () => {
     beforeEach(() => {

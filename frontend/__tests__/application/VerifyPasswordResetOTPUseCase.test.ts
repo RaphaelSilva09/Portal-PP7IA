@@ -6,7 +6,7 @@ const mockRepo = {
     verifyPasswordResetOTP: vi.fn(),
 } satisfies Partial<IAuthRepository>;
 
-const useCase = new VerifyPasswordResetOTPUseCase(mockRepo as IAuthRepository);
+const useCase = new VerifyPasswordResetOTPUseCase(mockRepo as unknown as IAuthRepository);
 
 describe('VerifyPasswordResetOTPUseCase', () => {
     beforeEach(() => {

@@ -6,7 +6,7 @@ const mockRepo = {
     resetPasswordWithToken: vi.fn(),
 } satisfies Partial<IAuthRepository>;
 
-const useCase = new ResetPasswordWithTokenUseCase(mockRepo as IAuthRepository);
+const useCase = new ResetPasswordWithTokenUseCase(mockRepo as unknown as IAuthRepository);
 
 describe('ResetPasswordWithTokenUseCase', () => {
     beforeEach(() => {

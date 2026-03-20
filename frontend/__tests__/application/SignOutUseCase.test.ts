@@ -6,7 +6,7 @@ const mockRepo = {
     signOut: vi.fn(),
 } satisfies Partial<IAuthRepository>;
 
-const useCase = new SignOutUseCase(mockRepo as IAuthRepository);
+const useCase = new SignOutUseCase(mockRepo as unknown as IAuthRepository);
 
 describe('SignOutUseCase', () => {
     beforeEach(() => {

@@ -10,10 +10,10 @@ vi.mock('next/navigation', () => ({
 }));
 
 import { usePortalNews } from '@/presentation/hooks/usePortalNews';
-import { PortalNewsItem } from '@/domain/entities/PortalNewsItem';
+import { PortalNewsItem, PortalNewsItemProps } from '@/domain/entities/PortalNewsItem';
 import PortalNewsWidget from '@/components/PortalNewsWidget';
 
-function makeItem(overrides: Partial<ConstructorParameters<typeof PortalNewsItem>[0]> = {}) {
+function makeItem(overrides: Partial<PortalNewsItemProps> = {}) {
     return PortalNewsItem.create({
         id: 'item-1',
         title: 'Test Item',
