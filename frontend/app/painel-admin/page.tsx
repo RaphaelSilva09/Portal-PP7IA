@@ -26,6 +26,7 @@ import {
     Dashboard,
     EbookForm,
     FeedbackMessage,
+    SortableContentTable,
     UserManager,
 } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
@@ -58,6 +59,8 @@ type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial
 type ContentTab = ContentType | "livro";
 
 // Tabs de conteúdo (sub-navegação)
+const SORTABLE_TYPES = new Set<ContentTab>(["newsletter", "mini-livro", "biblioteca", "especial-semana", "radar_oportunidades", "estudar"]);
+
 const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
     { type: "mini-livro", label: "Mini-Livros", icon: BookOpen },
@@ -246,6 +249,18 @@ export default function PainelAdminPage() {
             });
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleReorder = async (reorderedItems: ContentItem[]) => {
+        try {
+            const repo = DIContainer.getContentRepository();
+            await repo.reorderItems(contentTab as ContentType, reorderedItems.map(i => i.id));
+            setItems(reorderedItems);
+            setFeedback({ show: true, message: "Ordem atualizada com sucesso!", type: "success" });
+        } catch (error) {
+            console.error("Erro ao reordenar:", error);
+            setFeedback({ show: true, message: "Erro ao salvar nova ordem. Tente novamente.", type: "error" });
         }
     };
 
@@ -456,6 +471,15 @@ export default function PainelAdminPage() {
                                             Nenhum material cadastrado.
                                         </div>
                                     </GlassCard>
+                                ) : SORTABLE_TYPES.has(contentTab) ? (
+                                    <SortableContentTable
+                                        items={items}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        onReorder={handleReorder}
+                                        lastUpdated={lastUpdated}
+                                        type={contentTab as ContentType}
+                                    />
                                 ) : (
                                     <ContentTable
                                         items={items}
