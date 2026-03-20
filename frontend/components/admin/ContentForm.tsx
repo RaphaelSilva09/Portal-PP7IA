@@ -25,12 +25,13 @@ import { useState } from "react";
 interface ContentFormProps {
     type: ContentType;
     editItem?: ContentItem | null;
-    onSubmit: (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string }) => Promise<void>;
+    onSubmit: (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; relativeEbook?: number | null }) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
+    relativeEbook?: number | null;
 }
 
-export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: ContentFormProps) {
+export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, relativeEbook }: ContentFormProps) {
     const [title, setTitle] = useState(editItem?.title || "");
     const [readTime, setReadTime] = useState(editItem?.readTime?.toString() || "");
     const [tema, setTema] = useState<BibliotecaTema>((editItem?.tema as BibliotecaTema) || "diversos");
@@ -56,6 +57,7 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading }: C
             htmlFile: htmlFile || undefined,
             pdfFile: pdfFile || undefined,
             tema: type === "biblioteca" ? tema : undefined,
+            relativeEbook: type === "mini-livro" ? (relativeEbook ?? null) : undefined,
         });
     };
 

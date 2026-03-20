@@ -23,6 +23,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { File, FileText, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+const MINI_LIVRO_EBOOK_TABS = [
+    "Parte I — Liderança Híbrida",
+    "Parte II — A Coragem de Executar",
+    "Parte III — O Que Fica",
+] as const;
+
 interface SortableContentTableProps {
     items: ContentItem[];
     onEdit: (item: ContentItem) => void;
@@ -30,6 +36,8 @@ interface SortableContentTableProps {
     onReorder: (reorderedItems: ContentItem[]) => Promise<void>;
     lastUpdated?: Date | null;
     type?: ContentType;
+    selectedEbookIndex?: number;
+    onEbookChange?: (index: number) => void;
 }
 
 interface SortableRowProps {
@@ -120,7 +128,7 @@ function SortableRow({ item, position, onEdit, onDelete, isBiblioteca, isReorder
     );
 }
 
-export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastUpdated, type }: SortableContentTableProps) {
+export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastUpdated, type, selectedEbookIndex = 0, onEbookChange }: SortableContentTableProps) {
     const [localItems, setLocalItems] = useState<ContentItem[]>(items);
     const [isReordering, setIsReordering] = useState(false);
     const isBiblioteca = type === "biblioteca";
@@ -157,10 +165,31 @@ export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastU
 
     return (
         <GlassCard variant="bordered" padding="none">
-            {lastUpdated && (
-                <div className="px-4 py-2 text-sm text-[var(--text-secondary)] border-b border-[var(--border-glass)]">
-                    Última atualização:{" "}
-                    {lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+            {(lastUpdated || type === "mini-livro") && (
+                <div className="px-4 py-2 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-glass)]">
+                    {type === "mini-livro" && onEbookChange ? (
+                        <div className="flex flex-wrap gap-2">
+                            {MINI_LIVRO_EBOOK_TABS.map((label, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => onEbookChange(i)}
+                                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                                        i === selectedEbookIndex
+                                            ? "bg-[var(--brand-purple)] text-white"
+                                            : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)]"
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    ) : <span />}
+                    {lastUpdated && (
+                        <span className="text-sm text-[var(--text-secondary)] shrink-0 ml-auto">
+                            Última atualização:{" "}
+                            {lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+                        </span>
+                    )}
                 </div>
             )}
             {isReordering && (
