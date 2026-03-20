@@ -28,6 +28,8 @@ export interface ContentItemProps {
     pdfPath: string | null;
     readTime: number;
     index?: number;
+    // MiniLivro-specific fields
+    relativeEbook?: number | null;
     // Biblioteca-specific fields
     tema?: string | null;
     // Ebook-specific fields
@@ -115,6 +117,10 @@ export class ContentItem {
 
     get index(): number {
         return this.props.index ?? 0;
+    }
+
+    get relativeEbook(): number | null {
+        return this.props.relativeEbook ?? null;
     }
 
     /**

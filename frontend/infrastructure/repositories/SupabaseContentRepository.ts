@@ -49,6 +49,7 @@ function sortByIndex(items: ContentItem[]): ContentItem[] {
 function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
     const isEbook = type === "ebook";
     const isBiblioteca = type === "biblioteca";
+    const isMiniLivro = type === "mini-livro";
     return ContentItem.create({
         id: row.id as number,
         createdAt: new Date(row.created_at as string),
@@ -57,6 +58,8 @@ function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
         pdfPath: isEbook ? (row.intro_pdf_path as string | null) : (row.pdf_path as string | null),
         readTime: row.read_time as number,
         index: (row.index as number) ?? 0,
+        // MiniLivro-specific fields
+        relativeEbook: isMiniLivro ? (row.relative_ebook as number | null) : null,
         // Biblioteca-specific fields
         tema: isBiblioteca ? (row.tema as string | null) : null,
         // Ebook-specific fields
@@ -122,11 +125,18 @@ export class SupabaseContentRepository implements IContentRepository {
                         tema: input.tema ?? "diversos",
                         created_at: now,
                     }
-                  : {
-                        title: input.title,
-                        read_time: input.readTime ?? null,
-                        created_at: now,
-                    };
+                  : type === "mini-livro"
+                    ? {
+                          title: input.title,
+                          read_time: input.readTime ?? null,
+                          relative_ebook: input.relativeEbook ?? null,
+                          created_at: now,
+                      }
+                    : {
+                          title: input.title,
+                          read_time: input.readTime ?? null,
+                          created_at: now,
+                      };
 
         const { data, error } = await supabase.from(table).insert(insertData).select().single();
         if (error || !data) throw new Error(`Falha ao criar ${type}: ${error?.message}`);

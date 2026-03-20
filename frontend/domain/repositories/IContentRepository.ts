@@ -15,6 +15,8 @@ import { ContentItem, ContentType } from "../entities/ContentItem";
 export interface CreateContentInput {
     title: string;
     readTime?: number;
+    // Campos específicos de mini-livro
+    relativeEbook?: number | null;
     // Campos específicos de biblioteca
     tema?: string | null;
     // Campos específicos de ebook
