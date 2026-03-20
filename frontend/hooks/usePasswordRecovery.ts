@@ -13,7 +13,7 @@
  * 1. requestReset: Envia email com código OTP de 8 dígitos
  * 2. verifyCode: Valida OTP e estabelece sessão temporária
  * 3. resetPassword: Atualiza senha com sessão ativa
- * 4. Cleanup: Encerra sessão e limpa localStorage
+ * 4. Cleanup: Encerra sessão
  */
 
 "use client";
@@ -43,20 +43,14 @@ interface UsePasswordRecoveryResult {
 }
 
 const COOLDOWN_SECONDS = 60; // 60s entre envios
-const RECOVERY_EMAIL_KEY = "recovery_email";
 
 export function usePasswordRecovery(): UsePasswordRecoveryResult {
     const [status, setStatus] = useState<RecoveryStatus>("idle");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [cooldown, setCooldown] = useState(0);
 
-    // Persiste email entre etapas (localStorage + state fallback)
-    const [email, setEmail] = useState<string | null>(() => {
-        if (typeof window !== "undefined") {
-            return localStorage.getItem(RECOVERY_EMAIL_KEY);
-        }
-        return null;
-    });
+    // Email em memória — persiste durante a sessão do modal (sem localStorage por segurança)
+    const [email, setEmail] = useState<string | null>(null);
 
     // Cooldown timer
     useEffect(() => {
@@ -65,13 +59,6 @@ export function usePasswordRecovery(): UsePasswordRecoveryResult {
             return () => clearTimeout(timer);
         }
     }, [cooldown]);
-
-    // Salva email no localStorage sempre que mudar
-    useEffect(() => {
-        if (email && typeof window !== "undefined") {
-            localStorage.setItem(RECOVERY_EMAIL_KEY, email);
-        }
-    }, [email]);
 
     /**
      * Step 1: Solicita código OTP via email
@@ -160,10 +147,7 @@ export function usePasswordRecovery(): UsePasswordRecoveryResult {
 
             setStatus("success");
 
-            // Cleanup: remove email do localStorage e encerra sessão
-            if (typeof window !== "undefined") {
-                localStorage.removeItem(RECOVERY_EMAIL_KEY);
-            }
+            // Cleanup: encerra sessão
             await repository.signOut();
 
             return true;

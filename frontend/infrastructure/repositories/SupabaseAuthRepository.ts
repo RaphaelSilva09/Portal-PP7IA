@@ -571,9 +571,10 @@ export class SupabaseAuthRepository implements IAuthRepository {
      * Mapeia erros do Supabase para erros de domínio
      * Error Handling: Traduz erros técnicos para erros de negócio
      */
-    private mapSupabaseError(error: any): Error {
-        const message = error.message?.toLowerCase() || "";
-        const code = error.code || error.status;
+    private mapSupabaseError(error: unknown): Error {
+        const err = error as Record<string, unknown>;
+        const message = typeof err?.message === "string" ? err.message.toLowerCase() : "";
+        const code = err?.code ?? err?.status;
 
         // Mapeamento de erros comuns do Supabase
         if (message.includes("user already registered") || code === "23505") {
@@ -590,7 +591,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
         // Erros relacionados a senha - traduz para português
         if (message.includes("password")) {
-            const translatedMessage = this.translatePasswordError(error.message);
+            const translatedMessage = this.translatePasswordError(typeof err?.message === "string" ? err.message : "");
             return new WeakPasswordError(translatedMessage);
         }
 
@@ -598,7 +599,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
             return new NetworkError();
         }
 
-        return new UnknownAuthError(error.message);
+        return new UnknownAuthError(typeof err?.message === "string" ? err.message : String(error));
     }
 
     /**
