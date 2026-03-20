@@ -52,7 +52,7 @@ export default function BentoGridNewsletter() {
                     className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto animate-fade-in-up"
                     style={{ animationDelay: "0.3s" }}
                 >
-                    Mini-livros
+                    Newsletters
                 </h3>
 
                 {/* Descrição Newsletter */}
