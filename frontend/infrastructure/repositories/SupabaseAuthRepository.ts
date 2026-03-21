@@ -70,7 +70,8 @@ export class SupabaseAuthRepository implements IAuthRepository {
             // - session = null
             // - user.identities = [] (array vazio)
             // Isso indica que o usuário já existe, não que precisa confirmar email
-            const userAlreadyExists = authData.user.identities && authData.user.identities.length === 0;
+            const userAlreadyExists =
+                Array.isArray(authData.user.identities) && authData.user.identities.length === 0;
 
             if (userAlreadyExists) {
                 throw new UserAlreadyExistsError();
@@ -254,25 +255,51 @@ export class SupabaseAuthRepository implements IAuthRepository {
      * já foi validada pelo Supabase internamente.
      */
     async getUserFromSession(userId: string, role: string): Promise<User | null> {
-        try {
-            const { data: userData, error } = await this.supabase.from("users").select("*").eq("id", userId).single();
+        const MAX_RETRIES = 3;
+        const BASE_DELAY_MS = 600;
 
-            if (error || !userData) {
+        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            if (attempt > 0) {
+                console.log('[Auth] getUserFromSession retry', { attempt, userId: userId.slice(0, 8) });
+            }
+            try {
+                const { data: userData, error } = await this.supabase
+                    .from("users")
+                    .select("*")
+                    .eq("id", userId)
+                    .single();
+
+                if (userData) {
+                    if (attempt > 0) {
+                        console.log('[Auth] getUserFromSession found on retry', { attempt, userId: userId.slice(0, 8) });
+                    }
+                    return this.mapToUser(userId, {
+                        email: userData.email,
+                        nome: userData.nome,
+                        celular: userData.celular,
+                        acceptEmailUpdates: userData.accept_email_updates,
+                        acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
+                        createdAt: new Date(userData.created_at),
+                        role,
+                    });
+                }
+
+                // Erro de auth/permissão não deve ser retentado — só race condition com trigger
+                if (error && error.code !== "PGRST116") {
+                    return null;
+                }
+            } catch {
                 return null;
             }
 
-            return this.mapToUser(userId, {
-                email: userData.email,
-                nome: userData.nome,
-                celular: userData.celular,
-                acceptEmailUpdates: userData.accept_email_updates,
-                acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
-                createdAt: new Date(userData.created_at),
-                role,
-            });
-        } catch {
-            return null;
+            if (attempt < MAX_RETRIES - 1) {
+                await new Promise(resolve =>
+                    setTimeout(resolve, BASE_DELAY_MS * (attempt + 1))
+                );
+            }
         }
+
+        return null;
     }
 
     /**

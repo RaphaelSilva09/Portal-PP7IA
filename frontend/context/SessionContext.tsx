@@ -30,6 +30,13 @@ interface SessionContextType {
 
 const SessionContext = createContext<SessionContextType | null>(null);
 
+const authDebugStart = Date.now();
+
+const authDebug = (...args: unknown[]) => {
+    if (process.env.NEXT_PUBLIC_AUTH_DEBUG !== 'true') return;
+    console.log('[Auth]', `+${Date.now() - authDebugStart}ms`, ...args);
+};
+
 interface SessionProviderProps {
     children: ReactNode;
 }
@@ -67,6 +74,15 @@ export function SessionProvider({ children }: SessionProviderProps) {
         } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
 
+            authDebug('event', event, {
+                hasSession: !!session,
+                userId: session?.user?.id?.slice(0, 8) ?? null,
+                identitiesCount: Array.isArray(session?.user?.identities)
+                    ? session.user.identities.length
+                    : 'undefined',
+                userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'ssr',
+            });
+
             // INITIAL_SESSION é sempre o primeiro evento — fonte de verdade única
             if (event === "INITIAL_SESSION") {
                 initialSessionResolved = true;
@@ -80,8 +96,14 @@ export function SessionProvider({ children }: SessionProviderProps) {
                         if (mounted) {
                             setUser(userData);
                             userRef.current = userData;
+                            authDebug('getUserFromSession result', {
+                                event,
+                                found: !!userData,
+                                userId: session?.user?.id?.slice(0, 8) ?? null,
+                            });
                         }
                     } catch (err) {
+                        authDebug('getUserFromSession error', { event, err });
                         if (mounted) {
                             setUser(null);
                             userRef.current = null;
@@ -103,6 +125,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
             if (event === "SIGNED_OUT") {
                 setUser(null);
                 userRef.current = null;
+                setEmailConfirmationRequired(false);
                 setIsLoading(false);
                 return;
             }
@@ -123,8 +146,14 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     if (mounted) {
                         setUser(userData);
                         userRef.current = userData;
+                        authDebug('getUserFromSession result', {
+                            event,
+                            found: !!userData,
+                            userId: session?.user?.id?.slice(0, 8) ?? null,
+                        });
                     }
                 } catch (err) {
+                    authDebug('getUserFromSession error', { event, err });
                     if (mounted) {
                         setUser(null);
                         userRef.current = null;
@@ -190,11 +219,22 @@ export function SessionProvider({ children }: SessionProviderProps) {
         };
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
+        // Restauração via bfcache (Safari/Chrome iOS — botão Voltar)
+        // e.persisted === true indica que a página foi restaurada do cache, não recarregada
+        // O onAuthStateChange não é redispachado nesse caso, então forçamos uma verificação
+        const handlePageShow = (e: PageTransitionEvent) => {
+            if (e.persisted) {
+                supabase.auth.getSession();
+            }
+        };
+        window.addEventListener('pageshow', handlePageShow);
+
         // Cleanup
         return () => {
             mounted = false;
             subscription.unsubscribe();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('pageshow', handlePageShow);
         };
     }, []);
 
@@ -228,15 +268,20 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setIsLoading(true);
         setError(null);
 
+        // Safety net: garante que loading nunca fica preso se o onAuthStateChange
+        // atrasar ou não disparar (Safari/ITP, falhas silenciosas de browser)
+        const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
+
         try {
             const useCase = DIContainer.getSignInUseCase();
             await useCase.execute(params);
-            // onAuthStateChange vai atualizar o usuário e chamar setIsLoading(false)
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer login.";
             setError(errorMessage);
-            setIsLoading(false);
             throw err;
+        } finally {
+            clearTimeout(safetyTimer);
+            setIsLoading(false);
         }
     }, []);
 
@@ -247,15 +292,17 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setIsLoading(true);
         setError(null);
 
+        const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
+
         try {
             const useCase = DIContainer.getSignOutUseCase();
             await useCase.execute();
-            // onAuthStateChange vai limpar o state automaticamente
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer logout.";
             setError(errorMessage);
             throw err;
         } finally {
+            clearTimeout(safetyTimer);
             setIsLoading(false);
         }
     }, []);
