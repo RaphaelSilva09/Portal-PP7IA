@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSession } from "@/context/SessionContext";
@@ -8,7 +9,6 @@ import { useEditorial } from "@/presentation/hooks/useEditorial";
 import TopoSvg from "@/assets/topo.svg";
 import HeroTitle from "./HeroTitle";
 import PortalNewsWidget from "./PortalNewsWidget";
-import DOMPurify from "isomorphic-dompurify";
 
 export default function HeroSection() {
     const { user } = useSession();
@@ -16,6 +16,17 @@ export default function HeroSection() {
     const { openModal: openAuthModal } = useAuthModal();
     const { mostRecentDate } = useHomePageDates();
     const { content: editorialContent } = useEditorial();
+    const [sanitizedEditorial, setSanitizedEditorial] = useState<string>("");
+
+    useEffect(() => {
+        if (editorialContent && editorialContent !== "<p></p>") {
+            import("isomorphic-dompurify").then(({ default: DOMPurify }) => {
+                setSanitizedEditorial(DOMPurify.sanitize(editorialContent));
+            });
+        } else {
+            setSanitizedEditorial("");
+        }
+    }, [editorialContent]);
 
     const handleIndicacaoClick = () => {
         if (user) {
@@ -134,12 +145,12 @@ export default function HeroSection() {
                 <PortalNewsWidget />
 
                 {/* Bloco Editorial (dinâmico) */}
-                {editorialContent && editorialContent !== "<p></p>" && (
+                {sanitizedEditorial && (
                     <div className="bg-white/5 border border-white/10 rounded-2xl px-7 pt-7 pb-6 mb-6 mx-2 text-left">
                         <div className="font-bold font-sans text-slate-200 text-lg mb-4">Editorial</div>
                         <div
                             className="prose prose-invert prose-sm max-w-none text-slate-300"
-                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(editorialContent) }}
+                            dangerouslySetInnerHTML={{ __html: sanitizedEditorial }}
                         />
                     </div>
                 )}
