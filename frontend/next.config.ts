@@ -46,7 +46,14 @@ const nextConfig: NextConfig = {
         ];
     },
 
-    webpack(config) {
+    webpack(config, { isServer }) {
+        // jsdom usa fs.readFileSync com __dirname para carregar default-stylesheet.css.
+        // Quando webpack empacota jsdom, __dirname é substituído pelo diretório virtual do bundle
+        // e o caminho do CSS quebra. Externalizar jsdom faz o Node resolver o módulo real em runtime,
+        // preservando o __dirname correto.
+        if (isServer) {
+            config.externals = [...(Array.isArray(config.externals) ? config.externals : [config.externals]), 'jsdom'];
+        }
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find((rule: any) => rule.test?.test?.(".svg"));
 
