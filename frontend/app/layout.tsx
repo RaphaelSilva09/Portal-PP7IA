@@ -49,6 +49,14 @@ export default function RootLayout({
 
     return (
         <html lang="pt-BR" className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
+            <head>
+                {process.env.NEXT_PUBLIC_AUTH_DEBUG === 'true' && (
+                    <>
+                        <script src="https://cdn.jsdelivr.net/npm/eruda@3/eruda.js" />
+                        <script dangerouslySetInnerHTML={{ __html: `window.addEventListener('load', () => eruda.init());` }} />
+                    </>
+                )}
+            </head>
             <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
                 <Providers>
                     <AuthProvider>
