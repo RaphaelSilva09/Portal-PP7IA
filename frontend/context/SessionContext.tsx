@@ -68,7 +68,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
     useEffect(() => {
         let mounted = true;
         let initialSessionResolved = false;
-        let initialSessionRevalidationTimer: ReturnType<typeof setTimeout> | null = null;
+        const initialSessionRevalidationTimers: ReturnType<typeof setTimeout>[] = [];
 
         const {
             data: { subscription },
@@ -116,22 +116,32 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     setUser(null);
                     userRef.current = null;
                     // Safari/iOS ITP: INITIAL_SESSION pode chegar sem sessão mesmo com usuário logado.
-                    // Revalida ativamente após 2s — se SIGNED_IN chegar antes, userRef.current não será
-                    // null e o timeout será no-op.
-                    initialSessionRevalidationTimer = setTimeout(async () => {
+                    // Cascata de revalidação em 1s, 3s, 8s — cobre desde delays curtos (5s) até
+                    // os casos extremos de 63s. Cada timer é no-op se SIGNED_IN ou outro timer
+                    // já setou o usuário (guard userRef.current !== null).
+                    const revalidate = async (delay: number) => {
                         authDebug('INITIAL_SESSION revalidation timer fired', {
                             userRefNull: userRef.current === null,
                             mounted,
+                            delay: `${delay}ms`,
                         });
                         if (!mounted || userRef.current !== null) {
                             authDebug('INITIAL_SESSION revalidation skipped', {
                                 reason: !mounted ? 'unmounted' : 'user already set by SIGNED_IN',
-                                elapsed: '2000ms',
+                                elapsed: `${delay}ms`,
                             });
                             return;
                         }
                         const { data: { session: revalidatedSession } } = await supabase.auth.getSession();
-                        if (!mounted || userRef.current !== null || !revalidatedSession?.user) return;
+                        if (!mounted || userRef.current !== null || !revalidatedSession?.user) {
+                            authDebug('INITIAL_SESSION revalidation aborted after getSession', {
+                                reason: !mounted ? 'unmounted'
+                                    : userRef.current !== null ? 'SIGNED_IN won the race'
+                                    : 'no session found',
+                                elapsed: `${delay}ms`,
+                            });
+                            return;
+                        }
                         try {
                             const repository = DIContainer.getAuthRepository();
                             const role = (revalidatedSession.user.app_metadata?.role as string) || "user";
@@ -139,12 +149,15 @@ export function SessionProvider({ children }: SessionProviderProps) {
                             if (mounted && userRef.current === null) {
                                 setUser(userData);
                                 userRef.current = userData;
-                                authDebug('INITIAL_SESSION revalidation', { found: !!userData, delay: '2000ms' });
+                                authDebug('INITIAL_SESSION revalidation', { found: !!userData, delay: `${delay}ms` });
                             }
                         } catch {
                             // Falha silenciosa — o Supabase vai disparar SIGNED_IN quando estiver pronto
                         }
-                    }, 2000);
+                    };
+                    for (const delay of [1000, 3000, 8000]) {
+                        initialSessionRevalidationTimers.push(setTimeout(() => revalidate(delay), delay));
+                    }
                 }
                 if (mounted) setIsLoading(false);
                 return;
@@ -271,7 +284,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
         // Cleanup
         return () => {
             mounted = false;
-            if (initialSessionRevalidationTimer) clearTimeout(initialSessionRevalidationTimer);
+            initialSessionRevalidationTimers.forEach(clearTimeout);
             subscription.unsubscribe();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('pageshow', handlePageShow);
