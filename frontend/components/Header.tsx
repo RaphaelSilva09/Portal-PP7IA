@@ -5,6 +5,7 @@ import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { LogOut, Menu, Sparkles, User as UserIcon, UserPlus, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
 
@@ -19,7 +20,7 @@ interface NavItem {
 // 7 itens de navegação seguindo a regra de negócio
 const navItems: NavItem[] = [
     { label: "Quem Somos", href: "/#quemsomos" },
-    { label: "Declarações", href: "/PP7IAS_Disclosures_Legal_Compliance.pdf", isExternal: true },
+    { label: "Declarações", href: "/declaracoes" },
     { label: "Índice", href: "/#indice" },
     { label: "O Autor", href: "/#autor" },
     { label: "As 7 IAs", href: "/#ias-parceiras" },
@@ -34,10 +35,12 @@ export default function Navbar() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authInitialMode, setAuthInitialMode] = useState<"login" | "signup">("login");
     const { user, signOut, isLoading } = useAuth();
+    const router = useRouter();
 
     const handleLogout = async () => {
         await signOut();
         setIsMenuOpen(false);
+        router.push("/");
     };
 
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {

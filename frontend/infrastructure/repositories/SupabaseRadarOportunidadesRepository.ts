@@ -20,6 +20,7 @@ interface SupabaseRadarRow {
     html_path: string | null;
     pdf_path: string | null;
     read_time: number;
+    index: number;
 }
 
 export class SupabaseRadarOportunidadesRepository implements IRadarOportunidadesRepository {
@@ -27,19 +28,17 @@ export class SupabaseRadarOportunidadesRepository implements IRadarOportunidades
 
     async getAll(): Promise<RadarOportunidades[]> {
         try {
-            const { data, error } = await this.supabase
-                .from("radar_oportunidades")
-                .select("*")
-                .order("id", { ascending: false });
+            const { data, error } = await this.supabase.from("radar_oportunidades").select("*");
 
             if (error || !data) {
                 console.error("Erro ao buscar radar_oportunidades:", error?.message);
                 return [];
             }
 
-            return data
+            const items = data
                 .filter((row): row is SupabaseRadarRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
+            return this.sortByIndex(items);
         } catch (err) {
             console.error("Erro inesperado ao buscar radar_oportunidades:", err);
             return [];
@@ -59,15 +58,8 @@ export class SupabaseRadarOportunidadesRepository implements IRadarOportunidades
 
     async getLatest(): Promise<RadarOportunidades | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("radar_oportunidades")
-                .select("*")
-                .order("id", { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error || !data || !this.isValidRow(data)) return null;
-            return this.mapToEntity(data);
+            const all = await this.getAll();
+            return all[0] ?? null;
         } catch {
             return null;
         }
@@ -87,7 +79,14 @@ export class SupabaseRadarOportunidadesRepository implements IRadarOportunidades
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
             readTime: row.read_time,
+            index: row.index ?? 0,
         };
         return RadarOportunidades.create(props);
+    }
+
+    private sortByIndex(items: RadarOportunidades[]): RadarOportunidades[] {
+        const indexed = items.filter(i => i.index > 0).sort((a, b) => a.index - b.index);
+        const unindexed = items.filter(i => i.index === 0).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return [...indexed, ...unindexed];
     }
 }

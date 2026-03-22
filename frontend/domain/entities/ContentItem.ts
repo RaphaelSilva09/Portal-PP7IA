@@ -27,6 +27,9 @@ export interface ContentItemProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
+    index?: number;
+    // MiniLivro-specific fields
+    relativeEbook?: number | null;
     // Biblioteca-specific fields
     tema?: string | null;
     // Ebook-specific fields
@@ -112,12 +115,21 @@ export class ContentItem {
         return this.props.coverPdfPath?.trim() || null;
     }
 
+    get index(): number {
+        return this.props.index ?? 0;
+    }
+
+    get relativeEbook(): number | null {
+        return this.props.relativeEbook ?? null;
+    }
+
     /**
      * Retorna número formatado com padding (ex: "001")
+     * Usa o índice de edição quando disponível, caso contrário usa o ID.
      */
     get formattedNumber(): string {
-        const id = this.props.id ?? 0;
-        return id.toString().padStart(3, "0");
+        const num = this.props.index ?? this.props.id ?? 0;
+        return num.toString().padStart(3, "0");
     }
 
     /**

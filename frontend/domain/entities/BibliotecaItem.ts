@@ -38,6 +38,7 @@ export interface BibliotecaItemProps {
     pdfPath: string | null;
     readTime: number;
     tema: BibliotecaTema;
+    index: number;
 }
 
 export class BibliotecaItem {
@@ -85,6 +86,10 @@ export class BibliotecaItem {
         return this.props.tema ?? "diversos";
     }
 
+    get index(): number {
+        return this.props.index;
+    }
+
     /**
      * Verifica se HTML está disponível
      */
@@ -103,8 +108,7 @@ export class BibliotecaItem {
      * Retorna número formatado com padding (ex: "001")
      */
     get formattedNumber(): string {
-        const id = this.props.id ?? 0;
-        return id.toString().padStart(3, "0");
+        return this.props.index.toString().padStart(3, "0");
     }
 
     /**

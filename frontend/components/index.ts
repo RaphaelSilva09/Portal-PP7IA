@@ -24,7 +24,6 @@ export { default as Portal } from "./Portal";
 export { default as PortalNewsWidget } from "./PortalNewsWidget";
 export { default as ProfileModal } from "./ProfileModal";
 export { default as QuemSomosEquipe } from "./QuemSomosEquipe";
-export { default as QuemSomosTitulo } from "./QuemSomosTitulo";
 export { default as WelcomeBanner } from "./WelcomeBanner";
 export { default as WhyPP7IASSection } from "./WhyPP7IASSection";
 

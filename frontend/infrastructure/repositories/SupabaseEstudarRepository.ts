@@ -20,6 +20,7 @@ interface SupabaseEstudarRow {
     html_path: string | null;
     pdf_path: string | null;
     read_time: number;
+    index: number;
 }
 
 export class SupabaseEstudarRepository implements IEstudarRepository {
@@ -27,16 +28,17 @@ export class SupabaseEstudarRepository implements IEstudarRepository {
 
     async getAll(): Promise<Estudar[]> {
         try {
-            const { data, error } = await this.supabase.from("estudar").select("*").order("id", { ascending: false });
+            const { data, error } = await this.supabase.from("estudar").select("*");
 
             if (error || !data) {
                 console.error("Erro ao buscar estudar:", error?.message);
                 return [];
             }
 
-            return data
+            const items = data
                 .filter((row): row is SupabaseEstudarRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
+            return this.sortByIndex(items);
         } catch (err) {
             console.error("Erro inesperado ao buscar estudar:", err);
             return [];
@@ -56,15 +58,8 @@ export class SupabaseEstudarRepository implements IEstudarRepository {
 
     async getLatest(): Promise<Estudar | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("estudar")
-                .select("*")
-                .order("id", { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error || !data || !this.isValidRow(data)) return null;
-            return this.mapToEntity(data);
+            const all = await this.getAll();
+            return all[0] ?? null;
         } catch {
             return null;
         }
@@ -84,7 +79,14 @@ export class SupabaseEstudarRepository implements IEstudarRepository {
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
             readTime: row.read_time,
+            index: row.index ?? 0,
         };
         return Estudar.create(props);
+    }
+
+    private sortByIndex(items: Estudar[]): Estudar[] {
+        const indexed = items.filter(i => i.index > 0).sort((a, b) => a.index - b.index);
+        const unindexed = items.filter(i => i.index === 0).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return [...indexed, ...unindexed];
     }
 }

@@ -15,6 +15,8 @@ import { ContentItem, ContentType } from "../entities/ContentItem";
 export interface CreateContentInput {
     title: string;
     readTime?: number;
+    // Campos específicos de mini-livro
+    relativeEbook?: number | null;
     // Campos específicos de biblioteca
     tema?: string | null;
     // Campos específicos de ebook
@@ -86,4 +88,12 @@ export interface IContentRepository {
      * @returns Date da última atualização, ou null se não houver itens
      */
     getLastUpdated(type: ContentType): Promise<Date | null>;
+
+    /**
+     * Reordena itens atribuindo index = posição + 1 para cada ID na ordem recebida.
+     * Não suportado para ebook e livro.
+     * @param type - Tipo de conteúdo
+     * @param orderedIds - IDs na nova ordem desejada
+     */
+    reorderItems(type: ContentType, orderedIds: number[]): Promise<void>;
 }

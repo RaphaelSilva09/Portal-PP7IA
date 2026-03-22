@@ -26,6 +26,7 @@ import {
     Dashboard,
     EbookForm,
     FeedbackMessage,
+    SortableContentTable,
     UserManager,
 } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
@@ -49,8 +50,10 @@ import {
     Star,
     Users,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useEbook } from "@/presentation/hooks/useEbook";
 
 // Seções principais do painel (navegação de alto nível)
 type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial";
@@ -58,6 +61,18 @@ type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial
 type ContentTab = ContentType | "livro";
 
 // Tabs de conteúdo (sub-navegação)
+const SORTABLE_TYPES = new Set<ContentTab>(["newsletter", "mini-livro", "biblioteca", "especial-semana", "radar_oportunidades", "estudar"]);
+
+/** Mapeamento do ContentType para a query key usada pelo hook público correspondente */
+const CONTENT_QUERY_KEY: Partial<Record<ContentType, string>> = {
+    newsletter: "newsletters",
+    "mini-livro": "mini-livros",
+    biblioteca: "biblioteca",
+    "especial-semana": "especial-semana",
+    radar_oportunidades: "radar-oportunidades",
+    estudar: "estudar",
+};
+
 const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
     { type: "mini-livro", label: "Mini-Livros", icon: BookOpen },
@@ -85,6 +100,7 @@ interface ConfirmState {
 export default function PainelAdminPage() {
     const router = useRouter();
     const { user, isLoading: authLoading } = useAuth();
+    const queryClient = useQueryClient();
 
     // Navegação principal
     const [mainSection, setMainSection] = useState<MainSection>("inicio");
@@ -97,6 +113,9 @@ export default function PainelAdminPage() {
     const [showForm, setShowForm] = useState(false);
     const [editItem, setEditItem] = useState<ContentItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
+
+    const { all: allEbooks } = useEbook();
 
     // Feedback e confirmação (compartilhado por todas seções)
     const [feedback, setFeedback] = useState<FeedbackState>({
@@ -156,6 +175,7 @@ export default function PainelAdminPage() {
         setContentTab(type);
         setShowForm(false);
         setEditItem(null);
+        setSelectedEbookIndex(0);
     };
 
     // Handlers de conteúdo
@@ -197,7 +217,7 @@ export default function PainelAdminPage() {
         });
     };
 
-    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string }) => {
+    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; relativeEbook?: number | null }) => {
         setIsSubmitting(true);
         try {
             if (editItem) {
@@ -227,6 +247,7 @@ export default function PainelAdminPage() {
                     htmlFile: data.htmlFile,
                     pdfFile: data.pdfFile,
                     tema: data.tema,
+                    relativeEbook: data.relativeEbook,
                 });
                 setFeedback({
                     show: true,
@@ -246,6 +267,23 @@ export default function PainelAdminPage() {
             });
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleReorder = async (reorderedItems: ContentItem[]) => {
+        try {
+            const repo = DIContainer.getContentRepository();
+            await repo.reorderItems(contentTab as ContentType, reorderedItems.map(i => i.id));
+            setItems(reorderedItems);
+            // Invalida o cache do React Query para que a página pública reflita a nova ordem imediatamente
+            const queryKey = CONTENT_QUERY_KEY[contentTab as ContentType];
+            if (queryKey) {
+                queryClient.invalidateQueries({ queryKey: [queryKey] });
+            }
+            setFeedback({ show: true, message: "Ordem atualizada com sucesso!", type: "success" });
+        } catch (error) {
+            console.error("Erro ao reordenar:", error);
+            setFeedback({ show: true, message: "Erro ao salvar nova ordem. Tente novamente.", type: "error" });
         }
     };
 
@@ -434,6 +472,7 @@ export default function PainelAdminPage() {
                                         setEditItem(null);
                                     }}
                                     isLoading={isSubmitting}
+                                    relativeEbook={contentTab === "mini-livro" && !editItem ? (allEbooks[selectedEbookIndex]?.order ?? null) : undefined}
                                 />
                             )
                         ) : (
@@ -456,6 +495,19 @@ export default function PainelAdminPage() {
                                             Nenhum material cadastrado.
                                         </div>
                                     </GlassCard>
+                                ) : SORTABLE_TYPES.has(contentTab) ? (
+                                    <SortableContentTable
+                                        items={contentTab === "mini-livro"
+                                            ? items.filter(ml => ml.relativeEbook === (allEbooks[selectedEbookIndex]?.order ?? null))
+                                            : items}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        onReorder={handleReorder}
+                                        lastUpdated={lastUpdated}
+                                        type={contentTab as ContentType}
+                                        selectedEbookIndex={selectedEbookIndex}
+                                        onEbookChange={setSelectedEbookIndex}
+                                    />
                                 ) : (
                                     <ContentTable
                                         items={items}

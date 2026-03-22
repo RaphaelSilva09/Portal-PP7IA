@@ -26,6 +26,7 @@ interface SupabaseBibliotecaRow {
     pdf_path: string | null;
     read_time: number;
     tema: string;
+    index: number;
 }
 
 const VALID_TEMAS: BibliotecaTema[] = [
@@ -57,10 +58,7 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
      */
     async getAll(): Promise<BibliotecaItem[]> {
         try {
-            const { data, error } = await this.supabase
-                .from("biblioteca")
-                .select("*")
-                .order("created_at", { ascending: false });
+            const { data, error } = await this.supabase.from("biblioteca").select("*");
 
             if (error) {
                 console.error("Erro ao buscar biblioteca:", error.message);
@@ -71,9 +69,10 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
                 return [];
             }
 
-            return data
+            const items = data
                 .filter((row): row is SupabaseBibliotecaRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
+            return this.sortByIndex(items);
         } catch (err) {
             console.error("Erro inesperado ao buscar biblioteca:", err);
             return [];
@@ -81,26 +80,12 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
     }
 
     /**
-     * Obtém o item mais recente da biblioteca
+     * Obtém o item com menor index (primeiro na ordenação definida pelo admin)
      */
     async getLatest(): Promise<BibliotecaItem | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("biblioteca")
-                .select("*")
-                .order("created_at", { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error || !data) {
-                return null;
-            }
-
-            if (!this.isValidRow(data)) {
-                return null;
-            }
-
-            return this.mapToEntity(data);
+            const all = await this.getAll();
+            return all[0] ?? null;
         } catch (err) {
             console.error("Erro ao buscar último item da biblioteca:", err);
             return null;
@@ -151,7 +136,14 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
             pdfPath: row.pdf_path,
             readTime: row.read_time,
             tema: parseTema(row.tema),
+            index: row.index ?? 0,
         };
         return BibliotecaItem.create(props);
+    }
+
+    private sortByIndex(items: BibliotecaItem[]): BibliotecaItem[] {
+        const indexed = items.filter(i => i.index > 0).sort((a, b) => a.index - b.index);
+        const unindexed = items.filter(i => i.index === 0).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return [...indexed, ...unindexed];
     }
 }

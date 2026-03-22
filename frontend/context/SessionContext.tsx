@@ -30,6 +30,13 @@ interface SessionContextType {
 
 const SessionContext = createContext<SessionContextType | null>(null);
 
+const authDebugStart = Date.now();
+
+const authDebug = (...args: unknown[]) => {
+    if (process.env.NEXT_PUBLIC_AUTH_DEBUG !== 'true') return;
+    console.log('[Auth]', `+${Date.now() - authDebugStart}ms`, ...args);
+};
+
 interface SessionProviderProps {
     children: ReactNode;
 }
@@ -61,11 +68,21 @@ export function SessionProvider({ children }: SessionProviderProps) {
     useEffect(() => {
         let mounted = true;
         let initialSessionResolved = false;
+        const initialSessionRevalidationTimers: ReturnType<typeof setTimeout>[] = [];
 
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
+
+            authDebug('event', event, {
+                hasSession: !!session,
+                userId: session?.user?.id?.slice(0, 8) ?? null,
+                identitiesCount: Array.isArray(session?.user?.identities)
+                    ? session.user.identities.length
+                    : 'undefined',
+                userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'ssr',
+            });
 
             // INITIAL_SESSION é sempre o primeiro evento — fonte de verdade única
             if (event === "INITIAL_SESSION") {
@@ -80,8 +97,14 @@ export function SessionProvider({ children }: SessionProviderProps) {
                         if (mounted) {
                             setUser(userData);
                             userRef.current = userData;
+                            authDebug('getUserFromSession result', {
+                                event,
+                                found: !!userData,
+                                userId: session?.user?.id?.slice(0, 8) ?? null,
+                            });
                         }
                     } catch (err) {
+                        authDebug('getUserFromSession error', { event, err });
                         if (mounted) {
                             setUser(null);
                             userRef.current = null;
@@ -90,6 +113,30 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 } else {
                     setUser(null);
                     userRef.current = null;
+                    // Safari/iOS ITP: INITIAL_SESSION pode chegar sem sessão mesmo com usuário logado.
+                    // Cascata de revalidação em 1s, 3s, 8s — cobre desde delays curtos (5s) até
+                    // os casos extremos de 63s. Cada timer é no-op se SIGNED_IN ou outro timer
+                    // já setou o usuário (guard userRef.current !== null).
+                    const revalidate = async (delay: number) => {
+                        if (!mounted || userRef.current !== null) return;
+                        const { data: { session: revalidatedSession } } = await supabase.auth.getSession();
+                        if (!mounted || userRef.current !== null || !revalidatedSession?.user) return;
+                        try {
+                            const repository = DIContainer.getAuthRepository();
+                            const role = (revalidatedSession.user.app_metadata?.role as string) || "user";
+                            const userData = await repository.getUserFromSession(revalidatedSession.user.id, role);
+                            if (mounted && userRef.current === null) {
+                                setUser(userData);
+                                userRef.current = userData;
+                                authDebug('INITIAL_SESSION revalidation', { found: !!userData, delay: `${delay}ms` });
+                            }
+                        } catch {
+                            // Falha silenciosa — o Supabase vai disparar SIGNED_IN quando estiver pronto
+                        }
+                    };
+                    for (const delay of [1000, 3000, 8000]) {
+                        initialSessionRevalidationTimers.push(setTimeout(() => revalidate(delay), delay));
+                    }
                 }
                 if (mounted) setIsLoading(false);
                 return;
@@ -103,6 +150,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
             if (event === "SIGNED_OUT") {
                 setUser(null);
                 userRef.current = null;
+                setEmailConfirmationRequired(false);
                 setIsLoading(false);
                 return;
             }
@@ -123,8 +171,14 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     if (mounted) {
                         setUser(userData);
                         userRef.current = userData;
+                        authDebug('getUserFromSession result', {
+                            event,
+                            found: !!userData,
+                            userId: session?.user?.id?.slice(0, 8) ?? null,
+                        });
                     }
                 } catch (err) {
+                    authDebug('getUserFromSession error', { event, err });
                     if (mounted) {
                         setUser(null);
                         userRef.current = null;
@@ -190,11 +244,23 @@ export function SessionProvider({ children }: SessionProviderProps) {
         };
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
+        // Restauração via bfcache (Safari/Chrome iOS — botão Voltar)
+        // e.persisted === true indica que a página foi restaurada do cache, não recarregada
+        // O onAuthStateChange não é redispachado nesse caso, então forçamos uma verificação
+        const handlePageShow = (e: PageTransitionEvent) => {
+            if (e.persisted) {
+                supabase.auth.getSession();
+            }
+        };
+        window.addEventListener('pageshow', handlePageShow);
+
         // Cleanup
         return () => {
             mounted = false;
+            initialSessionRevalidationTimers.forEach(clearTimeout);
             subscription.unsubscribe();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('pageshow', handlePageShow);
         };
     }, []);
 
@@ -228,15 +294,20 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setIsLoading(true);
         setError(null);
 
+        // Safety net: garante que loading nunca fica preso se o onAuthStateChange
+        // atrasar ou não disparar (Safari/ITP, falhas silenciosas de browser)
+        const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
+
         try {
             const useCase = DIContainer.getSignInUseCase();
             await useCase.execute(params);
-            // onAuthStateChange vai atualizar o usuário e chamar setIsLoading(false)
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer login.";
             setError(errorMessage);
-            setIsLoading(false);
             throw err;
+        } finally {
+            clearTimeout(safetyTimer);
+            setIsLoading(false);
         }
     }, []);
 
@@ -247,15 +318,17 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setIsLoading(true);
         setError(null);
 
+        const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
+
         try {
             const useCase = DIContainer.getSignOutUseCase();
             await useCase.execute();
-            // onAuthStateChange vai limpar o state automaticamente
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer logout.";
             setError(errorMessage);
             throw err;
         } finally {
+            clearTimeout(safetyTimer);
             setIsLoading(false);
         }
     }, []);

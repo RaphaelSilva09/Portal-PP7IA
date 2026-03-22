@@ -100,8 +100,10 @@ export async function GET(request: NextRequest) {
             .range(from, to);
 
         // Busca server-side por nome ou email
+        // Remove caracteres especiais do PostgREST para evitar injeção de operadores
         if (search) {
-            query = query.or(`nome.ilike.%${search}%,email.ilike.%${search}%`);
+            const safeSearch = search.replace(/[.,();%]/g, "");
+            query = query.or(`nome.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`);
         }
 
         const { data: usersData, count, error } = await query;

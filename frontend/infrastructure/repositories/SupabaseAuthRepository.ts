@@ -70,7 +70,9 @@ export class SupabaseAuthRepository implements IAuthRepository {
             // - session = null
             // - user.identities = [] (array vazio)
             // Isso indica que o usuário já existe, não que precisa confirmar email
-            const userAlreadyExists = authData.user.identities && authData.user.identities.length === 0;
+            const identities = authData.user.identities as unknown[] | null | undefined;
+            const userAlreadyExists =
+                identities == null || (Array.isArray(identities) && identities.length === 0);
 
             if (userAlreadyExists) {
                 throw new UserAlreadyExistsError();
@@ -254,25 +256,51 @@ export class SupabaseAuthRepository implements IAuthRepository {
      * já foi validada pelo Supabase internamente.
      */
     async getUserFromSession(userId: string, role: string): Promise<User | null> {
-        try {
-            const { data: userData, error } = await this.supabase.from("users").select("*").eq("id", userId).single();
+        const MAX_RETRIES = 3;
+        const BASE_DELAY_MS = 600;
 
-            if (error || !userData) {
+        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            if (attempt > 0) {
+                console.log('[Auth] getUserFromSession retry', { attempt, userId: userId.slice(0, 8) });
+            }
+            try {
+                const { data: userData, error } = await this.supabase
+                    .from("users")
+                    .select("*")
+                    .eq("id", userId)
+                    .single();
+
+                if (userData) {
+                    if (attempt > 0) {
+                        console.log('[Auth] getUserFromSession found on retry', { attempt, userId: userId.slice(0, 8) });
+                    }
+                    return this.mapToUser(userId, {
+                        email: userData.email,
+                        nome: userData.nome,
+                        celular: userData.celular,
+                        acceptEmailUpdates: userData.accept_email_updates,
+                        acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
+                        createdAt: new Date(userData.created_at),
+                        role,
+                    });
+                }
+
+                // Erro de auth/permissão não deve ser retentado — só race condition com trigger
+                if (error && error.code !== "PGRST116") {
+                    return null;
+                }
+            } catch {
                 return null;
             }
 
-            return this.mapToUser(userId, {
-                email: userData.email,
-                nome: userData.nome,
-                celular: userData.celular,
-                acceptEmailUpdates: userData.accept_email_updates,
-                acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
-                createdAt: new Date(userData.created_at),
-                role,
-            });
-        } catch {
-            return null;
+            if (attempt < MAX_RETRIES - 1) {
+                await new Promise(resolve =>
+                    setTimeout(resolve, BASE_DELAY_MS * (attempt + 1))
+                );
+            }
         }
+
+        return null;
     }
 
     /**
@@ -571,9 +599,10 @@ export class SupabaseAuthRepository implements IAuthRepository {
      * Mapeia erros do Supabase para erros de domínio
      * Error Handling: Traduz erros técnicos para erros de negócio
      */
-    private mapSupabaseError(error: any): Error {
-        const message = error.message?.toLowerCase() || "";
-        const code = error.code || error.status;
+    private mapSupabaseError(error: unknown): Error {
+        const err = error as Record<string, unknown>;
+        const message = typeof err?.message === "string" ? err.message.toLowerCase() : "";
+        const code = err?.code ?? err?.status;
 
         // Mapeamento de erros comuns do Supabase
         if (message.includes("user already registered") || code === "23505") {
@@ -590,7 +619,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
 
         // Erros relacionados a senha - traduz para português
         if (message.includes("password")) {
-            const translatedMessage = this.translatePasswordError(error.message);
+            const translatedMessage = this.translatePasswordError(typeof err?.message === "string" ? err.message : "");
             return new WeakPasswordError(translatedMessage);
         }
 
@@ -598,7 +627,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
             return new NetworkError();
         }
 
-        return new UnknownAuthError(error.message);
+        return new UnknownAuthError(typeof err?.message === "string" ? err.message : String(error));
     }
 
     /**

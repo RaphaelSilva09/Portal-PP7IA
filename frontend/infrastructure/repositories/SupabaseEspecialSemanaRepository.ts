@@ -29,6 +29,7 @@ interface SupabaseEspecialSemanaRow {
     html_path: string | null;
     pdf_path: string | null;
     read_time: number;
+    index: number;
 }
 
 /**
@@ -39,10 +40,7 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
 
     async getAll(): Promise<EspecialSemana[]> {
         try {
-            const { data, error } = await this.supabase
-                .from("especial_semana")
-                .select("*")
-                .order("id", { ascending: false });
+            const { data, error } = await this.supabase.from("especial_semana").select("*");
 
             if (error) {
                 console.error("Erro ao buscar especial_semana:", error.message);
@@ -53,9 +51,10 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
                 return [];
             }
 
-            return data
+            const items = data
                 .filter((row): row is SupabaseEspecialSemanaRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
+            return this.sortByIndex(items);
         } catch (err) {
             console.error("Erro inesperado ao buscar especial-semana:", err);
             return [];
@@ -83,22 +82,8 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
 
     async getLatest(): Promise<EspecialSemana | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("especial_semana")
-                .select("*")
-                .order("id", { ascending: false })
-                .limit(1)
-                .single();
-
-            if (error || !data) {
-                return null;
-            }
-
-            if (!this.isValidRow(data)) {
-                return null;
-            }
-
-            return this.mapToEntity(data);
+            const all = await this.getAll();
+            return all[0] ?? null;
         } catch (err) {
             console.error("Erro ao buscar último especial-semana:", err);
             return null;
@@ -210,7 +195,14 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
             readTime: row.read_time,
+            index: row.index ?? 0,
         };
         return EspecialSemana.create(props);
+    }
+
+    private sortByIndex(items: EspecialSemana[]): EspecialSemana[] {
+        const indexed = items.filter(i => i.index > 0).sort((a, b) => a.index - b.index);
+        const unindexed = items.filter(i => i.index === 0).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return [...indexed, ...unindexed];
     }
 }

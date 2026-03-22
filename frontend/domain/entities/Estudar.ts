@@ -18,6 +18,7 @@ export interface EstudarProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
+    index: number;
 }
 
 export class Estudar {
@@ -61,6 +62,10 @@ export class Estudar {
         return this.props.createdAt;
     }
 
+    get index(): number {
+        return this.props.index;
+    }
+
     get htmlAvailable(): boolean {
         return Boolean(this.props.htmlPath?.trim());
     }
@@ -70,7 +75,7 @@ export class Estudar {
     }
 
     get formattedNumber(): string {
-        return this.props.id.toString().padStart(3, "0");
+        return this.props.index.toString().padStart(3, "0");
     }
 
     get formattedDate(): string {

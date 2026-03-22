@@ -4,10 +4,14 @@
  * Intercepta rotas protegidas antes de renderizar.
  * - /painel-admin: requer autenticação + admin
  * - /user: requer autenticação
+ * - /: landing page (redireciona logados para /home)
+ * - /home: homepage autenticada (redireciona anônimos para /)
  *
  * Redirects:
  * - Não autenticado -> /?authModal=login (abre modal de login)
- * - Autenticado não-admin em /painel-admin -> / (home)
+ * - Autenticado não-admin em /painel-admin -> /home
+ * - Logado em / -> /home
+ * - Anônimo em /home -> /
  *
  * Princípios aplicados:
  * - Defense in Depth: Primeira camada de segurança (proxy)
@@ -20,6 +24,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const ADMIN_ROUTES = "/painel-admin";
 const AUTH_ROUTES = "/user";
+const HOME_ROUTE = "/home";
 
 function redirectToLogin(request: NextRequest): NextResponse {
     const loginUrl = new URL("/", request.url);
@@ -28,7 +33,7 @@ function redirectToLogin(request: NextRequest): NextResponse {
 }
 
 function redirectToHome(request: NextRequest): NextResponse {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL(HOME_ROUTE, request.url));
 }
 
 export async function proxy(request: NextRequest) {
@@ -36,8 +41,10 @@ export async function proxy(request: NextRequest) {
 
     const isAdminRoute = pathname.startsWith(ADMIN_ROUTES);
     const isAuthRoute = pathname.startsWith(AUTH_ROUTES);
+    const isRootRoute = pathname === "/";
+    const isHomeRoute = pathname === HOME_ROUTE;
 
-    if (!isAdminRoute && !isAuthRoute) {
+    if (!isAdminRoute && !isAuthRoute && !isRootRoute && !isHomeRoute) {
         return NextResponse.next();
     }
 
@@ -69,16 +76,38 @@ export async function proxy(request: NextRequest) {
         data: { session },
     } = await supabase.auth.getSession();
 
+    if (!session?.user && (isAuthRoute || isAdminRoute)) {
+        const hasCookie = request.cookies.getAll().some(c => c.name.includes('supabase'));
+        console.log('[Auth:proxy] session null on protected route', {
+            pathname,
+            hasCookie,
+            userAgent: request.headers.get('user-agent'),
+        });
+    }
+
+    // Landing page: logado vai para /home, anônimo renderiza normalmente
+    if (isRootRoute) {
+        if (session?.user) return NextResponse.redirect(new URL(HOME_ROUTE, request.url));
+        return NextResponse.next();
+    }
+
+    // Homepage autenticada: anônimo volta para /
+    if (isHomeRoute) {
+        if (!session?.user) return NextResponse.redirect(new URL("/", request.url));
+        return supabaseResponse;
+    }
+
+    // 2. Rotas protegidas: requer autenticação
     if (!session?.user) {
         return redirectToLogin(request);
     }
 
-    // 2. Para rotas de usuário, autenticação é suficiente
+    // 3. Para rotas de usuário, autenticação é suficiente
     if (isAuthRoute) {
         return supabaseResponse;
     }
 
-    // 3. Para rotas admin, verifica role no JWT (app_metadata)
+    // 4. Para rotas admin, verifica role no JWT (app_metadata)
     const isAdmin = session.user.app_metadata?.role === "admin";
 
     if (!isAdmin) {
@@ -89,5 +118,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/painel-admin/:path*", "/user/:path*"],
+    matcher: ["/painel-admin/:path*", "/user/:path*", "/", "/home"],
 };

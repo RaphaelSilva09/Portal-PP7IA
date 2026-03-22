@@ -18,6 +18,7 @@ export interface RadarOportunidadesProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
+    index: number;
 }
 
 export class RadarOportunidades {
@@ -61,6 +62,10 @@ export class RadarOportunidades {
         return this.props.createdAt;
     }
 
+    get index(): number {
+        return this.props.index;
+    }
+
     get htmlAvailable(): boolean {
         return Boolean(this.props.htmlPath?.trim());
     }
@@ -70,7 +75,7 @@ export class RadarOportunidades {
     }
 
     get formattedNumber(): string {
-        return this.props.id.toString().padStart(3, "0");
+        return this.props.index.toString().padStart(3, "0");
     }
 
     get formattedDate(): string {

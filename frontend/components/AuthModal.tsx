@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle, Check, Eye, EyeOff, LogIn, Mail, Phone, User, UserPlus, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useForgotPasswordModal } from "../context/ForgotPasswordModalContext";
@@ -64,6 +65,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     // Hook de autenticação (Clean Architecture)
     const { signUp, signIn, isLoading, error: authError, clearError } = useAuth();
     const { openModal: openForgotPasswordModal } = useForgotPasswordModal();
+    const router = useRouter();
 
     // Hook para travar scroll do body (DRY - extraído para hook reutilizável)
     useBodyScrollLock(isOpen);
@@ -170,6 +172,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                     password: formData.senha,
                 });
                 onClose();
+                router.push("/home");
             } else {
                 const result = await signUp({
                     email: formData.email,
