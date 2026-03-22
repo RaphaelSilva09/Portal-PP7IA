@@ -70,8 +70,9 @@ export class SupabaseAuthRepository implements IAuthRepository {
             // - session = null
             // - user.identities = [] (array vazio)
             // Isso indica que o usuário já existe, não que precisa confirmar email
+            const identities = authData.user.identities as unknown[] | null | undefined;
             const userAlreadyExists =
-                Array.isArray(authData.user.identities) && authData.user.identities.length === 0;
+                identities == null || (Array.isArray(identities) && identities.length === 0);
 
             if (userAlreadyExists) {
                 throw new UserAlreadyExistsError();

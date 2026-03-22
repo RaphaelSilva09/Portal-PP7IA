@@ -125,6 +125,48 @@ describe('SupabaseAuthRepository', () => {
                 })
             ).rejects.toBeInstanceOf(UserAlreadyExistsError);
         });
+
+        it('com identities: undefined → lança UserAlreadyExistsError', async () => {
+            mockClient.auth.signUp.mockResolvedValue({
+                data: {
+                    user: { id: 'u1', identities: undefined },
+                    session: null,
+                },
+                error: null,
+            });
+
+            await expect(
+                repo.signUp({
+                    email: 'existing@example.com',
+                    password: '123456',
+                    nome: 'User',
+                    celular: '11999999999',
+                    acceptEmailUpdates: true,
+                    acceptWhatsAppUpdates: false,
+                })
+            ).rejects.toBeInstanceOf(UserAlreadyExistsError);
+        });
+
+        it('com identities: null → lança UserAlreadyExistsError', async () => {
+            mockClient.auth.signUp.mockResolvedValue({
+                data: {
+                    user: { id: 'u1', identities: null },
+                    session: null,
+                },
+                error: null,
+            });
+
+            await expect(
+                repo.signUp({
+                    email: 'existing@example.com',
+                    password: '123456',
+                    nome: 'User',
+                    celular: '11999999999',
+                    acceptEmailUpdates: true,
+                    acceptWhatsAppUpdates: false,
+                })
+            ).rejects.toBeInstanceOf(UserAlreadyExistsError);
+        });
     });
 
     describe('getCurrentUser', () => {
@@ -136,6 +178,64 @@ describe('SupabaseAuthRepository', () => {
             const result = await repo.getCurrentUser();
 
             expect(result).toBeNull();
+        });
+    });
+
+    describe('getUserFromSession', () => {
+        it('primeira tentativa retorna dados → retorna User sem delay', async () => {
+            mockClient._mockSingle.mockResolvedValueOnce({ data: validUserRow, error: null });
+
+            const result = await repo.getUserFromSession('user-id-1234', 'user');
+
+            expect(result?.email).toBe('test@example.com');
+            expect(mockClient._mockSingle).toHaveBeenCalledTimes(1);
+        });
+
+        it('duas tentativas com PGRST116 e terceira com dados → retorna User após backoff', async () => {
+            vi.useFakeTimers();
+            try {
+                mockClient._mockSingle
+                    .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+                    .mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+                    .mockResolvedValueOnce({ data: validUserRow, error: null });
+
+                const promise = repo.getUserFromSession('u1', 'user');
+                await vi.runAllTimersAsync();
+                const result = await promise;
+
+                expect(result?.email).toBe('test@example.com');
+                expect(mockClient._mockSingle).toHaveBeenCalledTimes(3);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('três tentativas com PGRST116 → retorna null', async () => {
+            vi.useFakeTimers();
+            try {
+                mockClient._mockSingle.mockResolvedValue({ data: null, error: { code: 'PGRST116' } });
+
+                const promise = repo.getUserFromSession('u1', 'user');
+                await vi.runAllTimersAsync();
+                const result = await promise;
+
+                expect(result).toBeNull();
+                expect(mockClient._mockSingle).toHaveBeenCalledTimes(3);
+            } finally {
+                vi.useRealTimers();
+            }
+        });
+
+        it('erro não PGRST116 → retorna null imediatamente sem retry', async () => {
+            mockClient._mockSingle.mockResolvedValueOnce({
+                data: null,
+                error: { code: '42501', message: 'permission denied' },
+            });
+
+            const result = await repo.getUserFromSession('u1', 'user');
+
+            expect(result).toBeNull();
+            expect(mockClient._mockSingle).toHaveBeenCalledTimes(1);
         });
     });
 
