@@ -119,7 +119,17 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     // Revalida ativamente após 2s — se SIGNED_IN chegar antes, userRef.current não será
                     // null e o timeout será no-op.
                     initialSessionRevalidationTimer = setTimeout(async () => {
-                        if (!mounted || userRef.current !== null) return;
+                        authDebug('INITIAL_SESSION revalidation timer fired', {
+                            userRefNull: userRef.current === null,
+                            mounted,
+                        });
+                        if (!mounted || userRef.current !== null) {
+                            authDebug('INITIAL_SESSION revalidation skipped', {
+                                reason: !mounted ? 'unmounted' : 'user already set by SIGNED_IN',
+                                elapsed: '2000ms',
+                            });
+                            return;
+                        }
                         const { data: { session: revalidatedSession } } = await supabase.auth.getSession();
                         if (!mounted || userRef.current !== null || !revalidatedSession?.user) return;
                         try {
@@ -160,6 +170,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
             }
 
             if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session?.user) {
+                if (event === "SIGNED_IN") {
+                    authDebug('SIGNED_IN timing', {
+                        beforeOrAfterRevalidationWindow: session?.user ? 'has session' : 'no session',
+                        userWasAlreadySet: userRef.current !== null,
+                    });
+                }
                 try {
                     const repository = DIContainer.getAuthRepository();
                     // Usa getUserFromSession (sem round-trip ao Auth server):
