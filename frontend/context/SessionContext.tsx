@@ -68,6 +68,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
     useEffect(() => {
         let mounted = true;
         let initialSessionResolved = false;
+        let initialSessionRevalidationTimer: ReturnType<typeof setTimeout> | null = null;
 
         const {
             data: { subscription },
@@ -81,6 +82,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     ? session.user.identities.length
                     : 'undefined',
                 userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'ssr',
+                expiresAt: session?.expires_at ?? null,
+                now: Math.floor(Date.now() / 1000),
             });
 
             // INITIAL_SESSION é sempre o primeiro evento — fonte de verdade única
@@ -112,6 +115,26 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 } else {
                     setUser(null);
                     userRef.current = null;
+                    // Safari/iOS ITP: INITIAL_SESSION pode chegar sem sessão mesmo com usuário logado.
+                    // Revalida ativamente após 2s — se SIGNED_IN chegar antes, userRef.current não será
+                    // null e o timeout será no-op.
+                    initialSessionRevalidationTimer = setTimeout(async () => {
+                        if (!mounted || userRef.current !== null) return;
+                        const { data: { session: revalidatedSession } } = await supabase.auth.getSession();
+                        if (!mounted || userRef.current !== null || !revalidatedSession?.user) return;
+                        try {
+                            const repository = DIContainer.getAuthRepository();
+                            const role = (revalidatedSession.user.app_metadata?.role as string) || "user";
+                            const userData = await repository.getUserFromSession(revalidatedSession.user.id, role);
+                            if (mounted && userRef.current === null) {
+                                setUser(userData);
+                                userRef.current = userData;
+                                authDebug('INITIAL_SESSION revalidation', { found: !!userData, delay: '2000ms' });
+                            }
+                        } catch {
+                            // Falha silenciosa — o Supabase vai disparar SIGNED_IN quando estiver pronto
+                        }
+                    }, 2000);
                 }
                 if (mounted) setIsLoading(false);
                 return;
@@ -232,6 +255,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
         // Cleanup
         return () => {
             mounted = false;
+            if (initialSessionRevalidationTimer) clearTimeout(initialSessionRevalidationTimer);
             subscription.unsubscribe();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('pageshow', handlePageShow);
