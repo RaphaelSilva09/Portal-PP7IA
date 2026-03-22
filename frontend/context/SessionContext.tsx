@@ -82,8 +82,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     ? session.user.identities.length
                     : 'undefined',
                 userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'ssr',
-                expiresAt: session?.expires_at ?? null,
-                now: Math.floor(Date.now() / 1000),
             });
 
             // INITIAL_SESSION é sempre o primeiro evento — fonte de verdade única
@@ -120,28 +118,9 @@ export function SessionProvider({ children }: SessionProviderProps) {
                     // os casos extremos de 63s. Cada timer é no-op se SIGNED_IN ou outro timer
                     // já setou o usuário (guard userRef.current !== null).
                     const revalidate = async (delay: number) => {
-                        authDebug('INITIAL_SESSION revalidation timer fired', {
-                            userRefNull: userRef.current === null,
-                            mounted,
-                            delay: `${delay}ms`,
-                        });
-                        if (!mounted || userRef.current !== null) {
-                            authDebug('INITIAL_SESSION revalidation skipped', {
-                                reason: !mounted ? 'unmounted' : 'user already set by SIGNED_IN',
-                                elapsed: `${delay}ms`,
-                            });
-                            return;
-                        }
+                        if (!mounted || userRef.current !== null) return;
                         const { data: { session: revalidatedSession } } = await supabase.auth.getSession();
-                        if (!mounted || userRef.current !== null || !revalidatedSession?.user) {
-                            authDebug('INITIAL_SESSION revalidation aborted after getSession', {
-                                reason: !mounted ? 'unmounted'
-                                    : userRef.current !== null ? 'SIGNED_IN won the race'
-                                    : 'no session found',
-                                elapsed: `${delay}ms`,
-                            });
-                            return;
-                        }
+                        if (!mounted || userRef.current !== null || !revalidatedSession?.user) return;
                         try {
                             const repository = DIContainer.getAuthRepository();
                             const role = (revalidatedSession.user.app_metadata?.role as string) || "user";
@@ -183,12 +162,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
             }
 
             if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session?.user) {
-                if (event === "SIGNED_IN") {
-                    authDebug('SIGNED_IN timing', {
-                        beforeOrAfterRevalidationWindow: session?.user ? 'has session' : 'no session',
-                        userWasAlreadySet: userRef.current !== null,
-                    });
-                }
                 try {
                     const repository = DIContainer.getAuthRepository();
                     // Usa getUserFromSession (sem round-trip ao Auth server):
