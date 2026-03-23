@@ -67,4 +67,36 @@ function createSupabaseClient(): SupabaseClient {
     });
 }
 
+/**
+ * Cria cliente Supabase sem gerenciamento de sessão, para queries de conteúdo público.
+ * Não compartilha o lock interno de token refresh com o client principal,
+ * evitando que queries de conteúdo sejam bloqueadas durante o auto-refresh de auth.
+ */
+function createSupabaseAnonClient(): SupabaseClient {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error(
+            "Variáveis de ambiente do Supabase não configuradas. " +
+                "Certifique-se de definir NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        );
+    }
+
+    return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false,
+        },
+        global: {
+            fetch: createFetchWithTimeout(10000),
+        },
+    });
+}
+
+// Client principal — com sessão, para auth e operações de admin
 export const supabase = createSupabaseClient();
+
+// Client anônimo — sem sessão, para queries de conteúdo público
+export const supabaseAnon = createSupabaseAnonClient();

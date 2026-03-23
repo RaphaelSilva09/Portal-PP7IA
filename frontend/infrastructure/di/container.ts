@@ -37,7 +37,7 @@ import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
 import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
 import { VerifyPasswordResetOTPUseCase } from "../../application/usecases/VerifyPasswordResetOTPUseCase";
-import { supabase } from "../config/supabase";
+import { supabase, supabaseAnon } from "../config/supabase";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
 import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
 import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
@@ -96,7 +96,7 @@ class DIContainer {
      */
     static getNewsletterRepository(): SupabaseNewsletterRepository {
         if (!this.newsletterRepositoryInstance) {
-            this.newsletterRepositoryInstance = new SupabaseNewsletterRepository(supabase);
+            this.newsletterRepositoryInstance = new SupabaseNewsletterRepository(supabaseAnon);
         }
         return this.newsletterRepositoryInstance;
     }
@@ -107,7 +107,7 @@ class DIContainer {
      */
     static getMiniLivroRepository(): SupabaseMiniLivroRepository {
         if (!this.miniLivroRepositoryInstance) {
-            this.miniLivroRepositoryInstance = new SupabaseMiniLivroRepository(supabase);
+            this.miniLivroRepositoryInstance = new SupabaseMiniLivroRepository(supabaseAnon);
         }
         return this.miniLivroRepositoryInstance;
     }
@@ -118,7 +118,7 @@ class DIContainer {
      */
     static getBibliotecaRepository(): SupabaseBibliotecaRepository {
         if (!this.bibliotecaRepositoryInstance) {
-            this.bibliotecaRepositoryInstance = new SupabaseBibliotecaRepository(supabase);
+            this.bibliotecaRepositoryInstance = new SupabaseBibliotecaRepository(supabaseAnon);
         }
         return this.bibliotecaRepositoryInstance;
     }
@@ -129,7 +129,7 @@ class DIContainer {
      */
     static getEspecialSemanaRepository(): SupabaseEspecialSemanaRepository {
         if (!this.especialSemanaRepositoryInstance) {
-            this.especialSemanaRepositoryInstance = new SupabaseEspecialSemanaRepository(supabase);
+            this.especialSemanaRepositoryInstance = new SupabaseEspecialSemanaRepository(supabaseAnon);
         }
         return this.especialSemanaRepositoryInstance;
     }
@@ -140,7 +140,7 @@ class DIContainer {
      */
     static getRadarOportunidadesRepository(): SupabaseRadarOportunidadesRepository {
         if (!this.radarOportunidadesRepositoryInstance) {
-            this.radarOportunidadesRepositoryInstance = new SupabaseRadarOportunidadesRepository(supabase);
+            this.radarOportunidadesRepositoryInstance = new SupabaseRadarOportunidadesRepository(supabaseAnon);
         }
         return this.radarOportunidadesRepositoryInstance;
     }
@@ -151,7 +151,7 @@ class DIContainer {
      */
     static getEstudarRepository(): SupabaseEstudarRepository {
         if (!this.estudarRepositoryInstance) {
-            this.estudarRepositoryInstance = new SupabaseEstudarRepository(supabase);
+            this.estudarRepositoryInstance = new SupabaseEstudarRepository(supabaseAnon);
         }
         return this.estudarRepositoryInstance;
     }
@@ -162,7 +162,7 @@ class DIContainer {
      */
     static getBookRepository(): SupabaseBookRepository {
         if (!this.bookRepositoryInstance) {
-            this.bookRepositoryInstance = new SupabaseBookRepository(supabase);
+            this.bookRepositoryInstance = new SupabaseBookRepository(supabaseAnon);
         }
         return this.bookRepositoryInstance;
     }
@@ -173,7 +173,7 @@ class DIContainer {
      */
     static getEbookRepository(): SupabaseEbookRepository {
         if (!this.ebookRepositoryInstance) {
-            this.ebookRepositoryInstance = new SupabaseEbookRepository(supabase);
+            this.ebookRepositoryInstance = new SupabaseEbookRepository(supabaseAnon);
         }
         return this.ebookRepositoryInstance;
     }
@@ -258,7 +258,7 @@ class DIContainer {
 
     static getEditorialRepository(): SupabaseEditorialRepository {
         if (!this.editorialRepositoryInstance) {
-            this.editorialRepositoryInstance = new SupabaseEditorialRepository(supabase);
+            this.editorialRepositoryInstance = new SupabaseEditorialRepository(supabase); // supabase: precisa de sessão para escrita via RLS
         }
         return this.editorialRepositoryInstance;
     }
@@ -273,7 +273,7 @@ class DIContainer {
 
     static getPortalNewsRepository(): SupabasePortalNewsRepository {
         if (!this.portalNewsRepositoryInstance) {
-            this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository(supabase);
+            this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository(supabaseAnon);
         }
         return this.portalNewsRepositoryInstance;
     }
@@ -288,7 +288,7 @@ class DIContainer {
      */
     static getHomeDatesRepository(): SupabaseHomeDatesRepository {
         if (!this.homeDatesRepositoryInstance) {
-            this.homeDatesRepositoryInstance = new SupabaseHomeDatesRepository(supabase);
+            this.homeDatesRepositoryInstance = new SupabaseHomeDatesRepository(supabaseAnon);
         }
         return this.homeDatesRepositoryInstance;
     }
