@@ -84,6 +84,12 @@ function createSupabaseAnonClient(): SupabaseClient {
         );
     }
 
+    const noopStorage = {
+        getItem: (_key: string) => null,
+        setItem: (_key: string, _value: string) => {},
+        removeItem: (_key: string) => {},
+    };
+
     // createClient (não createBrowserClient): sem singleton cache, sem Web Lock,
     // sem interferência com o token refresh do client principal
     return createClient(supabaseUrl, supabaseAnonKey, {
@@ -91,6 +97,7 @@ function createSupabaseAnonClient(): SupabaseClient {
             persistSession: false,
             autoRefreshToken: false,
             detectSessionInUrl: false,
+            storage: noopStorage,
         },
         global: {
             fetch: createFetchWithTimeout(10000),
