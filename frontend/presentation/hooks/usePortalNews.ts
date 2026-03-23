@@ -29,6 +29,7 @@ export function usePortalNews(): UsePortalNewsResult {
             return await useCase.execute();
         },
         staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchOnMount: "always",
     });
 
     return {
