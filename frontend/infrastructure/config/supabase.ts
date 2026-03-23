@@ -11,6 +11,7 @@
  */
 
 import { createBrowserClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -83,7 +84,9 @@ function createSupabaseAnonClient(): SupabaseClient {
         );
     }
 
-    return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    // createClient (não createBrowserClient): sem singleton cache, sem Web Lock,
+    // sem interferência com o token refresh do client principal
+    return createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
             persistSession: false,
             autoRefreshToken: false,
