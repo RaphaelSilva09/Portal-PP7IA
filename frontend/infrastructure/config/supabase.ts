@@ -98,6 +98,7 @@ function createSupabaseAnonClient(): SupabaseClient {
             autoRefreshToken: false,
             detectSessionInUrl: false,
             storage: noopStorage,
+            storageKey: 'sb-anon-no-auth',
         },
         global: {
             fetch: createFetchWithTimeout(10000),
