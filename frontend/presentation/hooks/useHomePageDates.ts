@@ -67,6 +67,7 @@ export function useHomePageDates(): UseHomePageDatesResult {
             return await repo.getLatestDates();
         },
         staleTime: 15 * 60 * 1000, // 15 minutes (aligned with 10min MV refresh + margin)
+        refetchOnMount: "always",
     });
 
     // Extract dates from query result (graceful degradation if no data)
