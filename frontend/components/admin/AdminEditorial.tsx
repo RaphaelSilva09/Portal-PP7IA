@@ -14,6 +14,7 @@ import DIContainer from "@/infrastructure/di/container";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
 import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Check, Loader2, Save, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, ReactNode } from "react";
 import { createPortal } from "react-dom";
@@ -29,7 +30,7 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         <button
             type="button"
             title={title}
-            onClick={onClick}
+            onMouseDown={e => { e.preventDefault(); onClick(); }}
             className={`px-2.5 py-1.5 rounded text-sm font-medium transition-colors ${
                 active
                     ? "bg-[var(--brand-blue)] text-white"
@@ -46,6 +47,7 @@ function Toolbar({ editor }: { editor: Editor | null }) {
             {btn(editor.isActive("italic"), () => editor.chain().focus().toggleItalic().run(), <em>I</em>, "Itálico")}
             {btn(editor.isActive("underline"), () => editor.chain().focus().toggleUnderline().run(), <u>S</u>, "Sublinhado")}
             <div className="w-px h-5 bg-[var(--border-glass)] mx-1" />
+            {btn(!editor.isActive("heading"), () => editor.chain().focus().setParagraph().run(), "P", "Parágrafo")}
             {btn(editor.isActive("heading", { level: 1 }), () => editor.chain().focus().toggleHeading({ level: 1 }).run(), "H1", "Título 1")}
             {btn(editor.isActive("heading", { level: 2 }), () => editor.chain().focus().toggleHeading({ level: 2 }).run(), "H2", "Título 2")}
             <div className="w-px h-5 bg-[var(--border-glass)] mx-1" />
@@ -104,10 +106,8 @@ export function AdminEditorial() {
 
     const editor = useEditor({
         extensions: [
-            StarterKit.configure({
-                underline: {},
-                link: { openOnClick: false },
-            }),
+            StarterKit,
+            Underline,
             TextAlign.configure({ types: ["heading", "paragraph"] }),
         ],
         immediatelyRender: false,
