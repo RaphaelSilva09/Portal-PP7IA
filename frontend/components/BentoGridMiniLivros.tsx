@@ -107,6 +107,7 @@ export default function BentoGridMiniLivros() {
                     Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
                     Eles funcionarão como os capítulos de um livro. A cada 7 "capítulos", eu os compilarei em e-books (versões menores do livro).
                 </p>
+                {/*
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full w-fit">
                     <a
                         href="/mini-livros/nota_do_autor_mini-livros.html"
@@ -115,6 +116,7 @@ export default function BentoGridMiniLivros() {
                         Leia o Editorial aqui
                     </a>
                 </div>
+                */}
             </div>
 
             {/* Card do Livro principal — abaixo do "Leia aqui o Editorial", acima da linha cinza */}
@@ -152,8 +154,8 @@ export default function BentoGridMiniLivros() {
                                 key={slotIndex}
                                 onClick={() => setSelectedEbookIndex(slotIndex)}
                                 className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${isSelected
-                                        ? "bg-green-500/10 border-green-500/30 text-green-400"
-                                        : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                                    ? "bg-green-500/10 border-green-500/30 text-green-400"
+                                    : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
                                     }`}
                             >
                                 <span className="break-words">{label}</span>
