@@ -15,7 +15,7 @@ const socialLinks = [
 
 // Links legais funcionais
 const legalLinks = [
-    { label: "Termos de Uso", href: "/PP7IAS_Disclosures_Legal_Compliance.pdf" },
+    { label: "Termos de Uso", href: "/declaracoes" },
     { label: "Contato", href: "mailto:contato@pp7ias.com" },
 ];
 

@@ -20,7 +20,6 @@ interface NavItem {
 // 7 itens de navegação seguindo a regra de negócio
 const navItems: NavItem[] = [
     { label: "Quem Somos", href: "/#quemsomos" },
-    { label: "Declarações", href: "/declaracoes" },
     { label: "Índice", href: "/#indice" },
     { label: "O Autor", href: "/#autor" },
     { label: "As 7 IAs", href: "/#ias-parceiras" },
@@ -66,11 +65,11 @@ export default function Navbar() {
     return (
         <header className="sticky top-0 left-0 right-0 z-50 glass-navbar backdrop-blur-[20px] bg-bg-primary/90 safe-area-top">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16 md:h-20 gap-4">
+                <div className="flex items-center h-16 md:h-20">
                     {/* Logo */}
                     <a
                         href="/"
-                        className="flex items-center gap-2 text-white font-bold text-xl md:text-2xl tracking-tight"
+                        className="flex-1 flex items-center gap-2 text-white font-bold text-xl md:text-2xl tracking-tight"
                     >
                         <span className="inline-flex">
                             <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">
@@ -85,7 +84,7 @@ export default function Navbar() {
                         className="nav-desktop-1108 hidden items-center justify-center flex-1 gap-6"
                         aria-label="Navegação principal"
                     >
-                        {navItems.map(item =>
+                        {navItems.filter(item => !user || !["Quem Somos", "O Autor"].includes(item.label)).map(item =>
                             item.isModal ? (
                                 <button
                                     key={item.label}
@@ -108,7 +107,7 @@ export default function Navbar() {
                     </nav>
 
                     {/* CTA or User Section */}
-                    <div className="nav-desktop-1108 hidden items-center gap-2">
+                    <div className="nav-desktop-1108 hidden flex-1 items-center justify-end gap-2">
                         {isLoading ? (
                             <div className="w-24 h-9 bg-white/5 rounded-full animate-pulse" />
                         ) : user ? (
@@ -118,7 +117,7 @@ export default function Navbar() {
                                     className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
                                 >
                                     <UserIcon className="w-4 h-4" />
-                                    <span>{user.nome}</span>
+                                    <span>{user.nome.split(" ")[0]}</span>
                                 </Link>
                                 <button
                                     onClick={openInviteModal}
@@ -160,7 +159,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Mobile Auth Buttons + Menu Button */}
-                    <div className="nav-mobile-1108 flex items-center gap-2">
+                    <div className="nav-mobile-1108 flex items-center justify-end gap-2 flex-1">
                         {isLoading ? (
                             <div className="w-16 h-7 bg-white/5 rounded-full animate-pulse" />
                         ) : user ? (
@@ -170,7 +169,7 @@ export default function Navbar() {
                                     className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-text-secondary hover:text-white font-semibold text-xs rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
                                 >
                                     <UserIcon className="w-3.5 h-3.5" />
-                                    <span className="max-w-[60px] truncate">{user.nome}</span>
+                                    <span className="max-w-[60px] truncate">{user.nome.split(" ")[0]}</span>
                                 </Link>
                                 <button
                                     onClick={openInviteModal}
@@ -241,7 +240,7 @@ export default function Navbar() {
                     className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"
                     aria-label="Navegação mobile"
                 >
-                    {navItems.map((item, index) =>
+                    {navItems.filter(item => !user || !["Quem Somos", "O Autor"].includes(item.label)).map((item, index) =>
                         item.isModal ? (
                             <button
                                 key={item.label}
