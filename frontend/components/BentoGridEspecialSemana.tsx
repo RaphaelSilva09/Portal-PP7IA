@@ -144,7 +144,7 @@ export default function BentoGridEspecialSemana() {
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 hover:border-yellow-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                                     >
                                         <Globe className="w-5 h-5" />
-                                        <span>Ver HTML</span>
+                                        <span>Ler online</span>
                                     </a>
                                 ) : (
                                     <button
@@ -210,7 +210,7 @@ export default function BentoGridEspecialSemana() {
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 hover:border-yellow-500/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
                                         >
                                             <Globe className="w-4 h-4" />
-                                            <span>HTML</span>
+                                            <span>Ler online</span>
                                         </a>
                                     ) : (
                                         <button
