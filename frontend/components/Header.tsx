@@ -3,7 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
-import { LogOut, Menu, Sparkles, User as UserIcon, UserPlus, X } from "lucide-react";
+import { LogOut, Menu, Search, Sparkles, User as UserIcon, UserPlus, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,16 +15,17 @@ interface NavItem {
     href: string;
     isExternal?: boolean;
     isModal?: boolean;
+    showWhen?: "always" | "loggedIn" | "loggedOut";
 }
 
-// 7 itens de navegação seguindo a regra de negócio
 const navItems: NavItem[] = [
-    { label: "Quem Somos", href: "/#quemsomos" },
-    { label: "Índice", href: "/#indice" },
-    { label: "O Autor", href: "/#autor" },
-    { label: "As 7 IAs", href: "/#ias-parceiras" },
-    { label: "Contato", href: "/#footer" },
-    // { label: "Pesquisar", href: "#", isModal: true },
+    { label: "Quem Somos",   href: "/#quemsomos",      showWhen: "loggedOut" },
+    { label: "O Autor",      href: "/#autor",           showWhen: "loggedOut" },
+    { label: "Novidades",    href: "/home"                                     },
+    { label: "Os 7 blocos",  href: "/#indice"                                 },
+    { label: "As 7 IAs",     href: "/#ias-parceiras"                          },
+    { label: "Contato",      href: "/#footer"                                 },
+    // { label: "Índice", href: "#", isModal: true },
 ];
 
 export default function Navbar() {
@@ -84,16 +85,21 @@ export default function Navbar() {
                         className="nav-desktop-1108 hidden items-center justify-center flex-1 gap-6"
                         aria-label="Navegação principal"
                     >
-                        {navItems.filter(item => !user || !["Quem Somos", "O Autor"].includes(item.label)).map(item =>
+                        {navItems.filter(item => {
+                            if (item.showWhen === "loggedIn") return !!user;
+                            if (item.showWhen === "loggedOut") return !user;
+                            return true;
+                        }).map(item =>
                             item.isModal ? (
                                 <button
                                     key={item.label}
                                     onClick={() => openModal()}
-                                    className="text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 whitespace-nowrap"
+                                    className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 whitespace-nowrap"
                                 >
-                                    {item.label}
+                                    <span>{item.label}</span>
+                                    <Search className="w-3.5 h-3.5" />
                                 </button>
-                            ) : (
+                            ) : item.href.startsWith("/#") ? (
                                 <a
                                     key={item.label}
                                     href={item.href}
@@ -102,6 +108,14 @@ export default function Navbar() {
                                 >
                                     {item.label}
                                 </a>
+                            ) : (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    className="text-sm text-text-secondary hover:text-white transition-colors duration-200 whitespace-nowrap"
+                                >
+                                    {item.label}
+                                </Link>
                             ),
                         )}
                     </nav>
@@ -240,7 +254,11 @@ export default function Navbar() {
                     className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"
                     aria-label="Navegação mobile"
                 >
-                    {navItems.filter(item => !user || !["Quem Somos", "O Autor"].includes(item.label)).map((item, index) =>
+                    {navItems.filter(item => {
+                            if (item.showWhen === "loggedIn") return !!user;
+                            if (item.showWhen === "loggedOut") return !user;
+                            return true;
+                        }).map((item, index) =>
                         item.isModal ? (
                             <button
                                 key={item.label}
@@ -254,7 +272,7 @@ export default function Navbar() {
                                 <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
                                 <span className="font-medium">{item.label}</span>
                             </button>
-                        ) : (
+                        ) : item.href.startsWith("/#") ? (
                             <a
                                 key={item.label}
                                 href={item.href}
@@ -268,6 +286,17 @@ export default function Navbar() {
                                 <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
                                 <span className="font-medium">{item.label}</span>
                             </a>
+                        ) : (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                                <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
+                                <span className="font-medium">{item.label}</span>
+                            </Link>
                         ),
                     )}
                 </nav>
