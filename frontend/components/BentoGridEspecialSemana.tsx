@@ -55,7 +55,7 @@ export default function BentoGridEspecialSemana() {
                 {/* Descrição */}
                 <p
                     id="descricao"
-                    className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
+                    className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.4s" }}
                 >
                     Destaque editorial semanal: artigos, apps, tutoriais ou pontos de atenção especial.

@@ -5,7 +5,7 @@ import { AlertCircle, ArrowRight, CheckCircle2, Eye, Heart, Users } from "lucide
 export default function Declaracoes() {
     return (
         <section id="declaracoes" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-4xl mx-auto">
                 {/* ============================================
                 DECLARAÇÕES / MANIFESTO - VERSÃO BALANCEADA
                 Layout otimizado com cores suaves e espaçamento equilibrado

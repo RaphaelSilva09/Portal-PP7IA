@@ -48,7 +48,7 @@ export default function BentoGrid() {
     const { isNew, isLoading } = useHomePageDates();
     return (
         <section id="indice" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-4xl mx-auto">
                 {/* Section Header */}
                 <div className="text-center flex flex-col gap-4 sm:gap-6">
                     <div className="flex flex-col items-center gap-1 pb-8 sm:pb-10 md:pb-12">

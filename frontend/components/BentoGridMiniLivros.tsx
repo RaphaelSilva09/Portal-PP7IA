@@ -76,7 +76,7 @@ export default function BentoGridMiniLivros() {
                 </h3>
                 <p
                     id="descricao"
-                    className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
+                    className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
                     style={{ animationDelay: "0.4s" }}
                 >
                     Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
@@ -103,7 +103,7 @@ export default function BentoGridMiniLivros() {
                 <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto">
                     Mini-livros
                 </h3>
-                <p className="text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 leading-relaxed">
+                <p className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 leading-relaxed">
                     Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
                     Eles funcionarão como os capítulos de um livro. A cada 7 "capítulos", eu os compilarei em e-books (versões menores do livro).
                 </p>
@@ -130,7 +130,7 @@ export default function BentoGridMiniLivros() {
             </div>
 
             {/* Descrição das abas */}
-            <p className="text-center text-base sm:text-2xl text-text-secondary max-w-2xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed">
+            <p className="text-center text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-8 leading-relaxed">
                 Cada aba abaixo corresponde a um e-book e seus respectivos sete mini-livros. Clique em qualquer aba para navegar entre os e-books e explorar os conteúdos disponíveis.
             </p>
 
@@ -232,7 +232,7 @@ export default function BentoGridMiniLivros() {
 
                                     {/* Descrição */}
                                     {selectedEbook.description && (
-                                        <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-2xl">
+                                        <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-4xl">
                                             {selectedEbook.description}
                                         </p>
                                     )}
