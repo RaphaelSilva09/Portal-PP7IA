@@ -25,7 +25,7 @@ interface UseSearchResult {
 }
 
 const DEBOUNCE_MS = 300;
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 3;
 
 export function useSearch(query: string, filter: SearchFilter): UseSearchResult {
     const [results, setResults] = useState<SearchResultItem[]>([]);

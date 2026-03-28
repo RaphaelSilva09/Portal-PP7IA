@@ -387,6 +387,8 @@ class DIContainer {
             this.getMiniLivroRepository(),
             this.getBibliotecaRepository(),
             this.getEspecialSemanaRepository(),
+            this.getRadarOportunidadesRepository(),
+            this.getEstudarRepository(),
         );
     }
 
