@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Globe, Loader2, Sparkles } from "lucide-react";
+import { FileText, Globe, Loader2 } from "lucide-react";
 
 import { Newsletter } from "@/domain/entities/Newsletter";
 import { useNewsletters } from "@/presentation/hooks/useNewsletters";
@@ -19,7 +19,7 @@ export default function BentoGridNewsletter() {
     if (isLoading) {
         return (
             <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto flex flex-col justify-center items-center min-h-[400px] gap-4">
+                <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-[400px] gap-4">
                     <Loader2 className="w-8 h-8 animate-spin text-brand-blue" />
                     <p className="text-text-secondary">Carregando newsletters...</p>
                 </div>
@@ -31,7 +31,7 @@ export default function BentoGridNewsletter() {
     if (error || !latest) {
         return (
             <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
+                <div className="max-w-4xl mx-auto">
                     <div className="text-center py-16">
                         <p className="text-text-secondary text-lg">
                             {error || "Nenhuma newsletter disponível no momento."}
@@ -49,7 +49,7 @@ export default function BentoGridNewsletter() {
                 {/* Título da Introdução */}
                 <h3
                     id="titulo"
-                    className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto animate-fade-in-up"
+                    className="text-2xl sm:text-3xl md:text-3xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up"
                     style={{ animationDelay: "0.3s" }}
                 >
                     Newsletters
@@ -66,18 +66,18 @@ export default function BentoGridNewsletter() {
             </div>
 
             {/* Linha divisória cinza */}
-            <div className="max-w-7xl mx-auto my-8 sm:my-10 md:my-12">
+            <div className="max-w-4xl mx-auto my-8 sm:my-10 md:my-12">
                 <div className="border-t border-white/10"></div>
             </div>
 
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-4xl mx-auto">
                 {/* Bento Grid - 3 Columns Layout */}
-                <div id="last-newsletter" className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                <div id="last-newsletter" className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* ============================================
                     NEWSLETTER MAIS RECENTE - DESTAQUE
                     1 Card - col-span-3
                     ============================================ */}
-                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl min-h-100 transition-all duration-500 hover:scale-[1.01]">
+                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] transition-all duration-500 hover:scale-[1.01]">
                         {/* Gradient Background */}
                         <div
                             className="absolute inset-0"
@@ -96,48 +96,28 @@ export default function BentoGridNewsletter() {
                         </div>
 
                         {/* Content */}
-                        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-8 sm:p-12">
-                            {/* Badges */}
-                            <div className="flex items-center gap-2 mb-6">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                                    </span>
-                                    <span className="text-green-500 text-sm font-medium">
-                                        Última Edição
-                                        {lastUpdated
-                                            ? `: ${lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}`
-                                            : ""}
-                                    </span>
-                                </div>
-                                <div className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                                    <span className="text-emerald-400 text-sm font-medium">Gratuito</span>
-                                </div>
-                            </div>
-
+                        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-12">
                             {/* Newsletter Number */}
                             <p className="text-brand-blue text-base sm:text-lg font-mono mb-2">
                                 Newsletter #{latest.formattedNumber}
                             </p>
 
                             {/* Title */}
-                            <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl">
+                            <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
                                 {latest.title}
                             </h3>
 
                             {/* Date */}
-                            <p className="text-text-secondary text-base sm:text-lg mb-8">
-                                Publicada em {latest.formattedDate}
+                            <p className="text-text-secondary text-base sm:text-lg mb-8 md:mb-4 whitespace-nowrap">
+                                Publicada em&nbsp;{latest.formattedDate}
                             </p>
 
                             {/* Action Buttons */}
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                            <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-3">
                                 {latest.htmlAvailable ? (
                                     <a
                                         href={latest.htmlPath!}
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/20 hover:bg-brand-blue/30 border border-brand-blue/30 hover:border-brand-blue/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/20 hover:bg-brand-blue/30 border border-brand-blue/30 hover:border-brand-blue/50 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Ler online</span>
@@ -145,7 +125,7 @@ export default function BentoGridNewsletter() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-[160px] opacity-50"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-50 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -154,7 +134,7 @@ export default function BentoGridNewsletter() {
                                 {latest.pdfAvailable ? (
                                     <a
                                         href={latest.pdfPath!}
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/30 hover:border-brand-purple/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/30 hover:border-brand-purple/50 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -162,7 +142,7 @@ export default function BentoGridNewsletter() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-base sm:text-lg cursor-not-allowed w-full sm:w-auto min-w-[160px] opacity-50"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-50 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -180,55 +160,55 @@ export default function BentoGridNewsletter() {
                             key={newsletter.id}
                             id={`item-${newsletter.id}`}
                             style={{ scrollMarginTop: "80px" }}
-                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-70 bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-brand-blue/30 hover:shadow-[0_0_30px_rgba(0,129,242,0.15)]"
+                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-brand-blue/30 hover:shadow-[0_0_30px_rgba(0,129,242,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Newsletter Number */}
-                                <span className="text-xs font-mono text-brand-blue/80 tracking-tight mb-2">
+                                <p className="text-brand-blue text-base sm:text-lg font-mono mb-2">
                                     Newsletter #{newsletter.formattedNumber}
-                                </span>
+                                </p>
 
                                 {/* Title */}
-                                <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
+                                <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-white mt-1 mb-2 tracking-tight line-clamp-2">
                                     {newsletter.title}
                                 </h4>
 
                                 {/* Date */}
-                                <p className="text-text-secondary text-sm mb-4">{newsletter.formattedDate}</p>
+                                <p className="text-text-secondary text-base sm:text-lg mb-8 md:mb-4 whitespace-nowrap">Publicada em&nbsp;{newsletter.formattedDate}</p>
 
                                 {/* Action Buttons */}
-                                <div className="flex flex-col w-full gap-2 mt-auto">
+                                <div className="flex flex-wrap md:flex-nowrap gap-3 mt-auto justify-center">
                                     {newsletter.htmlAvailable ? (
                                         <a
                                             href={newsletter.htmlPath!}
-                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 hover:border-brand-blue/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 hover:border-brand-blue/40 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
-                                            <Globe className="w-4 h-4" />
+                                            <Globe className="w-5 h-5" />
                                             <span>Ler online</span>
                                         </a>
                                     ) : (
                                         <button
                                             disabled
-                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-500/10 border border-gray-500/20 rounded-lg text-gray-500 text-sm font-medium cursor-not-allowed opacity-50"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 text-sm font-medium cursor-not-allowed opacity-50 whitespace-nowrap"
                                         >
-                                            <Globe className="w-4 h-4" />
+                                            <Globe className="w-5 h-5" />
                                             <span>Indisponível</span>
                                         </button>
                                     )}
                                     {newsletter.pdfAvailable ? (
                                         <a
                                             href={newsletter.pdfPath!}
-                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/20 hover:border-brand-purple/40 rounded-lg text-white text-sm font-medium transition-all duration-200"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/20 hover:border-brand-purple/40 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
-                                            <FileText className="w-4 h-4" />
+                                            <FileText className="w-5 h-5" />
                                             <span>PDF</span>
                                         </a>
                                     ) : (
                                         <button
                                             disabled
-                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-500/10 border border-gray-500/20 rounded-lg text-gray-500 text-sm font-medium cursor-not-allowed opacity-50"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 text-sm font-medium cursor-not-allowed opacity-50 whitespace-nowrap"
                                         >
-                                            <FileText className="w-4 h-4" />
+                                            <FileText className="w-5 h-5" />
                                             <span>Indisponível</span>
                                         </button>
                                     )}
