@@ -3,66 +3,74 @@
 import { ArrowUpRight, Bot } from "lucide-react";
 import Link from "next/link";
 
+const IAS = ["Claude", "ChatGPT", "Gemini", "Adapta", "Perplexity", "Grok", "Manus"];
 
 export default function IASParceiras() {
     return (
         <section id="ias-parceiras" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
-            <div className="max-w-7xl mx-auto">
+            <div className="w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent"></div>
+            <div className="max-w-4xl mx-auto mb-8 mt-8">
                 {/* ============================================
-                AS 7 IAS PARCEIRAS
+                AS 7 IAS PARCEIRAS — card unificado
                 ============================================ */}
-                <div className="mb-8">
-                    {/* Header + Banner Split Layout */}
-                    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 mb-12 lg:items-center">
-                        {/* Left: Title Section */}
-                        <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
-                            <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6">
-                                <Bot className="w-8 h-8 text-cyan-400" />
+                <Link
+                    href="/view/biblioteca/009"
+                    className="group relative overflow-hidden rounded-2xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 block"
+                >
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            background:
+                                "linear-gradient(135deg, rgba(6,182,212,0.10) 0%, rgba(99,102,241,0.08) 100%)",
+                        }}
+                    />
+                    <div className="relative z-10 p-6">
+                        {/* Arrow (top-right, fora do fluxo centralizado) */}
+                        <ArrowUpRight className="absolute top-4 right-4 w-5 h-5 text-cyan-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
+
+                        {/* Header row */}
+                        <div className="flex flex-col items-center gap-2 mb-2">
+                            <div className="w-9 h-9 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                                <Bot className="w-5 h-5 text-cyan-400" />
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">
-                                As 7 IAs parceiras
-                            </h2>
-                            <p className="text-gray-400 text-base sm:text-lg tracking-tight mb-4 max-w-md">
-                                A IA amplifica; o julgamento editorial é humano.
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                                    As 7 IAs parceiras
+                                </h2>
+                            </div>
                         </div>
 
-                        {/* Divider (Desktop Only) */}
-                        <div className="hidden lg:block w-px h-32 bg-linear-to-b from-transparent via-white/10 to-transparent" />
+                        {/* Subtitle */}
+                        <p className="text-sm text-gray-400 italic mb-4 text-center">
+                            A IA amplifica; o julgamento editorial é humano.
+                        </p>
 
-                        {/* Right: CTA "Conheça as 7 IAs" */}
-                        <Link
-                            href="/view/biblioteca/009"
-                            className="flex-1 group relative overflow-hidden rounded-2xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 block"
-                        >
-                            <div
-                                className="absolute inset-0"
-                                style={{
-                                    background:
-                                        "linear-gradient(135deg, rgba(6,182,212,0.10) 0%, rgba(99,102,241,0.08) 100%)",
-                                }}
-                            />
-                            <div className="relative z-10 flex items-center gap-4 p-6">
-                                <div className="flex-1">
-                                    <p className="text-xs font-bold text-cyan-400/80 tracking-widest uppercase mb-1">
-                                        Novo
-                                    </p>
-                                    <h3 className="text-lg font-bold text-white mb-1 tracking-tight">
-                                        Conheça as 7 IAs
-                                    </h3>
-                                    <p className="text-sm text-gray-400">
-                                        Descubra como cada IA pode transformar seu trabalho e aprendizado.
-                                    </p>
-                                </div>
-                                <ArrowUpRight className="w-6 h-6 text-cyan-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 shrink-0" />
-                            </div>
-                            {/* Accent Line */}
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-cyan-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                        </Link>
+                        {/* Divider */}
+                        <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent mb-4" />
+
+                        {/* IA chips */}
+                        <div className="flex flex-wrap gap-2 justify-center">
+                            {IAS.map((ia) => (
+                                <span
+                                    key={ia}
+                                    className="bg-white/5 px-3 py-1.5 rounded-full text-xs font-semibold text-gray-300 text-center"
+                                >
+                                    {ia}
+                                </span>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                    {/* Accent Line */}
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-cyan-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                </Link>
             </div>
-            <div className="w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent mt-8 sm:mt-12"></div>
+            
+            {/* Citação */}
+            <div className="max-w-4xl mx-auto flex justify-center mb-8">
+                <span className="bg-white/5 px-4 py-2 rounded-full text-sm font-semibold text-gray-300 text-center">
+                    &ldquo;Liderar é servir. Formar pessoas. Deixar legado.&rdquo;
+                </span>
+            </div>
         </section>
     );
 }
