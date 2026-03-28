@@ -10,6 +10,11 @@
  * - Singleton Pattern: Reutiliza instâncias
  */
 
+import { CreateAnnouncementBarUseCase } from "../../application/usecases/CreateAnnouncementBarUseCase";
+import { DeleteAnnouncementBarUseCase } from "../../application/usecases/DeleteAnnouncementBarUseCase";
+import { GetAnnouncementBarsUseCase } from "../../application/usecases/GetAnnouncementBarsUseCase";
+import { ToggleAnnouncementBarUseCase } from "../../application/usecases/ToggleAnnouncementBarUseCase";
+import { UpdateAnnouncementBarUseCase } from "../../application/usecases/UpdateAnnouncementBarUseCase";
 import { CreateContentWithUploadUseCase } from "../../application/usecases/CreateContentWithUploadUseCase";
 import { DeleteContentWithFilesUseCase } from "../../application/usecases/DeleteContentWithFilesUseCase";
 import { DeleteUserAndDataUseCase } from "../../application/usecases/DeleteUserAndDataUseCase";
@@ -38,6 +43,7 @@ import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
 import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
 import { VerifyPasswordResetOTPUseCase } from "../../application/usecases/VerifyPasswordResetOTPUseCase";
 import { supabase, supabaseAnon } from "../config/supabase";
+import { SupabaseAnnouncementBarRepository } from "../repositories/SupabaseAnnouncementBarRepository";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
 import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
 import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
@@ -78,6 +84,7 @@ class DIContainer {
     private static editorialRepositoryInstance: SupabaseEditorialRepository | null = null;
     private static portalNewsRepositoryInstance: SupabasePortalNewsRepository | null = null;
     private static homeDatesRepositoryInstance: SupabaseHomeDatesRepository | null = null;
+    private static announcementBarRepositoryInstance: SupabaseAnnouncementBarRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -294,6 +301,37 @@ class DIContainer {
     }
 
     /**
+     * Obtém instância do repositório de barras de aviso
+     * Singleton Pattern
+     */
+    static getAnnouncementBarRepository(): SupabaseAnnouncementBarRepository {
+        if (!this.announcementBarRepositoryInstance) {
+            this.announcementBarRepositoryInstance = new SupabaseAnnouncementBarRepository(supabaseAnon, supabase);
+        }
+        return this.announcementBarRepositoryInstance;
+    }
+
+    static getAnnouncementBarsUseCase(): GetAnnouncementBarsUseCase {
+        return new GetAnnouncementBarsUseCase(this.getAnnouncementBarRepository());
+    }
+
+    static getCreateAnnouncementBarUseCase(): CreateAnnouncementBarUseCase {
+        return new CreateAnnouncementBarUseCase(this.getAnnouncementBarRepository());
+    }
+
+    static getUpdateAnnouncementBarUseCase(): UpdateAnnouncementBarUseCase {
+        return new UpdateAnnouncementBarUseCase(this.getAnnouncementBarRepository());
+    }
+
+    static getDeleteAnnouncementBarUseCase(): DeleteAnnouncementBarUseCase {
+        return new DeleteAnnouncementBarUseCase(this.getAnnouncementBarRepository());
+    }
+
+    static getToggleAnnouncementBarUseCase(): ToggleAnnouncementBarUseCase {
+        return new ToggleAnnouncementBarUseCase(this.getAnnouncementBarRepository());
+    }
+
+    /**
      * Factory Methods para casos de uso de admin
      */
     static getCreateContentWithUploadUseCase(): CreateContentWithUploadUseCase {
@@ -413,6 +451,7 @@ class DIContainer {
         this.editorialRepositoryInstance = null;
         this.portalNewsRepositoryInstance = null;
         this.homeDatesRepositoryInstance = null;
+        this.announcementBarRepositoryInstance = null;
     }
 }
 
