@@ -5,6 +5,10 @@
  */
 
 export { AdminBook } from "./AdminBook";
+export { AnnouncementBarForm } from "./AnnouncementBarForm";
+export type { AnnouncementBarFormSubmitData } from "./AnnouncementBarForm";
+export { AnnouncementBarPreview } from "./AnnouncementBarPreview";
+export { AnnouncementBarTab } from "./AnnouncementBarTab";
 export { AdminEditorial } from "./AdminEditorial";
 export { AdminPortalNews } from "./AdminPortalNews";
 export { ConfirmDialog } from "./ConfirmDialog";
