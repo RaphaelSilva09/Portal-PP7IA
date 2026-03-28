@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
+import AnnouncementBarWrapper from "./AnnouncementBarWrapper";
 
 // Tipo para os itens de navegação
 interface NavItem {
@@ -64,6 +65,7 @@ export default function Navbar() {
     };
 
     return (
+        <>
         <header className="sticky top-0 left-0 right-0 z-50 glass-navbar backdrop-blur-[20px] bg-bg-primary/90 safe-area-top">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center h-16 md:h-20">
@@ -309,5 +311,7 @@ export default function Navbar() {
                 initialMode={authInitialMode}
             />
         </header>
+        <AnnouncementBarWrapper />
+        </>
     );
 }

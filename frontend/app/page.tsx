@@ -13,7 +13,7 @@ import {
 export default function Home() {
     return (
         <main className="min-h-screen bg-bg-primary">
-            {/* Navbar com 7 links de navegação */}
+            {/* Navbar com 7 links de navegação (barra de aviso embutida abaixo) */}
             <Navbar />
 
             {/* 1. Hero Section */}
