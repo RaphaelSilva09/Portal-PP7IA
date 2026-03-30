@@ -116,7 +116,7 @@ export default function PortalNewsWidget() {
             {/* Keyframes do sino injetados inline */}
             <style dangerouslySetInnerHTML={{ __html: BELL_KEYFRAMES }} />
 
-            <div className="bg-[#111111] border border-[#b8860b]/30 rounded-xl mx-2 mb-6 overflow-hidden text-left">
+            <div id="novidades" className="bg-[#111111] border border-[#b8860b]/30 rounded-xl mx-2 mb-6 overflow-hidden text-left">
                 {/* Header */}
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-[#b8860b]/20">
                     <span className="text-base">📢</span>

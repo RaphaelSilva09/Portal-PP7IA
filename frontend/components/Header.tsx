@@ -22,7 +22,7 @@ interface NavItem {
 const navItems: NavItem[] = [
     { label: "Quem Somos",   href: "/#quemsomos",      showWhen: "loggedOut" },
     { label: "O Autor",      href: "/#autor",           showWhen: "loggedOut" },
-    { label: "Novidades",    href: "/home"                                     },
+    { label: "Novidades",    href: "/#novidades"                               },
     { label: "Os 7 blocos",  href: "/#indice"                                 },
     { label: "As 7 IAs",     href: "/#ias-parceiras"                          },
     { label: "Contato",      href: "/#footer"                                 },
