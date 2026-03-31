@@ -20,6 +20,7 @@ import {
     AdminBook,
     AdminEditorial,
     AdminPortalNews,
+    AnnouncementBarTab,
     ConfirmDialog,
     ContentForm,
     ContentTable,
@@ -56,7 +57,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useEbook } from "@/presentation/hooks/useEbook";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso";
 
 type ContentTab = ContentType | "livro";
 
@@ -75,7 +76,7 @@ const CONTENT_QUERY_KEY: Partial<Record<ContentType, string>> = {
 
 const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
-    { type: "mini-livro", label: "Mini-Livros", icon: BookOpen },
+    { type: "mini-livro", label: "Mini-livros - Ebook - Livros", icon: BookOpen },
     { type: "biblioteca", label: "Biblioteca", icon: Library },
     { type: "especial-semana", label: "Especial da Semana", icon: Star },
     { type: "ebook", label: "E-books", icon: BookMarked },
@@ -420,6 +421,17 @@ export default function PainelAdminPage() {
                             <NotebookPen className="w-6 h-6" />
                             Editorial
                         </button>
+                        <button
+                            onClick={() => handleMainSectionChange("barra-aviso")}
+                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
+                                mainSection === "barra-aviso"
+                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
+                            }`}
+                        >
+                            <Bell className="w-6 h-6" />
+                            Barra de Aviso
+                        </button>
                     </div>
                 </GlassCard>
 
@@ -527,6 +539,8 @@ export default function PainelAdminPage() {
                 {mainSection === "novidades" && <AdminPortalNews />}
 
                 {mainSection === "editorial" && <AdminEditorial />}
+
+                {mainSection === "barra-aviso" && <AnnouncementBarTab />}
             </div>
 
             {/* Componentes Globais */}

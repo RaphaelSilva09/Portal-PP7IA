@@ -1,356 +1,718 @@
-﻿"use client";
-
-/**
- * SearchModal Component (Presentation Layer)
- *
- * Modal de busca de conteÃºdo com filtro por tipo, debounce e
- * proteÃ§Ã£o contra race conditions via useSearch hook.
- *
- * PrincÃ­pios aplicados:
- * - SRP: ApresentaÃ§Ã£o pura â€” lÃ³gica de busca delegada ao hook
- * - Clean Code: Componentes extraÃ­dos, nomes reveladores
- * - UX: Estados explÃ­citos (loading, erro, vazio, min-chars, resultados)
- */
+"use client";
 
 import {
     BookOpen,
-    ChevronDown,
-    ChevronUp,
+    Bot,
     FileText,
-    Globe,
+    Folder,
+    GraduationCap,
     Library,
     Loader2,
+    Radio,
     Search,
-    Sparkles,
     Star,
     X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import type { SectionType, Subsection } from "../constants/sections";
+import { SECTIONS } from "../constants/sections";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import type { SearchFilter, SearchResultItem } from "../presentation/hooks/useSearch";
 import { useSearch } from "../presentation/hooks/useSearch";
+import { useSectionBrowse } from "../presentation/hooks/useSectionBrowse";
+
+// ─── Mapa de ícones por seção ────────────────────────────────────────────────
+
+const SECTION_ICONS: Record<SectionType, React.ElementType> = {
+    newsletter:      FileText,
+    "especial-semana": Star,
+    radar:           Radio,
+    "mini-livro":    BookOpen,
+    biblioteca:      Library,
+    estudar:         GraduationCap,
+    ias:             Bot,
+};
+
+// ─── Mapa de tipos de resultado para label + cor ─────────────────────────────
+
+const TYPE_LABEL: Record<SearchResultItem["type"], string> = {
+    newsletter:        "Newsletter",
+    "mini-livro":      "Mini-livros - Ebook - Livros",
+    biblioteca:        "Biblioteca",
+    "especial-semana": "Especial da Semana",
+    radar:             "Radar",
+    estudar:           "Estudar",
+};
+
+const TYPE_SECTION: Record<SearchResultItem["type"], SectionType> = {
+    newsletter:        "newsletter",
+    "mini-livro":      "mini-livro",
+    biblioteca:        "biblioteca",
+    "especial-semana": "especial-semana",
+    radar:             "radar",
+    estudar:           "estudar",
+};
+
+// ─── Utilitário: highlight do termo no título ─────────────────────────────────
+
+function HighlightedTitle({ title, query }: { title: string; query: string }) {
+    if (!query || query.length < 3) return <span>{title}</span>;
+
+    const idx = title.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return <span>{title}</span>;
+
+    return (
+        <span>
+            {title.slice(0, idx)}
+            <mark className="bg-transparent text-blue-300 font-semibold not-italic">
+                {title.slice(idx, idx + query.length)}
+            </mark>
+            {title.slice(idx + query.length)}
+        </span>
+    );
+}
+
+// ─── Estado A: preview de materiais ao clicar no chip ────────────────────────
+
+function ChipPreview({
+    sectionId,
+    subsection,
+    onClose,
+}: {
+    sectionId: SectionType;
+    subsection: Subsection;
+    onClose: () => void;
+}) {
+    const { items, isLoading } = useSectionBrowse(sectionId, subsection.id, subsection.tema);
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center gap-2 py-2 px-1">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-white/30" />
+                <span className="text-xs text-white/30">Carregando...</span>
+            </div>
+        );
+    }
+
+    if (items.length === 0) {
+        return (
+            <p className="text-xs text-white/30 italic py-2 px-1">Nenhum material disponível.</p>
+        );
+    }
+
+    return (
+        <ul className="space-y-1.5">
+            {items.map((item, i) => (
+                <li
+                    key={item.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${i * 50}ms` }}
+                >
+                    {item.url ? (
+                        <Link
+                            href={item.url}
+                            onClick={onClose}
+                            className="flex items-center gap-2 text-xs text-white/70 hover:text-blue-300 transition-colors duration-150 group"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500/60 group-hover:bg-blue-400 shrink-0 transition-colors" />
+                            <span className="line-clamp-1">{item.title}</span>
+                        </Link>
+                    ) : (
+                        <span className="flex items-center gap-2 text-xs text-white/40">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white/15 shrink-0" />
+                            <span className="line-clamp-1">{item.title}</span>
+                        </span>
+                    )}
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+// ─── Estado A: conteúdo de uma aba ───────────────────────────────────────────
+
+function TabContent({ section, onClose }: { section: (typeof SECTIONS)[0]; onClose: () => void }) {
+    const [activeChip, setActiveChip] = useState<string | null>(null);
+
+    const activeSubsection = section.subsections.find(s => s.id === activeChip) ?? null;
+
+    return (
+        <div className="p-5 flex flex-col gap-4" style={{ background: "#161623" }}>
+            <div>
+                <p className="text-[10px] uppercase tracking-widest font-semibold mb-3"
+                   style={{ color: "rgba(59,130,246,0.6)" }}>
+                    Subseções disponíveis
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    {section.subsections.map((sub, i) =>
+                        sub.directUrl ? (
+                            <Link
+                                key={sub.id}
+                                href={sub.directUrl}
+                                onClick={onClose}
+                                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 border animate-[chipIn_200ms_ease_both]"
+                                style={{
+                                    animationDelay: `${i * 50}ms`,
+                                    background: "rgba(59,130,246,0.08)",
+                                    borderColor: "rgba(59,130,246,0.3)",
+                                    color: "#93c5fd",
+                                }}
+                            >
+                                {sub.label}
+                            </Link>
+                        ) : (
+                            <button
+                                key={sub.id}
+                                onClick={() => setActiveChip(activeChip === sub.id ? null : sub.id)}
+                                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 border animate-[chipIn_200ms_ease_both]"
+                                style={{
+                                    animationDelay: `${i * 50}ms`,
+                                    background: activeChip === sub.id
+                                        ? "rgba(59,130,246,0.18)"
+                                        : "rgba(255,255,255,0.03)",
+                                    borderColor: activeChip === sub.id
+                                        ? "rgba(59,130,246,0.5)"
+                                        : "rgba(255,255,255,0.08)",
+                                    color: activeChip === sub.id ? "#bfdbfe" : "rgba(255,255,255,0.6)",
+                                }}
+                            >
+                                {sub.label}
+                            </button>
+                        ),
+                    )}
+                </div>
+            </div>
+
+            {activeSubsection && !activeSubsection.directUrl && (
+                <div className="animate-[fadeUp_200ms_ease_both]">
+                    <div className="h-px mb-3" style={{ background: "rgba(255,255,255,0.06)" }} />
+                    <p className="text-[10px] uppercase tracking-widest font-semibold mb-2.5"
+                       style={{ color: "rgba(59,130,246,0.5)" }}>
+                        Materiais em &ldquo;{activeSubsection.label}&rdquo;
+                    </p>
+                    <ChipPreview
+                        sectionId={section.id}
+                        subsection={activeSubsection}
+                        onClose={onClose}
+                    />
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ─── Estado B: sidebar accordion ─────────────────────────────────────────────
+
+function SearchSidebar({
+    activeFilter,
+    onFilter,
+}: {
+    activeFilter: SearchFilter;
+    onFilter: (f: SearchFilter) => void;
+}) {
+    const [expanded, setExpanded] = useState<SectionType | null>(null);
+
+    const filterMap: Record<SectionType, SearchFilter> = {
+        newsletter:        "newsletter",
+        "especial-semana": "especial-semana",
+        radar:             "radar",
+        "mini-livro":      "mini-livro",
+        biblioteca:        "biblioteca",
+        estudar:           "estudar",
+        ias:               "all",
+    };
+
+    return (
+        <div
+            className="shrink-0 overflow-y-auto py-3 px-2"
+            style={{
+                width: 180,
+                borderRight: "1px solid rgba(255,255,255,0.06)",
+                scrollbarWidth: "none",
+            }}
+        >
+            <p className="text-[10px] uppercase tracking-widest font-semibold px-2 mb-2"
+               style={{ color: "rgba(255,255,255,0.18)" }}>
+                Seções
+            </p>
+            {SECTIONS.map(section => {
+                const Icon = SECTION_ICONS[section.id];
+                const sectionFilter = filterMap[section.id];
+                const isActive = activeFilter === sectionFilter && sectionFilter !== "all";
+                const isExpanded = expanded === section.id;
+
+                return (
+                    <div key={section.id}>
+                        <button
+                            onClick={() => {
+                                setExpanded(isExpanded ? null : section.id);
+                                if (sectionFilter !== "all") onFilter(sectionFilter);
+                            }}
+                            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[9px] text-left transition-all duration-150"
+                            style={{
+                                background: isActive
+                                    ? "rgba(59,130,246,0.12)"
+                                    : "transparent",
+                                border: isActive
+                                    ? "1px solid rgba(59,130,246,0.2)"
+                                    : "1px solid transparent",
+                                color: isActive
+                                    ? "#93c5fd"
+                                    : "rgba(255,255,255,0.35)",
+                            }}
+                            onMouseEnter={e => {
+                                if (!isActive) {
+                                    (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)";
+                                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)";
+                                }
+                            }}
+                            onMouseLeave={e => {
+                                if (!isActive) {
+                                    (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.35)";
+                                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                                }
+                            }}
+                        >
+                            <Icon className="w-3.5 h-3.5 shrink-0" />
+                            <span className="text-xs font-medium truncate">{section.label}</span>
+                        </button>
+
+                        {isExpanded && (
+                            <div className="ml-4 mt-0.5 mb-1 space-y-0.5">
+                                {section.subsections.map((sub, i) => (
+                                    <button
+                                        key={sub.id}
+                                        onClick={() => onFilter(sectionFilter)}
+                                        className="w-full flex items-center gap-1.5 px-2 py-1 rounded-[7px] text-left transition-colors duration-150 animate-[slideIn_150ms_ease_both]"
+                                        style={{
+                                            animationDelay: `${i * 40}ms`,
+                                            color: "rgba(255,255,255,0.4)",
+                                            fontSize: "11.5px",
+                                        }}
+                                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#60a5fa"; }}
+                                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.4)"; }}
+                                    >
+                                        <span className="w-1 h-1 rounded-full bg-current shrink-0" />
+                                        <span className="truncate">{sub.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+// ─── SearchModal ─────────────────────────────────────────────────────────────
 
 interface SearchModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-// â”€â”€â”€ ConfiguraÃ§Ã£o de tipos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-const TYPE_CONFIG: Record<
-    SearchResultItem["type"],
-    { bgColor: string; borderColor: string; textColor: string; label: string }
-> = {
-    newsletter: {
-        bgColor: "bg-blue-500/10",
-        borderColor: "border-blue-500/20",
-        textColor: "text-blue-400",
-        label: "Newsletter",
-    },
-    "mini-livro": {
-        bgColor: "bg-green-500/10",
-        borderColor: "border-green-500/20",
-        textColor: "text-green-400",
-        label: "Mini-Livro",
-    },
-    biblioteca: {
-        bgColor: "bg-purple-500/10",
-        borderColor: "border-purple-500/20",
-        textColor: "text-purple-400",
-        label: "Biblioteca",
-    },
-    "especial-semana": {
-        bgColor: "bg-yellow-500/10",
-        borderColor: "border-yellow-500/20",
-        textColor: "text-yellow-400",
-        label: "Especial da Semana",
-    },
-};
-
-// â”€â”€â”€ SearchResultCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-function SearchResultCard({ item, onClose }: { item: SearchResultItem; onClose: () => void }) {
-    const config = TYPE_CONFIG[item.type];
-
-    return (
-        <div
-            className={`${config.bgColor} border ${config.borderColor} rounded-lg md:rounded-xl p-3 md:p-4 hover:bg-white/10 transition-all duration-200`}
-        >
-            <span
-                className={`inline-block px-2 py-1 ${config.bgColor} ${config.textColor} text-xs font-medium rounded-md mb-2`}
-            >
-                {config.label}
-            </span>
-            <h4 className="text-white font-semibold text-sm mb-1 line-clamp-2">{item.title}</h4>
-            <p className="text-text-secondary text-xs mb-3">{item.date}</p>
-            <div className="flex gap-2 flex-wrap">
-                {item.htmlAvailable && item.viewUrl && (
-                    <a
-                        href={item.viewUrl}
-                        onClick={onClose}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 ${config.bgColor} hover:bg-white/10 border ${config.borderColor} rounded-lg text-white text-xs font-medium transition-all duration-200`}
-                    >
-                        <Globe className="w-3.5 h-3.5" />
-                        <span>Ler</span>
-                    </a>
-                )}
-                {item.pdfAvailable && !item.htmlAvailable && (
-                    <span
-                        className={`flex items-center gap-1.5 px-3 py-1.5 ${config.bgColor} border ${config.borderColor} rounded-lg ${config.textColor} text-xs font-medium`}
-                    >
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>PDF</span>
-                    </span>
-                )}
-                {!item.htmlAvailable && !item.pdfAvailable && (
-                    <span className="text-xs text-text-secondary italic">IndisponÃ­vel</span>
-                )}
-            </div>
-        </div>
-    );
-}
-
-// â”€â”€â”€ Filtros â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-const FILTERS: {
-    id: SearchFilter;
-    label: string;
-    icon: React.ElementType;
-    activeColor: string;
-}[] = [
-    { id: "all", label: "Todos", icon: Sparkles, activeColor: "text-blue-400" },
-    { id: "newsletter", label: "Newsletter", icon: FileText, activeColor: "text-purple-400" },
-    { id: "mini-livro", label: "Mini-Livros", icon: BookOpen, activeColor: "text-green-400" },
-    { id: "especial-semana", label: "Especial da Semana", icon: Star, activeColor: "text-yellow-400" },
-    { id: "biblioteca", label: "Biblioteca", icon: Library, activeColor: "text-pink-400" },
-];
-
-// â”€â”€â”€ SearchModal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-    const [searchQuery, setSearchQuery] = useState("");
+    const [query, setQuery] = useState("");
+    const [activeTab, setActiveTab] = useState<SectionType>("newsletter");
     const [activeFilter, setActiveFilter] = useState<SearchFilter>("all");
-    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useBodyScrollLock(isOpen);
 
-    const { results, isLoading, error } = useSearch(searchQuery, activeFilter);
+    const isSearchMode = query.length >= 3;
+    const { results, isLoading, error } = useSearch(query, activeFilter);
 
     // Reset ao fechar
     useEffect(() => {
         if (!isOpen) {
-            setSearchQuery("");
+            setQuery("");
+            setActiveTab("newsletter");
             setActiveFilter("all");
-            setIsFiltersOpen(false);
         }
     }, [isOpen]);
 
+    // Auto-focus
+    useEffect(() => {
+        if (isOpen) {
+            const t = setTimeout(() => inputRef.current?.focus(), 50);
+            return () => clearTimeout(t);
+        }
+    }, [isOpen]);
+
+    // Ctrl+K / Cmd+K global
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+                e.preventDefault();
+                if (isOpen) onClose();
+            }
+        };
+        window.addEventListener("keydown", handler);
+        return () => window.removeEventListener("keydown", handler);
+    }, [isOpen, onClose]);
+
+    // Escape fecha
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && isOpen) onClose();
+        };
+        window.addEventListener("keydown", handler);
+        return () => window.removeEventListener("keydown", handler);
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
-    const showMinCharsHint = searchQuery.length > 0 && searchQuery.length < 2;
-    const showEmpty = searchQuery.length >= 2 && !isLoading && results.length === 0 && !error;
-    const showResults = searchQuery.length >= 2 && !isLoading && results.length > 0;
+    const activeSection = SECTIONS.find(s => s.id === activeTab)!;
+
+    const showEmpty   = isSearchMode && !isLoading && results.length === 0 && !error;
+    const showResults = isSearchMode && !isLoading && results.length > 0;
 
     return (
         <div
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 md:p-8"
+            className="fixed inset-0 z-[100] flex justify-center px-4"
+            style={{ paddingTop: "7vh" }}
             onClick={onClose}
-            style={{ touchAction: "none" }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Pesquisar materiais"
         >
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/90 backdrop-blur-md animate-fade-in" />
+            {/* Overlay */}
+            <div
+                className="absolute inset-0 animate-fade-in"
+                style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
+            />
 
             {/* Modal */}
             <div
-                className="relative w-full max-w-6xl max-h-[90vh] bg-bg-primary/95 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl animate-scale-in flex flex-col overflow-hidden"
+                className="relative w-full flex flex-col animate-scale-in"
+                style={{
+                    maxWidth: 780,
+                    maxHeight: "78vh",
+                    background: "#111118",
+                    borderRadius: 20,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    boxShadow: "0 40px 120px rgba(0,0,0,0.8), 0 0 0 1px rgba(59,130,246,0.08)",
+                }}
                 onClick={e => e.stopPropagation()}
             >
-                {/* Header */}
-                <div className="flex items-center justify-end p-3 sm:p-4 md:p-6 pb-0 shrink-0">
+                {/* TOP BAR */}
+                <div
+                    className="flex items-center gap-3 px-4 py-3.5 shrink-0"
+                    style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+                >
+                    {/* Input pill */}
+                    <div
+                        className="flex-1 flex items-center gap-2 px-4 transition-all duration-200"
+                        style={{
+                            background: "rgba(255,255,255,0.04)",
+                            border: "1px solid rgba(255,255,255,0.09)",
+                            borderRadius: 50,
+                            height: 44,
+                        }}
+                        onFocus={e => {
+                            const el = e.currentTarget as HTMLDivElement;
+                            el.style.borderColor = "rgba(59,130,246,0.45)";
+                            el.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.08)";
+                        }}
+                        onBlur={e => {
+                            const el = e.currentTarget as HTMLDivElement;
+                            el.style.borderColor = "rgba(255,255,255,0.09)";
+                            el.style.boxShadow = "none";
+                        }}
+                    >
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={query}
+                            onChange={e => setQuery(e.target.value)}
+                            placeholder="Comece a digitar para pesquisar por material"
+                            aria-label="Campo de pesquisa"
+                            aria-autocomplete="list"
+                            className="flex-1 bg-transparent outline-none border-none text-sm"
+                            style={{
+                                color: "#e8eaf0",
+                                caretColor: "#3b82f6",
+                            }}
+                        />
+                        {isLoading ? (
+                            <Loader2 className="w-4 h-4 shrink-0 animate-spin" style={{ color: "rgba(59,130,246,0.8)" }} />
+                        ) : (
+                            <Search className="w-4 h-4 shrink-0 transition-colors" style={{ color: "rgba(255,255,255,0.3)" }} />
+                        )}
+                    </div>
+
+                    {/* Botão fechar */}
                     <button
                         onClick={onClose}
-                        className="p-2 md:p-2.5 text-text-secondary hover:text-white bg-bg-primary/80 hover:bg-white/10 rounded-full transition-all duration-200 border border-white/10 cursor-pointer"
-                        aria-label="Fechar modal"
+                        title="Fechar (Esc)"
+                        className="flex items-center justify-center shrink-0 transition-all duration-150 group"
+                        style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: 8,
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            background: "transparent",
+                            color: "rgba(255,255,255,0.4)",
+                        }}
+                        onMouseEnter={e => {
+                            const el = e.currentTarget as HTMLButtonElement;
+                            el.style.background = "rgba(239,68,68,0.15)";
+                            el.style.borderColor = "rgba(239,68,68,0.3)";
+                            el.style.color = "#ef4444";
+                        }}
+                        onMouseLeave={e => {
+                            const el = e.currentTarget as HTMLButtonElement;
+                            el.style.background = "transparent";
+                            el.style.borderColor = "rgba(255,255,255,0.08)";
+                            el.style.color = "rgba(255,255,255,0.4)";
+                        }}
                     >
-                        <X className="w-5 h-5 md:w-6 md:h-6" />
+                        <X className="w-3.5 h-3.5" />
                     </button>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6 pb-3 sm:pb-4 md:pb-6 flex flex-col min-h-0">
-                    <div className="flex flex-col gap-3 sm:gap-4 md:gap-6 h-full">
-                        {/* Campo de busca */}
-                        <div className="relative shrink-0">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Pesquise pelo material desejado"
-                                className="w-full px-4 sm:px-5 md:px-6 py-3 md:py-4 pr-12 md:pr-14 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl text-white text-sm md:text-base placeholder:text-gray-500 outline-none focus:outline-none focus:ring-0 focus:border-white focus:bg-white/[0.07] transition-all duration-200"
-                                autoFocus
-                            />
-                            <div className="absolute right-2 top-1/2 -translate-y-1/2 p-2 md:p-2.5 bg-linear-to-r from-blue-500 to-purple-600 rounded-lg md:rounded-xl">
-                                {isLoading ? (
-                                    <Loader2 className="w-4 h-4 md:w-5 md:h-5 text-white animate-spin" />
-                                ) : (
-                                    <Search className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                                )}
+                {/* BODY */}
+                <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                    {/* ── ESTADO A: Tab Browser (< 3 chars) ── */}
+                    {!isSearchMode && (
+                        <div className="flex flex-col flex-1 min-h-0">
+                            {/* Tabs row */}
+                            <div
+                                className="flex overflow-x-auto shrink-0"
+                                style={{
+                                    scrollbarWidth: "none",
+                                    background: "#111118",
+                                }}
+                            >
+                                {SECTIONS.map(section => {
+                                    const Icon = SECTION_ICONS[section.id];
+                                    const isActive = activeTab === section.id;
+                                    return (
+                                        <button
+                                            key={section.id}
+                                            onClick={() => setActiveTab(section.id)}
+                                            className="flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap transition-all duration-150 shrink-0"
+                                            style={{
+                                                borderRadius: "10px 10px 0 0",
+                                                background: isActive ? "#161623" : "transparent",
+                                                borderTop: isActive ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
+                                                borderLeft: isActive ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
+                                                borderRight: isActive ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
+                                                borderBottom: isActive ? "1px solid #161623" : "1px solid transparent",
+                                                color: isActive ? "#93c5fd" : "rgba(255,255,255,0.35)",
+                                                marginBottom: isActive ? -1 : 0,
+                                            }}
+                                            onMouseEnter={e => {
+                                                if (!isActive) {
+                                                    (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)";
+                                                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)";
+                                                }
+                                            }}
+                                            onMouseLeave={e => {
+                                                if (!isActive) {
+                                                    (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.35)";
+                                                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                                                }
+                                            }}
+                                        >
+                                            <Icon className="w-3.5 h-3.5 shrink-0" />
+                                            <span>{section.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Tab content */}
+                            <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.07) transparent" }}>
+                                <TabContent
+                                    key={activeTab}
+                                    section={activeSection}
+                                    onClose={onClose}
+                                />
                             </div>
                         </div>
+                    )}
 
-                        {/* Layout de 2 colunas */}
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 flex-1 min-h-0 overflow-hidden">
-                            {/* Sidebar de filtros */}
-                            <div className="lg:col-span-1 glass-card rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6">
-                                <button
-                                    onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                                    className="lg:hidden w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-400 tracking-tight uppercase hover:text-white transition-colors"
-                                >
-                                    <span>Filtrar por tipo</span>
-                                    {isFiltersOpen ? (
-                                        <ChevronUp className="w-4 h-4" />
-                                    ) : (
-                                        <ChevronDown className="w-4 h-4" />
-                                    )}
-                                </button>
+                    {/* ── ESTADO B: Search (>= 3 chars) ── */}
+                    {isSearchMode && (
+                        <div className="flex flex-1 min-h-0">
+                            {/* Sidebar — oculta em telas pequenas */}
+                            <div className="hidden sm:flex">
+                                <SearchSidebar
+                                    activeFilter={activeFilter}
+                                    onFilter={f => setActiveFilter(f)}
+                                />
+                            </div>
 
-                                <h3 className="hidden lg:block text-xs md:text-sm font-semibold text-gray-400 mb-3 md:mb-4 tracking-tight uppercase">
-                                    Filtrar por tipo
-                                </h3>
-
+                            {/* Results panel */}
+                            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                                {/* Header */}
                                 <div
-                                    className={`space-y-2 max-h-60 sm:max-h-75 overflow-y-auto transition-all duration-300 ${
-                                        isFiltersOpen
-                                            ? "block mt-3 opacity-100"
-                                            : "hidden opacity-0 lg:block lg:opacity-100"
-                                    }`}
+                                    className="flex items-center justify-between px-4 py-2.5 shrink-0"
+                                    style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
                                 >
-                                    {FILTERS.map(filter => {
-                                        const Icon = filter.icon;
-                                        const isActive = activeFilter === filter.id;
-                                        return (
-                                            <button
-                                                key={filter.id}
-                                                onClick={() => {
-                                                    setActiveFilter(filter.id);
-                                                    setIsFiltersOpen(false);
-                                                }}
-                                                className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl transition-all duration-200 ${
-                                                    isActive
-                                                        ? "bg-white/10 border border-white/20 text-white"
-                                                        : "bg-white/5 border border-transparent text-text-secondary hover:bg-white/[0.07] hover:text-white"
-                                                }`}
-                                            >
-                                                <Icon
-                                                    className={`w-4 h-4 md:w-5 md:h-5 ${isActive ? filter.activeColor : ""}`}
-                                                />
-                                                <span className="font-medium text-xs md:text-sm">{filter.label}</span>
-                                            </button>
-                                        );
-                                    })}
+                                    <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "rgba(255,255,255,0.2)" }}>
+                                        Resultados
+                                    </span>
+                                    {results.length > 0 && (
+                                        <span
+                                            className="text-xs px-2 py-0.5 rounded-full"
+                                            style={{
+                                                background: "rgba(59,130,246,0.08)",
+                                                border: "1px solid rgba(59,130,246,0.15)",
+                                                color: "rgba(59,130,246,0.6)",
+                                            }}
+                                        >
+                                            {results.length} encontrado{results.length !== 1 ? "s" : ""}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Scrollable results */}
+                                <div
+                                    className="flex-1 overflow-y-auto p-4 space-y-2"
+                                    role="list"
+                                    style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.07) transparent" }}
+                                >
+                                    {/* Loading skeleton */}
+                                    {isLoading && (
+                                        <div className="space-y-2">
+                                            {[1, 2, 3].map(i => (
+                                                <div key={i} className="h-14 rounded-[11px] animate-pulse" style={{ background: "rgba(255,255,255,0.04)" }} />
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Error */}
+                                    {error && !isLoading && (
+                                        <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+                                            <X className="w-8 h-8" style={{ color: "rgba(239,68,68,0.5)" }} />
+                                            <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>{error}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Empty state */}
+                                    {showEmpty && (
+                                        <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+                                            <Search className="w-8 h-8" style={{ color: "rgba(255,255,255,0.12)" }} />
+                                            <p className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>
+                                                Nenhum material encontrado para &ldquo;{query}&rdquo;
+                                            </p>
+                                            <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
+                                                Tente outros termos ou navegue pelas seções ao lado
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Results */}
+                                    {showResults && (
+                                        <div role="listbox">
+                                            {results.map((item, i) => {
+                                                const sectionLabel = TYPE_LABEL[item.type];
+                                                const sectionObj = SECTIONS.find(s => s.id === TYPE_SECTION[item.type]);
+                                                const subsectionLabel = sectionObj?.subsections[0]?.label ?? sectionLabel;
+                                                const Icon = SECTION_ICONS[TYPE_SECTION[item.type]];
+
+                                                return (
+                                                    <div
+                                                        key={`${item.type}-${item.id}`}
+                                                        className="animate-[resultIn_200ms_ease_both]"
+                                                        style={{ animationDelay: `${i * 30}ms` }}
+                                                        role="option"
+                                                    >
+                                                        {item.viewUrl ? (
+                                                            <Link
+                                                                href={item.viewUrl}
+                                                                onClick={onClose}
+                                                                className="block p-3 rounded-[11px] transition-all duration-150 mb-2 group"
+                                                                style={{
+                                                                    background: "rgba(255,255,255,0.02)",
+                                                                    border: "1px solid rgba(255,255,255,0.05)",
+                                                                }}
+                                                                onMouseEnter={e => {
+                                                                    const el = e.currentTarget as HTMLAnchorElement;
+                                                                    el.style.background = "rgba(59,130,246,0.07)";
+                                                                    el.style.borderColor = "rgba(59,130,246,0.2)";
+                                                                    el.style.transform = "translateX(2px)";
+                                                                }}
+                                                                onMouseLeave={e => {
+                                                                    const el = e.currentTarget as HTMLAnchorElement;
+                                                                    el.style.background = "rgba(255,255,255,0.02)";
+                                                                    el.style.borderColor = "rgba(255,255,255,0.05)";
+                                                                    el.style.transform = "translateX(0)";
+                                                                }}
+                                                            >
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <Icon className="w-3 h-3 shrink-0" style={{ color: "rgba(59,130,246,0.55)" }} />
+                                                                    <span className="text-[10.5px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+                                                                        <span style={{ color: "rgba(59,130,246,0.55)" }}>{sectionLabel}</span>
+                                                                        {" › "}
+                                                                        {subsectionLabel}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-[13.5px] leading-snug" style={{ color: "rgba(255,255,255,0.8)" }}>
+                                                                    <HighlightedTitle title={item.title} query={query} />
+                                                                </p>
+                                                            </Link>
+                                                        ) : (
+                                                            <div
+                                                                className="block p-3 rounded-[11px] mb-2 opacity-50"
+                                                                style={{
+                                                                    background: "rgba(255,255,255,0.02)",
+                                                                    border: "1px solid rgba(255,255,255,0.05)",
+                                                                }}
+                                                            >
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <Folder className="w-3 h-3 shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+                                                                    <span className="text-[10.5px]" style={{ color: "rgba(255,255,255,0.25)" }}>
+                                                                        {sectionLabel}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-[13.5px] leading-snug" style={{ color: "rgba(255,255,255,0.5)" }}>
+                                                                    {item.title}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-
-                            {/* Painel de resultados */}
-                            <div className="lg:col-span-3 glass-card rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col min-h-0">
-                                {/* Estado: campo vazio */}
-                                {searchQuery.length === 0 && (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
-                                        <div className="w-16 h-16 md:w-20 md:h-20 mb-4 md:mb-6 rounded-xl md:rounded-2xl bg-linear-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
-                                            <Search className="w-8 h-8 md:w-10 md:h-10 text-brand-blue" />
-                                        </div>
-                                        <h3 className="text-lg md:text-2xl font-bold text-white mb-2 md:mb-3">
-                                            Comece a pesquisar
-                                        </h3>
-                                        <p className="text-text-secondary text-sm md:text-base max-w-md px-4">
-                                            Digite pelo menos 2 caracteres para encontrar newsletters, mini-livros,
-                                            especiais e conteÃºdos da biblioteca.
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Estado: menos de 2 chars */}
-                                {showMinCharsHint && (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
-                                        <div className="w-14 h-14 md:w-16 md:h-16 mb-3 md:mb-4 rounded-xl md:rounded-2xl bg-yellow-500/20 flex items-center justify-center">
-                                            <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-yellow-400" />
-                                        </div>
-                                        <p className="text-text-secondary text-sm md:text-base px-4">
-                                            Digite mais {2 - searchQuery.length}{" "}
-                                            {2 - searchQuery.length === 1 ? "caractere" : "caracteres"} para iniciar a
-                                            pesquisa
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Estado: carregando */}
-                                {isLoading && searchQuery.length >= 2 && (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
-                                        <Loader2 className="w-10 h-10 text-brand-blue animate-spin mb-4" />
-                                        <p className="text-text-secondary text-sm">Buscando conteÃºdo...</p>
-                                    </div>
-                                )}
-
-                                {/* Estado: erro */}
-                                {error && !isLoading && (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
-                                        <div className="w-14 h-14 md:w-16 md:h-16 mb-3 md:mb-4 rounded-xl md:rounded-2xl bg-red-500/20 flex items-center justify-center">
-                                            <X className="w-7 h-7 md:w-8 md:h-8 text-red-400" />
-                                        </div>
-                                        <h3 className="text-base md:text-lg font-bold text-white mb-2">
-                                            Erro na busca
-                                        </h3>
-                                        <p className="text-text-secondary text-sm max-w-md px-4">{error}</p>
-                                    </div>
-                                )}
-
-                                {/* Estado: sem resultados */}
-                                {showEmpty && (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-8 md:py-12">
-                                        <div className="w-14 h-14 md:w-16 md:h-16 mb-3 md:mb-4 rounded-xl md:rounded-2xl bg-gray-500/20 flex items-center justify-center">
-                                            <Search className="w-7 h-7 md:w-8 md:h-8 text-gray-400" />
-                                        </div>
-                                        <h3 className="text-base md:text-lg font-bold text-white mb-2">
-                                            Nenhum resultado
-                                        </h3>
-                                        <p className="text-text-secondary text-sm max-w-md mb-3 md:mb-4 px-4">
-                                            NÃ£o encontramos resultados para &quot;{searchQuery}&quot;.
-                                        </p>
-                                        <p className="text-xs md:text-sm text-emerald-400">Mais conteÃºdo em breve!</p>
-                                    </div>
-                                )}
-
-                                {/* Estado: resultados */}
-                                {showResults && (
-                                    <div className="flex flex-col h-full min-h-0">
-                                        <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
-                                            <h3 className="text-base md:text-lg font-bold text-white">
-                                                Resultados para &quot;{searchQuery}&quot;
-                                            </h3>
-                                            <span className="text-xs md:text-sm text-text-secondary">
-                                                {results.length} {results.length !== 1 ? "resultados" : "resultado"}
-                                            </span>
-                                        </div>
-
-                                        <div
-                                            className="flex-1 overflow-y-auto -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-8 px-3 sm:px-4 md:px-6 lg:px-8"
-                                            style={{ WebkitOverflowScrolling: "touch" }}
-                                        >
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                                                {results.map(item => (
-                                                    <SearchResultCard
-                                                        key={`${item.type}-${item.id}`}
-                                                        item={item}
-                                                        onClose={onClose}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
                         </div>
-                    </div>
+                    )}
+                </div>
+
+                {/* HINT BAR */}
+                <div
+                    className="flex items-center gap-4 px-4 py-2.5 shrink-0"
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+                >
+                    {(["↵ selecionar", "↑↓ navegar", "Esc fechar"] as const).map(hint => {
+                        const [key, desc] = hint.split(" ");
+                        return (
+                            <span key={hint} className="flex items-center gap-1.5 text-[11px]" style={{ color: "rgba(255,255,255,0.18)" }}>
+                                <kbd
+                                    className="font-mono text-[10px] px-1.5 py-0.5 rounded"
+                                    style={{
+                                        background: "rgba(255,255,255,0.06)",
+                                        border: "1px solid rgba(255,255,255,0.1)",
+                                    }}
+                                >
+                                    {key}
+                                </kbd>
+                                <span>{desc}</span>
+                            </span>
+                        );
+                    })}
+                    {!isSearchMode && (
+                        <span className="ml-auto text-[11px]" style={{ color: "rgba(59,130,246,0.5)" }}>
+                            Digite 3+ letras para buscar
+                        </span>
+                    )}
                 </div>
             </div>
         </div>

@@ -63,7 +63,7 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, rel
 
     const typeLabel = {
         newsletter: "Newsletter",
-        "mini-livro": "Mini-Livro",
+        "mini-livro": "Mini-livros - Ebook - Livros",
         biblioteca: "Biblioteca",
         "especial-semana": "Especial da Semana",
         ebook: "E-book",

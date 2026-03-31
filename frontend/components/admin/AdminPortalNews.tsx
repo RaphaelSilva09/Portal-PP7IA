@@ -37,7 +37,7 @@ interface PortalNewsRow {
 
 const LINK_TYPE_CONFIG: Record<string, { label: string; table: string }> = {
     "newsletter":          { label: "Newsletter",              table: "newsletters" },
-    "mini-livro":          { label: "Mini-Livros",             table: "mini_livros" },
+    "mini-livro":          { label: "Mini-livros - Ebook - Livros",             table: "mini_livros" },
     "biblioteca":          { label: "Biblioteca",              table: "biblioteca" },
     "especial-semana":     { label: "Especial da Semana",      table: "especial_semana" },
     "radar-oportunidades": { label: "Radar de Oportunidades",  table: "radar_oportunidades" },

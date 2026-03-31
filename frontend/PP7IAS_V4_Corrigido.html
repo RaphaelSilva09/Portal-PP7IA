@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PP7+IAS — Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --a1:#0A1F3F;--a2:#0F2E5A;--a3:#1B4B8A;--a4:#2E6DB4;--a5:#4A8ACE;--a6:#7AB0DE;--a7:#A3CBE8;--a8:#C8DFF2;--a9:#E3EEF8;--a10:#F0F6FB;
+  --red:#C0392B;--red-l:#FDECEB;--red-d:#6B1710;
+  --yel:#D4A017;--yel-l:#FDF3D7;--yel-d:#5C3D06;
+  --grn:#25A244;
+  --w:#fff;--r:12px;--rs:8px;
+  --f:'DM Sans',-apple-system,sans-serif;
+  --fs-base:1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f);background:var(--a7);color:var(--a1);-webkit-font-smoothing:antialiased;font-size:calc(var(--fs-base) * 16px)}
+.sw{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;background:var(--a1)}
+.sw span{font-size:13px;color:#fff;margin-right:8px}
+.sw-btn{padding:6px 20px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid rgba(255,255,255,.2);background:transparent;color:var(--a7);cursor:pointer;font-family:var(--f)}
+.sw-btn.a{background:var(--w);color:var(--a1);border-color:var(--w)}
+.tag-novo{background:var(--red);color:#fff;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700;margin-left:6px;vertical-align:middle}
+.ib{width:40px;height:40px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ib svg{width:20px;height:20px;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.st{font-size:12px;color:var(--a2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;font-weight:700}
+.btn-e{padding:9px 22px;border-radius:var(--rs);border:none;font-size:13px;font-weight:600;cursor:pointer;background:var(--a1);color:var(--w);font-family:var(--f)}
+.btn-c{padding:9px 22px;border-radius:var(--rs);border:none;font-size:13px;font-weight:600;cursor:pointer;background:var(--red);color:var(--w);font-family:var(--f)}
+.btn-i{padding:9px 22px;border-radius:var(--rs);border:2px solid var(--a4);font-size:13px;font-weight:600;cursor:pointer;background:var(--w);color:var(--a3);font-family:var(--f)}
+.wpp{width:22px;height:22px;border-radius:50%;background:var(--grn);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.wpp svg{width:13px;height:13px;fill:#fff}
+
+/* Card styles */
+.cc{padding:16px 16px 16px 20px;border-radius:0 var(--r) var(--r) 0;cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;gap:14px;align-items:flex-start}
+.cc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,31,63,.12)}
+.cc h3{font-size:14px;font-weight:700;line-height:1.35;margin:4px 0 3px}
+.cc p{font-size:12px;line-height:1.45;margin:0}
+.cc .mt{font-size:11px;margin-top:5px;display:flex;align-items:center;gap:8px}
+.cc-body{flex:1;min-width:0}
+.cc.b1{border-left:6px solid var(--a2);background:var(--a9)} .cc.b1 h3{color:var(--a1)} .cc.b1 p{color:var(--a3)} .cc.b1 .mt{color:var(--a4)}
+.cc.b2{border-left:6px solid var(--yel);background:var(--yel-l)} .cc.b2 h3{color:var(--yel-d)} .cc.b2 p{color:var(--a3)} .cc.b2 .mt{color:var(--yel)}
+.cc.b3{border-left:6px solid var(--a4);background:var(--a9)} .cc.b3 h3{color:var(--a1)} .cc.b3 p{color:var(--a3)} .cc.b3 .mt{color:var(--a4)}
+.cc.b4{border-left:6px solid var(--a5);background:var(--a10)} .cc.b4 h3{color:var(--a2)} .cc.b4 p{color:var(--a3)} .cc.b4 .mt{color:var(--a5)}
+.cc.b5{border-left:6px solid var(--a6);background:var(--a9)} .cc.b5 h3{color:var(--a1)} .cc.b5 p{color:var(--a3)} .cc.b5 .mt{color:var(--a4)}
+.cc.b6{border-left:6px solid var(--a4);background:var(--a10)} .cc.b6 h3{color:var(--a2)} .cc.b6 p{color:var(--a3)} .cc.b6 .mt{color:var(--a5)}
+.cc.b7{border-left:6px solid var(--a6);background:var(--a1);opacity:.5;position:relative} .cc.b7 h3{color:#fff} .cc.b7 p{color:var(--a7)} .cc.b7 .mt{color:var(--a8)}
+.cc.b7::after{content:"Em breve";position:absolute;top:10px;right:10px;font-size:10px;background:var(--yel-l);color:var(--yel-d);padding:2px 8px;border-radius:4px;font-weight:600}
+
+/* Announcements */
+.ann{padding:12px 12px 12px 16px;border-radius:0 var(--rs) var(--rs) 0;background:var(--w);border-left:5px solid var(--red);margin-bottom:8px}
+.ann h4{font-size:13px;font-weight:700;color:var(--red-d);line-height:1.35;margin:0 0 3px}
+.ann p{font-size:11px;color:var(--a3);line-height:1.4;margin:0}
+.ann .dt{font-size:10px;color:var(--a5);margin-top:4px}
+
+/* Editorial */
+.edit-card{padding:16px 16px 16px 20px;border-radius:0 var(--r) var(--r) 0;background:var(--yel-l);border-left:6px solid var(--yel);margin-bottom:14px}
+.edit-card h3{font-size:14px;font-weight:700;color:var(--yel-d);line-height:1.35;margin:0 0 4px}
+.edit-card p{font-size:12px;color:var(--a3);line-height:1.45;margin:0}
+.edit-card .mt{font-size:11px;color:var(--yel);margin-top:5px}
+
+/* Dica do autor */
+.dica{padding:12px 12px 12px 16px;border-radius:0 var(--rs) var(--rs) 0;background:var(--yel-l);border-left:5px solid var(--yel);margin-bottom:14px}
+.dica h4{font-size:12px;font-weight:700;color:var(--yel-d);margin:0 0 3px}
+.dica p{font-size:11px;color:var(--a3);line-height:1.4;margin:0;font-style:italic}
+
+/* Urgency bar */
+.urgency{background:var(--red);padding:6px 18px;font-size:12px;color:#fff;font-weight:600;text-align:center}
+
+/* MOBILE */
+#mob{max-width:420px;margin:24px auto;border-radius:36px;overflow:hidden;box-shadow:0 12px 48px rgba(10,31,63,.20)}
+.mn{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:var(--a1)}
+.ml{font-size:17px;font-weight:700;color:var(--w)} .ml span{font-weight:400;color:var(--a6)}
+.mn-right{display:flex;align-items:center;gap:6px}
+.mic{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.mic svg{width:16px;height:16px;stroke:var(--a7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.font-btn{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:var(--a7);font-weight:700;font-family:var(--f);border:none}
+
+.m-user{display:flex;align-items:center;justify-content:space-between;padding:8px 18px;background:var(--a2)}
+.m-user-left{display:flex;align-items:center;gap:8px}
+.m-user-av{width:28px;height:28px;border-radius:50%;background:var(--a6);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--a1)}
+.m-user-name{font-size:12px;color:var(--w);font-weight:500}
+.m-user-btn{font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid rgba(255,255,255,.3);background:transparent;color:var(--a7);cursor:pointer;font-family:var(--f)}
+
+.mb{background:var(--a7);padding:14px 16px 0}
+.greeting{font-size:14px;color:var(--a3);margin-bottom:6px;font-weight:500}
+.greeting b{color:var(--a1)}
+.m-update{font-size:11px;color:var(--a5);margin-bottom:10px}
+
+.mh{padding:20px 18px;background:var(--w);border-radius:0 var(--r) var(--r) 0;margin-bottom:14px;border-left:6px solid var(--a1)}
+.mh h2{font-size:18px;font-weight:700;color:var(--a1);line-height:1.3;margin-bottom:4px}
+.mh .sub{font-size:13px;color:var(--a3);font-weight:500;margin-bottom:6px}
+.mh p{font-size:12px;color:var(--a4);line-height:1.5;margin-bottom:12px}
+
+.m-cards{display:flex;flex-direction:column;gap:10px;padding-bottom:14px}
+
+.m-ias-bar{padding:12px 16px;background:var(--w);border-radius:0 var(--r) var(--r) 0;border-left:6px solid var(--a1);margin-bottom:14px}
+.m-ias-bar p{font-size:12px;color:var(--a2);margin:0 0 4px;font-weight:600}
+.m-ias-bar .sub2{font-size:11px;color:var(--a4);font-style:italic;margin-bottom:8px}
+.mias{display:flex;gap:6px;flex-wrap:wrap}
+.iac{padding:5px 12px 5px 16px;border-radius:0 6px 6px 0;font-size:11px;font-weight:600;cursor:pointer;background:var(--w);color:var(--a2)}
+
+.mq{padding:16px 16px 16px 20px;font-size:14px;font-style:italic;color:var(--a1);line-height:1.5;background:var(--w);border-left:6px solid var(--a4);border-radius:0 var(--r) var(--r) 0;margin-bottom:14px}
+
+.m-footer{padding:14px 16px;background:var(--a1);font-size:11px}
+.m-footer-top{color:var(--a7);margin-bottom:8px;line-height:1.5}
+.m-footer-top a{color:var(--a6);text-decoration:none}
+.m-footer-legal{padding-top:8px;border-top:1px solid rgba(255,255,255,.1)}
+.m-footer-legal a{color:rgba(255,255,255,.85);text-decoration:none;margin-right:10px;font-size:10px}
+.m-footer-copy{color:rgba(255,255,255,.6);font-size:10px;margin-top:6px}
+
+/* DESKTOP */
+#dsk{max-width:1100px;margin:24px auto;border-radius:16px;overflow:hidden;box-shadow:0 12px 48px rgba(10,31,63,.20);display:none;background:var(--a7)}
+.dt-top{display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:var(--a1);height:56px}
+.dl{font-size:20px;font-weight:700;color:var(--w)} .dl span{font-weight:400;color:var(--a6)}
+.ds{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border-radius:var(--rs);padding:8px 16px;width:300px}
+.ds svg{width:16px;height:16px;stroke:var(--a6);fill:none;stroke-width:2}
+.ds input{border:none;background:transparent;outline:none;font-size:14px;color:var(--w);font-family:var(--f);width:100%}
+.ds input::placeholder{color:rgba(163,203,232,.6)}
+.dt-right{display:flex;align-items:center;gap:16px}
+a.dnl{font-size:13px;color:#fff !important;text-decoration:none;font-weight:500;margin-right:16px}a.dnl:visited{color:#fff !important}a.dnl:hover{color:var(--a8) !important}
+.d-font-btn{padding:4px 10px;border-radius:4px;background:rgba(255,255,255,.1);color:var(--a7);font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--f)}
+.d-user{display:flex;align-items:center;justify-content:space-between;padding:6px 32px;background:var(--a2)}
+.d-user-left{display:flex;align-items:center;gap:10px}
+.d-user-av{width:30px;height:30px;border-radius:50%;background:var(--a6);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--a1)}
+.d-user-name{font-size:13px;color:var(--w);font-weight:500}
+.d-user-btn{font-size:11px;padding:4px 14px;border-radius:4px;border:1px solid rgba(255,255,255,.3);background:transparent;color:var(--a7);cursor:pointer;font-family:var(--f)}
+
+.d-tabs{display:flex;padding:0 32px;background:var(--a8);border-bottom:2px solid var(--a7)}
+.dtab{padding:12px 18px;font-size:13px;color:var(--a3);cursor:pointer;border-bottom:3px solid transparent;font-weight:500}
+.dtab.a{color:var(--a1);border-bottom-color:var(--a1);font-weight:700}
+
+.df{padding:24px 32px;max-width:820px;margin:0 auto}
+
+.dh{padding:28px 28px 28px 32px;border-radius:0 var(--r) var(--r) 0;background:var(--w);margin-bottom:20px;border-left:8px solid var(--a1)}
+.dh h2{font-size:24px;font-weight:700;color:var(--a1);line-height:1.3;margin-bottom:4px}
+.dh .sub{font-size:15px;color:var(--a3);font-weight:500;margin-bottom:8px}
+.dh p{font-size:15px;color:var(--a4);line-height:1.6;margin-bottom:16px;max-width:600px}
+
+.d-ann-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.dg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+
+/* Desktop cards */
+.dc{padding:18px 18px 18px 22px;border-radius:0 var(--r) var(--r) 0;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.dc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,31,63,.12)}
+.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.dc h3{font-size:15px;font-weight:700;line-height:1.35;margin:0 0 4px}
+.dc p{font-size:13px;line-height:1.5;margin:0}
+.dc .mt{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:8px}
+.dc.b1{border-left:6px solid var(--a2);background:var(--a9)} .dc.b1 h3{color:var(--a1)} .dc.b1 p{color:var(--a3)} .dc.b1 .mt{color:var(--a4)}
+.dc.b2{border-left:6px solid var(--yel);background:var(--yel-l)} .dc.b2 h3{color:var(--yel-d)} .dc.b2 p{color:var(--a3)} .dc.b2 .mt{color:var(--yel)}
+.dc.b3{border-left:6px solid var(--a4);background:var(--a9)} .dc.b3 h3{color:var(--a1)} .dc.b3 p{color:var(--a3)} .dc.b3 .mt{color:var(--a4)}
+.dc.b4{border-left:6px solid var(--a5);background:var(--a10)} .dc.b4 h3{color:var(--a2)} .dc.b4 p{color:var(--a3)} .dc.b4 .mt{color:var(--a5)}
+.dc.b5{border-left:6px solid var(--a6);background:var(--a9)} .dc.b5 h3{color:var(--a1)} .dc.b5 p{color:var(--a3)} .dc.b5 .mt{color:var(--a4)}
+.dc.b6{border-left:6px solid var(--a4);background:var(--a10)} .dc.b6 h3{color:var(--a2)} .dc.b6 p{color:var(--a3)} .dc.b6 .mt{color:var(--a5)}
+.dc.b7{border-left:6px solid var(--a6);background:var(--a1);opacity:.45;position:relative} .dc.b7 h3{color:#fff} .dc.b7 p{color:var(--a7)} .dc.b7 .mt{color:var(--a8)}
+.dc.b7::after{content:"Em breve";position:absolute;top:12px;right:12px;font-size:11px;background:var(--yel-l);color:var(--yel-d);padding:3px 10px;border-radius:4px;font-weight:600}
+
+.d-edit{padding:20px 20px 20px 26px;background:var(--yel-l);border-radius:0 var(--r) var(--r) 0;border-left:6px solid var(--yel);margin-bottom:20px}
+.d-edit h3{font-size:16px;font-weight:700;color:var(--yel-d);margin:0 0 4px}
+.d-edit p{font-size:14px;color:var(--a3);margin:0}
+.d-edit .mt{font-size:12px;color:var(--yel);margin-top:6px}
+
+.d-ias{padding:20px 20px 20px 26px;background:var(--w);border-radius:0 var(--r) var(--r) 0;border-left:6px solid var(--a1);margin-bottom:20px}
+.d-ias p{font-size:14px;color:var(--a2);margin:0 0 4px;font-weight:600}
+.d-ias .sub2{font-size:13px;color:var(--a4);font-style:italic;margin-bottom:10px}
+.d-ias-chips{display:flex;gap:8px;flex-wrap:wrap}
+
+.d-footer{background:var(--a1);padding:20px 32px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+.d-footer-col{font-size:12px;color:var(--a7);line-height:1.6}
+.d-footer-col a{color:var(--a6);text-decoration:none}
+.d-footer-legal{font-size:11px}
+.d-footer-legal a{color:rgba(255,255,255,.85);text-decoration:none;margin-right:12px}
+.d-footer-copy{font-size:10px;color:rgba(255,255,255,.6);margin-top:6px}
+</style>
+</head>
+<body>
+
+<div class="sw">
+  <span>Visualizar:</span>
+  <button class="sw-btn a" onclick="sv('mob')">Mobile</button>
+  <button class="sw-btn" onclick="sv('dsk')">Desktop</button>
+</div>
+
+<!-- ========== MOBILE ========== -->
+<div id="mob">
+  <div class="mn">
+    <div class="ml">PP7<span>+IAS</span></div>
+    <div class="mn-right">
+      <button class="font-btn" onclick="changeFontSize(-1)">A−</button>
+      <button class="font-btn" onclick="changeFontSize(1)">A+</button>
+      <div class="mic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+    </div>
+  </div>
+  <div class="m-user">
+    <div class="m-user-left"><div class="m-user-av">PP</div><div class="m-user-name">Paulo Periquito</div></div>
+    <button class="m-user-btn">Sair</button>
+  </div>
+  <div class="urgency">Inscrição obrigatória a partir de fim de março — Cadastre-se!</div>
+
+  <div class="mb">
+    <div class="greeting" id="greeting-mob">Bom dia, <b>Paulo</b></div>
+    <div class="m-update">Última atualização: 07.03.2026</div>
+
+    <div class="mh">
+      <h2>Menos ruído, mais clareza.</h2>
+      <div class="sub">Para líderes, inovadores, profissionais e iniciantes</div>
+      <p>Conhecimento e IA acessível para todos. Conteúdo organizado em 7 blocos — publicando só o que foi testado e funciona.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-e">Entrar</button>
+        <button class="btn-c">Cadastrar</button>
+        <button class="btn-i">Indicar</button>
+      </div>
+    </div>
+
+    <div class="st">Novidades do portal<span class="tag-novo">NOVO</span></div>
+    <div class="ann"><h4>Inscrição no portal</h4><p>Algumas pessoas acessam o portal sem inscrição! A partir de fim de março só será possível acessar se estiver inscrito. Cadastre-se logo!</p><div class="dt">Publicado em 27.02.2026</div></div>
+    <div class="ann"><h4>Livro: "Enquanto é Tempo" — Introdução disponível</h4><p>Nova publicação disponível na área de Mini-Livros.</p><div class="dt">Publicado em 21.03.2026</div></div>
+    <div class="ann"><h4>Reportagem: Saúde e controle da dor no tempo de IA</h4><p>Leia em Reportagem da Semana e depois em Biblioteca.</p><div class="dt">Publicado em 06.03.2026</div></div>
+
+    <div style="height:14px"></div>
+
+    <div class="st">Editorial da Semana</div>
+    <div class="edit-card">
+      <h3>Mensagem do autor</h3>
+      <p>Artigos, apps, tutoriais ou pontos de atenção especial curados pelo autor.</p>
+      <div class="mt">Semanal · Curadoria editorial</div>
+    </div>
+
+    <div class="dica">
+      <h4>Dica do Paulo</h4>
+      <p>"Esta semana testei o Manus para organizar pesquisas — impressionante a capacidade de cruzar fontes. Vale experimentar."</p>
+    </div>
+
+    <div class="st">Os 7 blocos</div>
+    <div class="m-cards">
+      <div class="cc b1">
+        <div class="ib" style="background:var(--a9)"><svg viewBox="0 0 24 24" stroke="var(--a2)"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <div class="cc-body"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a2);color:#fff">Newsletter</span><span class="tag-novo">NOVO</span><h3>Publicacao semanal com 7 itens</h3><p>Notícias de IA e startups. Mantendo você informado sobre o que realmente importa.</p><div class="mt">Semanal <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      </div>
+      <div class="cc b2">
+        <div class="ib" style="background:var(--yel-l)"><svg viewBox="0 0 24 24" stroke="var(--yel)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <div class="cc-body"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--yel);color:#fff">Reportagem da Semana</span><h3>Destaque semanal curado pelo autor</h3><p>Reportagens, análises e pontos de atenção especial.</p><div class="mt">Semanal <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      </div>
+      <div class="cc b3">
+        <div class="ib" style="background:var(--a9)"><svg viewBox="0 0 24 24" stroke="var(--a4)"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+        <div class="cc-body"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a4);color:#fff">Radar de Oportunidades</span><h3>7 itens mensais</h3><p>Novas ferramentas, startups em alta, tendências de mercado.</p><div class="mt">Mensal <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      </div>
+      <div class="cc b4">
+        <div class="ib" style="background:var(--a10)"><svg viewBox="0 0 24 24" stroke="var(--a5)"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+        <div class="cc-body"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a5);color:#fff">Mini-Livros</span><span class="tag-novo">NOVO</span><h3>Mini-guias sobre pessoas, liderança e IA prática</h3><p>Tempo de leitura entre 7 e 21 minutos.</p><div class="mt">7-21 min <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      </div>
+      <div class="cc b5">
+        <div class="ib" style="background:var(--a9)"><svg viewBox="0 0 24 24" stroke="var(--a6)"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
+        <div class="cc-body"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a6);color:var(--a1)">Biblioteca</span><h3>7 categorias com 7 itens cada</h3><p>Prompts, ferramentas, atalhos, guias, referências, dicas e outros.</p><div class="mt">49 itens · 7x7 <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      </div>
+      <div class="cc b6">
+        <div class="ib" style="background:var(--a10)"><svg viewBox="0 0 24 24" stroke="var(--a4)"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+        <div class="cc-body"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a4);color:#fff">Estudar</span><h3>Guias, tutoriais e aulas</h3><p>IA, Tecnologia, Apple, Saúde, Startups, Finanças e outros.</p><div class="mt">Contínuo <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      </div>
+      <div class="cc b7">
+        <div class="ib" style="background:rgba(163,203,232,.2)"><svg viewBox="0 0 24 24" stroke="var(--a6)"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div class="cc-body"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a6);color:var(--a1)">Ensinar</span><h3>A ser implementado</h3><p>A partir de 7 de abril de 2026.</p><div class="mt"></div></div>
+      </div>
+    </div>
+
+    <div class="m-ias-bar">
+      <p>As 7 IAs parceiras<span class="tag-novo">NOVO</span></p>
+      <div class="sub2">A IA amplifica; o julgamento editorial é humano.</div>
+      <div class="mias">
+        <span class="iac" style="border-left:4px solid var(--a2)">Claude</span>
+        <span class="iac" style="border-left:4px solid var(--a3)">ChatGPT</span>
+        <span class="iac" style="border-left:4px solid var(--a4)">Gemini</span>
+        <span class="iac" style="border-left:4px solid var(--a5)">Adapta</span>
+        <span class="iac" style="border-left:4px solid var(--a4)">Perplexity</span>
+        <span class="iac" style="border-left:4px solid var(--a3)">Grok</span>
+        <span class="iac" style="border-left:4px solid var(--a1)">Manus</span>
+      </div>
+    </div>
+
+    <div class="mq">"Liderar é servir. Formar pessoas. Deixar legado."</div>
+  </div>
+
+  <div class="m-footer">
+    <div class="m-footer-top">PP7+IAS — Menos ruído, mais clareza.<br><a href="mailto:paulof@pp7ias-portal.com.br">paulof@pp7ias-portal.com.br</a> · <a href="https://wa.me/5511914892836">+55 11 91489-2836</a></div>
+    <div class="m-footer-legal"><a href="#"><strong>Declarações Legais &amp; Compliance</strong></a><a href="#">Termos de Uso</a><a href="#">Contato</a></div>
+    <div class="m-footer-copy">2026 PP7+IAS. Todos os direitos reservados. </div>
+  </div>
+</div>
+
+<!-- ========== DESKTOP ========== -->
+<div id="dsk">
+  <div class="dt-top">
+    <div class="dl">PP7<span>+IAS</span>.portal</div>
+    <div class="ds"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input type="text" placeholder="Buscar nos 7 blocos..."></div>
+    <div class="dt-right">
+      <a class="dnl" href="#">Quem Somos</a><a class="dnl" href="#">O Autor</a><a class="dnl" href="#">As 7 IAs</a><a class="dnl" href="#">Contato</a>
+      <button class="d-font-btn" onclick="changeFontSize(-1)">A−</button>
+      <button class="d-font-btn" onclick="changeFontSize(1)">A+</button>
+    </div>
+  </div>
+  <div class="d-user">
+    <div class="d-user-left"><div class="d-user-av">PP</div><div class="d-user-name">Paulo Periquito</div></div>
+    <button class="d-user-btn">Sair</button>
+  </div>
+  <div class="urgency">Inscrição obrigatória a partir de fim de março — Cadastre-se agora!</div>
+
+  <div class="d-tabs">
+    <div class="dtab a">Todos</div><div class="dtab">Newsletter</div><div class="dtab">Editorial</div><div class="dtab">Radar</div><div class="dtab">Mini-Livros</div><div class="dtab">Biblioteca</div><div class="dtab">Estudar</div><div class="dtab">Ensinar</div>
+  </div>
+
+  <div class="df">
+    <div class="greeting" id="greeting-dsk" style="font-size:16px;margin-bottom:8px">Bom dia, <b>Paulo</b></div>
+    <div style="font-size:12px;color:var(--a5);margin-bottom:14px">Última atualização: 07.03.2026</div>
+
+    <div class="dh">
+      <h2>Menos ruído, mais clareza.</h2>
+      <div class="sub">Para líderes, inovadores, profissionais e iniciantes</div>
+      <p>Conhecimento e IA acessível para todos. Conteúdo curado por experiência executiva real, combinado com 7 inteligências artificiais.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-e">Entrar</button>
+        <button class="btn-c">Cadastrar</button>
+        <button class="btn-i">Indicar</button>
+      </div>
+    </div>
+
+    <div class="st">Novidades do portal<span class="tag-novo">NOVO</span></div>
+    <div class="d-ann-grid">
+      <div class="ann"><h4>Inscrição no portal</h4><p>A partir de fim de março só será possível acessar se estiver inscrito. Cadastre-se!</p><div class="dt">27.02.2026</div></div>
+      <div class="ann"><h4>Livro: "Enquanto é Tempo"</h4><p>Introdução disponível na área de Mini-Livros.</p><div class="dt">21.03.2026</div></div>
+      <div class="ann"><h4>Saúde e controle da dor no tempo de IA</h4><p>Leia em Reportagem da Semana e depois em Biblioteca.</p><div class="dt">06.03.2026</div></div>
+    </div>
+
+    <div class="st">Editorial da Semana</div>
+    <div class="d-edit">
+      <h3>Mensagem do autor</h3>
+      <p>Artigos, apps, tutoriais ou pontos de atenção especial curados pelo autor.</p>
+      <div class="mt">Semanal · Curadoria editorial</div>
+    </div>
+
+    <div class="dica" style="margin-bottom:20px">
+      <h4>Dica do Paulo</h4>
+      <p>"Esta semana testei o Manus para organizar pesquisas — impressionante a capacidade de cruzar fontes. Vale experimentar."</p>
+    </div>
+
+    <div class="st">Os 7 blocos</div>
+    <div class="dg">
+      <div class="dc b1"><div class="dc-top"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a2);color:#fff">Newsletter</span><span class="tag-novo">NOVO</span></div><h3>Publicacao semanal com 7 itens</h3><p>Notícias de IA e startups. O que realmente importa.</p><div class="mt">Semanal <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      <div class="dc b2"><div class="dc-top"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--yel);color:#fff">Reportagem da Semana</span></div><h3>Reportagem curada da semana</h3><p>Análises e destaques editoriais.</p><div class="mt">Semanal <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      <div class="dc b3"><div class="dc-top"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a4);color:#fff">Radar</span></div><h3>7 itens mensais</h3><p>Ferramentas, startups e tendências.</p><div class="mt">Mensal <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      <div class="dc b4"><div class="dc-top"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a5);color:#fff">Mini-Livros</span><span class="tag-novo">NOVO</span></div><h3>Mini-guias de liderança e IA</h3><p>Leitura de 7 a 21 minutos.</p><div class="mt">7-21 min <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      <div class="dc b5"><div class="dc-top"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a6);color:var(--a1)">Biblioteca</span></div><h3>7 categorias com 7 itens cada</h3><p>Prompts, ferramentas, guias e dicas.</p><div class="mt">49 itens · 7x7 <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      <div class="dc b6"><div class="dc-top"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a4);color:#fff">Estudar</span></div><h3>Guias, tutoriais e aulas</h3><p>IA, tech, saude, startups, financas.</p><div class="mt">Contínuo <div class="wpp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></div></div></div>
+      <div class="dc b7"><div class="dc-top"><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--a6);color:var(--a1)">Ensinar</span></div><h3>A ser implementado</h3><p>A partir de abril 2026.</p><div class="mt"></div></div>
+    </div>
+
+    <div class="d-ias">
+      <p>As 7 IAs parceiras<span class="tag-novo">NOVO</span></p>
+      <div class="sub2">A IA amplifica; o julgamento editorial é humano.</div>
+      <div class="d-ias-chips">
+        <span class="iac" style="border-left:4px solid var(--a2)">Claude</span>
+        <span class="iac" style="border-left:4px solid var(--a3)">ChatGPT</span>
+        <span class="iac" style="border-left:4px solid var(--a4)">Gemini</span>
+        <span class="iac" style="border-left:4px solid var(--a5)">Adapta</span>
+        <span class="iac" style="border-left:4px solid var(--a4)">Perplexity</span>
+        <span class="iac" style="border-left:4px solid var(--a3)">Grok</span>
+        <span class="iac" style="border-left:4px solid var(--a1)">Manus</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:10px 0 20px">
+      <div class="mq" style="display:inline-block;max-width:500px;margin:0 auto">"Liderar é servir. Formar pessoas. Deixar legado."</div>
+    </div>
+  </div>
+
+  <div class="d-footer">
+    <div class="d-footer-col"><strong style="color:#fff">PP7+IAS</strong><br>Menos ruído, mais clareza.</div>
+    <div class="d-footer-col"><a href="mailto:paulof@pp7ias-portal.com.br">paulof@pp7ias-portal.com.br</a><br><a href="https://wa.me/5511914892836">WhatsApp: +55 11 91489-2836</a></div>
+    <div class="d-footer-col d-footer-legal"><a href="#"><strong>Declarações Legais &amp; Compliance</strong></a><br><a href="#">Termos de Uso</a><br><a href="#">Contato</a><div class="d-footer-copy">2026 PP7+IAS. </div></div>
+  </div>
+</div>
+
+<script>
+function sv(v){document.getElementById('mob').style.display=v==='mob'?'block':'none';document.getElementById('dsk').style.display=v==='dsk'?'block':'none';document.querySelectorAll('.sw-btn').forEach((b,i)=>b.classList.toggle('a',i===(v==='mob'?0:1)))}
+document.querySelectorAll('.dtab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.dtab').forEach(x=>x.classList.remove('a'));t.classList.add('a')}));
+
+var fs=1;
+function changeFontSize(d){fs=Math.max(0.8,Math.min(1.3,fs+d*0.1));document.documentElement.style.setProperty('--fs-base',fs)}
+
+function setGreeting(){
+  var h=new Date().getHours();
+  var g=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+  var el1=document.getElementById('greeting-mob');
+  var el2=document.getElementById('greeting-dsk');
+  var isLoggedIn=document.querySelector('.m-user-name');if(el1){if(isLoggedIn)el1.innerHTML=g+', <b>Paulo</b>';else el1.innerHTML=g+'! Bem-vindo ao PP7+IAS';}
+  if(el2){if(isLoggedIn)el2.innerHTML=g+', <b>Paulo</b>';else el2.innerHTML=g+'! Bem-vindo ao PP7+IAS';}
+}
+setGreeting();
+</script>
+</body>
+</html>

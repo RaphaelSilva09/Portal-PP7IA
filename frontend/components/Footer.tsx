@@ -15,7 +15,7 @@ const socialLinks = [
 
 // Links legais funcionais
 const legalLinks = [
-    { label: "Termos de Uso", href: "/PP7IAS_Disclosures_Legal_Compliance.pdf" },
+    { label: "Termos de Uso", href: "/declaracoes" },
     { label: "Contato", href: "mailto:contato@pp7ias.com" },
 ];
 
@@ -24,7 +24,7 @@ export default function Footer() {
 
     return (
         <footer id="footer" className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-bg-secondary border-t border-border-glass">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-4xl mx-auto">
                 {/* Top Section */}
                 <div className="flex flex-col md:flex-row gap-8 mb-12">
                     {/* Brand */}
@@ -83,13 +83,6 @@ export default function Footer() {
                 <div className="flex flex-col items-center justify-center gap-4 pt-8 border-t border-border-glass">
                     <p className="text-text-secondary text-sm text-center">
                         © {currentYear} PP7+IAS. Todos os direitos reservados.
-                    </p>
-                </div>
-
-                {/* Credits */}
-                <div className="mt-8 text-center">
-                    <p className="text-text-secondary/50 text-xs flex items-center justify-center gap-1">
-                        Feito por Raphael Silva
                     </p>
                 </div>
             </div>

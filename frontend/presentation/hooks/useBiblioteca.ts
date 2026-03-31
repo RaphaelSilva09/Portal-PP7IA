@@ -16,7 +16,7 @@
 
 import { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BibliotecaItem } from "../../domain/entities/BibliotecaItem";
+import { BibliotecaItem, BIBLIOTECA_TEMAS } from "../../domain/entities/BibliotecaItem";
 import type { BibliotecaTema } from "../../domain/entities/BibliotecaItem";
 import DIContainer from "../../infrastructure/di/container";
 
@@ -37,7 +37,7 @@ interface UseBibliotecaResult {
 
 export function useBiblioteca(): UseBibliotecaResult {
     const queryClient = useQueryClient();
-    const [activeTema, setActiveTema] = useState<BibliotecaTema | null>(null);
+    const [activeTema, setActiveTema] = useState<BibliotecaTema | null>(BIBLIOTECA_TEMAS[0].slug);
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["biblioteca"],

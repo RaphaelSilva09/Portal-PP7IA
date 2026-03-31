@@ -16,7 +16,7 @@ export default function WhyPP7IASSection() {
             id="why-pp7ias"
             className="py-12 sm:py-16 lg:pb-20 lg:pt-10 px-4 sm:px-6 lg:px-8 bg-bg-primary"
         >
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-4xl mx-auto">
                 {/* Linha Horizontal Superior */}
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-8 sm:mb-12" />
                 

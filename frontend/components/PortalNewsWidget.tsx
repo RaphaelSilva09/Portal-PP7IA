@@ -2,6 +2,7 @@
 
 import { PortalNewsItem } from "@/domain/entities/PortalNewsItem";
 import { usePortalNews } from "@/presentation/hooks/usePortalNews";
+import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
@@ -53,7 +54,7 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
 
     return (
         <div
-            className={`flex items-stretch gap-0 ${!isLast ? "border-b border-white/5" : ""} ${linkUrl ? "cursor-pointer hover:bg-white/[0.04] transition-colors" : ""}`}
+            className={`relative flex items-stretch gap-0 ${!isLast ? "border-b border-white/5" : ""} ${linkUrl ? "cursor-pointer hover:bg-white/[0.04] active:bg-white/[0.07] transition-colors" : ""}`}
             role={linkUrl ? "button" : undefined}
             tabIndex={linkUrl ? 0 : undefined}
             onClick={linkUrl ? () => router.push(linkUrl) : undefined}
@@ -65,7 +66,7 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
                 style={{ backgroundColor: barColor }}
             />
             {/* Conteúdo do item */}
-            <div className="flex-1 px-4 py-3">
+            <div className={`flex-1 px-4 py-3 ${linkUrl ? "pr-10" : ""}`}>
                 <div className="flex items-start gap-2">
                     <span className="text-base leading-none mt-0.5 flex-shrink-0">{item.icon}</span>
                     <div className="min-w-0 flex-1">
@@ -77,11 +78,14 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
                             Publicado em {item.formattedDate}
                         </p>
                     </div>
-                    {linkUrl && (
-                        <span className="text-white/30 text-sm flex-shrink-0 mt-0.5">→</span>
-                    )}
                 </div>
             </div>
+            {/* Seta fixa à direita, centralizada verticalmente */}
+            {linkUrl && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <ArrowRight className="w-4 h-4 text-white/40" />
+                </div>
+            )}
         </div>
     );
 }
@@ -112,7 +116,7 @@ export default function PortalNewsWidget() {
             {/* Keyframes do sino injetados inline */}
             <style dangerouslySetInnerHTML={{ __html: BELL_KEYFRAMES }} />
 
-            <div className="bg-[#111111] border border-[#b8860b]/30 rounded-xl mx-2 mb-6 overflow-hidden text-left">
+            <div id="novidades" className="bg-[#111111] border border-[#b8860b]/30 rounded-xl mx-2 mb-6 overflow-hidden text-left">
                 {/* Header */}
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-[#b8860b]/20">
                     <span className="text-base">📢</span>

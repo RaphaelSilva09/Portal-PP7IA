@@ -22,12 +22,12 @@ export type BibliotecaTema =
 
 export const BIBLIOTECA_TEMAS: { slug: BibliotecaTema; label: string }[] = [
     { slug: "biblioteca-dos-7",       label: "Biblioteca dos 7"         },
-    { slug: "saude",                   label: "Saúde"                    },
-    { slug: "investimentos-financas",  label: "Investimentos | Finanças"  },
-    { slug: "viagens-restaurantes",    label: "Viagens | Restaurantes"   },
-    { slug: "tecnologia",              label: "Tecnologia"               },
-    { slug: "prompts",                 label: "Prompts"                  },
     { slug: "diversos",                label: "Diversos"                 },
+    { slug: "investimentos-financas",  label: "Investimentos | Finanças"  },
+    { slug: "prompts",                 label: "Prompts"                  },
+    { slug: "saude",                   label: "Saúde"                    },
+    { slug: "tecnologia",              label: "Tecnologia"               },
+    { slug: "viagens-restaurantes",    label: "Viagens | Restaurantes"   },
 ];
 
 export interface BibliotecaItemProps {

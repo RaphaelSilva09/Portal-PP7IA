@@ -5,7 +5,7 @@ import { Briefcase, Users } from "lucide-react";
 export default function QuemSomosEquipe() {
     return (
         <section id="quemsomos" className="pt-12 pb-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-4xl mx-auto">
                 {/* ============================================
                 HERO - QUEM SOMOS
                 ============================================ */}
