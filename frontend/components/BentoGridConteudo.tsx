@@ -139,7 +139,7 @@ export default function BentoGrid() {
                     <a
                         href="/especial-semana"
                         id="especial"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-yellow-500/30 transition-all duration-300 hover:bg-white/[0.07] hover:border-yellow-500/50 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-4 sm:p-5 gap-3">
@@ -175,7 +175,7 @@ export default function BentoGrid() {
                     <a
                         href="/radar-oportunidades"
                         id="radar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-orange-500/30 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-4 sm:p-5 gap-3">
@@ -211,7 +211,7 @@ export default function BentoGrid() {
                     <a
                         href="/mini-livros"
                         id="mini-livros"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-green-500/30 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/50 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-4 sm:p-5 gap-3">
@@ -251,7 +251,7 @@ export default function BentoGrid() {
                     <a
                         href="/biblioteca"
                         id="biblioteca"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-purple-500/30 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-4 sm:p-5 gap-3">
@@ -287,7 +287,7 @@ export default function BentoGrid() {
                     <a
                         href="/estudar"
                         id="estudar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-blue-500/30 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-4 sm:p-5 gap-3">
@@ -322,7 +322,7 @@ export default function BentoGrid() {
                     {/* Card: Ensinar */}
                     <div
                         id="ensinar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-pink-500/30 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-pink-500/30 transition-all duration-300 hover:bg-white/[0.07] hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-4 sm:p-5 gap-3">
