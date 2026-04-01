@@ -32,7 +32,7 @@ export default function WhyPP7IASSection() {
                         <h3 className="text-4xl sm:text-5xl font-bold text-brand-blue mb-3">
                             PP
                         </h3>
-                        <p className="text-base font-semibold text-text-primary mb-1">
+                        <p className="text-sm font-semibold text-text-primary mb-1">
                             Paulo Periquito
                         </p>
                         <p className="text-xs text-text-secondary">

@@ -64,7 +64,7 @@ export default function QuemSomosEquipe() {
                             <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider mb-2 block">
                                 Criador
                             </span>
-                            <h3 className="text-xl font-bold text-white mb-2">
+                            <h3 className="text-base font-bold text-white mb-2">
                                 Paulo Periquito
                             </h3>
                             <p className="text-sm text-gray-400 leading-relaxed">

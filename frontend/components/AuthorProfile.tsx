@@ -10,7 +10,7 @@ export default function AuthorProfile() {
             {/* Header Section */}
             <div className="text-center">
                 {/* Name and Title */}
-                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">Paulo Periquito</h2>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">Paulo Periquito</h2>
                 <p className="text-xl sm:text-2xl text-brand-blue font-medium">Mentor, Investidor Anjo e Advisor</p>
             </div>
 
