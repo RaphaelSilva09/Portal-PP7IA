@@ -78,7 +78,6 @@ export default function Navbar() {
                             <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">
                                 PP7+IAS
                             </span>
-                            <span className="text-white tracking-normal">.portal</span>
                         </span>
                     </a>
 
