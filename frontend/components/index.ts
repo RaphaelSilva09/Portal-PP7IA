@@ -3,7 +3,6 @@
 
 export { default as AnnouncementBarWrapper } from "./AnnouncementBarWrapper";
 export { default as AuthModal } from "./AuthModal";
-export { default as Author } from "./Author";
 export { default as BentoGridBiblioteca } from "./BentoGridBiblioteca";
 export { default as BentoGrid } from "./BentoGridConteudo";
 export { default as BentoGridEspecialSemana } from "./BentoGridEspecialSemana";
@@ -24,7 +23,5 @@ export { default as InstructionsBanner } from "./InstructionsBanner";
 export { default as Portal } from "./Portal";
 export { default as PortalNewsWidget } from "./PortalNewsWidget";
 export { default as ProfileModal } from "./ProfileModal";
-export { default as QuemSomosEquipe } from "./QuemSomosEquipe";
 export { default as WelcomeBanner } from "./WelcomeBanner";
-export { default as WhyPP7IASSection } from "./WhyPP7IASSection";
 
