@@ -20,8 +20,9 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-    { label: "Quem Somos",   href: "/#quemsomos",      showWhen: "loggedOut" },
-    { label: "O Autor",      href: "/#autor",           showWhen: "loggedOut" },
+    { label: "Quem Somos",   href: "/quem-somos",       showWhen: "loggedOut" },
+    { label: "O Autor",      href: "/autor",             showWhen: "loggedOut" },
+    { label: "Por Que 7",    href: "/por-que-7",         showWhen: "loggedOut" },
     { label: "Novidades",    href: "/#novidades"                               },
     { label: "Os 7 blocos",  href: "/#indice"                                 },
     { label: "As 7 IAs",     href: "/#ias-parceiras"                          },
