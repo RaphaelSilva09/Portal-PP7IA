@@ -47,7 +47,7 @@ export default function HeroSection() {
     return (
         <section
             id="hero"
-            className="relative flex items-center justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
+            className="relative flex items-center justify-center pt-6 sm:pt-8 md:pt-12 lg:pt-16 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
         >
             {/* SVG Background with Fade Effect */}
             <div
@@ -72,22 +72,7 @@ export default function HeroSection() {
             {/* Content */}
             <div className="relative z-10 max-w-4xl mx-auto text-center px-2 sm:px-4">
 
-                {/* Badge - Última Atualização */}
-                <a
-                    href="#newsletter"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full mb-6"
-                >
-                    {/* Badge */}
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                    </span>
-                    <span className="text-green-500 text-sm font-medium">
-                        Última atualização: {mostRecentDate || "—"}
-                    </span>
-                </a>
-
-                {/* Main Title */}
+{/* Main Title */}
                 <div
                     id="manifesto"
                     className="mb-3 sm:mb-4 md:mb-5 animate-fade-in-up"

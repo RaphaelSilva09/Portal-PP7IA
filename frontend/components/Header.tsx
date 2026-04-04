@@ -20,8 +20,9 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-    { label: "Quem Somos",   href: "/#quemsomos",      showWhen: "loggedOut" },
-    { label: "O Autor",      href: "/#autor",           showWhen: "loggedOut" },
+    { label: "Quem Somos",   href: "/quem-somos",       showWhen: "loggedOut" },
+    { label: "O Autor",      href: "/autor",             showWhen: "loggedOut" },
+    { label: "Por Que 7",    href: "/por-que-7",         showWhen: "loggedOut" },
     { label: "Novidades",    href: "/#novidades"                               },
     { label: "Os 7 blocos",  href: "/#indice"                                 },
     { label: "As 7 IAs",     href: "/#ias-parceiras"                          },
@@ -78,7 +79,6 @@ export default function Navbar() {
                             <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">
                                 PP7+IAS
                             </span>
-                            <span className="text-white tracking-normal">.portal</span>
                         </span>
                     </a>
 
