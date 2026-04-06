@@ -17,6 +17,7 @@
  * - Headers de segurança adequados
  */
 
+
 import { NextRequest, NextResponse } from "next/server";
 
 const LIGHT_THEME_PATCH = `
