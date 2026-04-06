@@ -9,6 +9,7 @@ import { SearchModalProvider } from "@/context/SearchModalContext";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -36,7 +37,10 @@ export const viewport: Viewport = {
     width: "device-width",
     initialScale: 1,
     maximumScale: 5,
-    themeColor: "#111111",
+    themeColor: [
+        { media: "(prefers-color-scheme: dark)", color: "#111111" },
+        { media: "(prefers-color-scheme: light)", color: "#eef4ff" },
+    ],
 };
 
 export default function RootLayout({
@@ -52,12 +56,14 @@ export default function RootLayout({
             <head>
                 {process.env.NEXT_PUBLIC_AUTH_DEBUG === 'true' && (
                     <>
-                        <script src="https://cdn.jsdelivr.net/npm/eruda@3/eruda.js" />
-                        <script dangerouslySetInnerHTML={{ __html: `window.addEventListener('load', () => eruda.init());` }} />
+                        <Script src="https://cdn.jsdelivr.net/npm/eruda@3/eruda.js" strategy="afterInteractive" />
+                        <Script id="eruda-init" strategy="afterInteractive">
+                            {`window.addEventListener('load', () => eruda.init());`}
+                        </Script>
                     </>
                 )}
             </head>
-            <body className="antialiased bg-bg-primary text-text-primary font-sans" suppressHydrationWarning>
+            <body className="antialiased bg-background text-foreground font-sans" suppressHydrationWarning>
                 <Providers>
                     <AuthProvider>
                         <SearchModalProvider>

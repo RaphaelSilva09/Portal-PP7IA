@@ -3,12 +3,13 @@
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
-import { LogOut, Menu, Search, Sparkles, User as UserIcon, UserPlus, X } from "lucide-react";
+import { LogOut, Menu, Search, User as UserIcon, UserPlus, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
 import AnnouncementBarWrapper from "./AnnouncementBarWrapper";
+import ThemeToggle from "./ThemeToggle";
 
 // Tipo para os itens de navegação
 interface NavItem {
@@ -54,11 +55,12 @@ export default function Navbar() {
             // Se o elemento existe na página atual, faz scroll suave
             e.preventDefault();
             const headerHeight = document.querySelector("header")?.offsetHeight ?? 0;
+            const announcementHeight = (document.querySelector('[role="alert"]') as HTMLElement | null)?.offsetHeight ?? 0;
             // Adiciona padding adequado: 16px para mobile, 32px para desktop
             const offset = window.innerWidth < 768 ? 16 : 32;
 
             window.scrollTo({
-                top: element.getBoundingClientRect().top + window.scrollY - headerHeight - offset,
+                top: element.getBoundingClientRect().top + window.scrollY - headerHeight - announcementHeight - offset,
                 behavior: "smooth",
             });
         }
@@ -67,20 +69,20 @@ export default function Navbar() {
 
     return (
         <>
-        <header className="sticky top-0 left-0 right-0 z-50 glass-navbar backdrop-blur-[20px] bg-bg-primary/90 safe-area-top">
+            <header className="fixed top-0 left-0 right-0 z-50 glass-navbar backdrop-blur-[20px] bg-background/90 safe-area-top">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center h-16 md:h-20">
                     {/* Logo */}
-                    <a
+                    <Link
                         href="/"
-                        className="flex-1 flex items-center gap-2 text-white font-bold text-xl md:text-2xl tracking-tight"
+                        className="flex-1 flex items-center gap-2 text-foreground font-bold text-xl md:text-2xl tracking-tight"
                     >
                         <span className="inline-flex">
                             <span className="bg-linear-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent">
                                 PP7+IAS
                             </span>
                         </span>
-                    </a>
+                    </Link>
 
                     {/* Desktop Navigation - 7 Links (Centered) */}
                     <nav
@@ -96,7 +98,7 @@ export default function Navbar() {
                                 <button
                                     key={item.label}
                                     onClick={() => openModal()}
-                                    className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-white transition-colors cursor-pointer duration-200 whitespace-nowrap"
+                                    className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-foreground transition-colors cursor-pointer duration-200 whitespace-nowrap"
                                 >
                                     <span>{item.label}</span>
                                     <Search className="w-3.5 h-3.5" />
@@ -106,7 +108,7 @@ export default function Navbar() {
                                     key={item.label}
                                     href={item.href}
                                     onClick={e => !item.isExternal && scrollToSection(e, item.href)}
-                                    className="text-sm text-text-secondary hover:text-white transition-colors duration-200 whitespace-nowrap"
+                                    className="text-sm text-text-secondary hover:text-foreground transition-colors duration-200 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </a>
@@ -114,7 +116,7 @@ export default function Navbar() {
                                 <Link
                                     key={item.label}
                                     href={item.href}
-                                    className="text-sm text-text-secondary hover:text-white transition-colors duration-200 whitespace-nowrap"
+                                    className="text-sm text-text-secondary hover:text-foreground transition-colors duration-200 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </Link>
@@ -130,25 +132,26 @@ export default function Navbar() {
                             <>
                                 <Link
                                     href="/user"
-                                    className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                    className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-text-secondary hover:text-foreground font-semibold text-sm rounded-full border border-border hover:border-border/80 hover:bg-accent/50 transition-all duration-200"
                                 >
                                     <UserIcon className="w-4 h-4" />
                                     <span>{user.nome.split(" ")[0]}</span>
                                 </Link>
                                 <button
                                     onClick={openInviteModal}
-                                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10 transition-all duration-200"
+                                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-text-secondary hover:text-foreground font-semibold text-sm rounded-full border border-border hover:border-blue-500/50 hover:bg-blue-500/10 transition-all duration-200"
                                 >
                                     <UserPlus className="w-4 h-4" />
                                     <span>Convidar</span>
                                 </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="cursor-pointer flex items-center gap-2 px-4 py-2 text-red-400 hover:text-red-300 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-200"
+                                    className="cursor-pointer flex items-center gap-2 px-4 py-2 text-red-500 hover:text-red-400 font-semibold text-sm rounded-full border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-200"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     <span>Sair</span>
                                 </button>
+                                <ThemeToggle />
                             </>
                         ) : (
                             <>
@@ -157,7 +160,7 @@ export default function Navbar() {
                                         setAuthInitialMode("login");
                                         setIsAuthModalOpen(true);
                                     }}
-                                    className="px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                    className="px-4 py-2 text-text-secondary hover:text-foreground font-semibold text-sm rounded-full border border-border hover:border-border/80 hover:bg-accent/50 transition-all duration-200"
                                 >
                                     Entrar
                                 </button>
@@ -166,10 +169,11 @@ export default function Navbar() {
                                         setAuthInitialMode("signup");
                                         setIsAuthModalOpen(true);
                                     }}
-                                    className="flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
+                                    className="flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] hover:scale-105 transition-all duration-200"
                                 >
                                     <span>Quero Fazer Parte</span>
                                 </button>
+                                <ThemeToggle />
                             </>
                         )}
                     </div>
@@ -182,14 +186,14 @@ export default function Navbar() {
                             <>
                                 <Link
                                     href="/user"
-                                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-text-secondary hover:text-white font-semibold text-xs rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                    className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-text-secondary hover:text-foreground font-semibold text-xs rounded-full border border-border hover:border-border/80 hover:bg-accent/50 transition-all duration-200"
                                 >
                                     <UserIcon className="w-3.5 h-3.5" />
                                     <span className="max-w-[60px] truncate">{user.nome.split(" ")[0]}</span>
                                 </Link>
                                 <button
                                     onClick={openInviteModal}
-                                    className="cursor-pointer p-1.5 text-text-secondary hover:text-white hover:bg-blue-500/10 rounded-full border border-white/10 hover:border-blue-500/50 transition-all duration-200"
+                                    className="cursor-pointer p-1.5 text-text-secondary hover:text-foreground hover:bg-blue-500/10 rounded-full border border-border hover:border-blue-500/50 transition-all duration-200"
                                     aria-label="Convidar alguém"
                                 >
                                     <UserPlus className="w-3.5 h-3.5" />
@@ -210,7 +214,7 @@ export default function Navbar() {
                                         setAuthInitialMode("login");
                                         setIsAuthModalOpen(true);
                                     }}
-                                    className="btn-mobile-auth sm:hidden cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] active:scale-95 transition-all duration-200"
+                                    className="btn-mobile-auth sm:hidden cursor-pointer bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold rounded-full shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] active:scale-95 transition-all duration-200"
                                 >
                                     Entrar
                                 </button>
@@ -220,7 +224,7 @@ export default function Navbar() {
                                         setAuthInitialMode("login");
                                         setIsAuthModalOpen(true);
                                     }}
-                                    className="hidden sm:block px-4 py-2 text-text-secondary hover:text-white font-semibold text-sm rounded-full border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                    className="hidden sm:block px-4 py-2 text-text-secondary hover:text-foreground font-semibold text-sm rounded-full border border-border hover:border-border/80 hover:bg-accent/50 transition-all duration-200"
                                 >
                                     Entrar
                                 </button>
@@ -229,7 +233,7 @@ export default function Navbar() {
                                         setAuthInitialMode("signup");
                                         setIsAuthModalOpen(true);
                                     }}
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 cursor-pointer bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] hover:scale-105 transition-all duration-200"
                                 >
                                     <span>Quero Fazer Parte</span>
                                 </button>
@@ -237,23 +241,24 @@ export default function Navbar() {
                         )}
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="p-2 text-text-secondary hover:text-white transition-colors touch-target"
+                            className="p-2 text-text-secondary hover:text-foreground transition-colors touch-target"
                             aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
                         >
                             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
+                        <ThemeToggle />
                     </div>
                 </div>
             </div>
 
             {/* Mobile Menu - 7 Links */}
             <div
-                className={`nav-mobile-1108 transition-all duration-300 ease-in-out overflow-hidden ${
+                    className={`nav-mobile-1108 transition-all duration-300 ease-in-out overflow-hidden ${
                     isMenuOpen ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
                 }`}
             >
                 <nav
-                    className="px-4 py-4 space-y-1 bg-bg-primary/95 border-t border-border-glass"
+                    className="px-4 py-4 space-y-1 bg-background/95 border-t border-border-glass"
                     aria-label="Navegação mobile"
                 >
                     {navItems.filter(item => {
@@ -268,7 +273,7 @@ export default function Navbar() {
                                     setIsMenuOpen(false);
                                     openModal();
                                 }}
-                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target w-full"
+                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-foreground hover:bg-accent/50 rounded-xl transition-all duration-200 touch-target w-full"
                                 style={{ animationDelay: `${index * 50}ms` }}
                             >
                                 <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
@@ -278,11 +283,11 @@ export default function Navbar() {
                             <a
                                 key={item.label}
                                 href={item.href}
-                                onClick={e => {
+                            onClick={e => {
                                     setIsMenuOpen(false);
-                                    !item.isExternal && scrollToSection(e, item.href);
+                                    if (!item.isExternal) scrollToSection(e, item.href);
                                 }}
-                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
+                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-foreground hover:bg-accent/50 rounded-xl transition-all duration-200 touch-target"
                                 style={{ animationDelay: `${index * 50}ms` }}
                             >
                                 <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
@@ -293,7 +298,7 @@ export default function Navbar() {
                                 key={item.label}
                                 href={item.href}
                                 onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 touch-target"
+                                className="flex items-center gap-3 px-4 py-3 text-text-secondary hover:text-foreground hover:bg-accent/50 rounded-xl transition-all duration-200 touch-target"
                                 style={{ animationDelay: `${index * 50}ms` }}
                             >
                                 <span className="text-xs text-brand-blue font-mono">0{index + 1}</span>
@@ -311,6 +316,7 @@ export default function Navbar() {
                 initialMode={authInitialMode}
             />
         </header>
+            <div className="h-16 md:h-20" aria-hidden="true" />
         <AnnouncementBarWrapper />
         </>
     );

@@ -1,3 +1,4 @@
+import ViewIframe from "@/components/ViewIframe";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -44,12 +45,7 @@ export default async function ViewPage({ params }: Props) {
 
     return (
         <div className="w-full h-screen bg-[var(--background)]">
-            <iframe
-                src={htmlPath}
-                className="w-full h-full border-0"
-                title={`${config.title} - ${slug}`}
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-            />
+            <ViewIframe htmlPath={htmlPath} title={`${config.title} - ${slug}`} />
         </div>
     );
 }

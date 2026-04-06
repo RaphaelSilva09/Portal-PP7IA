@@ -4,6 +4,7 @@ import { Estudar } from "@/domain/entities/Estudar";
 import { useEstudar } from "@/presentation/hooks/useEstudar";
 import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
 import { FileText, Globe, Loader2 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 /**
  * BentoGridEstudar Component
@@ -13,13 +14,15 @@ import { FileText, Globe, Loader2 } from "lucide-react";
 
 export default function BentoGridEstudar() {
     const { latest, older, isLoading, error, lastUpdated } = useEstudar();
+    const { resolvedTheme } = useTheme();
+    const isLight = resolvedTheme === "light";
     useScrollToHash(!isLoading);
 
     if (isLoading) {
         return (
             <section className="py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+                    <Loader2 className="w-8 h-8 animate-spin text-cyan-600" />
                     <p className="text-text-secondary">Carregando conteúdo de estudo...</p>
                 </div>
             </section>
@@ -44,10 +47,7 @@ export default function BentoGridEstudar() {
         <section className="py-12 px-4 sm:px-6 lg:px-8">
             {/* Introdução */}
             <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
-                <h3
-                    className="text-2xl sm:text-3xl md:text-3xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up"
-                    style={{ animationDelay: "0.3s" }}
-                >
+                <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
                     Estudar
                 </h3>
                 <p
@@ -60,7 +60,7 @@ export default function BentoGridEstudar() {
 
             {/* Linha divisória */}
             <div className="max-w-4xl mx-auto my-8 sm:my-10 md:my-12">
-                <div className="border-t border-white/10"></div>
+                <div className="border-t border-border"></div>
             </div>
 
             <div className="max-w-4xl mx-auto">
@@ -70,19 +70,20 @@ export default function BentoGridEstudar() {
                         <div
                             className="absolute inset-0"
                             style={{
-                                background:
-                                    "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6, 182, 212, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(14, 116, 144, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
+                                background: isLight
+                                    ? "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6, 182, 212, 0.12), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(14, 116, 144, 0.08), transparent), linear-gradient(180deg, #f8fbff 0%, #ecfeff 100%)"
+                                    : "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6, 182, 212, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(14, 116, 144, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
                             }}
                         />
-                        <div className="absolute inset-0 rounded-3xl border border-white/10" />
+                        <div className="absolute inset-0 rounded-3xl border border-border" />
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                             <div className="absolute inset-0 shimmer" />
                         </div>
                         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-12">
-                            <p className="text-cyan-400 text-base sm:text-lg font-mono mb-2">
+                            <p className="text-cyan-700 text-base sm:text-lg font-mono mb-2">
                                 Material #{latest.formattedNumber}
                             </p>
-                            <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
+                            <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
                                 {latest.title}
                             </h3>
                             <p className="text-text-secondary text-base sm:text-lg mb-8 md:mb-4 whitespace-nowrap">Publicado em&nbsp;{latest.formattedDate}</p>
@@ -90,7 +91,7 @@ export default function BentoGridEstudar() {
                                 {latest.htmlAvailable ? (
                                     <a
                                         href={latest.htmlPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 hover:border-cyan-500/50 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 border border-cyan-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Ler online</span>
@@ -98,7 +99,7 @@ export default function BentoGridEstudar() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-50 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-90 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -107,7 +108,7 @@ export default function BentoGridEstudar() {
                                 {latest.pdfAvailable ? (
                                     <a
                                         href={latest.pdfPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/30 hover:border-teal-500/50 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-teal-700 hover:bg-teal-800 border border-teal-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -115,7 +116,7 @@ export default function BentoGridEstudar() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-50 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-90 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -131,13 +132,13 @@ export default function BentoGridEstudar() {
                             key={item.id}
                             id={`item-${item.id}`}
                             style={{ scrollMarginTop: "80px" }}
-                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-cyan-500/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
+                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border cursor-pointer transition-all duration-300 hover:bg-accent/40 hover:border-cyan-500/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
-                                <p className="text-cyan-400 text-base sm:text-lg font-mono mb-2">
+                                <p className="text-cyan-700 text-base sm:text-lg font-mono mb-2">
                                     Material #{item.formattedNumber}
                                 </p>
-                                <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-white mt-1 mb-2 tracking-tight line-clamp-2">
+                                <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-foreground mt-1 mb-2 tracking-tight line-clamp-2">
                                     {item.title}
                                 </h4>
                                 <p className="text-text-secondary text-base sm:text-lg mb-8 md:mb-4 whitespace-nowrap">Publicado em&nbsp;{item.formattedDate}</p>
@@ -145,7 +146,7 @@ export default function BentoGridEstudar() {
                                     {item.htmlAvailable ? (
                                         <a
                                             href={item.htmlPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 hover:border-cyan-500/40 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 border border-cyan-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
                                             <Globe className="w-5 h-5" />
                                             <span>Ler online</span>
@@ -153,7 +154,7 @@ export default function BentoGridEstudar() {
                                     ) : (
                                         <button
                                             disabled
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 text-sm font-medium cursor-not-allowed opacity-50 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap"
                                         >
                                             <Globe className="w-5 h-5" />
                                             <span>Indisponível</span>
@@ -162,7 +163,7 @@ export default function BentoGridEstudar() {
                                     {item.pdfAvailable ? (
                                         <a
                                             href={item.pdfPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 hover:border-teal-500/40 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-teal-700 hover:bg-teal-800 border border-teal-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
                                             <FileText className="w-5 h-5" />
                                             <span>PDF</span>
@@ -170,7 +171,7 @@ export default function BentoGridEstudar() {
                                     ) : (
                                         <button
                                             disabled
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 text-sm font-medium cursor-not-allowed opacity-50 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap"
                                         >
                                             <FileText className="w-5 h-5" />
                                             <span>Indisponível</span>

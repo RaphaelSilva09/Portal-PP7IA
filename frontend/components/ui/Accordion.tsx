@@ -36,24 +36,27 @@ export interface AccordionProps {
  */
 const variantStyles = {
     level1: {
-        container: "bg-linear-to-br from-[#0f1419] to-[#1e3a8a] border-blue-500/40",
+        container: "border-blue-500/30",
+        style: { backgroundImage: "var(--gradient-accordion-level1)" },
         header: "px-6 py-5",
-        title: "text-base md:text-lg font-semibold text-white",
-        content: "px-6 pb-5 pt-4 border-t border-white/10 text-white/90",
+        title: "text-base md:text-lg font-semibold text-foreground",
+        content: "px-6 pb-5 pt-4 border-t border-border/50 text-foreground/90",
         arrow: "text-blue-400/80",
     },
     level2: {
-        container: "bg-linear-to-br from-[#1a1a2e] to-[#2563eb] border-blue-400/30",
+        container: "border-blue-400/25",
+        style: { backgroundImage: "var(--gradient-accordion-level2)" },
         header: "px-5 py-4",
-        title: "text-sm md:text-base font-semibold text-white",
-        content: "px-5 pb-4 pt-3 border-t border-blue-400/15 text-white/90",
+        title: "text-sm md:text-base font-semibold text-foreground",
+        content: "px-5 pb-4 pt-3 border-t border-border/40 text-foreground/90",
         arrow: "text-blue-300/80",
     },
     level3: {
-        container: "bg-linear-to-br from-[#1e293b] to-[#3b82f6] border-blue-300/25",
+        container: "border-blue-300/20",
+        style: { backgroundImage: "var(--gradient-accordion-level3)" },
         header: "px-4 py-3.5",
-        title: "text-sm font-semibold text-white/95",
-        content: "px-4 pb-3.5 pt-3 border-t border-blue-300/15 text-blue-50/90",
+        title: "text-sm font-semibold text-foreground/95",
+        content: "px-4 pb-3.5 pt-3 border-t border-border/35 text-foreground/90",
         arrow: "text-blue-200/80",
     },
 };
@@ -69,6 +72,7 @@ export function Accordion({ variant, title, id, isOpen, onToggle, children }: Ac
                 transition-all duration-200
                 ${variant === "level1" ? "hover:-translate-y-0.5 hover:shadow-glow-blue-md mb-4" : "mb-3"}
             `}
+            style={styles.style}
         >
             {/* Header - Clicável */}
             <button
@@ -76,7 +80,7 @@ export function Accordion({ variant, title, id, isOpen, onToggle, children }: Ac
                 className={`
                     ${styles.header}
                     w-full flex items-center justify-between
-                    cursor-pointer hover:bg-white/5 transition-colors
+                    cursor-pointer hover:bg-accent/30 transition-colors
                     focus:outline-none focus:ring-2 focus:ring-blue-500/50
                 `}
                 aria-expanded={isOpen}

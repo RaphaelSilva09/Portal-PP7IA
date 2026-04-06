@@ -36,9 +36,9 @@ export interface GradientButtonProps extends ButtonHTMLAttributes<HTMLButtonElem
 }
 
 const variantStyles: Record<GradientButtonVariant, string> = {
-    primary: "bg-gradient-to-r from-blue-500 to-purple-600 shadow-glow-blue-md hover:shadow-glow-blue-lg",
-    cta: "bg-gradient-to-r from-green-500 to-emerald-600 shadow-glow-green-md hover:shadow-glow-green-lg",
-    secondary: "bg-white/10 border border-white/20 hover:bg-white/15 hover:border-white/30",
+    primary: "bg-gradient-to-r from-blue-600 to-purple-700 shadow-glow-blue-md hover:shadow-glow-blue-lg",
+    cta: "bg-gradient-to-r from-green-600 to-emerald-700 shadow-glow-green-md hover:shadow-glow-green-lg",
+    secondary: "bg-accent/80 border border-border hover:bg-accent hover:border-border/80",
 };
 
 const sizeStyles: Record<GradientButtonSize, string> = {

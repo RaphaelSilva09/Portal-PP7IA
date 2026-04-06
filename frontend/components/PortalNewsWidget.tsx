@@ -5,6 +5,7 @@ import { usePortalNews } from "@/presentation/hooks/usePortalNews";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 const CATEGORY_COLORS: Record<string, string> = {
     launch:     "#f97316",
@@ -37,11 +38,11 @@ const BELL_KEYFRAMES = `
 function SkeletonItem() {
     return (
         <div className="flex items-stretch gap-0 animate-pulse">
-            <div className="w-1 min-h-[72px] rounded-l-sm bg-white/10 flex-shrink-0" />
+            <div className="w-1 min-h-[72px] rounded-l-sm bg-border flex-shrink-0" />
             <div className="flex-1 px-4 py-3 space-y-2">
-                <div className="h-4 bg-white/10 rounded w-3/4" />
-                <div className="h-3 bg-white/10 rounded w-1/2" />
-                <div className="h-3 bg-white/10 rounded w-1/4" />
+                <div className="h-4 bg-border/80 rounded w-3/4" />
+                <div className="h-3 bg-border/80 rounded w-1/2" />
+                <div className="h-3 bg-border/80 rounded w-1/4" />
             </div>
         </div>
     );
@@ -54,7 +55,7 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
 
     return (
         <div
-            className={`relative flex items-stretch gap-0 ${!isLast ? "border-b border-white/5" : ""} ${linkUrl ? "cursor-pointer hover:bg-white/[0.04] active:bg-white/[0.07] transition-colors" : ""}`}
+            className={`relative flex items-stretch gap-0 ${!isLast ? "border-b border-border/70" : ""} ${linkUrl ? "cursor-pointer hover:bg-accent/40 active:bg-accent/60 transition-colors" : ""}`}
             role={linkUrl ? "button" : undefined}
             tabIndex={linkUrl ? 0 : undefined}
             onClick={linkUrl ? () => router.push(linkUrl) : undefined}
@@ -70,11 +71,11 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
                 <div className="flex items-start gap-2">
                     <span className="text-base leading-none mt-0.5 flex-shrink-0">{item.icon}</span>
                     <div className="min-w-0 flex-1">
-                        <p className="text-white text-sm font-semibold leading-snug">{item.title}</p>
+                        <p className="text-foreground text-sm font-semibold leading-snug">{item.title}</p>
                         {item.description && (
-                            <p className="text-white/70 text-xs mt-0.5 leading-relaxed">{item.description}</p>
+                            <p className="text-text-secondary text-xs mt-0.5 leading-relaxed">{item.description}</p>
                         )}
-                        <p className="text-white/40 text-xs mt-1">
+                        <p className="text-text-secondary text-xs mt-1">
                             Publicado em {item.formattedDate}
                         </p>
                     </div>
@@ -83,7 +84,7 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
             {/* Seta fixa à direita, centralizada verticalmente */}
             {linkUrl && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <ArrowRight className="w-4 h-4 text-white/40" />
+                    <ArrowRight className="w-4 h-4 text-text-secondary" />
                 </div>
             )}
         </div>
@@ -92,6 +93,8 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
 
 export default function PortalNewsWidget() {
     const { items, isLoading } = usePortalNews();
+    const { resolvedTheme } = useTheme();
+    const isLight = resolvedTheme === "light";
     const bellRef = useRef<HTMLSpanElement>(null);
 
     // Animação do sino no mount
@@ -116,11 +119,14 @@ export default function PortalNewsWidget() {
             {/* Keyframes do sino injetados inline */}
             <style dangerouslySetInnerHTML={{ __html: BELL_KEYFRAMES }} />
 
-            <div id="novidades" className="bg-[#111111] border border-[#b8860b]/30 rounded-xl mx-2 mb-6 overflow-hidden text-left">
+            <div
+                id="novidades"
+                className={`rounded-xl mx-2 mb-6 overflow-hidden text-left border ${isLight ? "bg-card/90 border-border" : "bg-[#111111] border-[#b8860b]/30"}`}
+            >
                 {/* Header */}
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-[#b8860b]/20">
+                <div className={`flex items-center gap-2 px-4 py-3 border-b ${isLight ? "border-border" : "border-[#b8860b]/20"}`}>
                     <span className="text-base">📢</span>
-                    <span className="text-[#f0c950] font-bold font-sans text-sm uppercase tracking-wider flex-1">
+                    <span className={`${isLight ? "text-amber-700" : "text-[#f0c950]"} font-bold font-sans text-sm uppercase tracking-wider flex-1`}>
                         Novidades do Portal
                     </span>
                     <span
@@ -140,7 +146,7 @@ export default function PortalNewsWidget() {
                             <SkeletonItem />
                         </>
                     ) : items.length === 0 ? (
-                        <p className="text-white/40 text-xs text-center py-4 px-4">
+                        <p className="text-text-secondary text-xs text-center py-4 px-4">
                             Nenhuma novidade disponível no momento.
                         </p>
                     ) : (

@@ -110,7 +110,7 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
                     <div className="p-6 sm:p-8">
                         {/* Header */}
                         <div className="text-center mb-6">
-                            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-2xl mb-4">
+                            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-600/20 to-purple-700/20 rounded-2xl mb-4">
                                 <Sparkles className="w-7 h-7 text-blue-400" />
                             </div>
                             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
@@ -169,7 +169,7 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
                             {/* Submit Button */}
                             <button
                                 onClick={handleSubmit}
-                                className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-[1.02] active:scale-95 transition-all duration-200"
+                                className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] hover:scale-[1.02] active:scale-95 transition-all duration-200"
                             >
                                 Continuar
                             </button>

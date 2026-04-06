@@ -272,7 +272,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                 <button
                                     type="submit"
                                     disabled={isLoading || newEmail === user.email}
-                                    className="w-full px-4 py-3 bg-brand-blue hover:bg-brand-blue/80 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full px-4 py-3 bg-brand-blue hover:bg-brand-blue/80 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? "Atualizando..." : "Atualizar Email"}
                                 </button>
@@ -441,7 +441,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                         <button
                                             type="button"
                                             onClick={() => setShowDeleteConfirm(true)}
-                                            className="w-full px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-medium rounded-xl transition-all flex items-center justify-center gap-2"
+                                            className="w-full px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 font-medium rounded-xl transition-all flex items-center justify-center gap-2"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                             Deletar Conta
@@ -463,7 +463,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                                     type="button"
                                                     onClick={handleDeleteAccount}
                                                     disabled={isLoading}
-                                                    className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-all disabled:opacity-50"
+                                                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all disabled:opacity-50"
                                                 >
                                                     {isLoading ? "Deletando..." : "Sim, Deletar"}
                                                 </button>

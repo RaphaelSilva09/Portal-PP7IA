@@ -1,6 +1,7 @@
 "use client";
 
-import { Footer, Navbar } from "@/components";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import {
@@ -221,9 +222,9 @@ export default function UserPage() {
     // Loading state
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-bg-primary text-white">
+            <div className="min-h-screen bg-background text-foreground">
                 <Navbar />
-                <main className="pt-20 flex items-center justify-center min-h-[60vh]">
+                <main className="flex items-center justify-center min-h-[60vh]">
                     <div className="text-text-secondary">Carregando...</div>
                 </main>
                 <Footer />
@@ -237,15 +238,15 @@ export default function UserPage() {
     }
 
     return (
-        <div className="min-h-screen bg-bg-primary text-white">
+        <div className="min-h-screen bg-background text-foreground">
             <Navbar />
-            <main className="pt-20 pb-16">
+            <main className="pb-16">
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-8">
                         <button
                             onClick={() => router.push("/")}
-                            className="cursor-pointer inline-flex items-center gap-2 text-text-secondary hover:text-white mb-4 transition-colors"
+                            className="portal-back-link cursor-pointer inline-flex items-center gap-2 text-text-secondary mb-4 transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4" />
                             <span>Voltar para início</span>
@@ -258,7 +259,7 @@ export default function UserPage() {
                             {isAdmin && (
                                 <button
                                     onClick={() => router.push("/painel-admin")}
-                                    className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
+                                    className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
                                 >
                                     <Shield className="w-5 h-5" />
                                     <span>Painel Admin</span>
@@ -443,7 +444,7 @@ export default function UserPage() {
                                     <button
                                         type="submit"
                                         disabled={isEditSaving || editSuccess}
-                                        className="cursor-pointer flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
                                         {isEditSaving ? (
                                             <>
@@ -670,7 +671,7 @@ export default function UserPage() {
                                     <button
                                         type="submit"
                                         disabled={isChangingPassword || passwordSuccess}
-                                        className="cursor-pointer flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        className="cursor-pointer flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
                                         {isChangingPassword ? (
                                             <>
@@ -700,7 +701,7 @@ export default function UserPage() {
                         </p>
                         <button
                             onClick={openInviteModal}
-                            className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 font-medium rounded-xl transition-all"
+                            className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-600 font-medium rounded-xl transition-all"
                         >
                             <UserPlus className="w-4 h-4" />
                             Convidar por Email
@@ -743,7 +744,7 @@ export default function UserPage() {
                                     <button
                                         onClick={handleDeleteAccount}
                                         disabled={isDeleting}
-                                        className="cursor-pointer flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="cursor-pointer flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isDeleting ? "Excluindo..." : "Sim, Excluir"}
                                     </button>
