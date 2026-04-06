@@ -55,6 +55,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useEbook } from "@/presentation/hooks/useEbook";
+import ThemeToggle from "@/components/ThemeToggle";
 
 // Seções principais do painel (navegação de alto nível)
 type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso";
@@ -352,15 +353,20 @@ export default function PainelAdminPage() {
         <div className="min-h-screen bg-[var(--bg-primary)] p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="space-y-4">
-                    <button
-                        onClick={() => router.push("/user")}
-                        className="cursor-pointer inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span className="text-lg">Voltar para Perfil</span>
-                    </button>
-                    <h1 className="text-4xl font-bold text-[var(--text-primary)]">Painel de Administração</h1>
+                <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-4">
+                        <button
+                            onClick={() => router.push("/user")}
+                            className="cursor-pointer inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            <span className="text-lg">Voltar para Perfil</span>
+                        </button>
+                        <h1 className="text-4xl font-bold text-[var(--text-primary)]">Painel de Administração</h1>
+                    </div>
+                    <div className="shrink-0">
+                        <ThemeToggle />
+                    </div>
                 </div>
 
                 {/* Menu Principal - Botões Grandes (80+ acessibilidade) */}
