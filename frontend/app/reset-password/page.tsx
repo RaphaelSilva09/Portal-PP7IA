@@ -94,41 +94,41 @@ function ResetPasswordPageContent() {
     };
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900/20 to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Back Button */}
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors"
+                    className="portal-back-link inline-flex items-center gap-2 text-text-secondary mb-6 transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     <span className="text-sm">Voltar para o início</span>
                 </Link>
 
                 {/* Card */}
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+                <div className="bg-card/95 backdrop-blur-md rounded-2xl shadow-2xl border border-border overflow-hidden">
                     {/* Legacy Link Deprecation Message */}
                     {isLegacyLink ? (
                         <>
                             {/* Header */}
-                            <div className="px-6 py-5 border-b border-white/10">
-                                <h1 className="text-2xl font-bold text-white">Método Atualizado</h1>
-                                <p className="mt-2 text-sm text-white/70">Nossa recuperação de senha foi aprimorada</p>
+                            <div className="px-6 py-5 border-b border-border">
+                                <h1 className="text-2xl font-bold text-foreground">Método Atualizado</h1>
+                                <p className="mt-2 text-sm text-text-secondary">Nossa recuperação de senha foi aprimorada</p>
                             </div>
 
                             {/* Content */}
                             <div className="px-6 py-6">
-                                <div className="mb-4 p-4 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-start gap-3">
+                                <div className="mb-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-start gap-3">
                                     <AlertCircle className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                                     <div className="flex-1">
-                                        <p className="text-sm text-blue-100 mb-2">
+                                        <p className="text-sm text-blue-800 mb-2">
                                             <strong>Os links de recuperação foram atualizados.</strong>
                                         </p>
-                                        <p className="text-sm text-blue-100/80 mb-3">
+                                        <p className="text-sm text-blue-700 mb-3">
                                             Agora usamos um código de 8 dígitos enviado por email, que é mais seguro e
                                             confiável.
                                         </p>
-                                        <p className="text-sm text-blue-100/80">
+                                        <p className="text-sm text-blue-700">
                                             Clique no botão abaixo para solicitar um novo código de recuperação.
                                         </p>
                                     </div>
@@ -148,26 +148,26 @@ function ResetPasswordPageContent() {
                     ) : (
                         <>
                             {/* Header */}
-                            <div className="px-6 py-5 border-b border-white/10">
-                                <h1 className="text-2xl font-bold text-white">Redefinir Senha</h1>
-                                <p className="mt-2 text-sm text-white/70">Crie uma nova senha para sua conta</p>
+                            <div className="px-6 py-5 border-b border-border">
+                                <h1 className="text-2xl font-bold text-foreground">Redefinir Senha</h1>
+                                <p className="mt-2 text-sm text-text-secondary">Crie uma nova senha para sua conta</p>
                             </div>
 
                             {/* Content */}
                             <div className="px-6 py-6">
                                 {/* Success Message */}
                                 {successMessage && (
-                                    <div className="mb-4 p-4 rounded-lg bg-green-500/20 border border-green-500/30 flex items-start gap-3">
+                                    <div className="mb-4 p-4 rounded-lg bg-green-500/10 border border-green-500/20 flex items-start gap-3">
                                         <Check className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
-                                        <p className="text-sm text-green-100">{successMessage}</p>
+                                        <p className="text-sm text-green-800">{successMessage}</p>
                                     </div>
                                 )}
 
                                 {/* Error Message */}
                                 {recoveryError && (
-                                    <div className="mb-4 p-4 rounded-lg bg-red-500/20 border border-red-500/30 flex items-start gap-3">
+                                    <div className="mb-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-3">
                                         <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                                        <p className="text-sm text-red-100">{recoveryError}</p>
+                                        <p className="text-sm text-red-800">{recoveryError}</p>
                                     </div>
                                 )}
 
@@ -177,7 +177,7 @@ function ResetPasswordPageContent() {
                                         <div>
                                             <label
                                                 htmlFor="newPassword"
-                                                className="block text-sm font-medium text-white mb-2"
+                                                className="block text-sm font-medium text-foreground mb-2"
                                             >
                                                 Nova Senha
                                             </label>
@@ -192,16 +192,16 @@ function ResetPasswordPageContent() {
                                                             setErrors(prev => ({ ...prev, newPassword: undefined }));
                                                     }}
                                                     placeholder="Mínimo 6 caracteres"
-                                                    className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
-                                                        errors.newPassword ? "border-red-500/50" : "border-white/20"
-                                                    } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
+                                                    className={`w-full pl-4 pr-11 py-3 bg-background border ${
+                                                        errors.newPassword ? "border-red-500/50" : "border-border"
+                                                    } rounded-lg text-foreground placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
                                                     disabled={isLoading}
                                                     autoComplete="new-password"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowPassword(!showPassword)}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-foreground transition-colors"
                                                     aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                                                 >
                                                     {showPassword ? (
@@ -212,14 +212,14 @@ function ResetPasswordPageContent() {
                                                 </button>
                                             </div>
                                             {errors.newPassword && (
-                                                <p className="mt-1 text-xs text-red-400">{errors.newPassword}</p>
+                                                <p className="mt-1 text-xs text-red-600">{errors.newPassword}</p>
                                             )}
                                         </div>
 
                                         <div>
                                             <label
                                                 htmlFor="confirmPassword"
-                                                className="block text-sm font-medium text-white mb-2"
+                                                className="block text-sm font-medium text-foreground mb-2"
                                             >
                                                 Confirmar Nova Senha
                                             </label>
@@ -237,16 +237,16 @@ function ResetPasswordPageContent() {
                                                             }));
                                                     }}
                                                     placeholder="Repita a senha"
-                                                    className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
-                                                        errors.confirmPassword ? "border-red-500/50" : "border-white/20"
-                                                    } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
+                                                    className={`w-full pl-4 pr-11 py-3 bg-background border ${
+                                                        errors.confirmPassword ? "border-red-500/50" : "border-border"
+                                                    } rounded-lg text-foreground placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
                                                     disabled={isLoading}
                                                     autoComplete="new-password"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-foreground transition-colors"
                                                     aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
                                                 >
                                                     {showConfirmPassword ? (
@@ -257,7 +257,7 @@ function ResetPasswordPageContent() {
                                                 </button>
                                             </div>
                                             {errors.confirmPassword && (
-                                                <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>
+                                                <p className="mt-1 text-xs text-red-600">{errors.confirmPassword}</p>
                                             )}
                                         </div>
 
@@ -303,8 +303,8 @@ export default function ResetPasswordPage() {
     return (
         <Suspense
             fallback={
-                <div className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900/20 to-gray-900 flex items-center justify-center">
-                    <div className="text-white">Carregando...</div>
+                <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+                    <div>Carregando...</div>
                 </div>
             }
         >

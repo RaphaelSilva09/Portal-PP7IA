@@ -33,14 +33,14 @@ export interface NumberedListProps {
  */
 const variantStyles = {
     dark: {
-        item: "text-white/90 border-white/8",
-        number: "text-blue-400",
-        strong: "text-white",
+        item: "text-foreground/90 border-border/40",
+        number: "text-blue-500",
+        strong: "text-foreground",
     },
     light: {
-        item: "text-blue-50/90 border-blue-300/10",
-        number: "text-blue-200",
-        strong: "text-white/95",
+        item: "text-foreground/90 border-border/35",
+        number: "text-blue-600",
+        strong: "text-foreground",
     },
 };
 

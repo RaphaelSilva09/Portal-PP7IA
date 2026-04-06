@@ -2,6 +2,7 @@
 
 import { FileText, Globe, Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { useTheme } from "next-themes";
 
 import { BIBLIOTECA_TEMAS, BibliotecaItem } from "@/domain/entities/BibliotecaItem";
 import { useBiblioteca } from "@/presentation/hooks/useBiblioteca";
@@ -15,6 +16,8 @@ import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
  */
 export default function BentoGridBiblioteca() {
     const { latest, activeLatest, filteredOlder, activeTema, setActiveTema, isLoading, error, lastUpdated } = useBiblioteca();
+    const { resolvedTheme } = useTheme();
+    const isLight = resolvedTheme === "light";
     useScrollToHash(!isLoading);
 
     useEffect(() => {
@@ -29,7 +32,7 @@ export default function BentoGridBiblioteca() {
         return (
             <section className="py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                    <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
                     <p className="text-text-secondary">Carregando biblioteca...</p>
                 </div>
             </section>
@@ -56,11 +59,7 @@ export default function BentoGridBiblioteca() {
             {/* Introdução Biblioteca */}
             <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
                 {/* Título da Introdução */}
-                <h3
-                    id="titulo"
-                    className="text-2xl sm:text-3xl md:text-3xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up"
-                    style={{ animationDelay: "0.3s" }}
-                >
+                <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
                     Biblioteca
                 </h3>
 
@@ -75,14 +74,10 @@ export default function BentoGridBiblioteca() {
 
                 {/* Linha divisória cinza */}
                 <div className="max-w-4xl mx-auto my-8 sm:my-10 md:my-12">
-                    <div className="border-t border-white/10"></div>
+                    <div className="border-t border-border"></div>
                 </div>
 
-                <p
-                    id="descricao"
-                    className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
-                    style={{ animationDelay: "0.4s" }}
-                >
+                <p id="descricao" className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
                     Cada aba abaixo corresponde a um tipo de material.
                     Clique em qualquer aba para navegar entre as categorias e explorar os conteúdos disponíveis.
                 </p>
@@ -100,8 +95,8 @@ export default function BentoGridBiblioteca() {
                             onClick={() => setActiveTema(slug)}
                             className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${
                                 activeTema === slug
-                                    ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
-                                    : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                                ? "bg-purple-700 text-white border-purple-800"
+                                : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-accent/50 hover:text-foreground"
                             }`}
                         >
                             <span className="break-words">{label}</span>
@@ -116,18 +111,19 @@ export default function BentoGridBiblioteca() {
                     1 Card - col-span-3
                     ============================================ */}
                     {activeLatest ? (
-                    <div id={`item-${activeLatest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] cursor-pointer transition-all duration-500 hover:scale-[1.01]">
+                        <div id={`item-${activeLatest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] cursor-pointer transition-all duration-500 hover:scale-[1.01]">
                         {/* Gradient Background */}
                         <div
                             className="absolute inset-0"
                             style={{
-                                background:
-                                    "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(168, 85, 247, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
+                                background: isLight
+                                    ? "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(168, 85, 247, 0.08), transparent), linear-gradient(180deg, #f8fbff 0%, #f5f3ff 100%)"
+                                    : "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(168, 85, 247, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
                             }}
                         />
 
                         {/* Subtle Border */}
-                        <div className="absolute inset-0 rounded-3xl border border-white/10" />
+                        <div className="absolute inset-0 rounded-3xl border border-border" />
 
                         {/* Shimmer on Hover */}
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
@@ -137,12 +133,12 @@ export default function BentoGridBiblioteca() {
                         {/* Content */}
                         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-12">
                             {/* Biblioteca Number */}
-                            <p className="text-purple-400 text-base sm:text-lg font-mono mb-2">
+                            <p className="text-purple-700 text-base sm:text-lg font-mono mb-2">
                                 Biblioteca #{activeLatest.formattedNumber}
                             </p>
 
                             {/* Title */}
-                            <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
+                            <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
                                 {activeLatest.title}
                             </h3>
 
@@ -154,7 +150,7 @@ export default function BentoGridBiblioteca() {
                                 {activeLatest.htmlAvailable ? (
                                     <a
                                         href={activeLatest.htmlPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-700 hover:bg-purple-800 border border-purple-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Ler online</span>
@@ -162,7 +158,7 @@ export default function BentoGridBiblioteca() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-50 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-90 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -171,7 +167,7 @@ export default function BentoGridBiblioteca() {
                                 {activeLatest.pdfAvailable ? (
                                     <a
                                         href={activeLatest.pdfPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 hover:border-pink-500/50 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-800 hover:bg-purple-900 border border-purple-900 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -179,7 +175,7 @@ export default function BentoGridBiblioteca() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-50 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-90 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -203,16 +199,16 @@ export default function BentoGridBiblioteca() {
                                 key={item.id}
                                 id={`item-${item.id}`}
                                 style={{ scrollMarginTop: "80px" }}
-                                className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
+                                className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border cursor-pointer transition-all duration-300 hover:bg-accent/40 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
                             >
                                 <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                     {/* Biblioteca Number */}
-                                    <p className="text-purple-400 text-base sm:text-lg font-mono mb-2">
+                                    <p className="text-purple-700 text-base sm:text-lg font-mono mb-2">
                                         Biblioteca #{item.formattedNumber}
                                     </p>
 
                                     {/* Title */}
-                                    <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-white mt-1 mb-2 tracking-tight line-clamp-2">
+                                    <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-foreground mt-1 mb-2 tracking-tight line-clamp-2">
                                         {item.title}
                                     </h4>
 
@@ -224,7 +220,7 @@ export default function BentoGridBiblioteca() {
                                         {item.htmlAvailable ? (
                                             <a
                                                 href={item.htmlPath!}
-                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/40 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-700 hover:bg-purple-800 border border-purple-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                             >
                                                 <Globe className="w-5 h-5" />
                                                 <span>Ler online</span>
@@ -232,7 +228,7 @@ export default function BentoGridBiblioteca() {
                                         ) : (
                                             <button
                                                 disabled
-                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 text-sm font-medium cursor-not-allowed opacity-50 whitespace-nowrap"
+                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap"
                                             >
                                                 <Globe className="w-5 h-5" />
                                                 <span>Indisponível</span>
@@ -241,7 +237,7 @@ export default function BentoGridBiblioteca() {
                                         {item.pdfAvailable ? (
                                             <a
                                                 href={item.pdfPath!}
-                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20 hover:border-pink-500/40 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-800 hover:bg-purple-900 border border-purple-900 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                             >
                                                 <FileText className="w-5 h-5" />
                                                 <span>PDF</span>
@@ -249,7 +245,7 @@ export default function BentoGridBiblioteca() {
                                         ) : (
                                             <button
                                                 disabled
-                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 text-sm font-medium cursor-not-allowed opacity-50 whitespace-nowrap"
+                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap"
                                             >
                                                 <FileText className="w-5 h-5" />
                                                 <span>Indisponível</span>

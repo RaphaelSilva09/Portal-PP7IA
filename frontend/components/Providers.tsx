@@ -34,6 +34,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ThemeProvider } from "next-themes";
 import { useEffect, useState } from "react";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -85,9 +86,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     const showDevTools = process.env.NEXT_PUBLIC_GIT_BRANCH === "develop";
 
     return (
-        <QueryClientProvider client={queryClient}>
-            {children}
-            {showDevTools && <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />}
-        </QueryClientProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem themes={["light", "dark"]}>
+            <QueryClientProvider client={queryClient}>
+                {children}
+                {showDevTools && <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />}
+            </QueryClientProvider>
+        </ThemeProvider>
     );
 }

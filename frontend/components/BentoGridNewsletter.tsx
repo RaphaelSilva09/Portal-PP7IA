@@ -47,11 +47,7 @@ export default function BentoGridNewsletter() {
             {/* Introdução Newsletter */}
             <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
                 {/* Título da Introdução */}
-                <h3
-                    id="titulo"
-                    className="text-2xl sm:text-3xl md:text-3xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up"
-                    style={{ animationDelay: "0.3s" }}
-                >
+                <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
                     Newsletters
                 </h3>
 
@@ -67,7 +63,7 @@ export default function BentoGridNewsletter() {
 
             {/* Linha divisória cinza */}
             <div className="max-w-4xl mx-auto my-8 sm:my-10 md:my-12">
-                <div className="border-t border-white/10"></div>
+                <div className="border-t border-border"></div>
             </div>
 
             <div className="max-w-4xl mx-auto">
@@ -79,16 +75,10 @@ export default function BentoGridNewsletter() {
                     ============================================ */}
                     <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] transition-all duration-500 hover:scale-[1.01]">
                         {/* Gradient Background */}
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                background:
-                                    "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 129, 242, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99, 102, 241, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
-                            }}
-                        />
+                        <div className="absolute inset-0 rounded-3xl card-home-newsletter" />
 
                         {/* Subtle Border */}
-                        <div className="absolute inset-0 rounded-3xl border border-white/10" />
+                        <div className="absolute inset-0 rounded-3xl border border-border" />
 
                         {/* Shimmer on Hover */}
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
@@ -103,7 +93,7 @@ export default function BentoGridNewsletter() {
                             </p>
 
                             {/* Title */}
-                            <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
+                            <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
                                 {latest.title}
                             </h3>
 
@@ -117,7 +107,7 @@ export default function BentoGridNewsletter() {
                                 {latest.htmlAvailable ? (
                                     <a
                                         href={latest.htmlPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/20 hover:bg-brand-blue/30 border border-brand-blue/30 hover:border-brand-blue/50 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Ler online</span>
@@ -125,7 +115,7 @@ export default function BentoGridNewsletter() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-50 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-90 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -134,7 +124,7 @@ export default function BentoGridNewsletter() {
                                 {latest.pdfAvailable ? (
                                     <a
                                         href={latest.pdfPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/20 hover:bg-brand-purple/30 border border-brand-purple/30 hover:border-brand-purple/50 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-700 hover:bg-indigo-800 border border-indigo-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -142,7 +132,7 @@ export default function BentoGridNewsletter() {
                                 ) : (
                                     <button
                                         disabled
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-50 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm sm:text-base cursor-not-allowed opacity-90 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Indisponível</span>
@@ -160,7 +150,7 @@ export default function BentoGridNewsletter() {
                             key={newsletter.id}
                             id={`item-${newsletter.id}`}
                             style={{ scrollMarginTop: "80px" }}
-                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:bg-white/[0.07] hover:border-brand-blue/30 hover:shadow-[0_0_30px_rgba(0,129,242,0.15)]"
+                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-[#f4f8ff] dark:bg-card/80 backdrop-blur-sm border border-border transition-all duration-300 hover:bg-accent/40 hover:border-brand-blue/30 hover:shadow-[0_0_30px_rgba(0,129,242,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Newsletter Number */}
@@ -169,7 +159,7 @@ export default function BentoGridNewsletter() {
                                 </p>
 
                                 {/* Title */}
-                                <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-white mt-1 mb-2 tracking-tight line-clamp-2">
+                                <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-foreground mt-1 mb-2 tracking-tight line-clamp-2">
                                     {newsletter.title}
                                 </h4>
 
@@ -181,7 +171,7 @@ export default function BentoGridNewsletter() {
                                     {newsletter.htmlAvailable ? (
                                         <a
                                             href={newsletter.htmlPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 hover:border-brand-blue/40 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
                                             <Globe className="w-5 h-5" />
                                             <span>Ler online</span>
@@ -189,7 +179,7 @@ export default function BentoGridNewsletter() {
                                     ) : (
                                         <button
                                             disabled
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 text-sm font-medium cursor-not-allowed opacity-50 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap"
                                         >
                                             <Globe className="w-5 h-5" />
                                             <span>Indisponível</span>
@@ -198,7 +188,7 @@ export default function BentoGridNewsletter() {
                                     {newsletter.pdfAvailable ? (
                                         <a
                                             href={newsletter.pdfPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-purple/10 hover:bg-brand-purple/20 border border-brand-purple/20 hover:border-brand-purple/40 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-700 hover:bg-indigo-800 border border-indigo-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
                                             <FileText className="w-5 h-5" />
                                             <span>PDF</span>
@@ -206,7 +196,7 @@ export default function BentoGridNewsletter() {
                                     ) : (
                                         <button
                                             disabled
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-500/10 border border-gray-500/20 rounded-full text-gray-500 text-sm font-medium cursor-not-allowed opacity-50 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap"
                                         >
                                             <FileText className="w-5 h-5" />
                                             <span>Indisponível</span>

@@ -8,9 +8,12 @@
 
 import { useBook } from "@/presentation/hooks/useBook";
 import { BookOpen, FileText, Sparkles } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export default function BookCard() {
     const { book, isLoading } = useBook();
+    const { resolvedTheme } = useTheme();
+    const isLight = resolvedTheme === "light";
 
     if (isLoading || !book) return null;
 
@@ -18,15 +21,16 @@ export default function BookCard() {
 
     return (
         <div className="group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01] mb-6">
-            {/* Gradient Background — âmbar/dourado para o livro principal */}
+            {/* Gradient Background — verde para o mini-livro principal */}
             <div
                 className="absolute inset-0"
                 style={{
-                    background:
-                        "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.25), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(180, 83, 9, 0.15), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
+                    background: isLight
+                        ? "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.12), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.08), transparent), linear-gradient(180deg, #f8fbff 0%, #ecfdf5 100%)"
+                        : "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.25), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.15), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
                 }}
             />
-            <div className="absolute inset-0 rounded-3xl border border-amber-500/20" />
+            <div className="absolute inset-0 rounded-3xl border border-border" />
             <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700">
                 <div className="absolute inset-0 shimmer" />
             </div>
@@ -36,7 +40,7 @@ export default function BookCard() {
                 {/* Capa — esquerda */}
                 {book.coverImagePath && (
                     <div className="w-full md:w-1/3 flex-shrink-0">
-                        <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-amber-500/20 shadow-2xl">
+                        <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-border shadow-2xl">
                             <img
                                 src={book.coverImagePath}
                                 alt={`Capa do livro ${book.title}`}
@@ -49,21 +53,21 @@ export default function BookCard() {
                 {/* Informações — direita */}
                 <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
                     {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-full mb-4">
-                        <Sparkles className="w-4 h-4 text-amber-400" />
-                        <span className="text-amber-400 text-sm font-medium">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full mb-4">
+                        <Sparkles className="w-4 h-4 text-green-700" />
+                        <span className="text-green-800 text-sm font-medium">
                             {book.badgeText || "Livro"}
                         </span>
                     </div>
 
                     {/* Título */}
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight leading-tight">
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3 tracking-tight leading-tight">
                         {book.title}
                     </h3>
 
                     {/* Subtítulo */}
                     {book.subtitle && (
-                        <p className="text-xl sm:text-2xl text-amber-300/80 mb-6 font-medium">
+                        <p className="text-xl sm:text-2xl text-green-700 mb-6 font-medium">
                             {book.subtitle}
                         </p>
                     )}
@@ -82,7 +86,7 @@ export default function BookCard() {
                                 href={book.coverPdfPath}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                className="flex items-center justify-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 border border-green-800 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                             >
                                 <FileText className="w-5 h-5" />
                                 <span>Ver Capa</span>
@@ -93,7 +97,7 @@ export default function BookCard() {
                                 href={introHref}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 px-6 py-3 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 hover:border-orange-500/50 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
                             >
                                 <BookOpen className="w-5 h-5" />
                                 <span>Ler Introdução</span>

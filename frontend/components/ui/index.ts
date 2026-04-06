@@ -8,6 +8,9 @@
 export { default as GradientButton } from "./GradientButton";
 export type { GradientButtonProps, GradientButtonSize, GradientButtonVariant } from "./GradientButton";
 
+export { Button } from "./button";
+export type { ButtonProps } from "./button";
+
 export { default as GlassCard } from "./GlassCard";
 export type { GlassCardPadding, GlassCardProps, GlassCardVariant } from "./GlassCard";
 export { Accordion } from "./Accordion";

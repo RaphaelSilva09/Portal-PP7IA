@@ -1,6 +1,7 @@
 "use client";
 
-import { Footer, Navbar } from "@/components";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Header";
 import { Accordion, AccordionGroup, NumberedList } from "@/components/ui";
 import {
     conexoesFamiliares,
@@ -34,7 +35,8 @@ import Link from "next/link";
  */
 export default function PorQue7Page() {
     return (
-        <div className="min-h-screen bg-bg-primary text-white">
+        <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-linear-to-b from-blue-500/20 via-purple-500/10 to-transparent dark:from-blue-500/15 dark:via-purple-500/8" />
             <Navbar />
 
             <main className="pt-20 pb-16">
@@ -42,7 +44,7 @@ export default function PorQue7Page() {
                     {/* Back Link */}
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 text-text-secondary hover:text-white mb-6 transition-colors group"
+                        className="portal-back-link inline-flex items-center gap-2 text-text-secondary mb-6 transition-colors group"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         <span>Voltar ao Portal</span>
@@ -50,17 +52,17 @@ export default function PorQue7Page() {
 
                     {/* Hero Section */}
                     <section className="text-center mb-12 pb-8 border-b border-border-glass">
-                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-linear-to-r from-white to-blue-400 bg-clip-text text-transparent">
+                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-foreground">
                             {heroData.title}
                         </h1>
                         <p className="text-text-secondary text-base md:text-lg mb-6">{heroData.subtitle}</p>
-                        <div className="inline-block bg-linear-to-r from-[#1e3a5f] to-[#2563eb] px-6 py-3 rounded-xl font-semibold text-sm md:text-base">
+                        <div className="inline-block bg-linear-to-r from-blue-600 to-purple-700 px-6 py-3 rounded-xl font-semibold text-sm md:text-base" style={{ color: "#fff" }}>
                             {heroData.badge}
                         </div>
                     </section>
 
                     {/* Intro Section */}
-                    <section className="mb-8 bg-linear-to-br from-bg-secondary to-[#1a1a2e] border border-border-glass rounded-2xl p-6 md:p-8">
+                    <section className="mb-8 bg-card/80 border border-border rounded-2xl p-6 md:p-8">
                         {introParagraphs.map((para, index) => (
                             <p
                                 key={index}

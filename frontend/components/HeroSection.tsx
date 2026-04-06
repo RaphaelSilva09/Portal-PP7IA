@@ -103,14 +103,14 @@ export default function HeroSection() {
                         <>
                             <button
                                 onClick={handleEntrarClick}
-                                className="inline-flex items-center gap-2 px-7 py-2.5 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
+                                className="inline-flex items-center gap-2 px-7 py-2.5 cursor-pointer bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] hover:scale-105 transition-all duration-200"
                                 aria-label="Fazer login"
                             >
                                 Entrar
                             </button>
                             <button
                                 onClick={handleCadastroClick}
-                                className="inline-flex items-center gap-2 px-7 py-2.5 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
+                                className="inline-flex items-center gap-2 px-7 py-2.5 cursor-pointer bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] hover:scale-105 transition-all duration-200"
                                 aria-label="Cadastrar"
                             >
                                 Cadastrar
@@ -119,7 +119,7 @@ export default function HeroSection() {
                     )}
                     <button
                         onClick={handleIndicacaoClick}
-                        className="inline-flex items-center gap-2 px-7 py-2.5 cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:scale-105 transition-all duration-200"
+                        className="inline-flex items-center gap-2 px-7 py-2.5 cursor-pointer bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold text-sm rounded-full shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] hover:scale-105 transition-all duration-200"
                         aria-label="Indicar alguém"
                     >
                         Indicar

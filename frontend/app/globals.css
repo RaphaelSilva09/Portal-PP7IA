@@ -7,17 +7,97 @@
    ============================================ */
 
 :root {
-    /* === Modo Escuro (Default) === */
+    color-scheme: light;
+
+    --bg-primary: #eef4ff;
+    --bg-secondary: #e4ecfb;
+    --text-primary: #162338;
+    --text-secondary: #334155;
+
+    --surface-glass: rgba(255, 255, 255, 0.72);
+    --border-glass: rgba(99, 132, 181, 0.18);
+    --nav-surface: rgba(247, 250, 255, 0.9);
+
+    --brand-blue: #1d4ed8;
+    --brand-orange: #c2410c;
+    --brand-green: #15803d;
+    --brand-emerald: #047857;
+    --brand-yellow: #a16207;
+    --brand-purple: #7c3aed;
+
+    --gradient-newsletter: linear-gradient(135deg, rgb(59, 130, 246) 0%, rgb(99, 102, 241) 100%);
+    --gradient-radar: linear-gradient(135deg, rgb(249, 115, 22) 0%, rgb(251, 191, 36) 100%);
+    --gradient-cta: linear-gradient(135deg, #22c55e 0%, #059669 100%);
+
+    --gradient-accordion-level1: linear-gradient(135deg, #edf4ff 0%, #cfe0ff 100%);
+    --gradient-accordion-level2: linear-gradient(135deg, #e7efff 0%, #bfd5ff 100%);
+    --gradient-accordion-level3: linear-gradient(135deg, #e3edff 0%, #b3cbff 100%);
+
+    --shadow-sm: 0 1px 2px rgba(22, 35, 56, 0.08);
+    --shadow-md: 0 4px 6px rgba(22, 35, 56, 0.12);
+    --shadow-lg: 0 10px 15px rgba(22, 35, 56, 0.14);
+    --shadow-xl: 0 20px 25px rgba(22, 35, 56, 0.16);
+    --shadow-glow-green: 0 0 20px rgba(34, 197, 94, 0.24);
+    --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.22);
+
+    --background: var(--bg-primary);
+    --foreground: var(--text-primary);
+    --card: rgba(255, 255, 255, 0.82);
+    --card-foreground: var(--text-primary);
+    --popover: rgba(255, 255, 255, 0.96);
+    --popover-foreground: var(--text-primary);
+    --primary: #1d4ed8;
+    --primary-foreground: #ffffff;
+    --secondary: #dbe7fb;
+    --secondary-foreground: #162338;
+    --muted: #dbe7fb;
+    --muted-foreground: #64748b;
+    --accent: #dbeafe;
+    --accent-foreground: #162338;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: rgba(99, 132, 181, 0.2);
+    --input: rgba(99, 132, 181, 0.22);
+    --ring: #1d4ed8;
+
+    --radius-pill: 9999px;
+    --radius-card: 24px;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --radius: 0.75rem;
+
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+    --duration-slower: 600ms;
+
+    --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+    --shadow-glow-blue-sm: 0 0 10px rgba(59, 130, 246, 0.18);
+    --shadow-glow-blue-md: 0 0 20px rgba(59, 130, 246, 0.22);
+    --shadow-glow-blue-lg: 0 0 30px rgba(59, 130, 246, 0.28);
+    --shadow-glow-green-sm: 0 0 10px rgba(34, 197, 94, 0.18);
+    --shadow-glow-green-md: 0 0 20px rgba(34, 197, 94, 0.22);
+    --shadow-glow-green-lg: 0 0 30px rgba(34, 197, 94, 0.28);
+    --shadow-glow-purple-md: 0 0 20px rgba(99, 102, 241, 0.22);
+    --shadow-glow-purple-lg: 0 0 30px rgba(99, 102, 241, 0.28);
+}
+
+.dark {
+    color-scheme: dark;
+
     --bg-primary: #111111;
     --bg-secondary: #1a1a1a;
     --text-primary: #dadada;
     --text-secondary: #acacac;
 
-    /* === Superfícies & Cards === */
     --surface-glass: rgba(255, 255, 255, 0.05);
     --border-glass: rgba(255, 255, 255, 0.1);
+    --nav-surface: rgba(17, 17, 17, 0.8);
 
-    /* === Brand Colors === */
     --brand-blue: #3b9eff;
     --brand-orange: #f97316;
     --brand-green: #22c55e;
@@ -25,17 +105,14 @@
     --brand-yellow: #fbbf24;
     --brand-purple: #6366f1;
 
-    /* === Gradientes === */
     --gradient-newsletter: linear-gradient(135deg, rgb(59, 130, 246) 0%, rgb(99, 102, 241) 100%);
     --gradient-radar: linear-gradient(135deg, rgb(249, 115, 22) 0%, rgb(251, 191, 36) 100%);
     --gradient-cta: linear-gradient(135deg, #22c55e 0%, #059669 100%);
 
-    /* Gradientes para Accordions (Por Que o 7) - Bicromia Preto/Azul */
     --gradient-accordion-level1: linear-gradient(135deg, #0f1419 0%, #1e3a8a 100%);
     --gradient-accordion-level2: linear-gradient(135deg, #1a1a2e 0%, #2563eb 100%);
     --gradient-accordion-level3: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
 
-    /* === Sombras === */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.35);
@@ -43,42 +120,396 @@
     --shadow-glow-green: 0 0 20px rgba(34, 197, 94, 0.4);
     --shadow-glow-blue: 0 0 20px rgba(0, 129, 242, 0.4);
 
-    /* === Sistema === */
     --background: var(--bg-primary);
     --foreground: var(--text-primary);
+    --card: #161616;
+    --card-foreground: var(--text-primary);
+    --popover: #161616;
+    --popover-foreground: var(--text-primary);
+    --primary: #3b9eff;
+    --primary-foreground: #ffffff;
+    --secondary: #1f2937;
+    --secondary-foreground: #dadada;
+    --muted: #1f2937;
+    --muted-foreground: #acacac;
+    --accent: #172554;
+    --accent-foreground: #dadada;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.14);
+    --ring: #3b9eff;
+}
 
-    /* === Border Radius === */
-    --radius-pill: 9999px;
-    --radius-card: 24px;
-    --radius-lg: 16px;
-    --radius-md: 12px;
-    --radius-sm: 8px;
+.portal-back-link {
+    transition: color 200ms ease;
+}
 
-    /* === Animation Durations (DRY - Centralized) === */
-    --duration-fast: 150ms;
-    --duration-normal: 300ms;
-    --duration-slow: 500ms;
-    --duration-slower: 600ms;
+.light .portal-back-link:hover {
+    color: var(--foreground) !important;
+}
 
-    /* === Easing Functions === */
-    --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+.dark .portal-back-link:hover {
+    color: #ffffff !important;
+}
 
-    /* === Extended Shadows (for glow variants) === */
-    --shadow-glow-blue-sm: 0 0 10px rgba(59, 130, 246, 0.3);
-    --shadow-glow-blue-md: 0 0 20px rgba(59, 130, 246, 0.4);
-    --shadow-glow-blue-lg: 0 0 30px rgba(59, 130, 246, 0.6);
-    --shadow-glow-green-sm: 0 0 10px rgba(34, 197, 94, 0.3);
-    --shadow-glow-green-md: 0 0 20px rgba(34, 197, 94, 0.4);
-    --shadow-glow-green-lg: 0 0 30px rgba(34, 197, 94, 0.6);
-    --shadow-glow-purple-md: 0 0 20px rgba(99, 102, 241, 0.4);
-    --shadow-glow-purple-lg: 0 0 30px rgba(99, 102, 241, 0.6);
+.dark #indice .text-blue-700,
+.dark #indice .text-cyan-700 {
+    color: #93c5fd !important;
+}
+
+.dark #indice .text-amber-800,
+.dark #indice .text-yellow-800 {
+    color: #fbbf24 !important;
+}
+
+.dark #indice .text-orange-800 {
+    color: #fb923c !important;
+}
+
+.dark #indice .text-green-700 {
+    color: #86efac !important;
+}
+
+.dark #indice .text-purple-700 {
+    color: #c4b5fd !important;
+}
+
+.dark #indice .text-pink-700 {
+    color: #f9a8d4 !important;
+}
+
+.light :not(button):not(a).text-white,
+.light :not(button):not(a).text-white\/90,
+.light :not(button):not(a).text-white\/80 {
+    color: var(--foreground) !important;
+}
+
+.light :not(button):not(a).text-white\/70,
+.light :not(button):not(a).text-white\/60,
+.light :not(button):not(a).text-white\/50,
+.light :not(button):not(a).text-white\/40,
+.light :not(button):not(a).text-white\/30,
+.light :not(button):not(a).text-white\/20 {
+    color: var(--muted-foreground) !important;
+}
+
+.light .text-gray-200,
+.light .text-slate-200,
+.light .text-zinc-200 {
+    color: #1e293b !important;
+}
+
+.light .text-gray-300,
+.light .text-slate-300,
+.light .text-zinc-300 {
+    color: #334155 !important;
+}
+
+.light .text-gray-400,
+.light .text-slate-400,
+.light .text-zinc-400 {
+    color: #475569 !important;
+}
+
+.light .text-gray-500,
+.light .text-slate-500,
+.light .text-zinc-500 {
+    color: #64748b !important;
+}
+
+.light .text-blue-300,
+.light .text-blue-400,
+.light .text-blue-500,
+.light .text-blue-600,
+.light .text-brand-blue {
+    color: #1d4ed8 !important;
+}
+
+.light .text-green-300,
+.light .text-green-400,
+.light .text-green-500,
+.light .text-green-600,
+.light .text-brand-green,
+.light .text-brand-emerald {
+    color: #166534 !important;
+}
+
+.light .text-yellow-300,
+.light .text-yellow-400,
+.light .text-yellow-500,
+.light .text-yellow-600,
+.light .text-brand-yellow {
+    color: #a16207 !important;
+}
+
+.light .text-orange-300,
+.light .text-orange-400,
+.light .text-orange-500,
+.light .text-orange-600,
+.light .text-brand-orange {
+    color: #c2410c !important;
+}
+
+.light .text-purple-300,
+.light .text-purple-400,
+.light .text-purple-500,
+.light .text-purple-600,
+.light .text-brand-purple {
+    color: #6d28d9 !important;
+}
+
+.light .text-red-300,
+.light .text-red-400,
+.light .text-red-500,
+.light .text-red-600 {
+    color: #b91c1c !important;
+}
+
+.light .text-pink-300,
+.light .text-pink-400,
+.light .text-pink-500,
+.light .text-pink-600 {
+    color: #be185d !important;
+}
+
+.light .text-cyan-300,
+.light .text-cyan-400,
+.light .text-cyan-500,
+.light .text-cyan-600 {
+    color: #0e7490 !important;
+}
+
+.light .text-gray-600,
+.light .text-slate-600,
+.light .text-zinc-600 {
+    color: #475569 !important;
+}
+
+.light svg.text-white,
+.light svg.text-white\/90,
+.light svg.text-white\/80 {
+    color: var(--foreground) !important;
+}
+
+.light svg.text-white\/70,
+.light svg.text-white\/60,
+.light svg.text-white\/50,
+.light svg.text-white\/40,
+.light svg.text-white\/30,
+.light svg.text-white\/20 {
+    color: var(--text-secondary) !important;
+}
+
+.light svg.text-text-secondary,
+.light svg.text-gray-400,
+.light svg.text-slate-400,
+.light svg.text-zinc-400 {
+    color: #334155 !important;
+}
+
+.light svg.text-gray-500,
+.light svg.text-slate-500,
+.light svg.text-zinc-500 {
+    color: #475569 !important;
+}
+
+.light svg.text-blue-300,
+.light svg.text-blue-400,
+.light svg.text-blue-500,
+.light svg.text-blue-600,
+.light svg.text-brand-blue {
+    color: #1d4ed8 !important;
+}
+
+.light svg.text-green-300,
+.light svg.text-green-400,
+.light svg.text-green-500,
+.light svg.text-green-600,
+.light svg.text-brand-green,
+.light svg.text-brand-emerald {
+    color: #166534 !important;
+}
+
+.light svg.text-yellow-300,
+.light svg.text-yellow-400,
+.light svg.text-yellow-500,
+.light svg.text-yellow-600,
+.light svg.text-brand-yellow {
+    color: #a16207 !important;
+}
+
+.light svg.text-orange-300,
+.light svg.text-orange-400,
+.light svg.text-orange-500,
+.light svg.text-orange-600,
+.light svg.text-brand-orange {
+    color: #c2410c !important;
+}
+
+.light svg.text-purple-300,
+.light svg.text-purple-400,
+.light svg.text-purple-500,
+.light svg.text-purple-600,
+.light svg.text-brand-purple {
+    color: #6d28d9 !important;
+}
+
+.light svg.text-red-300,
+.light svg.text-red-400,
+.light svg.text-red-500,
+.light svg.text-red-600 {
+    color: #b91c1c !important;
+}
+
+.light svg.text-pink-300,
+.light svg.text-pink-400,
+.light svg.text-pink-500,
+.light svg.text-pink-600 {
+    color: #be185d !important;
+}
+
+.light svg.text-cyan-300,
+.light svg.text-cyan-400,
+.light svg.text-cyan-500,
+.light svg.text-cyan-600 {
+    color: #0e7490 !important;
+}
+
+.light svg.text-gray-600,
+.light svg.text-slate-600,
+.light svg.text-zinc-600 {
+    color: #334155 !important;
+}
+
+.light .bg-gray-500\/10,
+.light .bg-slate-500\/10,
+.light .bg-zinc-500\/10 {
+    background-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+.light .bg-blue-500,
+.light .hover\:bg-blue-500:hover {
+    background-color: #1d4ed8 !important;
+}
+
+.light .bg-green-500,
+.light .hover\:bg-green-500:hover {
+    background-color: #15803d !important;
+}
+
+.light .bg-red-500,
+.light .hover\:bg-red-500:hover {
+    background-color: #dc2626 !important;
+}
+
+.light .bg-purple-500,
+.light .hover\:bg-purple-500:hover {
+    background-color: #7c3aed !important;
+}
+
+.light .bg-pink-500,
+.light .hover\:bg-pink-500:hover {
+    background-color: #db2777 !important;
+}
+
+.light .bg-cyan-500,
+.light .hover\:bg-cyan-500:hover {
+    background-color: #0891b2 !important;
+}
+
+.light .bg-orange-500,
+.light .hover\:bg-orange-500:hover {
+    background-color: #c2410c !important;
+}
+
+.light .bg-yellow-500,
+.light .hover\:bg-yellow-500:hover {
+    background-color: #a16207 !important;
+}
+
+.light .border-gray-500\/20,
+.light .border-slate-500\/20,
+.light .border-zinc-500\/20 {
+    border-color: var(--border) !important;
+}
+
+.light button.bg-white\/5.text-white,
+.light button.bg-white\/10.text-white,
+.light button.bg-white\/15.text-white,
+.light button.bg-white\/20.text-white,
+.light a.bg-white\/5.text-white,
+.light a.bg-white\/10.text-white,
+.light a.bg-white\/15.text-white,
+.light a.bg-white\/20.text-white {
+    color: var(--foreground) !important;
+}
+
+.light :not(button):not(a).bg-white\/5 {
+    background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.light a.bg-white\/5,
+.light a.bg-white\/10,
+.light a.bg-white\/15,
+.light a.bg-white\/20,
+.light .bg-white\/5.backdrop-blur-sm,
+.light .bg-white\/10.backdrop-blur-sm,
+.light .bg-white\/15.backdrop-blur-sm,
+.light .bg-white\/20.backdrop-blur-sm {
+    background-color: rgba(255, 255, 255, 0.84) !important;
+}
+
+.light :not(button):not(a).bg-white\/10,
+.light :not(button):not(a).bg-white\/15,
+.light :not(button):not(a).bg-white\/20 {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.light :not(button):not(a).border-white\/10,
+.light :not(button):not(a).border-white\/20 {
+    border-color: var(--border) !important;
+}
+
+.light #novidades {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+    border-color: var(--border) !important;
+}
+
+.light input::placeholder,
+.light textarea::placeholder {
+    color: #64748b !important;
+    opacity: 1;
+}
+
+.light .prose-invert {
+    color: var(--foreground) !important;
+}
+
+.light .prose-invert :where(p, li, blockquote, code, em, strong, span) {
+    color: inherit !important;
 }
 
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
     --font-sans: var(--font-inter), "Inter", "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: "SF Mono", ui-monospace, monospace;
 
@@ -177,7 +608,7 @@ body {
 }
 
 .glass-navbar {
-    background: rgba(17, 17, 17, 0.8);
+    background: var(--nav-surface);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-glass);
@@ -196,6 +627,20 @@ body {
    ============================================ */
 .card-newsletter {
     background: var(--gradient-newsletter);
+}
+
+.card-home-newsletter {
+    background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(29, 78, 216, 0.16), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(124, 58, 237, 0.12), transparent),
+        linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+}
+
+.dark .card-home-newsletter {
+    background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 129, 242, 0.3), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99, 102, 241, 0.2), transparent),
+        linear-gradient(180deg, #0a0a0f 0%, #111118 100%);
 }
 
 .card-radar {

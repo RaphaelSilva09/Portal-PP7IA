@@ -1,4 +1,5 @@
-import { Footer, Navbar } from "@/components";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Header";
 import { ArrowLeft, Briefcase, Users } from "lucide-react";
 import Link from "next/link";
 
@@ -12,7 +13,7 @@ export default function QuemSomosPage() {
                     {/* Back Link */}
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 text-text-secondary hover:text-white mb-6 transition-colors group"
+                        className="portal-back-link inline-flex items-center gap-2 text-text-secondary mb-6 transition-colors group"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         <span>Voltar ao Portal</span>
@@ -27,7 +28,7 @@ export default function QuemSomosPage() {
                             <div className="absolute inset-0 rounded-3xl border border-blue-500/15" />
 
                             <div className="relative z-10 p-8 lg:p-10 text-center">
-                                <div className="inline-block bg-gradient-to-r from-brand-blue to-brand-purple px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+                                <div className="inline-block bg-gradient-to-r from-brand-blue to-brand-purple px-4 py-1.5 rounded-full text-sm font-semibold mb-4" style={{ color: "#fff" }}>
                                     PP7+IAS
                                 </div>
                                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">

@@ -1,4 +1,5 @@
-import { Footer, Navbar } from "@/components";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Header";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -47,15 +48,15 @@ const sections = [
 
 export default function DeclaracoesPage() {
     return (
-        <div className="min-h-screen bg-bg-primary text-white">
+        <div className="min-h-screen bg-background text-foreground">
             <Navbar />
 
-            <main className="pt-20 pb-16">
+            <main className="pb-16">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Back Link */}
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 text-text-secondary hover:text-white mb-6 transition-colors group"
+                        className="portal-back-link inline-flex items-center gap-2 text-text-secondary mb-6 transition-colors group"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         <span>Voltar ao Portal</span>
@@ -85,7 +86,7 @@ export default function DeclaracoesPage() {
                                     <span className="text-brand-blue font-mono font-bold text-lg">
                                         {section.number}
                                     </span>
-                                    <span className="text-white font-semibold tracking-wide">
+                                    <span className="text-foreground font-semibold tracking-wide">
                                         {section.title}
                                     </span>
                                 </div>

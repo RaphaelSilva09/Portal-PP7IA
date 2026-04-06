@@ -15,7 +15,7 @@ export default function IASParceiras() {
                 ============================================ */}
                 <Link
                     href="/view/biblioteca/009"
-                    className="group relative overflow-hidden rounded-2xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 block"
+                    className="group relative overflow-hidden rounded-2xl border border-border hover:border-cyan-500/40 transition-all duration-300 block bg-card/85"
                 >
                     <div
                         className="absolute inset-0"
@@ -30,30 +30,30 @@ export default function IASParceiras() {
 
                         {/* Header row */}
                         <div className="flex flex-col items-center gap-2 mb-2">
-                            <div className="w-9 h-9 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                                <Bot className="w-5 h-5 text-cyan-400" />
+                        <div className="w-9 h-9 rounded-xl bg-cyan-500/15 flex items-center justify-center">
+                                <Bot className="w-5 h-5 text-cyan-700" />
                             </div>
                             <div className="flex items-center gap-2">
-                                <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
                                     As 7 IAs parceiras
                                 </h2>
                             </div>
                         </div>
 
                         {/* Subtitle */}
-                        <p className="text-sm text-gray-400 italic mb-4 text-center">
+                        <p className="text-sm text-text-secondary italic mb-4 text-center">
                             A IA amplifica; o julgamento editorial é humano.
                         </p>
 
                         {/* Divider */}
-                        <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent mb-4" />
+                        <div className="h-px bg-linear-to-r from-transparent via-border to-transparent mb-4" />
 
                         {/* IA chips */}
                         <div className="flex flex-wrap gap-2 justify-center">
                             {IAS.map((ia) => (
                                 <span
                                     key={ia}
-                                    className="bg-white/5 px-3 py-1.5 rounded-full text-xs font-semibold text-gray-300 text-center"
+                                    className="bg-accent/40 px-3 py-1.5 rounded-full text-xs font-semibold text-text-secondary text-center"
                                 >
                                     {ia}
                                 </span>
@@ -67,7 +67,7 @@ export default function IASParceiras() {
             
             {/* Citação */}
             <div className="max-w-4xl mx-auto flex justify-center mb-8">
-                <span className="bg-white/5 px-4 py-2 rounded-full text-sm font-semibold text-gray-300 text-center">
+                <span className="bg-card/85 px-4 py-2 rounded-full text-sm font-semibold text-text-secondary text-center border border-border">
                     &ldquo;Liderar é servir. Formar pessoas. Deixar legado.&rdquo;
                 </span>
             </div>

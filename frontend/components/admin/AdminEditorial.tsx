@@ -210,11 +210,11 @@ export function AdminEditorial() {
             // preventDefault impede que o editor perca o foco/seleção ao interagir com o bubble
             onMouseDown={e => e.preventDefault()}
         >
-            <div className="flex items-center gap-1 px-3 py-2 rounded-lg bg-[#1a1a2e] border border-white/10 shadow-2xl text-sm">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card/95 border border-border shadow-2xl text-sm">
                 {linkMode === "idle" ? (
                     <button
                         type="button"
-                        className="text-white/70 hover:text-white transition-colors whitespace-nowrap text-xs"
+                        className="text-foreground hover:text-foreground transition-colors whitespace-nowrap text-xs font-medium min-h-8 px-1"
                         onMouseDown={e => {
                             e.preventDefault(); // garante que o editor mantém a seleção
                             const existing = editor.getAttributes("link").href ?? "";
@@ -253,14 +253,14 @@ export function AdminEditorial() {
                                 if (e.key === "Escape") resetLink();
                             }}
                             style={{ width: `${BASE_W}px` }}
-                            className="bg-transparent text-white/90 placeholder-white/25 outline-none border-none text-xs min-w-0"
+                            className="bg-transparent text-foreground placeholder:text-text-secondary outline-none border-none text-xs min-w-0"
                         />
-                        <div className="w-px h-3.5 bg-white/10 mx-0.5" />
+                        <div className="w-px h-4 bg-border mx-0.5" />
                         <button
                             type="button"
                             title="Cancelar"
                             onMouseDown={e => { e.preventDefault(); resetLink(); }}
-                            className="text-white/30 hover:text-white/70 transition-colors"
+                            className="text-text-secondary hover:text-foreground transition-colors min-h-8 min-w-8 flex items-center justify-center"
                         >
                             <X className="w-3 h-3" />
                         </button>
@@ -268,7 +268,7 @@ export function AdminEditorial() {
                             type="button"
                             title="Confirmar (Enter)"
                             onMouseDown={e => { e.preventDefault(); confirmLink(editor); }}
-                            className="text-white/30 hover:text-white/70 transition-colors"
+                            className="text-text-secondary hover:text-foreground transition-colors min-h-8 min-w-8 flex items-center justify-center"
                         >
                             <Check className="w-3 h-3" />
                         </button>

@@ -1,8 +1,11 @@
-import { BentoGridMiniLivros, Footer, Navbar } from "@/components";
+import BentoGridMiniLivros from "@/components/BentoGridMiniLivros";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Header";
 
 export default function Home() {
     return (
-        <main className="min-h-screen bg-bg-primary">
+        <main className="relative min-h-screen bg-background text-foreground">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-linear-to-b from-green-500/20 via-emerald-500/10 to-transparent dark:from-green-500/15 dark:via-emerald-500/8" />
             {/* Navbar com 7 links de navegação */}
             <Navbar />
 

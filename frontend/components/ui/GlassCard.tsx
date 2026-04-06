@@ -31,7 +31,7 @@ export interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
 const variantStyles: Record<GlassCardVariant, string> = {
     default: "glass-card",
     elevated: "glass-card shadow-lg",
-    bordered: "glass-card border-2 border-white/20",
+    bordered: "glass-card border-2 border-border",
 };
 
 const paddingStyles: Record<GlassCardPadding, string> = {
