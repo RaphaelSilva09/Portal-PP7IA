@@ -28,13 +28,15 @@ export interface CreateContentWithUploadInput {
     htmlFile?: File;
     pdfFile?: File;
     // MiniLivro-specific fields
-    relativeEbook?: number | null;
+    ebookId?: number | null;
+    partOrder?: number | null;
     // Biblioteca-specific fields
     tema?: string;
     // Ebook-specific fields
     subtitle?: string;
     description?: string;
     badgeText?: string;
+    order?: number | null;
     coverImageFile?: File;
     coverPdfFile?: File;
 }
@@ -53,11 +55,13 @@ export class CreateContentWithUploadUseCase {
         const content = await this.contentRepository.create(input.type, {
             title: input.title,
             readTime: input.readTime,
-            relativeEbook: input.relativeEbook,
+            ebookId: input.ebookId,
+            partOrder: input.partOrder,
             tema: input.tema,
             subtitle: input.subtitle,
             description: input.description,
             badgeText: input.badgeText,
+            order: input.order,
         });
 
         const contentId = content.id;

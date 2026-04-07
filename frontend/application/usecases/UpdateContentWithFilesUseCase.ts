@@ -27,12 +27,16 @@ export interface UpdateContentWithFilesInput {
     readTime?: number;
     htmlFile?: File;
     pdfFile?: File;
+    // MiniLivro-specific fields
+    ebookId?: number | null;
+    partOrder?: number | null;
     // Biblioteca-specific fields
     tema?: string;
     // Ebook-specific fields
     subtitle?: string;
     description?: string;
     badgeText?: string;
+    order?: number | null;
     coverImageFile?: File;
     coverPdfFile?: File;
 }
@@ -99,6 +103,7 @@ export class UpdateContentWithFilesUseCase {
                     subtitle: input.subtitle,
                     description: input.description,
                     badgeText: input.badgeText,
+                    order: input.order,
                     htmlPath: introHtmlPath,
                     pdfPath: introPdfPath,
                     coverImagePath,
@@ -139,6 +144,8 @@ export class UpdateContentWithFilesUseCase {
                     htmlPath,
                     pdfPath,
                     tema: input.tema,
+                    ebookId: input.ebookId,
+                    partOrder: input.partOrder,
                 });
             }
         } catch (error) {
