@@ -4,6 +4,7 @@ import { BookOpen, FileText, Globe, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
 
+import { MINI_LIVRO_PARTS, getMiniLivroPartLabel } from "@/constants/miniLivros";
 import { MiniLivro } from "@/domain/entities/MiniLivro";
 import { useEbook } from "@/presentation/hooks/useEbook";
 import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
@@ -109,21 +110,13 @@ export default function BentoGridMiniLivros() {
         );
     }
 
-    const selectedEbook = allEbooks[selectedEbookIndex] ?? null;
-    const ebookMiniLivros = selectedEbook
-        ? allMiniLivros.filter(ml => ml.relativeEbook === selectedEbook.order)
-        : [];
+    const selectedPart = MINI_LIVRO_PARTS[selectedEbookIndex] ?? MINI_LIVRO_PARTS[0];
+    const selectedEbook = allEbooks.find(ebook => ebook.order === selectedPart.order) ?? null;
+    const ebookMiniLivros = allMiniLivros.filter(ml => ml.partOrder === selectedPart.order);
     const featuredMiniLivro = ebookMiniLivros[0] ?? null;
     const gridMiniLivros = ebookMiniLivros.slice(1);
 
-    const ebookHasContent = Boolean(
-        selectedEbook &&
-        (selectedEbook.subtitle ||
-            selectedEbook.description ||
-            selectedEbook.coverImagePath ||
-            selectedEbook.htmlAvailable ||
-            selectedEbook.coverPdfAvailable),
-    );
+    const ebookHasContent = Boolean(selectedEbook);
     const hasMiniLivros = ebookMiniLivros.length > 0;
 
     return (
@@ -143,7 +136,7 @@ export default function BentoGridMiniLivros() {
                     style={{ animationDelay: "0.4s" }}
                 >
                     Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
-                    Eles funcionarão como os capítulos de um livro. A cada 7 "capítulos", eu os compilarei em e-books (versões menores do livro).
+                    Eles funcionarão como os capítulos de um livro. A cada 7 &quot;capítulos&quot;, eu os compilarei em e-books (versões menores do livro).
                 </p>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-card/80 border border-border rounded-full w-fit">
                     <a
@@ -168,7 +161,7 @@ export default function BentoGridMiniLivros() {
                                 </h3>
                 <p className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 leading-relaxed">
                     Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
-                    Eles funcionarão como os capítulos de um livro. A cada 7 "capítulos", eu os compilarei em e-books (versões menores do livro).
+                    Eles funcionarão como os capítulos de um livro. A cada 7 &quot;capítulos&quot;, eu os compilarei em e-books (versões menores do livro).
                 </p>
                 {/*
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-card/80 border border-border rounded-full w-fit">
@@ -204,18 +197,16 @@ export default function BentoGridMiniLivros() {
                 ABAS DE E-BOOKS — sempre 3 slots fixos
                 ============================================ */}
                 <div className="grid grid-cols-3 gap-3 mb-6 w-full items-stretch">
-                    {[0, 1, 2].map(slotIndex => {
-                        const fixedTitles = [
-                            "Parte I — Liderança Híbrida",
-                            "Parte II — A Coragem de Executar",
-                            "Parte III — O Que Fica"
-                        ];
-                        const label = fixedTitles[slotIndex];
+                    {MINI_LIVRO_PARTS.map((part, slotIndex) => {
+                        const label = getMiniLivroPartLabel(
+                            part,
+                            allEbooks.find(ebook => ebook.order === part.order),
+                        );
                         const isSelected = selectedEbookIndex === slotIndex;
                         const theme = ebookThemes[slotIndex] ?? ebookThemes[0];
                         return (
                             <button
-                                key={slotIndex}
+                                key={part.order}
                                 onClick={() => setSelectedEbookIndex(slotIndex)}
                                 className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${isSelected ? theme.tabActive : (isLight ? theme.tabInactiveLight : theme.tabInactive)}`}
                             >

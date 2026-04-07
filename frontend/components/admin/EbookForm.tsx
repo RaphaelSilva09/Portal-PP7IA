@@ -18,6 +18,7 @@
  */
 
 import { GlassCard, GradientButton } from "@/components/ui";
+import { MINI_LIVRO_PARTS, getMiniLivroPartLabel } from "@/constants/miniLivros";
 import type { ContentItem } from "@/domain/entities/ContentItem";
 import { AlertCircle, Upload, X } from "lucide-react";
 import { useState } from "react";
@@ -28,6 +29,7 @@ export interface EbookFormData {
     description?: string;
     badgeText?: string;
     readTime?: number;
+    order: number;
     introHtmlFile?: File;
     introPdfFile?: File;
     coverImageFile?: File;
@@ -39,6 +41,8 @@ interface EbookFormProps {
     onSubmit: (data: EbookFormData) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
+    usedOrders?: number[];
+    defaultOrder?: number;
 }
 
 const INPUT_CLASS = `w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
@@ -107,12 +111,13 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange, isEd
     );
 }
 
-export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookFormProps) {
+export function EbookForm({ editItem, onSubmit, onCancel, isLoading, usedOrders = [], defaultOrder = 1 }: EbookFormProps) {
     const [title, setTitle] = useState(editItem?.title || "");
     const [subtitle, setSubtitle] = useState(editItem?.subtitle || "");
     const [description, setDescription] = useState(editItem?.description || "");
     const [badgeText, setBadgeText] = useState(editItem?.badgeText || "");
     const [readTime, setReadTime] = useState(editItem?.readTime?.toString() || "");
+    const [order, setOrder] = useState((editItem?.order || defaultOrder).toString());
 
     const [introHtmlFile, setIntroHtmlFile] = useState<File | null>(null);
     const [introPdfFile, setIntroPdfFile] = useState<File | null>(null);
@@ -122,6 +127,9 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
     const [formatError, setFormatError] = useState("");
 
     const isEditing = Boolean(editItem);
+    const currentOrder = parseInt(order, 10);
+    const usedByOtherEbook = usedOrders.includes(currentOrder) && currentOrder !== editItem?.order;
+    const allPartsUsed = !isEditing && MINI_LIVRO_PARTS.every(part => usedOrders.includes(part.order));
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -133,12 +141,18 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
             return;
         }
 
+        if (allPartsUsed || usedByOtherEbook) {
+            setFormatError("JÃ¡ existe um e-book cadastrado para esta parte");
+            return;
+        }
+
         await onSubmit({
             title,
             subtitle: subtitle || undefined,
             description: description || undefined,
             badgeText: badgeText || undefined,
             readTime: readTime ? parseInt(readTime, 10) : undefined,
+            order: currentOrder,
             introHtmlFile: introHtmlFile || undefined,
             introPdfFile: introPdfFile || undefined,
             coverImageFile: coverImageFile || undefined,
@@ -153,6 +167,31 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                    <label className={LABEL_CLASS}>Parte *</label>
+                    <select
+                        value={order}
+                        onChange={e => setOrder(e.target.value)}
+                        required
+                        disabled={isEditing}
+                        className={INPUT_CLASS}
+                    >
+                        {MINI_LIVRO_PARTS.map(part => {
+                            const disabled = usedOrders.includes(part.order) && part.order !== editItem?.order;
+                            return (
+                                <option key={part.order} value={part.order} disabled={disabled}>
+                                    {getMiniLivroPartLabel(part)}
+                                    {disabled ? " (jÃ¡ cadastrada)" : ""}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    {allPartsUsed && (
+                        <p className="mt-2 text-sm text-red-400">
+                            Todas as partes jÃ¡ possuem e-book. Edite um e-book existente para alterar seus dados.
+                        </p>
+                    )}
+                </div>
                 {/* Título */}
                 <div>
                     <label className={LABEL_CLASS}>Título *</label>
@@ -286,7 +325,7 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                     >
                         Cancelar
                     </button>
-                    <GradientButton type="submit" variant="cta" disabled={isLoading || !title.trim()}>
+                    <GradientButton type="submit" variant="cta" disabled={isLoading || !title.trim() || allPartsUsed || usedByOtherEbook}>
                         {isLoading ? "Salvando..." : isEditing ? "Salvar Alterações" : "Criar E-book"}
                     </GradientButton>
                 </div>

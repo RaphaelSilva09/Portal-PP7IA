@@ -31,6 +31,7 @@ import {
     UserManager,
 } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
+import { MINI_LIVRO_PARTS } from "@/constants/miniLivros";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import DIContainer from "@/infrastructure/di/container";
@@ -118,6 +119,9 @@ export default function PainelAdminPage() {
     const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
 
     const { all: allEbooks } = useEbook();
+    const selectedPart = MINI_LIVRO_PARTS[selectedEbookIndex] ?? MINI_LIVRO_PARTS[0];
+    const selectedEbook = allEbooks.find(ebook => ebook.order === selectedPart.order) ?? null;
+    const firstAvailableEbookOrder = MINI_LIVRO_PARTS.find(part => !allEbooks.some(ebook => ebook.order === part.order))?.order ?? MINI_LIVRO_PARTS[0].order;
 
     // Feedback e confirmação (compartilhado por todas seções)
     const [feedback, setFeedback] = useState<FeedbackState>({
@@ -201,6 +205,10 @@ export default function PainelAdminPage() {
                 try {
                     const useCase = DIContainer.getDeleteContentWithFilesUseCase();
                     await useCase.execute(contentTab as ContentType, item.id);
+                    const queryKey = CONTENT_QUERY_KEY[contentTab as ContentType] ?? (contentTab === "ebook" ? "ebook" : null);
+                    if (queryKey) {
+                        queryClient.invalidateQueries({ queryKey: [queryKey] });
+                    }
                     await loadItems();
                     setFeedback({
                         show: true,
@@ -219,7 +227,7 @@ export default function PainelAdminPage() {
         });
     };
 
-    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; relativeEbook?: number | null }) => {
+    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; ebookId?: number | null; partOrder?: number | null }) => {
         setIsSubmitting(true);
         try {
             if (editItem) {
@@ -233,6 +241,12 @@ export default function PainelAdminPage() {
                     htmlFile: data.htmlFile,
                     pdfFile: data.pdfFile,
                     tema: data.tema,
+                    ebookId: contentTab === "mini-livro"
+                        ? ("ebookId" in data ? data.ebookId : editItem.ebookId)
+                        : undefined,
+                    partOrder: contentTab === "mini-livro"
+                        ? ("partOrder" in data ? data.partOrder : editItem.partOrder)
+                        : undefined,
                 });
                 setFeedback({
                     show: true,
@@ -249,7 +263,8 @@ export default function PainelAdminPage() {
                     htmlFile: data.htmlFile,
                     pdfFile: data.pdfFile,
                     tema: data.tema,
-                    relativeEbook: data.relativeEbook,
+                    ebookId: data.ebookId,
+                    partOrder: data.partOrder,
                 });
                 setFeedback({
                     show: true,
@@ -259,6 +274,10 @@ export default function PainelAdminPage() {
             }
             setShowForm(false);
             setEditItem(null);
+            const queryKey = CONTENT_QUERY_KEY[contentTab as ContentType];
+            if (queryKey) {
+                queryClient.invalidateQueries({ queryKey: [queryKey] });
+            }
             await loadItems();
         } catch (error) {
             console.error("Erro ao salvar:", error);
@@ -276,7 +295,10 @@ export default function PainelAdminPage() {
         try {
             const repo = DIContainer.getContentRepository();
             await repo.reorderItems(contentTab as ContentType, reorderedItems.map(i => i.id));
-            setItems(reorderedItems);
+            setItems(prev => {
+                const reorderedIds = new Set(reorderedItems.map(i => i.id));
+                return [...prev.filter(i => !reorderedIds.has(i.id)), ...reorderedItems];
+            });
             // Invalida o cache do React Query para que a página pública reflita a nova ordem imediatamente
             const queryKey = CONTENT_QUERY_KEY[contentTab as ContentType];
             if (queryKey) {
@@ -303,6 +325,7 @@ export default function PainelAdminPage() {
                     subtitle: data.subtitle,
                     description: data.description,
                     badgeText: data.badgeText,
+                    order: data.order,
                     htmlFile: data.introHtmlFile,
                     pdfFile: data.introPdfFile,
                     coverImageFile: data.coverImageFile,
@@ -323,6 +346,7 @@ export default function PainelAdminPage() {
                     subtitle: data.subtitle,
                     description: data.description,
                     badgeText: data.badgeText,
+                    order: data.order,
                     htmlFile: data.introHtmlFile,
                     pdfFile: data.introPdfFile,
                     coverImageFile: data.coverImageFile,
@@ -336,6 +360,7 @@ export default function PainelAdminPage() {
             }
             setShowForm(false);
             setEditItem(null);
+            queryClient.invalidateQueries({ queryKey: ["ebook"] });
             await loadItems();
         } catch (error) {
             console.error("Erro ao salvar e-book:", error);
@@ -474,6 +499,8 @@ export default function PainelAdminPage() {
                                 <EbookForm
                                     editItem={editItem}
                                     onSubmit={handleEbookSubmit}
+                                    usedOrders={allEbooks.map(ebook => ebook.order)}
+                                    defaultOrder={editItem?.order || firstAvailableEbookOrder}
                                     onCancel={() => {
                                         setShowForm(false);
                                         setEditItem(null);
@@ -490,7 +517,8 @@ export default function PainelAdminPage() {
                                         setEditItem(null);
                                     }}
                                     isLoading={isSubmitting}
-                                    relativeEbook={contentTab === "mini-livro" && !editItem ? (allEbooks[selectedEbookIndex]?.order ?? null) : undefined}
+                                    ebookId={contentTab === "mini-livro" ? (editItem ? editItem.ebookId : selectedEbook?.id ?? null) : undefined}
+                                    partOrder={contentTab === "mini-livro" ? (editItem ? editItem.partOrder : selectedPart.order) : undefined}
                                 />
                             )
                         ) : (
@@ -516,7 +544,7 @@ export default function PainelAdminPage() {
                                 ) : SORTABLE_TYPES.has(contentTab) ? (
                                     <SortableContentTable
                                         items={contentTab === "mini-livro"
-                                            ? items.filter(ml => ml.relativeEbook === (allEbooks[selectedEbookIndex]?.order ?? null))
+                                            ? items.filter(ml => ml.partOrder === selectedPart.order)
                                             : items}
                                         onEdit={handleEdit}
                                         onDelete={handleDelete}
@@ -525,6 +553,7 @@ export default function PainelAdminPage() {
                                         type={contentTab as ContentType}
                                         selectedEbookIndex={selectedEbookIndex}
                                         onEbookChange={setSelectedEbookIndex}
+                                        ebooks={allEbooks}
                                     />
                                 ) : (
                                     <ContentTable

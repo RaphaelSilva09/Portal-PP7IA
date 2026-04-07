@@ -1,6 +1,7 @@
 "use client";
 
 import { GlassCard } from "@/components/ui";
+import { MINI_LIVRO_PARTS, getMiniLivroPartLabel } from "@/constants/miniLivros";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import { BIBLIOTECA_TEMAS } from "@/domain/entities/BibliotecaItem";
 import {
@@ -23,12 +24,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { File, FileText, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const MINI_LIVRO_EBOOK_TABS = [
-    "Parte I — Liderança Híbrida",
-    "Parte II — A Coragem de Executar",
-    "Parte III — O Que Fica",
-] as const;
-
 interface SortableContentTableProps {
     items: ContentItem[];
     onEdit: (item: ContentItem) => void;
@@ -38,6 +33,7 @@ interface SortableContentTableProps {
     type?: ContentType;
     selectedEbookIndex?: number;
     onEbookChange?: (index: number) => void;
+    ebooks?: { order: number; title: string }[];
 }
 
 interface SortableRowProps {
@@ -128,7 +124,7 @@ function SortableRow({ item, position, onEdit, onDelete, isBiblioteca, isReorder
     );
 }
 
-export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastUpdated, type, selectedEbookIndex = 0, onEbookChange }: SortableContentTableProps) {
+export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastUpdated, type, selectedEbookIndex = 0, onEbookChange, ebooks = [] }: SortableContentTableProps) {
     const [localItems, setLocalItems] = useState<ContentItem[]>(items);
     const [isReordering, setIsReordering] = useState(false);
     const isBiblioteca = type === "biblioteca";
@@ -169,9 +165,9 @@ export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastU
                 <div className="px-4 py-2 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-glass)]">
                     {type === "mini-livro" && onEbookChange ? (
                         <div className="flex flex-wrap gap-2">
-                            {MINI_LIVRO_EBOOK_TABS.map((label, i) => (
+                            {MINI_LIVRO_PARTS.map((part, i) => (
                                 <button
-                                    key={i}
+                                    key={part.order}
                                     onClick={() => onEbookChange(i)}
                                     className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                                         i === selectedEbookIndex
@@ -179,7 +175,7 @@ export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastU
                                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)]"
                                     }`}
                                 >
-                                    {label}
+                                    {getMiniLivroPartLabel(part, ebooks.find(e => e.order === part.order))}
                                 </button>
                             ))}
                         </div>
