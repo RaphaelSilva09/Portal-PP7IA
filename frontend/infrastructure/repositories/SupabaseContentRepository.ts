@@ -33,6 +33,17 @@ const TABLE_MAP: Record<ContentType, string> = {
 const INDEXABLE_TYPES = new Set<ContentType>(["newsletter", "mini-livro", "biblioteca", "especial-semana", "radar_oportunidades", "estudar"]);
 
 /**
+ * Remove campos com valor undefined do payload antes de enviar ao Supabase.
+ * Evita erros PGRST204 por campos não reconhecidos e mantém o contrato com o schema.
+ *
+ * Princípio aplicado:
+ * - Defensive Programming: payload limpo antes de qualquer operação de escrita
+ */
+function cleanInsertData(data: Record<string, unknown>): Record<string, unknown> {
+    return Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined));
+}
+
+/**
  * Ordena itens por index: index > 0 crescente primeiro, index = 0 por created_at DESC.
  */
 function sortByIndex(items: ContentItem[]): ContentItem[] {
@@ -104,9 +115,11 @@ export class SupabaseContentRepository implements IContentRepository {
     async create(type: ContentType, input: CreateContentInput): Promise<ContentItem> {
         const table = TABLE_MAP[type];
 
-        // Ebook tem colunas extras no banco — montar objeto de insert apropriado
+        // Ebook tem colunas extras no banco — montar objeto de insert apropriado.
+        // Ebooks: created_at tem DEFAULT now() no banco, não é necessário enviar.
+        // Demais tabelas: created_at é NOT NULL sem DEFAULT, deve ser enviado explicitamente.
         const now = new Date().toISOString();
-        const insertData: Record<string, unknown> =
+        const rawInsertData: Record<string, unknown> =
             type === "ebook"
                 ? {
                       title: input.title,
@@ -116,7 +129,7 @@ export class SupabaseContentRepository implements IContentRepository {
                       badge_text: input.badgeText ?? null,
                       cover_image_path: input.coverImagePath ?? null,
                       cover_pdf_path: input.coverPdfPath ?? null,
-                      created_at: now,
+                      // created_at omitido: DEFAULT now() no banco
                   }
                 : type === "biblioteca"
                   ? {
@@ -137,6 +150,8 @@ export class SupabaseContentRepository implements IContentRepository {
                           read_time: input.readTime ?? null,
                           created_at: now,
                       };
+
+        const insertData = cleanInsertData(rawInsertData);
 
         const { data, error } = await supabase.from(table).insert(insertData).select().single();
         if (error || !data) throw new Error(`Falha ao criar ${type}: ${error?.message}`);
