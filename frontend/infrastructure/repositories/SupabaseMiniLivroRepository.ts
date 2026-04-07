@@ -25,7 +25,7 @@ interface SupabaseMiniLivroRow {
     html_path: string | null;
     pdf_path: string | null;
     read_time: number;
-    relative_ebook: number | null;
+    ebook_id: number | null;
     index: number;
 }
 
@@ -118,7 +118,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,
             readTime: row.read_time,
-            relativeEbook: row.relative_ebook ?? null,
+            ebookId: row.ebook_id ?? null,
             index: row.index ?? 0,
         };
         return MiniLivro.create(props);

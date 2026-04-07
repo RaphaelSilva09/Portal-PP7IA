@@ -111,7 +111,7 @@ export default function BentoGridMiniLivros() {
 
     const selectedEbook = allEbooks[selectedEbookIndex] ?? null;
     const ebookMiniLivros = selectedEbook
-        ? allMiniLivros.filter(ml => ml.relativeEbook === selectedEbook.order)
+        ? allMiniLivros.filter(ml => ml.ebookId === selectedEbook.id)
         : [];
     const featuredMiniLivro = ebookMiniLivros[0] ?? null;
     const gridMiniLivros = ebookMiniLivros.slice(1);

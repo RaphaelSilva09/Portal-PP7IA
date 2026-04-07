@@ -18,7 +18,8 @@ export interface MiniLivroProps {
     htmlPath: string | null;
     pdfPath: string | null;
     readTime: number;
-    relativeEbook: number | null;
+    /** ID do ebook ao qual este mini-livro pertence (FK para ebooks.id) */
+    ebookId: number | null;
     index: number;
 }
 
@@ -63,8 +64,8 @@ export class MiniLivro {
         return this.props.createdAt;
     }
 
-    get relativeEbook(): number | null {
-        return this.props.relativeEbook ?? null;
+    get ebookId(): number | null {
+        return this.props.ebookId ?? null;
     }
 
     get index(): number {

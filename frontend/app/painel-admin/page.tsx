@@ -219,7 +219,7 @@ export default function PainelAdminPage() {
         });
     };
 
-    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; relativeEbook?: number | null }) => {
+    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; ebookId?: number | null }) => {
         setIsSubmitting(true);
         try {
             if (editItem) {
@@ -249,7 +249,7 @@ export default function PainelAdminPage() {
                     htmlFile: data.htmlFile,
                     pdfFile: data.pdfFile,
                     tema: data.tema,
-                    relativeEbook: data.relativeEbook,
+                    ebookId: data.ebookId,
                 });
                 setFeedback({
                     show: true,
@@ -490,7 +490,7 @@ export default function PainelAdminPage() {
                                         setEditItem(null);
                                     }}
                                     isLoading={isSubmitting}
-                                    relativeEbook={contentTab === "mini-livro" && !editItem ? (allEbooks[selectedEbookIndex]?.order ?? null) : undefined}
+                                    ebookId={contentTab === "mini-livro" && !editItem ? (allEbooks[selectedEbookIndex]?.id ?? null) : undefined}
                                 />
                             )
                         ) : (
@@ -516,7 +516,7 @@ export default function PainelAdminPage() {
                                 ) : SORTABLE_TYPES.has(contentTab) ? (
                                     <SortableContentTable
                                         items={contentTab === "mini-livro"
-                                            ? items.filter(ml => ml.relativeEbook === (allEbooks[selectedEbookIndex]?.order ?? null))
+                                            ? items.filter(ml => ml.ebookId === (allEbooks[selectedEbookIndex]?.id ?? null))
                                             : items}
                                         onEdit={handleEdit}
                                         onDelete={handleDelete}

@@ -29,7 +29,8 @@ export interface ContentItemProps {
     readTime: number;
     index?: number;
     // MiniLivro-specific fields
-    relativeEbook?: number | null;
+    /** ID do ebook ao qual este mini-livro pertence (FK para ebooks.id) */
+    ebookId?: number | null;
     // Biblioteca-specific fields
     tema?: string | null;
     // Ebook-specific fields
@@ -119,8 +120,8 @@ export class ContentItem {
         return this.props.index ?? 0;
     }
 
-    get relativeEbook(): number | null {
-        return this.props.relativeEbook ?? null;
+    get ebookId(): number | null {
+        return this.props.ebookId ?? null;
     }
 
     /**
