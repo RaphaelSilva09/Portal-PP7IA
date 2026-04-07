@@ -25,7 +25,7 @@ interface SupabaseEbookRow {
     intro_pdf_path: string | null;
     badge_text: string | null;
     read_time: number;
-    order: number;
+    order: number | null;
 }
 
 export class SupabaseEbookRepository implements IEbookRepository {
@@ -96,7 +96,7 @@ export class SupabaseEbookRepository implements IEbookRepository {
             introPdfPath: row.intro_pdf_path ?? null,
             badgeText: row.badge_text ?? null,
             readTime: row.read_time,
-            order: row.order,
+            order: row.order ?? 0,
         };
         return Ebook.create(props);
     }

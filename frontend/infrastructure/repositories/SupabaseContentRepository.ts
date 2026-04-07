@@ -70,7 +70,8 @@ function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
         readTime: row.read_time as number,
         index: (row.index as number) ?? 0,
         // MiniLivro-specific fields
-        relativeEbook: isMiniLivro ? (row.relative_ebook as number | null) : null,
+        ebookId: isMiniLivro ? ((row.ebook_id as number | null) ?? null) : null,
+        partOrder: isMiniLivro ? (((row.part_order as number | null) ?? (row.relative_ebook as number | null)) ?? 1) : null,
         // Biblioteca-specific fields
         tema: isBiblioteca ? (row.tema as string | null) : null,
         // Ebook-specific fields
@@ -79,6 +80,7 @@ function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
         badgeText: isEbook ? (row.badge_text as string | null) : null,
         coverImagePath: isEbook ? (row.cover_image_path as string | null) : null,
         coverPdfPath: isEbook ? (row.cover_pdf_path as string | null) : null,
+        order: isEbook ? ((row.order as number | null) ?? 0) : null,
     });
 }
 
@@ -93,8 +95,9 @@ export class SupabaseContentRepository implements IContentRepository {
             }
             const items = data.map(row => mapRow(type, row));
             if (INDEXABLE_TYPES.has(type)) return sortByIndex(items);
-            // ebook: sem coluna index, ordenar por id DESC
-            return items.sort((a, b) => b.id - a.id);
+            return type === "ebook"
+                ? items.sort((a, b) => a.order - b.order)
+                : items.sort((a, b) => b.id - a.id);
         } catch (error) {
             console.error(`Erro inesperado ao buscar ${type}:`, error);
             return [];
@@ -129,6 +132,7 @@ export class SupabaseContentRepository implements IContentRepository {
                       badge_text: input.badgeText ?? null,
                       cover_image_path: input.coverImagePath ?? null,
                       cover_pdf_path: input.coverPdfPath ?? null,
+                      order: input.order ?? 0,
                       // created_at omitido: DEFAULT now() no banco
                   }
                 : type === "biblioteca"
@@ -142,7 +146,8 @@ export class SupabaseContentRepository implements IContentRepository {
                     ? {
                           title: input.title,
                           read_time: input.readTime ?? null,
-                          relative_ebook: input.relativeEbook ?? null,
+                          ebook_id: input.ebookId ?? null,
+                          part_order: input.partOrder ?? 1,
                           created_at: now,
                       }
                     : {
@@ -174,10 +179,16 @@ export class SupabaseContentRepository implements IContentRepository {
             if (input.badgeText !== undefined) updateData.badge_text = input.badgeText;
             if (input.coverImagePath !== undefined) updateData.cover_image_path = input.coverImagePath;
             if (input.coverPdfPath !== undefined) updateData.cover_pdf_path = input.coverPdfPath;
+            if (input.order !== undefined) updateData.order = input.order;
         } else if (type === "biblioteca") {
             if (input.htmlPath !== undefined) updateData.html_path = input.htmlPath;
             if (input.pdfPath !== undefined) updateData.pdf_path = input.pdfPath;
             if (input.tema !== undefined) updateData.tema = input.tema;
+        } else if (type === "mini-livro") {
+            if (input.htmlPath !== undefined) updateData.html_path = input.htmlPath;
+            if (input.pdfPath !== undefined) updateData.pdf_path = input.pdfPath;
+            if (input.ebookId !== undefined) updateData.ebook_id = input.ebookId;
+            if (input.partOrder !== undefined) updateData.part_order = input.partOrder ?? 1;
         } else {
             if (input.htmlPath !== undefined) updateData.html_path = input.htmlPath;
             if (input.pdfPath !== undefined) updateData.pdf_path = input.pdfPath;
