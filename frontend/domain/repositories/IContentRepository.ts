@@ -16,7 +16,8 @@ export interface CreateContentInput {
     title: string;
     readTime?: number;
     // Campos específicos de mini-livro
-    relativeEbook?: number | null;
+    ebookId?: number | null;
+    partOrder?: number | null;
     // Campos específicos de biblioteca
     tema?: string | null;
     // Campos específicos de ebook
@@ -25,6 +26,7 @@ export interface CreateContentInput {
     badgeText?: string | null;
     coverImagePath?: string | null;
     coverPdfPath?: string | null;
+    order?: number | null;
 }
 
 export interface UpdateContentInput {
@@ -32,6 +34,9 @@ export interface UpdateContentInput {
     readTime?: number;
     htmlPath?: string | null;
     pdfPath?: string | null;
+    // Campos especÃ­ficos de mini-livro
+    ebookId?: number | null;
+    partOrder?: number | null;
     // Campos específicos de biblioteca
     tema?: string | null;
     // Campos específicos de ebook
@@ -40,6 +45,7 @@ export interface UpdateContentInput {
     badgeText?: string | null;
     coverImagePath?: string | null;
     coverPdfPath?: string | null;
+    order?: number | null;
 }
 
 export interface IContentRepository {
