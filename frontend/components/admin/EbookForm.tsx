@@ -19,7 +19,7 @@
 
 import { GlassCard, GradientButton } from "@/components/ui";
 import type { ContentItem } from "@/domain/entities/ContentItem";
-import { toEbookSlug } from "@/lib/slug";
+import { EBOOK_PART_SLUGS } from "@/infrastructure/config/storage.config";
 import { AlertCircle, Upload, X } from "lucide-react";
 import { useState } from "react";
 
@@ -174,11 +174,6 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                         className={INPUT_CLASS}
                         placeholder="Digite o título do e-book..."
                     />
-                    {title.trim() && (
-                        <p className="mt-1 text-xs text-[var(--text-secondary)]/60 font-mono">
-                            Pasta no bucket: mini-livros/ebook/{toEbookSlug(title.trim())}/
-                        </p>
-                    )}
                 </div>
 
                 {/* Parte — só exibe ao criar (ao editar, order não muda) */}
@@ -196,6 +191,11 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                             <option value="2">Parte II — A Coragem de Executar</option>
                             <option value="3">Parte III — O Que Fica</option>
                         </select>
+                        {order && (
+                            <p className="mt-1 text-xs text-[var(--text-secondary)]/60 font-mono">
+                                Pasta no bucket: mini-livros/ebook/{EBOOK_PART_SLUGS[parseInt(order)]}/
+                            </p>
+                        )}
                     </div>
                 )}
 
