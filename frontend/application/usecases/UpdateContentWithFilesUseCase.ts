@@ -18,7 +18,8 @@
 import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import { EBOOK_INTRO_HTML_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
+import { toEbookSlug } from "@/lib/slug";
+import { EBOOK_BASE_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export interface UpdateContentWithFilesInput {
     type: ContentType;
@@ -59,36 +60,39 @@ export class UpdateContentWithFilesUseCase {
         try {
             if (isEbook) {
                 // --- Fluxo Ebook ---
+                // Slug: extrai do path existente para manter consistência com arquivos já salvos.
+                // Se não houver arquivos ainda, deriva do título atual.
+                const existingPath = existingContent.htmlPath ?? existingContent.coverImagePath ?? null;
+                const slugFromPath = existingPath?.match(/mini-livros\/ebook\/([^/]+)\//)?.[1] ?? null;
+                const slug = slugFromPath ?? toEbookSlug(existingContent.title);
+                const base = `${EBOOK_BASE_FOLDER}/${slug}`;
+
                 let introHtmlPath = existingContent.htmlPath;
                 let introPdfPath = existingContent.pdfPath;
                 let coverImagePath = existingContent.coverImagePath;
                 let coverPdfPath = existingContent.coverPdfPath;
 
-                // Intro HTML → mini-livros/intros/ (sobrescreve)
                 if (input.htmlFile) {
-                    const htmlKey = `${EBOOK_INTRO_HTML_FOLDER}/${formattedId}.html`;
+                    const htmlKey = `${base}/introducao_${slug}.html`;
                     await this.storageRepository.upload(STORAGE_BUCKET, htmlKey, input.htmlFile);
                     introHtmlPath = `/${STORAGE_BUCKET}/${htmlKey}`;
                 }
 
-                // Intro PDF → ebooks/ (sobrescreve)
                 if (input.pdfFile) {
-                    const pdfKey = `${folder}/${formattedId}-intro.pdf`;
+                    const pdfKey = `${base}/introducao_${slug}.pdf`;
                     await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
                     introPdfPath = `/${STORAGE_BUCKET}/${pdfKey}`;
                 }
 
-                // Capa imagem → ebooks/ (sobrescreve)
                 if (input.coverImageFile) {
                     const ext = input.coverImageFile.name.split(".").pop() ?? "jpg";
-                    const imgKey = `${folder}/${formattedId}-capa.${ext}`;
+                    const imgKey = `${base}/capa_${slug}.${ext}`;
                     await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
                     coverImagePath = `/${STORAGE_BUCKET}/${imgKey}`;
                 }
 
-                // Capa PDF → ebooks/ (sobrescreve)
                 if (input.coverPdfFile) {
-                    const capaPdfKey = `${folder}/${formattedId}-capa.pdf`;
+                    const capaPdfKey = `${base}/capa_${slug}.pdf`;
                     await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
                     coverPdfPath = `/${STORAGE_BUCKET}/${capaPdfKey}`;
                 }
