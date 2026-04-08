@@ -19,8 +19,7 @@
 import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import { toEbookSlug } from "@/lib/slug";
-import { EBOOK_BASE_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
+import { EBOOK_BASE_FOLDER, EBOOK_PART_SLUGS, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export interface CreateContentWithUploadInput {
     type: ContentType;
@@ -79,7 +78,8 @@ export class CreateContentWithUploadUseCase {
                 //   introducao_{slug}.pdf
                 //   capa_{slug}.{ext}
                 //   capa_{slug}.pdf
-                const slug = toEbookSlug(input.title);
+                const slug = EBOOK_PART_SLUGS[input.order!];
+                if (!slug) throw new Error(`Parte inválida para ebook: ${input.order}`);
                 const base = `${EBOOK_BASE_FOLDER}/${slug}`;
 
                 let introHtmlPath: string | null = null;

@@ -18,8 +18,7 @@
 import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import { toEbookSlug } from "@/lib/slug";
-import { EBOOK_BASE_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
+import { EBOOK_BASE_FOLDER, EBOOK_PART_SLUGS, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export interface UpdateContentWithFilesInput {
     type: ContentType;
@@ -60,11 +59,13 @@ export class UpdateContentWithFilesUseCase {
         try {
             if (isEbook) {
                 // --- Fluxo Ebook ---
-                // Slug: extrai do path existente para manter consistência com arquivos já salvos.
-                // Se não houver arquivos ainda, deriva do título atual.
+                // Slug fixo determinado pela parte do ebook (order).
+                // Fallback: extrai do path existente para ebooks criados antes desta regra.
                 const existingPath = existingContent.htmlPath ?? existingContent.coverImagePath ?? null;
                 const slugFromPath = existingPath?.match(/mini-livros\/ebook\/([^/]+)\//)?.[1] ?? null;
-                const slug = slugFromPath ?? toEbookSlug(existingContent.title);
+                const slugFromOrder = existingContent.ebookOrder != null ? EBOOK_PART_SLUGS[existingContent.ebookOrder] : null;
+                const slug = slugFromOrder ?? slugFromPath;
+                if (!slug) throw new Error(`Não foi possível determinar o slug do ebook #${input.id}`);
                 const base = `${EBOOK_BASE_FOLDER}/${slug}`;
 
                 let introHtmlPath = existingContent.htmlPath;
