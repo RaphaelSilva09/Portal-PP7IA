@@ -70,8 +70,7 @@ function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
         readTime: row.read_time as number,
         index: (row.index as number) ?? 0,
         // MiniLivro-specific fields
-        ebookId: isMiniLivro ? ((row.ebook_id as number | null) ?? null) : null,
-        partOrder: isMiniLivro ? (((row.part_order as number | null) ?? (row.relative_ebook as number | null)) ?? 1) : null,
+        ebookId: isMiniLivro ? (row.ebook_id as number | null) : null,
         // Biblioteca-specific fields
         tema: isBiblioteca ? (row.tema as string | null) : null,
         // Ebook-specific fields
@@ -147,7 +146,6 @@ export class SupabaseContentRepository implements IContentRepository {
                           title: input.title,
                           read_time: input.readTime ?? null,
                           ebook_id: input.ebookId ?? null,
-                          part_order: input.partOrder ?? 1,
                           created_at: now,
                       }
                     : {

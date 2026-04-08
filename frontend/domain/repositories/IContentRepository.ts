@@ -16,8 +16,8 @@ export interface CreateContentInput {
     title: string;
     readTime?: number;
     // Campos específicos de mini-livro
+    /** ID do ebook ao qual este mini-livro pertence (FK para ebooks.id) */
     ebookId?: number | null;
-    partOrder?: number | null;
     // Campos específicos de biblioteca
     tema?: string | null;
     // Campos específicos de ebook

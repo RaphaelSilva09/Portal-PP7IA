@@ -25,14 +25,13 @@ import { useState } from "react";
 interface ContentFormProps {
     type: ContentType;
     editItem?: ContentItem | null;
-    onSubmit: (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; ebookId?: number | null; partOrder?: number | null }) => Promise<void>;
+    onSubmit: (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; ebookId?: number | null }) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
     ebookId?: number | null;
-    partOrder?: number | null;
 }
 
-export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebookId, partOrder }: ContentFormProps) {
+export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebookId }: ContentFormProps) {
     const [title, setTitle] = useState(editItem?.title || "");
     const [readTime, setReadTime] = useState(editItem?.readTime?.toString() || "");
     const [tema, setTema] = useState<BibliotecaTema>((editItem?.tema as BibliotecaTema) || "diversos");
@@ -59,7 +58,6 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
             pdfFile: pdfFile || undefined,
             tema: type === "biblioteca" ? tema : undefined,
             ebookId: type === "mini-livro" ? (ebookId ?? null) : undefined,
-            partOrder: type === "mini-livro" ? (partOrder ?? 1) : undefined,
         });
     };
 

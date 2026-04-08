@@ -28,8 +28,8 @@ export interface CreateContentWithUploadInput {
     htmlFile?: File;
     pdfFile?: File;
     // MiniLivro-specific fields
+    /** ID do ebook ao qual este mini-livro pertence (FK para ebooks.id) */
     ebookId?: number | null;
-    partOrder?: number | null;
     // Biblioteca-specific fields
     tema?: string;
     // Ebook-specific fields
@@ -56,7 +56,6 @@ export class CreateContentWithUploadUseCase {
             title: input.title,
             readTime: input.readTime,
             ebookId: input.ebookId,
-            partOrder: input.partOrder,
             tema: input.tema,
             subtitle: input.subtitle,
             description: input.description,

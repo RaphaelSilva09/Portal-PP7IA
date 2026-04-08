@@ -119,8 +119,7 @@ export default function PainelAdminPage() {
     const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
 
     const { all: allEbooks } = useEbook();
-    const selectedPart = MINI_LIVRO_PARTS[selectedEbookIndex] ?? MINI_LIVRO_PARTS[0];
-    const selectedEbook = allEbooks.find(ebook => ebook.order === selectedPart.order) ?? null;
+    const selectedEbook = allEbooks[selectedEbookIndex] ?? null;
     const firstAvailableEbookOrder = MINI_LIVRO_PARTS.find(part => !allEbooks.some(ebook => ebook.order === part.order))?.order ?? MINI_LIVRO_PARTS[0].order;
 
     // Feedback e confirmação (compartilhado por todas seções)
@@ -227,7 +226,7 @@ export default function PainelAdminPage() {
         });
     };
 
-    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; ebookId?: number | null; partOrder?: number | null }) => {
+    const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; ebookId?: number | null }) => {
         setIsSubmitting(true);
         try {
             if (editItem) {
@@ -243,9 +242,6 @@ export default function PainelAdminPage() {
                     tema: data.tema,
                     ebookId: contentTab === "mini-livro"
                         ? ("ebookId" in data ? data.ebookId : editItem.ebookId)
-                        : undefined,
-                    partOrder: contentTab === "mini-livro"
-                        ? ("partOrder" in data ? data.partOrder : editItem.partOrder)
                         : undefined,
                 });
                 setFeedback({
@@ -264,7 +260,6 @@ export default function PainelAdminPage() {
                     pdfFile: data.pdfFile,
                     tema: data.tema,
                     ebookId: data.ebookId,
-                    partOrder: data.partOrder,
                 });
                 setFeedback({
                     show: true,
@@ -517,8 +512,7 @@ export default function PainelAdminPage() {
                                         setEditItem(null);
                                     }}
                                     isLoading={isSubmitting}
-                                    ebookId={contentTab === "mini-livro" ? (editItem ? editItem.ebookId : selectedEbook?.id ?? null) : undefined}
-                                    partOrder={contentTab === "mini-livro" ? (editItem ? editItem.partOrder : selectedPart.order) : undefined}
+                                    ebookId={contentTab === "mini-livro" && !editItem ? (allEbooks[selectedEbookIndex]?.id ?? null) : undefined}
                                 />
                             )
                         ) : (
@@ -544,7 +538,7 @@ export default function PainelAdminPage() {
                                 ) : SORTABLE_TYPES.has(contentTab) ? (
                                     <SortableContentTable
                                         items={contentTab === "mini-livro"
-                                            ? items.filter(ml => ml.partOrder === selectedPart.order)
+                                            ? items.filter(ml => ml.ebookId === (allEbooks[selectedEbookIndex]?.id ?? null))
                                             : items}
                                         onEdit={handleEdit}
                                         onDelete={handleDelete}

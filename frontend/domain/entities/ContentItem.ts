@@ -29,8 +29,8 @@ export interface ContentItemProps {
     readTime: number;
     index?: number;
     // MiniLivro-specific fields
+    /** ID do ebook ao qual este mini-livro pertence (FK para ebooks.id) */
     ebookId?: number | null;
-    partOrder?: number | null;
     // Biblioteca-specific fields
     tema?: string | null;
     // Ebook-specific fields
@@ -123,10 +123,6 @@ export class ContentItem {
 
     get ebookId(): number | null {
         return this.props.ebookId ?? null;
-    }
-
-    get partOrder(): number {
-        return this.props.partOrder ?? 1;
     }
 
     get order(): number {
