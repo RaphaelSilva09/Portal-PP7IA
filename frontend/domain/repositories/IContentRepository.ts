@@ -18,9 +18,13 @@ export interface CreateContentInput {
     // Campos específicos de mini-livro
     /** ID do ebook ao qual este mini-livro pertence (FK para ebooks.id) */
     ebookId?: number | null;
+    /** Parte à qual o mini-livro pertence (1=Parte I, 2=Parte II, 3=Parte III) */
+    partOrder?: number;
     // Campos específicos de biblioteca
     tema?: string | null;
     // Campos específicos de ebook
+    /** Ordem do ebook nas abas (1=Parte I, 2=Parte II, 3=Parte III) */
+    order?: number;
     subtitle?: string | null;
     description?: string | null;
     badgeText?: string | null;
