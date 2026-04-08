@@ -21,6 +21,8 @@ export interface MiniLivroProps {
     /** ID do ebook ao qual este mini-livro pertence (FK para ebooks.id) */
     ebookId: number | null;
     index: number;
+    /** Parte à qual o mini-livro pertence (1=Parte I, 2=Parte II, 3=Parte III) */
+    partOrder: number;
 }
 
 export class MiniLivro {
@@ -70,6 +72,10 @@ export class MiniLivro {
 
     get index(): number {
         return this.props.index;
+    }
+
+    get partOrder(): number {
+        return this.props.partOrder ?? 1;
     }
 
     /**
