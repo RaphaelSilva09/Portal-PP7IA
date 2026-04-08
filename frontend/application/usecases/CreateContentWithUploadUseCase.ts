@@ -88,28 +88,32 @@ export class CreateContentWithUploadUseCase {
                 let coverPdfPath: string | null = null;
 
                 if (input.htmlFile) {
+                    // Path relativo mantido: o proxy-html extrai o slug dele para construir a URL pública.
                     const htmlKey = `${base}/introducao_${slug}.html`;
                     await this.storageRepository.upload(STORAGE_BUCKET, htmlKey, input.htmlFile);
                     introHtmlPath = `/${STORAGE_BUCKET}/${htmlKey}`;
                 }
 
                 if (input.pdfFile) {
+                    // URL pública: acessado diretamente pelo browser.
                     const pdfKey = `${base}/introducao_${slug}.pdf`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
-                    introPdfPath = `/${STORAGE_BUCKET}/${pdfKey}`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
+                    introPdfPath = result.publicUrl;
                 }
 
                 if (input.coverImageFile) {
+                    // URL pública: exibida em <img src>.
                     const ext = input.coverImageFile.name.split(".").pop() ?? "jpg";
                     const imgKey = `${base}/capa_${slug}.${ext}`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
-                    coverImagePath = `/${STORAGE_BUCKET}/${imgKey}`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
+                    coverImagePath = result.publicUrl;
                 }
 
                 if (input.coverPdfFile) {
+                    // URL pública: acessada via <a href>.
                     const capaPdfKey = `${base}/capa_${slug}.pdf`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
-                    coverPdfPath = `/${STORAGE_BUCKET}/${capaPdfKey}`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
+                    coverPdfPath = result.publicUrl;
                 }
 
                 await this.contentRepository.update(input.type, contentId, {

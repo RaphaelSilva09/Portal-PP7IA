@@ -74,6 +74,7 @@ export class UpdateContentWithFilesUseCase {
                 let coverPdfPath = existingContent.coverPdfPath;
 
                 if (input.htmlFile) {
+                    // Path relativo mantido: o proxy-html extrai o slug dele para construir a URL pública.
                     const htmlKey = `${base}/introducao_${slug}.html`;
                     await this.storageRepository.upload(STORAGE_BUCKET, htmlKey, input.htmlFile);
                     introHtmlPath = `/${STORAGE_BUCKET}/${htmlKey}`;
@@ -81,21 +82,21 @@ export class UpdateContentWithFilesUseCase {
 
                 if (input.pdfFile) {
                     const pdfKey = `${base}/introducao_${slug}.pdf`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
-                    introPdfPath = `/${STORAGE_BUCKET}/${pdfKey}`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
+                    introPdfPath = result.publicUrl;
                 }
 
                 if (input.coverImageFile) {
                     const ext = input.coverImageFile.name.split(".").pop() ?? "jpg";
                     const imgKey = `${base}/capa_${slug}.${ext}`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
-                    coverImagePath = `/${STORAGE_BUCKET}/${imgKey}`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
+                    coverImagePath = result.publicUrl;
                 }
 
                 if (input.coverPdfFile) {
                     const capaPdfKey = `${base}/capa_${slug}.pdf`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
-                    coverPdfPath = `/${STORAGE_BUCKET}/${capaPdfKey}`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
+                    coverPdfPath = result.publicUrl;
                 }
 
                 return await this.contentRepository.update(input.type, input.id, {
