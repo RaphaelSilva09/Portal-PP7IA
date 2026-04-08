@@ -74,7 +74,8 @@ const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
     "especial-semana": { bucket: "materiais", folder: "especial-da-semana" },
     radar_oportunidades: { bucket: "materiais", folder: "radar-de-oportunidades" },
     estudar: { bucket: "materiais", folder: "estudar" },
-    ebook: { bucket: "materiais", folder: "mini-livros/intros" },
+    // ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
+    ebook: { bucket: "materiais", folder: "mini-livros/ebook" },
     book: { bucket: "materiais", folder: "mini-livros/livro" },
 };
 
@@ -111,7 +112,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
         // Constrói URL do Supabase Storage
         const config = STORAGE_CONFIG[type];
-        const fileName = `${slug}.html`;
+        // Ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
+        const fileName = type === "ebook" ? `${slug}/introducao_${slug}.html` : `${slug}.html`;
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
         if (!supabaseUrl) {
