@@ -80,6 +80,7 @@ function mapRow(type: ContentType, row: Record<string, unknown>): ContentItem {
         badgeText: isEbook ? (row.badge_text as string | null) : null,
         coverImagePath: isEbook ? (row.cover_image_path as string | null) : null,
         coverPdfPath: isEbook ? (row.cover_pdf_path as string | null) : null,
+        ebookOrder: isEbook ? (row.order as number | null) : null,
     });
 }
 
