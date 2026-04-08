@@ -66,18 +66,14 @@ export class Ebook {
     get introHtmlPath(): string | null {
         const rawPath = this.props.introHtmlPath?.trim();
         if (!rawPath) return null;
-        
-        // Se for um HTML hospedado no Supabase Storage (final .html)
-        // usamos a rota interna /view proxy do Next.js
-        if (rawPath.endsWith('.html')) {
-            const match = rawPath.match(/\/([^/]+)\.html$/);
-            if (match) {
-                const slug = match[1];
-                return `/view/ebook/${slug}`;
-            }
+
+        // Extrai slug da estrutura mini-livros/ebook/{slug}/introducao_{slug}.html
+        const match = rawPath.match(/\/ebook\/([^/]+)\//);
+        if (match) {
+            return `/view/ebook/${match[1]}`;
         }
-        
-        // Caso contrário (ex: um PDF ou link externo), devolve cru
+
+        // Fallback: devolve cru (link externo ou formato não reconhecido)
         return rawPath;
     }
 

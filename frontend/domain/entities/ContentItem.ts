@@ -41,6 +41,8 @@ export interface ContentItemProps {
     badgeText?: string | null;
     coverImagePath?: string | null;
     coverPdfPath?: string | null;
+    /** Parte do ebook (1, 2 ou 3). Apenas para type === "ebook". */
+    ebookOrder?: number | null;
 }
 
 export class ContentItem {
@@ -116,6 +118,10 @@ export class ContentItem {
 
     get coverPdfPath(): string | null {
         return this.props.coverPdfPath?.trim() || null;
+    }
+
+    get ebookOrder(): number | null {
+        return this.props.ebookOrder ?? null;
     }
 
     get index(): number {

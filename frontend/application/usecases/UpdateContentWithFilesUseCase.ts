@@ -18,7 +18,7 @@
 import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import { EBOOK_INTRO_HTML_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
+import { EBOOK_BASE_FOLDER, EBOOK_PART_SLUGS, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export interface UpdateContentWithFilesInput {
     type: ContentType;
@@ -59,38 +59,44 @@ export class UpdateContentWithFilesUseCase {
         try {
             if (isEbook) {
                 // --- Fluxo Ebook ---
+                // Slug fixo determinado pela parte do ebook (order).
+                // Fallback: extrai do path existente para ebooks criados antes desta regra.
+                const existingPath = existingContent.htmlPath ?? existingContent.coverImagePath ?? null;
+                const slugFromPath = existingPath?.match(/mini-livros\/ebook\/([^/]+)\//)?.[1] ?? null;
+                const slugFromOrder = existingContent.ebookOrder != null ? EBOOK_PART_SLUGS[existingContent.ebookOrder] : null;
+                const slug = slugFromOrder ?? slugFromPath;
+                if (!slug) throw new Error(`Não foi possível determinar o slug do ebook #${input.id}`);
+                const base = `${EBOOK_BASE_FOLDER}/${slug}`;
+
                 let introHtmlPath = existingContent.htmlPath;
                 let introPdfPath = existingContent.pdfPath;
                 let coverImagePath = existingContent.coverImagePath;
                 let coverPdfPath = existingContent.coverPdfPath;
 
-                // Intro HTML → mini-livros/intros/ (sobrescreve)
                 if (input.htmlFile) {
-                    const htmlKey = `${EBOOK_INTRO_HTML_FOLDER}/${formattedId}.html`;
+                    // Path relativo mantido: o proxy-html extrai o slug dele para construir a URL pública.
+                    const htmlKey = `${base}/introducao_${slug}.html`;
                     await this.storageRepository.upload(STORAGE_BUCKET, htmlKey, input.htmlFile);
                     introHtmlPath = `/${STORAGE_BUCKET}/${htmlKey}`;
                 }
 
-                // Intro PDF → ebooks/ (sobrescreve)
                 if (input.pdfFile) {
-                    const pdfKey = `${folder}/${formattedId}-intro.pdf`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
-                    introPdfPath = `/${STORAGE_BUCKET}/${pdfKey}`;
+                    const pdfKey = `${base}/introducao_${slug}.pdf`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
+                    introPdfPath = result.publicUrl;
                 }
 
-                // Capa imagem → ebooks/ (sobrescreve)
                 if (input.coverImageFile) {
                     const ext = input.coverImageFile.name.split(".").pop() ?? "jpg";
-                    const imgKey = `${folder}/${formattedId}-capa.${ext}`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
-                    coverImagePath = `/${STORAGE_BUCKET}/${imgKey}`;
+                    const imgKey = `${base}/capa_${slug}.${ext}`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
+                    coverImagePath = result.publicUrl;
                 }
 
-                // Capa PDF → ebooks/ (sobrescreve)
                 if (input.coverPdfFile) {
-                    const capaPdfKey = `${folder}/${formattedId}-capa.pdf`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
-                    coverPdfPath = `/${STORAGE_BUCKET}/${capaPdfKey}`;
+                    const capaPdfKey = `${base}/capa_${slug}.pdf`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
+                    coverPdfPath = result.publicUrl;
                 }
 
                 return await this.contentRepository.update(input.type, input.id, {

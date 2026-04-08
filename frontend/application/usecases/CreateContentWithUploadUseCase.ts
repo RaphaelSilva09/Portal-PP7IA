@@ -19,7 +19,7 @@
 import type { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import { EBOOK_INTRO_HTML_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
+import { EBOOK_BASE_FOLDER, EBOOK_PART_SLUGS, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export interface CreateContentWithUploadInput {
     type: ContentType;
@@ -73,38 +73,47 @@ export class CreateContentWithUploadUseCase {
         try {
             if (isEbook) {
                 // --- Fluxo Ebook ---
+                // Estrutura: materiais/mini-livros/ebook/{slug}/
+                //   introducao_{slug}.html
+                //   introducao_{slug}.pdf
+                //   capa_{slug}.{ext}
+                //   capa_{slug}.pdf
+                const slug = EBOOK_PART_SLUGS[input.order!];
+                if (!slug) throw new Error(`Parte inválida para ebook: ${input.order}`);
+                const base = `${EBOOK_BASE_FOLDER}/${slug}`;
+
                 let introHtmlPath: string | null = null;
                 let introPdfPath: string | null = null;
                 let coverImagePath: string | null = null;
                 let coverPdfPath: string | null = null;
 
-                // Intro HTML → mini-livros/intros/
                 if (input.htmlFile) {
-                    const htmlKey = `${EBOOK_INTRO_HTML_FOLDER}/${formattedId}.html`;
+                    // Path relativo mantido: o proxy-html extrai o slug dele para construir a URL pública.
+                    const htmlKey = `${base}/introducao_${slug}.html`;
                     await this.storageRepository.upload(STORAGE_BUCKET, htmlKey, input.htmlFile);
                     introHtmlPath = `/${STORAGE_BUCKET}/${htmlKey}`;
                 }
 
-                // Intro PDF → ebooks/
                 if (input.pdfFile) {
-                    const pdfKey = `${folder}/${formattedId}-intro.pdf`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
-                    introPdfPath = `/${STORAGE_BUCKET}/${pdfKey}`;
+                    // URL pública: acessado diretamente pelo browser.
+                    const pdfKey = `${base}/introducao_${slug}.pdf`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, pdfKey, input.pdfFile);
+                    introPdfPath = result.publicUrl;
                 }
 
-                // Capa imagem → ebooks/
                 if (input.coverImageFile) {
+                    // URL pública: exibida em <img src>.
                     const ext = input.coverImageFile.name.split(".").pop() ?? "jpg";
-                    const imgKey = `${folder}/${formattedId}-capa.${ext}`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
-                    coverImagePath = `/${STORAGE_BUCKET}/${imgKey}`;
+                    const imgKey = `${base}/capa_${slug}.${ext}`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, imgKey, input.coverImageFile);
+                    coverImagePath = result.publicUrl;
                 }
 
-                // Capa PDF → ebooks/
                 if (input.coverPdfFile) {
-                    const capaPdfKey = `${folder}/${formattedId}-capa.pdf`;
-                    await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
-                    coverPdfPath = `/${STORAGE_BUCKET}/${capaPdfKey}`;
+                    // URL pública: acessada via <a href>.
+                    const capaPdfKey = `${base}/capa_${slug}.pdf`;
+                    const result = await this.storageRepository.upload(STORAGE_BUCKET, capaPdfKey, input.coverPdfFile);
+                    coverPdfPath = result.publicUrl;
                 }
 
                 await this.contentRepository.update(input.type, contentId, {

@@ -17,7 +17,7 @@
 import type { ContentType } from "@/domain/entities/ContentItem";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 import type { IStorageRepository } from "@/domain/repositories/IStorageRepository";
-import { EBOOK_INTRO_HTML_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
+import { EBOOK_BASE_FOLDER, STORAGE_BUCKET, STORAGE_PATHS } from "@/infrastructure/config/storage.config";
 
 export class DeleteContentWithFilesUseCase {
     constructor(
@@ -38,15 +38,21 @@ export class DeleteContentWithFilesUseCase {
 
         // 2. Deletar arquivos do storage (ignora erros se não existirem)
         if (type === "ebook") {
-            // Ebook: múltiplos arquivos em caminhos distintos
-            const filesToDelete = [
-                `${EBOOK_INTRO_HTML_FOLDER}/${formattedId}.html`,
-                `${folder}/${formattedId}-intro.pdf`,
-                `${folder}/${formattedId}-capa.pdf`,
-                `${folder}/${formattedId}-capa.jpg`,
-                `${folder}/${formattedId}-capa.png`,
-                `${folder}/${formattedId}-capa.webp`,
-            ];
+            // Extrai slug da pasta do ebook a partir dos paths salvos no banco.
+            const existingPath = content.htmlPath ?? content.coverImagePath ?? null;
+            const slug = existingPath?.match(/\/ebook\/([^/]+)\//)?.[1] ?? null;
+
+            const filesToDelete = slug
+                ? [
+                    `${EBOOK_BASE_FOLDER}/${slug}/introducao_${slug}.html`,
+                    `${EBOOK_BASE_FOLDER}/${slug}/introducao_${slug}.pdf`,
+                    `${EBOOK_BASE_FOLDER}/${slug}/capa_${slug}.pdf`,
+                    `${EBOOK_BASE_FOLDER}/${slug}/capa_${slug}.jpg`,
+                    `${EBOOK_BASE_FOLDER}/${slug}/capa_${slug}.png`,
+                    `${EBOOK_BASE_FOLDER}/${slug}/capa_${slug}.webp`,
+                ]
+                : [];
+
             for (const filePath of filesToDelete) {
                 try {
                     await this.storageRepository.delete(STORAGE_BUCKET, filePath);

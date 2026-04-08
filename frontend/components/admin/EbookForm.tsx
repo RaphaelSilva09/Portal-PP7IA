@@ -19,6 +19,7 @@
 
 import { GlassCard, GradientButton } from "@/components/ui";
 import type { ContentItem } from "@/domain/entities/ContentItem";
+import { EBOOK_PART_SLUGS } from "@/infrastructure/config/storage.config";
 import { AlertCircle, Upload, X } from "lucide-react";
 import { useState } from "react";
 
@@ -190,6 +191,11 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                             <option value="2">Parte II — A Coragem de Executar</option>
                             <option value="3">Parte III — O Que Fica</option>
                         </select>
+                        {order && (
+                            <p className="mt-1 text-xs text-[var(--text-secondary)]/60 font-mono">
+                                Pasta no bucket: mini-livros/ebook/{EBOOK_PART_SLUGS[parseInt(order)]}/
+                            </p>
+                        )}
                     </div>
                 )}
 
