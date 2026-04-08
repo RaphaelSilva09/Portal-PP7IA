@@ -250,6 +250,7 @@ export default function PainelAdminPage() {
                     pdfFile: data.pdfFile,
                     tema: data.tema,
                     ebookId: data.ebookId,
+                    partOrder: contentTab === "mini-livro" ? selectedEbookIndex + 1 : undefined,
                 });
                 setFeedback({
                     show: true,
@@ -323,6 +324,7 @@ export default function PainelAdminPage() {
                     subtitle: data.subtitle,
                     description: data.description,
                     badgeText: data.badgeText,
+                    order: data.order,
                     htmlFile: data.introHtmlFile,
                     pdfFile: data.introPdfFile,
                     coverImageFile: data.coverImageFile,
@@ -490,7 +492,7 @@ export default function PainelAdminPage() {
                                         setEditItem(null);
                                     }}
                                     isLoading={isSubmitting}
-                                    ebookId={contentTab === "mini-livro" && !editItem ? (allEbooks[selectedEbookIndex]?.id ?? null) : undefined}
+                                    ebookId={contentTab === "mini-livro" && !editItem ? (allEbooks.find(e => e.order === selectedEbookIndex + 1)?.id ?? null) : undefined}
                                 />
                             )
                         ) : (
@@ -516,7 +518,7 @@ export default function PainelAdminPage() {
                                 ) : SORTABLE_TYPES.has(contentTab) ? (
                                     <SortableContentTable
                                         items={contentTab === "mini-livro"
-                                            ? items.filter(ml => ml.ebookId === (allEbooks[selectedEbookIndex]?.id ?? null))
+                                            ? items.filter(ml => ml.partOrder === selectedEbookIndex + 1)
                                             : items}
                                         onEdit={handleEdit}
                                         onDelete={handleDelete}

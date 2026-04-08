@@ -27,6 +27,7 @@ interface SupabaseMiniLivroRow {
     read_time: number;
     ebook_id: number | null;
     index: number;
+    part_order: number;
 }
 
 /**
@@ -120,6 +121,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
             readTime: row.read_time,
             ebookId: row.ebook_id ?? null,
             index: row.index ?? 0,
+            partOrder: row.part_order ?? 1,
         };
         return MiniLivro.create(props);
     }

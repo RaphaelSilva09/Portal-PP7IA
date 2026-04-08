@@ -24,6 +24,7 @@ import { useState } from "react";
 
 export interface EbookFormData {
     title: string;
+    order?: number;
     subtitle?: string;
     description?: string;
     badgeText?: string;
@@ -109,6 +110,7 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange, isEd
 
 export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookFormProps) {
     const [title, setTitle] = useState(editItem?.title || "");
+    const [order, setOrder] = useState<string>("");
     const [subtitle, setSubtitle] = useState(editItem?.subtitle || "");
     const [description, setDescription] = useState(editItem?.description || "");
     const [badgeText, setBadgeText] = useState(editItem?.badgeText || "");
@@ -127,6 +129,12 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
         e.preventDefault();
         setFormatError("");
 
+        // Validação: Ao criar, Parte obrigatória
+        if (!isEditing && !order) {
+            setFormatError("Selecione a Parte do e-book (I, II ou III)");
+            return;
+        }
+
         // Validação: Ao criar, pelo menos intro HTML ou capa imagem
         if (!isEditing && !introHtmlFile && !coverImageFile) {
             setFormatError("Envie pelo menos o HTML de introdução ou a imagem de capa");
@@ -135,6 +143,7 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
 
         await onSubmit({
             title,
+            order: order ? parseInt(order, 10) : undefined,
             subtitle: subtitle || undefined,
             description: description || undefined,
             badgeText: badgeText || undefined,
@@ -165,6 +174,24 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                         placeholder="Digite o título do e-book..."
                     />
                 </div>
+
+                {/* Parte — só exibe ao criar (ao editar, order não muda) */}
+                {!isEditing && (
+                    <div>
+                        <label className={LABEL_CLASS}>Parte *</label>
+                        <select
+                            value={order}
+                            onChange={e => setOrder(e.target.value)}
+                            required
+                            className={INPUT_CLASS}
+                        >
+                            <option value="">Selecione a parte...</option>
+                            <option value="1">Parte I — Liderança Híbrida</option>
+                            <option value="2">Parte II — A Coragem de Executar</option>
+                            <option value="3">Parte III — O Que Fica</option>
+                        </select>
+                    </div>
+                )}
 
                 {/* Subtítulo */}
                 <div>
