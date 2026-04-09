@@ -42,6 +42,8 @@ export class SupabaseAuthRepository implements IAuthRepository {
      */
     async signUp(params: SignUpParams): Promise<AuthResult> {
         try {
+            const emailRedirectTo = this.buildEmailConfirmationRedirectUrl();
+
             // 1. Cria usuário no Supabase Auth
             // O trigger handle_new_user() vai criar o perfil automaticamente
             const { data: authData, error: authError } = await this.supabase.auth.signUp({
@@ -54,6 +56,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
                         accept_email_updates: params.acceptEmailUpdates,
                         accept_whatsapp_updates: params.acceptWhatsAppUpdates,
                     },
+                    ...(emailRedirectTo ? { emailRedirectTo } : {}),
                 },
             });
 
@@ -593,6 +596,37 @@ export class SupabaseAuthRepository implements IAuthRepository {
             id,
             ...data,
         });
+    }
+
+    /**
+     * Monta a URL absoluta usada pelo Supabase para redirecionar a confirmação
+     * de email ao endpoint server-side da aplicação.
+     */
+    private buildEmailConfirmationRedirectUrl(): string | undefined {
+        const siteUrl = this.resolveSiteUrl();
+
+        if (!siteUrl) {
+            return undefined;
+        }
+
+        const redirectUrl = new URL("/auth/confirm", siteUrl);
+        redirectUrl.searchParams.set("next", "/home");
+
+        return redirectUrl.toString();
+    }
+
+    private resolveSiteUrl(): string | undefined {
+        const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim();
+
+        if (configuredSiteUrl) {
+            return configuredSiteUrl;
+        }
+
+        if (typeof window !== "undefined" && window.location.origin) {
+            return window.location.origin;
+        }
+
+        return undefined;
     }
 
     /**

@@ -167,6 +167,39 @@ describe('SupabaseAuthRepository', () => {
                 })
             ).rejects.toBeInstanceOf(UserAlreadyExistsError);
         });
+
+        it('inclui emailRedirectTo apontando para /auth/confirm', async () => {
+            process.env.NEXT_PUBLIC_SITE_URL = 'https://portal.example.com';
+
+            mockClient.auth.signUp.mockResolvedValue({
+                data: {
+                    user: {
+                        id: 'u1',
+                        identities: [{}],
+                    },
+                    session: null,
+                },
+                error: null,
+            });
+
+            const result = await repo.signUp({
+                email: 'new@example.com',
+                password: '123456',
+                nome: 'User',
+                celular: '11999999999',
+                acceptEmailUpdates: true,
+                acceptWhatsAppUpdates: false,
+            });
+
+            expect(result.emailConfirmationRequired).toBe(true);
+            expect(mockClient.auth.signUp).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    options: expect.objectContaining({
+                        emailRedirectTo: 'https://portal.example.com/auth/confirm?next=%2Fhome',
+                    }),
+                }),
+            );
+        });
     });
 
     describe('getCurrentUser', () => {
