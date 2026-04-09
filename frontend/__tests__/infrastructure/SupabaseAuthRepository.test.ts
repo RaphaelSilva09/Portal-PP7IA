@@ -45,6 +45,8 @@ describe('SupabaseAuthRepository', () => {
     beforeEach(() => {
         mockClient = createMockSupabaseClient();
         repo = new SupabaseAuthRepository(mockClient as any);
+        delete process.env.NEXT_PUBLIC_SITE_URL;
+        delete process.env.NEXT_PUBLIC_APP_URL;
     });
 
     describe('signIn', () => {
@@ -195,7 +197,40 @@ describe('SupabaseAuthRepository', () => {
             expect(mockClient.auth.signUp).toHaveBeenCalledWith(
                 expect.objectContaining({
                     options: expect.objectContaining({
-                        emailRedirectTo: 'https://portal.example.com/auth/confirm?next=%2Fhome',
+                        emailRedirectTo: 'https://portal.example.com/auth/confirm',
+                    }),
+                }),
+            );
+        });
+
+        it('com NEXT_PUBLIC_SITE_URL inválida usa origin do browser como fallback sem quebrar signUp', async () => {
+            process.env.NEXT_PUBLIC_SITE_URL = 'portal.example.com';
+
+            mockClient.auth.signUp.mockResolvedValue({
+                data: {
+                    user: {
+                        id: 'u1',
+                        identities: [{}],
+                    },
+                    session: null,
+                },
+                error: null,
+            });
+
+            const result = await repo.signUp({
+                email: 'new@example.com',
+                password: '123456',
+                nome: 'User',
+                celular: '11999999999',
+                acceptEmailUpdates: true,
+                acceptWhatsAppUpdates: false,
+            });
+
+            expect(result.emailConfirmationRequired).toBe(true);
+            expect(mockClient.auth.signUp).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    options: expect.objectContaining({
+                        emailRedirectTo: expect.stringContaining('/auth/confirm'),
                     }),
                 }),
             );

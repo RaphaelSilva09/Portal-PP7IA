@@ -14,6 +14,14 @@ import { createBrowserClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+type StorageLike = {
+    getItem: (key: string) => string | null;
+    setItem: (key: string, value: string) => void;
+    removeItem: (key: string) => void;
+};
+
+const AUTH_STORAGE_KEY_FRAGMENT = "auth-token";
+
 /**
  * Creates fetch wrapper with timeout support using AbortController
  * Prevents hanging requests that never resolve/reject
@@ -46,6 +54,70 @@ function createFetchWithTimeout(timeoutMs: number = 10000): typeof fetch {
     };
 }
 
+function createSafeBrowserStorage(): StorageLike {
+    if (typeof window === "undefined") {
+        return {
+            getItem: () => null,
+            setItem: () => {},
+            removeItem: () => {},
+        };
+    }
+
+    return {
+        getItem(key) {
+            const value = window.localStorage.getItem(key);
+
+            if (!value || !key.includes(AUTH_STORAGE_KEY_FRAGMENT)) {
+                return value;
+            }
+
+            try {
+                const parsed = JSON.parse(value);
+                return parsed == null ? null : value;
+            } catch {
+                window.localStorage.removeItem(key);
+                return null;
+            }
+        },
+        setItem(key, value) {
+            window.localStorage.setItem(key, value);
+        },
+        removeItem(key) {
+            window.localStorage.removeItem(key);
+        },
+    };
+}
+
+function sanitizeCorruptedAuthStorageEntries(): void {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+        const key = window.localStorage.key(index);
+
+        if (!key || !key.includes(AUTH_STORAGE_KEY_FRAGMENT)) {
+            continue;
+        }
+
+        const value = window.localStorage.getItem(key);
+
+        if (!value) {
+            continue;
+        }
+
+        try {
+            const parsed = JSON.parse(value);
+
+            if (parsed == null) {
+                window.localStorage.removeItem(key);
+            }
+        } catch {
+            window.localStorage.removeItem(key);
+        }
+    }
+}
+
 /**
  * Cria e configura cliente Supabase com timeout global
  * Singleton Pattern (implícito via ES modules)
@@ -61,7 +133,12 @@ function createSupabaseClient(): SupabaseClient {
         );
     }
 
+    sanitizeCorruptedAuthStorageEntries();
+
     return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+            storage: createSafeBrowserStorage(),
+        },
         global: {
             fetch: createFetchWithTimeout(10000), // 10-second timeout for all requests
         },
