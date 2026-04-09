@@ -61,3 +61,4 @@ coverage/
 #AI helpers
 .claude/
 CLAUDE.md
+.vercel
