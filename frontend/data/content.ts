@@ -103,7 +103,7 @@ export const allContent: ContentItem[] = [
 
 /**
  * Busca conteúdo por termo
- * @param query - Termo de busca (mínimo 2 caracteres)
+ * @param query - Termo de busca (mínimo 3 caracteres)
  * @param filter - Filtro por tipo (opcional)
  * @returns Array de itens encontrados
  */
@@ -111,7 +111,7 @@ export function searchContent(
     query: string,
     filter?: "all" | "newsletter" | "mini-livro" | "biblioteca",
 ): ContentItem[] {
-    if (query.length < 2) return [];
+    if (query.length < 3) return [];
 
     const normalizedQuery = query.toLowerCase().trim();
 
