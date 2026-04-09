@@ -21,8 +21,8 @@ describe('useSearch', () => {
         vi.useRealTimers();
     });
 
-    it('query < 2 chars → results=[], sem loading', () => {
-        const { result } = renderHook(() => useSearch('a', 'all'));
+    it('query < 3 chars → results=[], sem loading', () => {
+        const { result } = renderHook(() => useSearch('te', 'all'));
 
         expect(result.current.results).toEqual([]);
         expect(result.current.isLoading).toBe(false);
@@ -36,19 +36,19 @@ describe('useSearch', () => {
         expect(result.current.isLoading).toBe(false);
     });
 
-    it('query ≥ 2 chars → isLoading=true imediatamente', () => {
+    it('query ≥ 3 chars → isLoading=true imediatamente', () => {
         mockExecute.mockResolvedValue([]);
 
-        const { result } = renderHook(() => useSearch('te', 'all'));
+        const { result } = renderHook(() => useSearch('tes', 'all'));
 
         expect(result.current.isLoading).toBe(true);
     });
 
-    it('query ≥ 2 chars → após 300ms chama use case e seta resultados', async () => {
+    it('query ≥ 3 chars → após 300ms chama use case e seta resultados', async () => {
         const mockResults = [{ id: '1', title: 'Result 1', type: 'newsletter' as const, category: '' }];
         mockExecute.mockResolvedValue(mockResults);
 
-        const { result } = renderHook(() => useSearch('te', 'all'));
+        const { result } = renderHook(() => useSearch('tes', 'all'));
 
         expect(result.current.isLoading).toBe(true);
 
@@ -68,14 +68,14 @@ describe('useSearch', () => {
 
         const { result, rerender } = renderHook(
             ({ query }: { query: string }) => useSearch(query, 'all'),
-            { initialProps: { query: 'te' } }
+            { initialProps: { query: 'tes' } }
         );
 
         expect(result.current.isLoading).toBe(true);
 
         // Advance 100ms (timer1 still pending), then change query
         act(() => { vi.advanceTimersByTime(100); });
-        rerender({ query: 'tes' });
+        rerender({ query: 'test' });
 
         // Run all remaining timers (fires timer2, clears timer1)
         await act(async () => {

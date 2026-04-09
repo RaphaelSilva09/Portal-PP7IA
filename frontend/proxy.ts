@@ -36,6 +36,14 @@ function redirectToHome(request: NextRequest): NextResponse {
     return NextResponse.redirect(new URL(HOME_ROUTE, request.url));
 }
 
+function copyResponseCookies(source: NextResponse, target: NextResponse): NextResponse {
+    source.cookies.getAll().forEach(cookie => {
+        target.cookies.set(cookie);
+    });
+
+    return target;
+}
+
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
@@ -69,16 +77,15 @@ export async function proxy(request: NextRequest) {
         },
     );
 
-    // 1. Verifica sessão autenticada
-    // OTIMIZAÇÃO: getSession() valida localmente primeiro (JWT cache),
-    // evitando requests desnecessários ao servidor em toda navegação
+    // 1. Verifica usuário autenticado com validação server-side.
+    // Em SSR, getUser() é mais confiável que getSession() para proteger rotas.
     const {
-        data: { session },
-    } = await supabase.auth.getSession();
+        data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session?.user && (isAuthRoute || isAdminRoute)) {
+    if (!user && (isAuthRoute || isAdminRoute)) {
         const hasCookie = request.cookies.getAll().some(c => c.name.includes('supabase'));
-        console.log('[Auth:proxy] session null on protected route', {
+        console.log('[Auth:proxy] user null on protected route', {
             pathname,
             hasCookie,
             userAgent: request.headers.get('user-agent'),
@@ -87,19 +94,25 @@ export async function proxy(request: NextRequest) {
 
     // Landing page: logado vai para /home, anônimo renderiza normalmente
     if (isRootRoute) {
-        if (session?.user) return NextResponse.redirect(new URL(HOME_ROUTE, request.url));
-        return NextResponse.next();
+        if (user) {
+            return copyResponseCookies(supabaseResponse, NextResponse.redirect(new URL(HOME_ROUTE, request.url)));
+        }
+
+        return supabaseResponse;
     }
 
     // Homepage autenticada: anônimo volta para /
     if (isHomeRoute) {
-        if (!session?.user) return NextResponse.redirect(new URL("/", request.url));
+        if (!user) {
+            return copyResponseCookies(supabaseResponse, NextResponse.redirect(new URL("/", request.url)));
+        }
+
         return supabaseResponse;
     }
 
     // 2. Rotas protegidas: requer autenticação
-    if (!session?.user) {
-        return redirectToLogin(request);
+    if (!user) {
+        return copyResponseCookies(supabaseResponse, redirectToLogin(request));
     }
 
     // 3. Para rotas de usuário, autenticação é suficiente
@@ -108,10 +121,10 @@ export async function proxy(request: NextRequest) {
     }
 
     // 4. Para rotas admin, verifica role no JWT (app_metadata)
-    const isAdmin = session.user.app_metadata?.role === "admin";
+    const isAdmin = user.app_metadata?.role === "admin";
 
     if (!isAdmin) {
-        return redirectToHome(request);
+        return copyResponseCookies(supabaseResponse, redirectToHome(request));
     }
 
     return supabaseResponse;
