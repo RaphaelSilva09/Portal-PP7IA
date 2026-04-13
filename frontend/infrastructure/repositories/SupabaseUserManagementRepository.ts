@@ -75,6 +75,7 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
                         lastSignInAt: string | null;
                         acceptEmailUpdates: boolean;
                         acceptWhatsappUpdates: boolean;
+                        emailVerified: boolean;
                     }) => ({
                         ...row,
                         createdAt: new Date(row.createdAt),
@@ -113,6 +114,7 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
                 lastSignInAt: null,
                 acceptEmailUpdates: data.accept_email_updates,
                 acceptWhatsappUpdates: data.accept_whatsapp_updates,
+                emailVerified: false,
             };
         } catch (err) {
             console.error("Erro ao buscar usuário por ID:", err);
@@ -209,6 +211,48 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
         } catch (err) {
             console.error("Erro inesperado ao contar usuários:", err);
             return 0;
+        }
+    }
+
+    async getUsersByDate(date: Date): Promise<UserListItem[]> {
+        try {
+            const token = await this.getBearerToken();
+            const dateStr = date.toISOString().slice(0, 10);
+
+            const response = await fetch(`/api/admin/users?date=${dateStr}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                console.error("Erro ao buscar cadastros por data:", response.status);
+                return [];
+            }
+
+            const json = await response.json();
+
+            return (json.users ?? []).map(
+                (row: {
+                    id: string;
+                    email: string;
+                    nome: string;
+                    celular: string;
+                    isAdmin: boolean;
+                    createdAt: string;
+                    lastSignInAt: string | null;
+                    acceptEmailUpdates: boolean;
+                    acceptWhatsappUpdates: boolean;
+                    emailVerified: boolean;
+                }) => ({
+                    ...row,
+                    createdAt: new Date(row.createdAt),
+                    lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
+                }),
+            );
+        } catch (err) {
+            console.error("Erro inesperado ao buscar cadastros por data:", err);
+            return [];
         }
     }
 

@@ -21,6 +21,7 @@ import { DeleteUserAndDataUseCase } from "../../application/usecases/DeleteUserA
 import { DemoteUserFromAdminUseCase } from "../../application/usecases/DemoteUserFromAdminUseCase";
 import { GetActiveBookUseCase } from "../../application/usecases/GetActiveBookUseCase";
 import { GetUsersUseCase } from "../../application/usecases/GetAllUsersUseCase";
+import { GetTodayRegistrationsUseCase } from "../../application/usecases/GetTodayRegistrationsUseCase";
 import { GetBibliotecaUseCase } from "../../application/usecases/GetBibliotecaUseCase";
 import { GetCurrentUserUseCase } from "../../application/usecases/GetCurrentUserUseCase";
 import { GetDashboardStatsUseCase } from "../../application/usecases/GetDashboardStatsUseCase";
@@ -363,6 +364,10 @@ class DIContainer {
 
     static getDeleteUserAndDataUseCase(): DeleteUserAndDataUseCase {
         return new DeleteUserAndDataUseCase(this.getUserManagementRepository());
+    }
+
+    static getTodayRegistrationsUseCase(): GetTodayRegistrationsUseCase {
+        return new GetTodayRegistrationsUseCase(this.getUserManagementRepository());
     }
 
     /**
