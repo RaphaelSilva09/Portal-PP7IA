@@ -104,9 +104,15 @@ export async function GET(request: NextRequest) {
             });
 
         if (dateFilter && /^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
+            // BRT = UTC-3, fixo desde 2019 (sem horário de verão)
+            // Meia-noite BRT = 03:00 UTC; o dia BRT termina 24h depois
+            const BRT_OFFSET_HOURS = 3;
+            const [y, m, d] = dateFilter.split("-").map(Number);
+            const startUTC = new Date(Date.UTC(y, m - 1, d, BRT_OFFSET_HOURS, 0, 0, 0));
+            const endUTC = new Date(startUTC.getTime() + 24 * 60 * 60 * 1000 - 1);
             query = query
-                .gte("created_at", `${dateFilter}T00:00:00.000Z`)
-                .lte("created_at", `${dateFilter}T23:59:59.999Z`)
+                .gte("created_at", startUTC.toISOString())
+                .lte("created_at", endUTC.toISOString())
                 .order("created_at", { ascending: false });
         } else {
             query = query
