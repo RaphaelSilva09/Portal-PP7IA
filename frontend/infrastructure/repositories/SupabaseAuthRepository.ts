@@ -609,21 +609,32 @@ export class SupabaseAuthRepository implements IAuthRepository {
             return undefined;
         }
 
-        const redirectUrl = new URL("/auth/confirm", siteUrl);
-        redirectUrl.searchParams.set("next", "/home");
+        try {
+            const redirectUrl = new URL("/auth/confirm", siteUrl);
 
-        return redirectUrl.toString();
+            return redirectUrl.toString();
+        } catch {
+            return undefined;
+        }
     }
 
     private resolveSiteUrl(): string | undefined {
-        const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim();
+        const candidates = [
+            process.env.NEXT_PUBLIC_SITE_URL?.trim(),
+            process.env.NEXT_PUBLIC_APP_URL?.trim(),
+            typeof window !== "undefined" ? window.location.origin : undefined,
+        ];
 
-        if (configuredSiteUrl) {
-            return configuredSiteUrl;
-        }
+        for (const candidate of candidates) {
+            if (!candidate) {
+                continue;
+            }
 
-        if (typeof window !== "undefined" && window.location.origin) {
-            return window.location.origin;
+            try {
+                return new URL(candidate).toString();
+            } catch {
+                continue;
+            }
         }
 
         return undefined;

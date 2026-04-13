@@ -17,6 +17,7 @@ import { GlassCard } from "@/components/ui";
 import DIContainer from "@/infrastructure/di/container";
 import { BookOpen, Clock, Sparkles, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { TodayRegistrations } from "./TodayRegistrations";
 
 interface DashboardStats {
     totalUsers: number;
@@ -108,6 +109,8 @@ export function Dashboard() {
                     </GlassCard>
                 ))}
             </div>
+
+            <TodayRegistrations />
         </div>
     );
 }

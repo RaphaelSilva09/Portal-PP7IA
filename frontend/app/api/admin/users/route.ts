@@ -74,6 +74,7 @@ export async function GET(request: NextRequest) {
         const rawPageSize = parseInt(searchParams.get("pageSize") ?? "25", 10);
         const pageSize = VALID_PAGE_SIZES.includes(rawPageSize) ? rawPageSize : 25;
         const search = searchParams.get("search")?.trim() ?? "";
+        const dateFilter = searchParams.get("date")?.trim() ?? "";
 
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
@@ -88,22 +89,43 @@ export async function GET(request: NextRequest) {
         const lastSignInMap = new Map<string, string | null>(
             (authData?.users ?? []).map(u => [u.id, u.last_sign_in_at ?? null]),
         );
+        // Mapa de userId -> emailVerified (email_confirmed_at presente)
+        const emailVerifiedMap = new Map<string, boolean>(
+            (authData?.users ?? []).map(u => [u.id, !!u.email_confirmed_at]),
+        );
 
-        // 2. Buscar usuários paginados de public.users ordenados alfabeticamente
+        // 2. Buscar usuários de public.users
+        // Se dateFilter presente: filtra pelo dia completo (UTC) e ordena do mais recente ao mais antigo
+        // Caso contrário: paginação alfabética padrão
         let query = supabase
             .from("users")
             .select("id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates", {
                 count: "exact",
-            })
-            .order("nome", { ascending: true, nullsFirst: false })
-            .order("email", { ascending: true })
-            .range(from, to);
+            });
 
-        // Busca server-side por nome ou email
-        // Remove caracteres especiais do PostgREST para evitar injeção de operadores
-        if (search) {
-            const safeSearch = search.replace(/[.,();%]/g, "");
-            query = query.or(`nome.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`);
+        if (dateFilter && /^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
+            // BRT = UTC-3, fixo desde 2019 (sem horário de verão)
+            // Meia-noite BRT = 03:00 UTC; o dia BRT termina 24h depois
+            const BRT_OFFSET_HOURS = 3;
+            const [y, m, d] = dateFilter.split("-").map(Number);
+            const startUTC = new Date(Date.UTC(y, m - 1, d, BRT_OFFSET_HOURS, 0, 0, 0));
+            const endUTC = new Date(startUTC.getTime() + 24 * 60 * 60 * 1000 - 1);
+            query = query
+                .gte("created_at", startUTC.toISOString())
+                .lte("created_at", endUTC.toISOString())
+                .order("created_at", { ascending: false });
+        } else {
+            query = query
+                .order("nome", { ascending: true, nullsFirst: false })
+                .order("email", { ascending: true })
+                .range(from, to);
+
+            // Busca server-side por nome ou email
+            // Remove caracteres especiais do PostgREST para evitar injeção de operadores
+            if (search) {
+                const safeSearch = search.replace(/[.,();%]/g, "");
+                query = query.or(`nome.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`);
+            }
         }
 
         const { data: usersData, count, error } = await query;
@@ -123,6 +145,7 @@ export async function GET(request: NextRequest) {
             lastSignInAt: lastSignInMap.get(row.id) ?? null,
             acceptEmailUpdates: row.accept_email_updates,
             acceptWhatsappUpdates: row.accept_whatsapp_updates,
+            emailVerified: emailVerifiedMap.get(row.id) ?? false,
         }));
 
         return NextResponse.json({

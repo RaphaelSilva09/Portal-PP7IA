@@ -20,6 +20,7 @@ export interface UserListItem {
     lastSignInAt: Date | null;
     acceptEmailUpdates: boolean;
     acceptWhatsappUpdates: boolean;
+    emailVerified: boolean;
 }
 
 export interface UpdateUserParams {
@@ -101,4 +102,11 @@ export interface IUserManagementRepository {
      * @returns Quantidade de novos usuários no período
      */
     countNewUsers(days: number): Promise<number>;
+
+    /**
+     * Lista usuários cadastrados em uma data específica (dia completo, UTC)
+     * @param date - Data a filtrar
+     * @returns Lista de usuários cadastrados naquele dia, ordenados do mais recente ao mais antigo
+     */
+    getUsersByDate(date: Date): Promise<UserListItem[]>;
 }

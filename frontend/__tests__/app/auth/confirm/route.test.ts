@@ -72,6 +72,17 @@ describe('app/auth/confirm/route', () => {
         expect(response.cookies.get('sb-test-auth')?.value).toBe('cookie-value');
     });
 
+    it('redireciona para / quando exchangeCodeForSession falha', async () => {
+        mockExchangeCodeForSession.mockResolvedValueOnce({ error: { message: 'code exchange failed' } });
+
+        const response = await GET(new NextRequest('http://localhost/auth/confirm?code=auth-code-123'));
+
+        expect(mockExchangeCodeForSession).toHaveBeenCalledWith('auth-code-123');
+        expect(response.status).toBe(303);
+        expect(response.headers.get('location')).toBe('http://localhost/');
+        expect(response.cookies.get('sb-test-auth')).toBeUndefined();
+    });
+
     it('verifica o token e redireciona para /home com cookie de sessão', async () => {
         const response = await GET(new NextRequest('http://localhost/auth/confirm?token_hash=hash123&type=email'));
 
