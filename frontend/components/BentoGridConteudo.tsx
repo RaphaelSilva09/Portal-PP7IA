@@ -223,10 +223,10 @@ export default function BentoGrid() {
                             </div>
                             <div className="flex-1">
                                 <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mt-1 mb-1 tracking-tight">
-                                    Mini-Livros
+                                    Enquanto é Tempo
                                 </h4>
                                 <p className="text-text-secondary text-sm font-medium mb-0.5 tracking-tight">
-                                    Mini-guias de liderança e IA
+                                    1 Livro, 3 Ebooks, 21 Mini-livros
                                 </p>
                                 <p className="text-text-secondary text-sm tracking-tight">
                                     Leitura de 7 a 21 minutos.
