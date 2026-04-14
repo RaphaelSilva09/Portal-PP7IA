@@ -28,35 +28,35 @@ Adicionar uma camada browser-level para capturar regressoes que unit/integration
 Instale as dependencias do frontend e os browsers do Playwright:
 
 ```bash
-npm install
+pnpm install
 npx playwright install chromium
 ```
 
 Depois rode:
 
 ```bash
-npm run test:e2e
+pnpm run test:e2e
 ```
 
 Para rodar focado em mobile:
 
 ```bash
-npm run test:e2e:mobile
-npm run test:e2e:ios
-npm run test:e2e:android
+pnpm run test:e2e:mobile
+pnpm run test:e2e:ios
+pnpm run test:e2e:android
 ```
 
 Para rodar o perfil iOS com engine WebKit/Safari-like quando o host tiver as dependencias necessarias:
 
 ```bash
-npm run test:e2e:ios:safari
+pnpm run test:e2e:ios:safari
 ```
 
 Modos adicionais:
 
 ```bash
-npm run test:e2e:headed
-npm run test:e2e:ui
+pnpm run test:e2e:headed
+pnpm run test:e2e:ui
 ```
 
 ## Observacoes

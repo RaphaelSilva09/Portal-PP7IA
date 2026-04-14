@@ -73,7 +73,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ```bash
 # Instalar CLI do Supabase (se ainda não tiver)
-npm install -g supabase
+pnpm add -g supabase
 
 # Fazer login
 supabase login
@@ -136,7 +136,7 @@ Deve retornar:
 
 ```bash
 cd portal/frontend
-npm run dev
+pnpm run dev
 ```
 
 Acesse: http://localhost:3000

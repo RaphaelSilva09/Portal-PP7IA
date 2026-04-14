@@ -20,7 +20,7 @@ git clone https://github.com/RaphaelSilva09/Portal-PP7IA.git
 cd Portal-PP7IA/frontend
 
 # Install dependencies
-npm install
+pnpm install
 ```
 
 ### Step 2: Create Supabase Project (2 minutes)
@@ -73,7 +73,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ```bash
 # In frontend/ directory
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) 🎉
@@ -110,16 +110,16 @@ You should see `users`, `newsletters`, `mini-livros`, `biblioteca` tables.
 
 ```bash
 # Start development server
-npm run dev
+pnpm run dev
 
 # Build for production
-npm run build
+pnpm run build
 
 # Run linter
-npm run lint
+pnpm run lint
 
 # Run build test
-npm run build && npm run start
+pnpm run build && pnpm run start
 ```
 
 ### Important Files
@@ -174,7 +174,7 @@ netstat -ano | findstr :3000
 taskkill /PID <PID> /F
 
 # Or use a different port
-npm run dev -- -p 3001
+pnpm run dev -- -p 3001
 ```
 
 ### Page loads but styles look broken
@@ -184,7 +184,7 @@ npm run dev -- -p 3001
 2. Delete `.next` folder and restart:
    ```bash
    rm -rf .next
-   npm run dev
+   pnpm run dev
    ```
 
 ## 📚 Next Steps

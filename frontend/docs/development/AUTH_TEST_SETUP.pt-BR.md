@@ -15,7 +15,7 @@ Este guia fecha o setup necessario para rodar:
 Voce precisa ter instalado:
 
 - Node.js 20+
-- npm
+- pnpm
 - Git
 - Docker Engine + Docker Compose plugin
 
@@ -23,7 +23,7 @@ Para Linux, valide:
 
 ```bash
 node -v
-npm -v
+pnpm -v
 git --version
 docker --version
 docker compose version
@@ -34,7 +34,7 @@ docker compose version
 No diretorio `frontend/`:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Isso instala:
@@ -119,7 +119,7 @@ docker run --rm -it \
   -v "$PWD":/work \
   -w /work/frontend \
   mcr.microsoft.com/playwright:v1.59.1-noble \
-  bash -lc "npm ci && npm run test:e2e:ios:safari"
+  bash -lc "pnpm install --frozen-lockfile && pnpm run test:e2e:ios:safari"
 ```
 
 ## 5. Configurar variaveis de ambiente
@@ -201,7 +201,7 @@ Use a saida para preencher o `.env.local` do frontend com:
 No diretorio `frontend/`:
 
 ```bash
-npm run dev -- --hostname 127.0.0.1 --port 3000
+pnpm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
 ## 11. Rodar as suites de teste
@@ -209,43 +209,43 @@ npm run dev -- --hostname 127.0.0.1 --port 3000
 Vitest:
 
 ```bash
-npm test
+pnpm test
 ```
 
 Cobertura:
 
 ```bash
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 Playwright desktop:
 
 ```bash
-npm run test:e2e
+pnpm run test:e2e
 ```
 
 Playwright mobile:
 
 ```bash
-npm run test:e2e:mobile
+pnpm run test:e2e:mobile
 ```
 
 Android-like apenas:
 
 ```bash
-npm run test:e2e:android
+pnpm run test:e2e:android
 ```
 
 iPhone-like em Chromium:
 
 ```bash
-npm run test:e2e:ios
+pnpm run test:e2e:ios
 ```
 
 iOS Safari/WebKit-like:
 
 ```bash
-npm run test:e2e:ios:safari
+pnpm run test:e2e:ios:safari
 ```
 
 ## 12. Como validar confirmacao de email localmente
@@ -295,8 +295,8 @@ Verifique:
 Quando tudo estiver configurado corretamente, estes comandos devem funcionar:
 
 ```bash
-npm test
-npm run test:e2e
-npm run test:e2e:mobile
-npm run build
+pnpm test
+pnpm run test:e2e
+pnpm run test:e2e:mobile
+pnpm run build
 ```

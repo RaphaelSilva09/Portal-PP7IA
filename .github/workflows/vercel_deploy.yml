@@ -36,7 +36,7 @@ jobs:
                   fi
               shell: bash
             - name: Install Vercel CLI
-              run: npm install --global vercel@latest
+              run: pnpm add --global vercel@latest
             - name: Trigger Vercel deploy
               env:
                   MAIN_HOOK: ${{ secrets.main_hook }}

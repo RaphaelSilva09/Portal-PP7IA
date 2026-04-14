@@ -238,8 +238,8 @@ Adicionar caso de regressao focado em UX:
 
 ### Fase D - Regressao
 
-1. Rodar `npm test`.
-2. Rodar `npm run build`.
+1. Rodar `pnpm test`.
+2. Rodar `pnpm run build`.
 3. Validar fluxo manual:
    - cadastrar conta nova
    - abrir email

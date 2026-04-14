@@ -113,7 +113,7 @@ supabase/migrations/002_auto_create_profile.sql
 
 ```bash
 cd frontend
-npm run dev
+pnpm run dev
 ```
 
 ## Estrutura de Pastas

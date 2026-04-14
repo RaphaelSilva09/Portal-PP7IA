@@ -60,14 +60,14 @@ git clone https://github.com/RaphaelSilva09/Portal-PP7IA.git
 cd Portal-PP7IA/frontend
 
 # 2. Instale as dependências
-npm install
+pnpm install
 
 # 3. Configure variáveis de ambiente
 cp .env.example .env.local
 # Edit .env.local with your Supabase credentials
 
 # 4. Execute o servidor de desenvolvimento
-npm run dev
+pnpm run dev
 ```
 
 > **📖 Guia detalhado**: [Quick Start](docs/setup/QUICKSTART.md) | [Início Rápido](docs/setup/QUICKSTART.pt-BR.md)  
