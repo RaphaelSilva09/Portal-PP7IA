@@ -46,7 +46,7 @@ export const SECTIONS: Section[] = [
     },
     {
         id: "mini-livro",
-        label: "Mini-livros - Ebook - Livros",
+        label: "Mini-livros",
         subsections: [{ id: "mini-all", label: "Guias e tutoriais" }],
     },
     {

@@ -76,14 +76,14 @@ const CONTENT_QUERY_KEY: Partial<Record<ContentType, string>> = {
 };
 
 const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
-    { type: "newsletter", label: "Newsletters", icon: Newspaper },
-    { type: "mini-livro", label: "Mini-livros - Ebook - Livros", icon: BookOpen },
     { type: "biblioteca", label: "Biblioteca", icon: Library },
-    { type: "especial-semana", label: "Especial da Semana", icon: Star },
     { type: "ebook", label: "E-books", icon: BookMarked },
-    { type: "livro", label: "Livro", icon: BookText },
-    { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
+    { type: "especial-semana", label: "Especial da Semana", icon: Star },
     { type: "estudar", label: "Estudar", icon: GraduationCap },
+    { type: "livro", label: "Livro", icon: BookText },
+    { type: "mini-livro", label: "Mini-livros", icon: BookOpen },
+    { type: "newsletter", label: "Newsletters", icon: Newspaper },
+    { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
 ];
 
 interface FeedbackState {

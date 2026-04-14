@@ -38,7 +38,7 @@ const SECTION_ICONS: Record<SectionType, React.ElementType> = {
 
 const TYPE_LABEL: Record<SearchResultItem["type"], string> = {
     newsletter:        "Newsletter",
-    "mini-livro":      "Mini-livros - Ebook - Livros",
+    "mini-livro":      "Mini-livros",
     biblioteca:        "Biblioteca",
     "especial-semana": "Especial da Semana",
     radar:             "Radar",

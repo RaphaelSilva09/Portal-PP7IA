@@ -162,7 +162,7 @@ export default function BentoGridMiniLivros() {
             {/* Título e descrição da seção de e-books */}
             <div className="text-center mx-auto mb-8">
                                 <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto line-clamp-2">
-                                    Mini-livros - Ebook - Livros
+                                    Mini-livros
                                 </h3>
                 <p className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 leading-relaxed">
                     Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
