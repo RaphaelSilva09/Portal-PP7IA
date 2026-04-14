@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 
 export default function ThemeToggle() {
     const { theme, resolvedTheme, setTheme } = useTheme();
-    const isDark = (resolvedTheme ?? theme ?? "dark") === "dark";
+    const isDark = (resolvedTheme ?? theme ?? "light") === "dark";
 
     return (
         <Button
@@ -17,6 +17,7 @@ export default function ThemeToggle() {
             onClick={() => setTheme(isDark ? "light" : "dark")}
             aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
             title={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+            suppressHydrationWarning
         >
             <SunMedium className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <MoonStar className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
