@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         }
 
         // 3. Verificar configuração do Resend
-        const resendKey = process.env.RESEND_API_KEY;
+        const resendKey = process.env.INVITE_EMAIL_API_KEY;
         const emailFrom = process.env.EMAIL_FROM;
 
         if (!resendKey || !emailFrom) {
