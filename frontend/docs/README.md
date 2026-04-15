@@ -1,6 +1,5 @@
 # 📚 Frontend Documentation - Portal PP7+IA
 
-> **[Versão em Português](README.pt-BR.md)** | English Version
 
 Welcome to the frontend documentation! This index helps you navigate through all frontend-specific documentation.
 
@@ -9,13 +8,12 @@ Welcome to the frontend documentation! This index helps you navigate through all
 ###  🎨 Development
 
 - [**Design System**](development/DESIGN_SYSTEM.md) - Colors, typography, animations, and UI components
-  - [Versão em Português](development/DESIGN_SYSTEM.pt-BR.md)
+
 
 ### 🏗️ Architecture
 
 - [**Architecture Diagrams**](ARCHITECTURE_DIAGRAMS.md) - Visual architecture documentation with Mermaid diagrams
 - [**Authentication System**](../../docs/architecture/AUTHENTICATION.md) - Complete authentication documentation
-  - [Versão em Português](../../docs/architecture/AUTHENTICATION.pt-BR.md)
 
 ### 💻 Code Examples
 

@@ -2,8 +2,6 @@
 
 > Design System v3.0 — *"Less noise. More clarity."*
 
-**[Versão em Português](DESIGN_SYSTEM.pt-BR.md)** | English Version
-
 ---
 
 ## 🎨 Color Palette

@@ -1,7 +1,5 @@
 # 🔐 Authentication System - Portal PP7+IA
 
-> **[Versão em Português](AUTHENTICATION.pt-BR.md)** | English Version
-
 Complete documentation for the Portal PP7+IA authentication system built with **Clean Architecture**, **Domain-Driven Design (DDD)**, and **SOLID principles**.
 
 ## 📋 Table of Contents
