@@ -35,8 +35,6 @@ jobs:
                     echo "hook_secret=develop_hook" >> $GITHUB_OUTPUT
                   fi
               shell: bash
-            - name: Install Vercel CLI
-              run: pnpm add --global vercel@latest
             - name: Trigger Vercel deploy
               env:
                   MAIN_HOOK: ${{ secrets.main_hook }}
@@ -50,7 +48,7 @@ jobs:
                     BRANCH_NAME="develop"
                   fi
                   echo "Triggering Vercel deployment for branch: $BRANCH_NAME"
-                  curl -X POST "$DEPLOY_HOOK"
+                  curl --fail --max-time 30 -X POST "$DEPLOY_HOOK"
               shell: bash
             - name: Log successful trigger
-              run: echo "✅ Vercel deploy hook triggered successfully!"
+              run: echo "Vercel deploy hook triggered successfully!"
