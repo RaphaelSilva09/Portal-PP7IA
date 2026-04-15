@@ -1,7 +1,5 @@
 # 📚 Portal PP7+IA - Documentation
 
-> **[Versão em Português](README.pt-BR.md)** | English Version
-
 Welcome to the Portal PP7+IA documentation! This index will help you navigate through all available documentation.
 
 ## 🚀 Getting Started
@@ -75,16 +73,7 @@ This project follows industry best practices:
 - **SOLID Principles** - Maintainable and extensible code
 - **TypeScript Strict Mode** - Type safety throughout
 
-## 🌐 Language Support
-
-Documentation is available in:
-
-- 🇺🇸 **English** - Primary language
-- 🇧🇷 **Português** - Brazilian Portuguese (select files)
-
-Look for files with `.pt-BR.md` extension for Portuguese versions.
-
-## 🆘 Getting Help
+##  Getting Help
 
 - **Issues**: Check [GitHub Issues](https://github.com/RaphaelSilva09/Portal-PP7IA/issues)
 - **Installation Problems**: See [Quick Start](setup/QUICKSTART.md#troubleshooting)

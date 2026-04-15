@@ -1,7 +1,5 @@
 # ⚡ Quick Start Guide - Portal PP7+IA
 
-> **[Versão em Português](QUICKSTART.pt-BR.md)** | English Version
-
 Get the Portal PP7+IA project running locally in **5 minutes**!
 
 ## 📋 Prerequisites

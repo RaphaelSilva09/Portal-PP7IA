@@ -55,6 +55,7 @@
     "path-key": "^4.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "resend": "^6.12.0",
     "shebang-command": "^2.0.0",
     "which": "^6.0.1"
   },
