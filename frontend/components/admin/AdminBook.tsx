@@ -14,7 +14,7 @@ import { AlertCircle, Loader2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_BUCKET = "materiais";
-const STORAGE_FOLDER = "livro";
+const STORAGE_FOLDER = "mini-livros/livro";
 
 interface BookRow {
     id: number;
