@@ -1,7 +1,5 @@
 # 🔐 Authentication System - Portal PP7+IA
 
-> **[Versão em Português](AUTHENTICATION.pt-BR.md)** | English Version
-
 Complete documentation for the Portal PP7+IA authentication system built with **Clean Architecture**, **Domain-Driven Design (DDD)**, and **SOLID principles**.
 
 ## 📋 Table of Contents
@@ -80,12 +78,12 @@ The system follows **Clean Architecture** with clear separation of concerns:
 
 ### Layer Responsibilities
 
-| Layer | Responsibility | Examples |
-|-------|----------------|----------|
-| **Domain** | Business entities and rules | `User` entity, `IAuthRepository` interface |
-| **Application** | Use cases and business logic | `SignUpUseCase`, `SignInUseCase` |
-| **Infrastructure** | External services and implementations | `SupabaseAuthRepository`, DB client |
-| **Presentation** | UI components and hooks | `AuthModal`, `useAuth` hook |
+| Layer              | Responsibility                        | Examples                                   |
+| ------------------ | ------------------------------------- | ------------------------------------------ |
+| **Domain**         | Business entities and rules           | `User` entity, `IAuthRepository` interface |
+| **Application**    | Use cases and business logic          | `SignUpUseCase`, `SignInUseCase`           |
+| **Infrastructure** | External services and implementations | `SupabaseAuthRepository`, DB client        |
+| **Presentation**   | UI components and hooks               | `AuthModal`, `useAuth` hook                |
 
 ## Quick Setup
 
@@ -113,7 +111,7 @@ supabase/migrations/002_auto_create_profile.sql
 
 ```bash
 cd frontend
-npm run dev
+pnpm run dev
 ```
 
 ## Folder Structure
@@ -167,23 +165,23 @@ frontend/
 
 ### Clean Architecture Principles
 
-| Principle | Implementation |
-|-----------|----------------|
-| **Independence of Frameworks** | Core doesn't depend on React/Next.js |
-| **Testability** | Each layer isolated and testable |
-| **Independence of UI** | Business logic separate from presentation |
-| **Independence of Database** | Repository pattern with interfaces |
-| **Dependency Rule** | Dependencies always point inward |
+| Principle                      | Implementation                            |
+| ------------------------------ | ----------------------------------------- |
+| **Independence of Frameworks** | Core doesn't depend on React/Next.js      |
+| **Testability**                | Each layer isolated and testable          |
+| **Independence of UI**         | Business logic separate from presentation |
+| **Independence of Database**   | Repository pattern with interfaces        |
+| **Dependency Rule**            | Dependencies always point inward          |
 
 ### SOLID Principles
 
-| Principle | Example |
-|-----------|---------|
+| Principle                 | Example                                     |
+| ------------------------- | ------------------------------------------- |
 | **S**ingle Responsibility | `SignUpUseCase` - only handles registration |
-| **O**pen-Closed | Extensible via new Use Cases |
-| **L**iskov Substitution | `IAuthRepository` → implementations |
-| **I**nterface Segregation | Specific interfaces per context |
-| **D**ependency Inversion | Use Cases → Interface ← Repository |
+| **O**pen-Closed           | Extensible via new Use Cases                |
+| **L**iskov Substitution   | `IAuthRepository` → implementations         |
+| **I**nterface Segregation | Specific interfaces per context             |
+| **D**ependency Inversion  | Use Cases → Interface ← Repository          |
 
 ### Domain-Driven Design
 
@@ -221,7 +219,7 @@ function MyComponent() {
     };
 
     if (isLoading) return <p>Loading...</p>;
-    
+
     return user ? (
         <div>
             <p>Welcome, {user.nome}!</p>
@@ -242,10 +240,10 @@ import { useSession } from "@/context/SessionContext";
 
 function UserProfile() {
     const { user, isLoading } = useSession(); // Only re-renders on session changes
-    
+
     if (isLoading) return <p>Loading...</p>;
     if (!user) return <p>Please login</p>;
-    
+
     return <h1>Hello, {user.nome}!</h1>;
 }
 ```
@@ -259,11 +257,11 @@ import { useUserActions } from "@/context/UserActionsContext";
 
 function ProfileSettings() {
     const { updateEmail, updatePassword, isLoading, error } = useUserActions();
-    
+
     const handleUpdateEmail = async (newEmail: string) => {
         await updateEmail(newEmail);
     };
-    
+
     return (
         <div>
             {error && <p>Error: {error}</p>}
@@ -282,20 +280,24 @@ import { usePasswordRecovery } from "@/hooks/usePasswordRecovery";
 
 function ResetPasswordPage() {
     const { resetPassword, recoveryStatus, isLoading, recoveryError } = usePasswordRecovery();
-    
+
     const handleReset = async () => {
         const success = await resetPassword("NewSecurePass123!", "NewSecurePass123!");
-        
+
         if (success) {
             // Redirect to login
             router.push("/");
         }
     };
-    
+
     if (recoveryStatus === "loading") return <p>Validating token...</p>;
     if (recoveryStatus === "error") return <p>Invalid or expired token</p>;
-    
-    return <button onClick={handleReset} disabled={isLoading}>Reset Password</button>;
+
+    return (
+        <button onClick={handleReset} disabled={isLoading}>
+            Reset Password
+        </button>
+    );
 }
 ```
 
@@ -310,11 +312,11 @@ function App() {
     return (
         <>
             <button onClick={() => setIsModalOpen(true)}>Login</button>
-            
-            <AuthModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                initialMode="login"  // or "signup"
+
+            <AuthModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                initialMode="login" // or "signup"
             />
         </>
     );
@@ -374,16 +376,24 @@ The authentication system was refactored from a single "God Object" (AuthContext
 ```typescript
 // AuthContext - Single context with ALL responsibilities
 interface AuthContextType {
-    user, isLoading, error;                    // Session state
-    emailConfirmationRequired;                 // Email confirmation
-    isRecoveryReady;                           // Password recovery
-    signUp, signIn, signOut;                   // Auth operations
-    updateEmail, updatePassword, deleteAccount; // User operations
-    sendPasswordReset, resetPasswordWithToken;  // Recovery operations
+    user;
+    isLoading;
+    error; // Session state
+    emailConfirmationRequired; // Email confirmation
+    isRecoveryReady; // Password recovery
+    signUp;
+    signIn;
+    signOut; // Auth operations
+    updateEmail;
+    updatePassword;
+    deleteAccount; // User operations
+    sendPasswordReset;
+    resetPasswordWithToken; // Recovery operations
 }
 ```
 
 **Problems:**
+
 - ❌ Violates SRP (Single Responsibility Principle)
 - ❌ Forces all Page re-renders even if only one value changes
 - ❌ Difficult to test (9 mocks needed)
@@ -411,6 +421,7 @@ interface AuthContextType {
 ```
 
 **Benefits:**
+
 - ✅ Each context has a single responsibility
 - ✅ Components only re-render when their specific data changes
 - ✅ Easier to test (2-4 mocks per context)
@@ -435,7 +446,7 @@ interface AuthContextType {
 ```tsx
 // app/layout.tsx
 <AuthProvider>
-  <YourApp />  {/* ✅ Can use useAuth/useSession/useUserActions */}
+    <YourApp /> {/* ✅ Can use useAuth/useSession/useUserActions */}
 </AuthProvider>
 ```
 
@@ -460,6 +471,7 @@ const { isLoading } = useUserActions(); // Only actions loading
 **Cause**: Token in URL has expired or is invalid
 
 **Solution**:
+
 1. Request a new password reset email
 2. Use the link within 1 hour
 3. Don't reload the page after clicking the email link
@@ -467,6 +479,7 @@ const { isLoading } = useUserActions(); // Only actions loading
 ### Email confirmation not working
 
 **Solutions**:
+
 1. Check spam folder
 2. Verify email templates in Supabase Dashboard → Authentication → Email Templates
 3. Ensure redirect URLs are configured in Supabase → Authentication → URL Configuration

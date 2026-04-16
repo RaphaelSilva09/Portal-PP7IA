@@ -1,13 +1,14 @@
 # Portal-PP7IA
+
 > Portal colaborativo para divulgação de conteúdos sobre Inteligência Artificial, mini-livros, newsletters e materiais educativos.
 
 ## 📚 Documentation
 
-**New to the project?** → [**Getting Started Guide**](docs/00-GETTING-STARTED.md) | [**Primeiros Passos**](docs/00-PRIMEIROS-PASSOS.md)
+**New to the project?** → [**Getting Started Guide**](docs/00-GETTING-STARTED.md)
 
-**Quick setup?** → [**Quick Start (5 min)**](docs/setup/QUICKSTART.md) | [**Início Rápido**](docs/setup/QUICKSTART.pt-BR.md)
+**Quick setup?** → [**Quick Start (5 min)**](docs/setup/QUICKSTART.md)
 
-**Full documentation** → [**Documentation Index**](docs/README.md) | [**Índice de Documentação**](docs/README.pt-BR.md)
+**Full documentation** → [**Documentation Index**](docs/README.md)
 
 ---
 
@@ -60,40 +61,39 @@ git clone https://github.com/RaphaelSilva09/Portal-PP7IA.git
 cd Portal-PP7IA/frontend
 
 # 2. Instale as dependências
-npm install
+pnpm install
 
 # 3. Configure variáveis de ambiente
 cp .env.example .env.local
 # Edit .env.local with your Supabase credentials
 
 # 4. Execute o servidor de desenvolvimento
-npm run dev
+pnpm run dev
 ```
 
-> **📖 Guia detalhado**: [Quick Start](docs/setup/QUICKSTART.md) | [Início Rápido](docs/setup/QUICKSTART.pt-BR.md)  
-> **🔧 Configuração do Supabase**: [Supabase Setup Guide](docs/setup/SUPABASE.md)  
-> **👤 Painel Admin**: [Admin Panel Setup](docs/setup/ADMIN_PANEL.md)
+> **📖 Detailed Guide**: [Quick Start](docs/setup/QUICKSTART.md)
+> **🔧 Supabase Setup**: [Supabase Setup Guide](docs/setup/SUPABASE.md)
+> **👤 Admin Panel**: [Admin Panel Setup](docs/setup/ADMIN_PANEL.md)
 
-## 📖 Documentação Completa
+## 📖 Documentation
 
-Este projeto possui documentação extensiva e organizada:
+This project has comprehensive documentation:
 
-- **[📚 Documentation Index](docs/README.md)** - Complete documentation hub (English)
-- **[📚 Índice de Documentação](docs/README.pt-BR.md)** - Central de documentação (Português)
+- **[📚 Documentation Index](docs/README.md)** - Complete documentation hub
 
-### Documentação em Destaque
+### Featured Documentation
 
-| Tópico | Link |
-|--------|------|
-| 🚀 Getting Started | [EN](docs/00-GETTING-STARTED.md) \| [PT](docs/00-PRIMEIROS-PASSOS.md) |
-| ⚡ Quick Start (5 min) | [EN](docs/setup/QUICKSTART.md) \| [PT](docs/setup/QUICKSTART.pt-BR.md) |
-| 🔐 Authentication | [EN](docs/architecture/AUTHENTICATION.md) \| [PT](docs/architecture/AUTHENTICATION.pt-BR.md) |
-| 🎨 Design System | [EN](frontend/docs/development/DESIGN_SYSTEM.md) \| [PT](frontend/docs/development/DESIGN_SYSTEM.pt-BR.md) |
-| 💻 Frontend Docs | [Frontend Documentation](frontend/docs/README.md) |
+| Topic                  | Link                                                        |
+| ---------------------- | ----------------------------------------------------------- |
+| 🚀 Getting Started     | [Getting Started Guide](docs/00-GETTING-STARTED.md)         |
+| ⚡ Quick Start (5 min) | [Quick Start](docs/setup/QUICKSTART.md)                     |
+| 🔐 Authentication      | [Authentication Docs](docs/architecture/AUTHENTICATION.md)  |
+| 🎨 Design System       | [Design System](frontend/docs/development/DESIGN_SYSTEM.md) |
+| 💻 Frontend Docs       | [Frontend Documentation](frontend/docs/README.md)           |
 
 ## Contribuição
 
-Contribuições são bem-vindas! 
+Contribuições são bem-vindas!
 
 1. Siga os [princípios de arquitetura](docs/architecture/AUTHENTICATION.md#architecture-principles)
 2. Use o [Design System](frontend/docs/development/DESIGN_SYSTEM.md)

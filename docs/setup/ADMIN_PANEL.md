@@ -3,7 +3,7 @@
 ## 📋 Pré-requisitos
 
 1. **Supabase CLI** instalado
-2. **Node.js** e **npm** instalados
+2. **Node.js** e **pnpm** instalados
 3. Projeto Supabase configurado (`.env.local` com `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
 
 ---
@@ -132,7 +132,7 @@ INSERT INTO public.newsletters (title, read_time) VALUES ('Teste', 5);
 
 ```bash
 cd frontend
-npm run dev
+pnpm run dev
 ```
 
 Acesse: http://localhost:3000

@@ -1,21 +1,17 @@
 # 📚 Frontend Documentation - Portal PP7+IA
 
-> **[Versão em Português](README.pt-BR.md)** | English Version
-
 Welcome to the frontend documentation! This index helps you navigate through all frontend-specific documentation.
 
 ## 📖 Documentation Sections
 
-###  🎨 Development
+### 🎨 Development
 
 - [**Design System**](development/DESIGN_SYSTEM.md) - Colors, typography, animations, and UI components
-  - [Versão em Português](development/DESIGN_SYSTEM.pt-BR.md)
 
 ### 🏗️ Architecture
 
 - [**Architecture Diagrams**](ARCHITECTURE_DIAGRAMS.md) - Visual architecture documentation with Mermaid diagrams
 - [**Authentication System**](../../docs/architecture/AUTHENTICATION.md) - Complete authentication documentation
-  - [Versão em Português](../../docs/architecture/AUTHENTICATION.pt-BR.md)
 
 ### 💻 Code Examples
 
@@ -94,21 +90,21 @@ The design system is centralized in `app/globals.css` using CSS variables:
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ### Build
 
 ```bash
-npm run build
-npm run start
+pnpm run build
+pnpm run start
 ```
 
 ### Lint
 
 ```bash
-npm run lint
+pnpm run lint
 ```
 
 ## 📝 Component Guidelines
@@ -188,7 +184,7 @@ When contributing to the frontend:
 2. Use the Design System variables
 3. Write TypeScript with strict mode
 4. Create reusable components
-5. Test your changes (`npm run build`)
+5. Test your changes (`pnpm run build`)
 
 ## 📖 Detailed Documentation
 

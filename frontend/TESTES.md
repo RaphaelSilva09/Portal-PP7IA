@@ -34,9 +34,9 @@ Executa `cleanup()` após cada teste para desmontar árvores React e evitar vaza
 
 ### Scripts disponíveis
 ```bash
-npm test               # executa todos os testes uma vez
-npm run test:watch     # modo watch (re-executa ao salvar)
-npm run test:coverage  # relatório de cobertura via v8
+pnpm test               # executa todos os testes uma vez
+pnpm run test:watch     # modo watch (re-executa ao salvar)
+pnpm run test:coverage  # relatório de cobertura via v8
 ```
 
 ---

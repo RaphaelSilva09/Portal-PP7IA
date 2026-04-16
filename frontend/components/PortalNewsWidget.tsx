@@ -5,7 +5,6 @@ import { usePortalNews } from "@/presentation/hooks/usePortalNews";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { useTheme } from "next-themes";
 
 const CATEGORY_COLORS: Record<string, string> = {
     launch:     "#f97316",
@@ -93,8 +92,6 @@ function NewsItemRow({ item, isLast }: { item: PortalNewsItem; isLast: boolean }
 
 export default function PortalNewsWidget() {
     const { items, isLoading } = usePortalNews();
-    const { resolvedTheme } = useTheme();
-    const isLight = resolvedTheme === "light";
     const bellRef = useRef<HTMLSpanElement>(null);
 
     // Animação do sino no mount
@@ -121,12 +118,12 @@ export default function PortalNewsWidget() {
 
             <div
                 id="novidades"
-                className={`rounded-xl mx-2 mb-6 overflow-hidden text-left border ${isLight ? "bg-card/90 border-border" : "bg-[#111111] border-[#b8860b]/30"}`}
+                className="rounded-xl mx-2 mb-6 overflow-hidden text-left border bg-card/90 border-border dark:bg-[#111111] dark:border-[#b8860b]/30"
             >
                 {/* Header */}
-                <div className={`flex items-center gap-2 px-4 py-3 border-b ${isLight ? "border-border" : "border-[#b8860b]/20"}`}>
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-border dark:border-[#b8860b]/20">
                     <span className="text-base">📢</span>
-                    <span className={`${isLight ? "text-amber-700" : "text-[#f0c950]"} font-bold font-sans text-sm uppercase tracking-wider flex-1`}>
+                    <span className="text-amber-700 dark:text-[#f0c950] font-bold font-sans text-sm uppercase tracking-wider flex-1">
                         Novidades do Portal
                     </span>
                     <span

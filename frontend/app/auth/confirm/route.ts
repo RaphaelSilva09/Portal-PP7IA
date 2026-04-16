@@ -2,8 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
-const DEFAULT_SUCCESS_PATH = "/home";
-const DEFAULT_ERROR_PATH = "/";
+const DEFAULT_SUCCESS_PATH = "/auth/confirmed";
+const DEFAULT_ERROR_PATH = "/?authModal=login";
 
 function sanitizeNextPath(next: string | null): string {
     if (!next || !next.startsWith("/") || next.startsWith("//")) {

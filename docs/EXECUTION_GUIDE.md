@@ -33,9 +33,9 @@ git status
 # Check current branch
 git branch --show-current
 
-# Verify Node.js and npm versions
+# Verify Node.js and pnpm versions
 node --version  # Expected: v18.x or v20.x
-npm --version   # Expected: v9.x or v10.x
+pnpm --version   # Expected: v9.x or v10.x
 ```
 
 ### Required Environment Variables
@@ -58,10 +58,10 @@ NEXT_PUBLIC_VERCEL_ANALYTICS=true  # For production
 cd frontend
 
 # Install dependencies (React Query was already installed)
-npm install
+pnpm install
 
 # Run build to check for TypeScript errors
-npm run build
+pnpm run build
 ```
 
 **Expected output**: Build succeeds with no errors
@@ -72,7 +72,7 @@ npm run build
 
 ```bash
 # Start dev server
-npm run dev
+pnpm run dev
 ```
 
 **Expected output**: Server starts on http://localhost:3000
@@ -319,7 +319,7 @@ git push origin <your-branch-name>
 #### Option B: Manual Deployment
 ```bash
 # Install Vercel CLI (if not installed)
-npm install -g vercel
+pnpm add -g vercel
 
 # Deploy to preview
 vercel
@@ -674,8 +674,8 @@ git checkout HEAD -- frontend/app/layout.tsx
 **Solution**:
 ```bash
 cd frontend
-npm install @tanstack/react-query @tanstack/react-query-devtools
-npm run build
+pnpm add @tanstack/react-query @tanstack/react-query-devtools
+pnpm run build
 ```
 
 ---
@@ -718,7 +718,7 @@ UPDATE users SET is_admin = true WHERE email = 'your-email@example.com';
 echo "NEXT_PUBLIC_GIT_BRANCH=develop" >> frontend/.env.local
 
 # Restart dev server
-npm run dev
+pnpm run dev
 ```
 
 ---

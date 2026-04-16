@@ -68,18 +68,18 @@ describe('app/auth/confirm/route', () => {
         expect(mockExchangeCodeForSession).toHaveBeenCalledWith('auth-code-123');
         expect(mockVerifyOtp).not.toHaveBeenCalled();
         expect(response.status).toBe(303);
-        expect(response.headers.get('location')).toBe('http://localhost/home');
+        expect(response.headers.get('location')).toBe('http://localhost/auth/confirmed');
         expect(response.cookies.get('sb-test-auth')?.value).toBe('cookie-value');
     });
 
-    it('redireciona para / quando exchangeCodeForSession falha', async () => {
+    it('redireciona para /?authModal=login quando exchangeCodeForSession falha', async () => {
         mockExchangeCodeForSession.mockResolvedValueOnce({ error: { message: 'code exchange failed' } });
 
         const response = await GET(new NextRequest('http://localhost/auth/confirm?code=auth-code-123'));
 
         expect(mockExchangeCodeForSession).toHaveBeenCalledWith('auth-code-123');
         expect(response.status).toBe(303);
-        expect(response.headers.get('location')).toBe('http://localhost/');
+        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
         expect(response.cookies.get('sb-test-auth')).toBeUndefined();
     });
 
@@ -91,25 +91,25 @@ describe('app/auth/confirm/route', () => {
             type: 'email',
         });
         expect(response.status).toBe(303);
-        expect(response.headers.get('location')).toBe('http://localhost/home');
+        expect(response.headers.get('location')).toBe('http://localhost/auth/confirmed');
         expect(response.cookies.get('sb-test-auth')?.value).toBe('cookie-value');
     });
 
-    it('redireciona para / quando token_hash ou type estiver ausente', async () => {
+    it('redireciona para /?authModal=login quando token_hash ou type estiver ausente', async () => {
         const response = await GET(new NextRequest('http://localhost/auth/confirm?type=email'));
 
         expect(mockVerifyOtp).not.toHaveBeenCalled();
         expect(response.status).toBe(303);
-        expect(response.headers.get('location')).toBe('http://localhost/');
+        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
     });
 
-    it('redireciona para / quando verifyOtp falha', async () => {
+    it('redireciona para /?authModal=login quando verifyOtp falha', async () => {
         mockVerifyOtp.mockResolvedValueOnce({ error: { message: 'invalid token' } });
 
         const response = await GET(new NextRequest('http://localhost/auth/confirm?token_hash=hash123&type=email'));
 
         expect(response.status).toBe(303);
-        expect(response.headers.get('location')).toBe('http://localhost/');
+        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
         expect(response.cookies.get('sb-test-auth')).toBeUndefined();
     });
 
@@ -126,6 +126,6 @@ describe('app/auth/confirm/route', () => {
             new NextRequest('http://localhost/auth/confirm?token_hash=hash123&type=email&next=https%3A%2F%2Fevil.com'),
         );
 
-        expect(response.headers.get('location')).toBe('http://localhost/home');
+        expect(response.headers.get('location')).toBe('http://localhost/auth/confirmed');
     });
 });
