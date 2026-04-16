@@ -125,8 +125,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         // Estrutura: {supabase}/storage/v1/object/public/{bucket}/{folder}/{filename}
         const fileUrl = `${supabaseUrl}/storage/v1/object/public/${config.bucket}/${config.folder}/${fileName}`;
 
-        // Busca o arquivo do Supabase
-        const response = await fetch(fileUrl);
+        // Busca o arquivo do Supabase (sem cache: conteúdo pode ser atualizado a qualquer momento)
+        const response = await fetch(fileUrl, { cache: "no-store" });
 
         if (!response.ok) {
             if (response.status === 404) {
@@ -150,8 +150,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 // Headers de segurança
                 "X-Content-Type-Options": "nosniff",
                 "X-XSS-Protection": "1; mode=block",
-                // Cache: 1 hora (arquivos raramente mudam)
-                "Cache-Control": "public, max-age=3600, s-maxage=3600",
+                // Sem cache: conteúdo gerenciado pelo admin pode mudar a qualquer momento
+                "Cache-Control": "no-store",
             },
         });
     } catch (error) {
