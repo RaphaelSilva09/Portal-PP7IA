@@ -174,13 +174,13 @@ export function AdminBook() {
             if (introPdfFile) {
                 updates.intro_pdf_path = await uploadFile(
                     introPdfFile,
-                    `${STORAGE_FOLDER}/introducao.pdf`,
+                    `${STORAGE_FOLDER}/introducao-enquanto-e-tempo.pdf`,
                 );
             }
             if (introHtmlFile) {
                 updates.intro_html_path = await uploadFile(
                     introHtmlFile,
-                    `${STORAGE_FOLDER}/introducao.html`,
+                    `${STORAGE_FOLDER}/introducao-enquanto-e-tempo.html`,
                 );
             }
 
