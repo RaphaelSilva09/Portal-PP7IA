@@ -1,14 +1,12 @@
 # 📚 Frontend Documentation - Portal PP7+IA
 
-
 Welcome to the frontend documentation! This index helps you navigate through all frontend-specific documentation.
 
 ## 📖 Documentation Sections
 
-###  🎨 Development
+### 🎨 Development
 
 - [**Design System**](development/DESIGN_SYSTEM.md) - Colors, typography, animations, and UI components
-
 
 ### 🏗️ Architecture
 

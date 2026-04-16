@@ -26,9 +26,9 @@ pnpm install
 1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
 2. Click **"New Project"**
 3. Fill in:
-   - **Name**: `Portal-PP7IA` (or your preference)
-   - **Database Password**: Choose a strong password and save it!
-   - **Region**: Choose closest to you (e.g., South America)
+    - **Name**: `Portal-PP7IA` (or your preference)
+    - **Database Password**: Choose a strong password and save it!
+    - **Region**: Choose closest to you (e.g., South America)
 4. Click **"Create new project"**
 5. Wait ~2 minutes for provisioning
 
@@ -36,8 +36,8 @@ pnpm install
 
 1. In your Supabase project, go to **Settings** → **API**
 2. Copy these values:
-   - **Project URL**: `https://xxxxx.supabase.co`
-   - **anon public key**: Long JWT token starting with `eyJ...`
+    - **Project URL**: `https://xxxxx.supabase.co`
+    - **anon public key**: Long JWT token starting with `eyJ...`
 
 ### Step 4: Configure Environment Variables (30 seconds)
 
@@ -95,8 +95,8 @@ Run this query in Supabase SQL Editor:
 
 ```sql
 -- Check if users table exists
-SELECT table_name 
-FROM information_schema.tables 
+SELECT table_name
+FROM information_schema.tables
 WHERE table_schema = 'public';
 ```
 
@@ -122,20 +122,20 @@ pnpm run build && pnpm run start
 
 ### Important Files
 
-| File | Purpose |
-|------|---------|
-| `.env.local` | Environment variables (don't commit!) |
-| `frontend/app/` | Pages and routes |
-| `frontend/components/` | React components |
-| `supabase/migrations/` | Database schema |
+| File                   | Purpose                               |
+| ---------------------- | ------------------------------------- |
+| `.env.local`           | Environment variables (don't commit!) |
+| `frontend/app/`        | Pages and routes                      |
+| `frontend/components/` | React components                      |
+| `supabase/migrations/` | Database schema                       |
 
 ### Environment Variables
 
-| Variable | Where to Find | Purpose |
-|----------|---------------|---------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API → Project URL | API endpoint |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API → anon public | Client auth key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → service_role secret | Admin operations (optional, for admin panel) |
+| Variable                        | Where to Find                                   | Purpose                                      |
+| ------------------------------- | ----------------------------------------------- | -------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase → Settings → API → Project URL         | API endpoint                                 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API → anon public         | Client auth key                              |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase → Settings → API → service_role secret | Admin operations (optional, for admin panel) |
 
 ## 🐛 Troubleshooting
 
@@ -154,6 +154,7 @@ cat frontend/.env.local
 ### Error: "Failed to fetch" or connection refused
 
 **Solutions**:
+
 1. Verify Supabase project is running (check dashboard)
 2. Check `NEXT_PUBLIC_SUPABASE_URL` is correct
 3. Ensure you copied the **anon public** key, not the service role key
@@ -164,7 +165,7 @@ cat frontend/.env.local
 
 ### Port 3000 already in use
 
-**Solution**: 
+**Solution**:
 
 ```bash
 # Kill process on port 3000 (Windows)
@@ -178,12 +179,13 @@ pnpm run dev -- -p 3001
 ### Page loads but styles look broken
 
 **Solutions**:
+
 1. Clear browser cache (Ctrl+Shift+R / Cmd+Shift+R)
 2. Delete `.next` folder and restart:
-   ```bash
-   rm -rf .next
-   pnpm run dev
-   ```
+    ```bash
+    rm -rf .next
+    pnpm run dev
+    ```
 
 ## 📚 Next Steps
 

@@ -1,4 +1,5 @@
 # Portal-PP7IA
+
 > Portal colaborativo para divulgação de conteúdos sobre Inteligência Artificial, mini-livros, newsletters e materiais educativos.
 
 ## 📚 Documentation
@@ -82,17 +83,17 @@ This project has comprehensive documentation:
 
 ### Featured Documentation
 
-| Topic | Link |
-|-------|------|
-| 🚀 Getting Started | [Getting Started Guide](docs/00-GETTING-STARTED.md) |
-| ⚡ Quick Start (5 min) | [Quick Start](docs/setup/QUICKSTART.md) |
-| 🔐 Authentication | [Authentication Docs](docs/architecture/AUTHENTICATION.md) |
-| 🎨 Design System | [Design System](frontend/docs/development/DESIGN_SYSTEM.md) |
-| 💻 Frontend Docs | [Frontend Documentation](frontend/docs/README.md) |
+| Topic                  | Link                                                        |
+| ---------------------- | ----------------------------------------------------------- |
+| 🚀 Getting Started     | [Getting Started Guide](docs/00-GETTING-STARTED.md)         |
+| ⚡ Quick Start (5 min) | [Quick Start](docs/setup/QUICKSTART.md)                     |
+| 🔐 Authentication      | [Authentication Docs](docs/architecture/AUTHENTICATION.md)  |
+| 🎨 Design System       | [Design System](frontend/docs/development/DESIGN_SYSTEM.md) |
+| 💻 Frontend Docs       | [Frontend Documentation](frontend/docs/README.md)           |
 
 ## Contribuição
 
-Contribuições são bem-vindas! 
+Contribuições são bem-vindas!
 
 1. Siga os [princípios de arquitetura](docs/architecture/AUTHENTICATION.md#architecture-principles)
 2. Use o [Design System](frontend/docs/development/DESIGN_SYSTEM.md)
