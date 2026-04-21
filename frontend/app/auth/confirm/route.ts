@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSupabaseClientKey, getSupabaseUrl } from "@/infrastructure/config/supabase-env";
 
 const DEFAULT_SUCCESS_PATH = "/auth/confirmed";
 const DEFAULT_ERROR_PATH = "/?authModal=login";
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     const successResponse = NextResponse.redirect(new URL(nextPath, request.url), { status: 303 });
 
-    const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    const supabase = createServerClient(getSupabaseUrl(), getSupabaseClientKey(), {
         cookies: {
             getAll() {
                 return request.cookies.getAll();

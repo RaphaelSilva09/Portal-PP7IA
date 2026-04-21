@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { getSupabaseClientKey, getSupabaseUrl } from "@/infrastructure/config/supabase-env";
 
 function resolveBaseUrl(request: Request): string {
     const candidates = [
@@ -25,8 +26,8 @@ export async function POST(request: Request) {
         const cookieStore = await cookies();
 
         const supabaseAuth = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            getSupabaseUrl(),
+            getSupabaseClientKey(),
             {
                 cookies: {
                     getAll() {

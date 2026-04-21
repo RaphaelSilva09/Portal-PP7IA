@@ -28,7 +28,8 @@ describe('supabase config storage hardening', () => {
         localStorage.clear();
 
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = 'publishable-key';
+        delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
         mockCreateBrowserClient.mockReturnValue({});
         mockCreateClient.mockReturnValue({});
@@ -75,5 +76,23 @@ describe('supabase config storage hardening', () => {
         await import('@/infrastructure/config/supabase');
 
         expect(localStorage.getItem('app-random-cache')).toBe('{invalid-json');
+    });
+
+    it('usa fallback para ANON_KEY quando PUBLISHABLE_KEY não estiver configurada', async () => {
+        delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
+
+        await import('@/infrastructure/config/supabase');
+
+        expect(mockCreateBrowserClient).toHaveBeenCalledWith(
+            'https://example.supabase.co',
+            'anon-key',
+            expect.any(Object),
+        );
+        expect(mockCreateClient).toHaveBeenCalledWith(
+            'https://example.supabase.co',
+            'anon-key',
+            expect.any(Object),
+        );
     });
 });
