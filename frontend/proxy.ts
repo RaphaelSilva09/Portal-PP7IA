@@ -21,6 +21,7 @@
 
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSupabaseClientKey, getSupabaseUrl } from "@/infrastructure/config/supabase-env";
 
 const ADMIN_ROUTES = "/painel-admin";
 const AUTH_ROUTES = "/user";
@@ -61,8 +62,8 @@ export async function proxy(request: NextRequest) {
     });
 
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        getSupabaseUrl(),
+        getSupabaseClientKey(),
         {
             cookies: {
                 getAll() {

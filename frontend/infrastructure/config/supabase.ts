@@ -13,6 +13,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseClientKey, getSupabaseUrl } from "./supabase-env";
 
 type StorageLike = {
     getItem: (key: string) => string | null;
@@ -123,19 +124,12 @@ function sanitizeCorruptedAuthStorageEntries(): void {
  * Singleton Pattern (implícito via ES modules)
  */
 function createSupabaseClient(): SupabaseClient {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error(
-            "Variáveis de ambiente do Supabase não configuradas. " +
-                "Certifique-se de definir NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        );
-    }
+    const supabaseUrl = getSupabaseUrl();
+    const supabaseClientKey = getSupabaseClientKey();
 
     sanitizeCorruptedAuthStorageEntries();
 
-    return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    return createBrowserClient(supabaseUrl, supabaseClientKey, {
         auth: {
             storage: createSafeBrowserStorage(),
         },
@@ -151,15 +145,8 @@ function createSupabaseClient(): SupabaseClient {
  * evitando que queries de conteúdo sejam bloqueadas durante o auto-refresh de auth.
  */
 function createSupabaseAnonClient(): SupabaseClient {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error(
-            "Variáveis de ambiente do Supabase não configuradas. " +
-                "Certifique-se de definir NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        );
-    }
+    const supabaseUrl = getSupabaseUrl();
+    const supabaseClientKey = getSupabaseClientKey();
 
     const noopStorage = {
         getItem: (_key: string) => null,
@@ -169,7 +156,7 @@ function createSupabaseAnonClient(): SupabaseClient {
 
     // createClient (não createBrowserClient): sem singleton cache, sem Web Lock,
     // sem interferência com o token refresh do client principal
-    return createClient(supabaseUrl, supabaseAnonKey, {
+    return createClient(supabaseUrl, supabaseClientKey, {
         auth: {
             persistSession: false,
             autoRefreshToken: false,

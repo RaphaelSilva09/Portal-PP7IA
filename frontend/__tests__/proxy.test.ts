@@ -36,7 +36,8 @@ describe('proxy auth guard', () => {
         shouldSetRefreshCookie.value = false;
 
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = 'publishable-key';
+        delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
         mockGetUser.mockResolvedValue({ data: { user: null } });
         mockCreateServerClient.mockImplementation((_url: string, _key: string, options: any) => ({
