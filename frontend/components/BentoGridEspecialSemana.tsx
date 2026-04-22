@@ -1,5 +1,6 @@
 "use client";
 
+import { portalContentClass } from "@/lib/layout";
 import { useEspecialSemana } from "@/presentation/hooks/useEspecialSemana";
 import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
 import { FileText, Globe, Loader2 } from "lucide-react";
@@ -12,17 +13,19 @@ import { useTheme } from "next-themes";
  */
 
 export default function BentoGridEspecialSemana() {
-    const { latest, older, isLoading, error, lastUpdated } = useEspecialSemana();
+    const { latest, older, isLoading, error } = useEspecialSemana();
     const { resolvedTheme } = useTheme();
     const isLight = resolvedTheme === "light";
     useScrollToHash(!isLoading);
 
     if (isLoading) {
         return (
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-yellow-600" />
-                    <p className="text-text-secondary">Carregando especial da semana...</p>
+            <section className="py-12">
+                <div className={portalContentClass}>
+                    <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
+                        <Loader2 className="w-8 h-8 animate-spin text-yellow-600" />
+                        <p className="text-text-secondary">Carregando especial da semana...</p>
+                    </div>
                 </div>
             </section>
         );
@@ -30,12 +33,14 @@ export default function BentoGridEspecialSemana() {
 
     if (error || !latest) {
         return (
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center py-16">
-                        <p className="text-text-secondary text-lg">
-                            {error || "Nenhum especial da semana disponível no momento."}
-                        </p>
+            <section className="py-12">
+                <div className={portalContentClass}>
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center py-16">
+                            <p className="text-text-secondary text-lg">
+                                {error || "Nenhum especial da semana disponível no momento."}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -43,30 +48,31 @@ export default function BentoGridEspecialSemana() {
     }
 
     return (
-        <section className="py-12 px-4 sm:px-6 lg:px-8">
-            {/* Introdução Especial da Semana */}
-            <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
-                {/* Título da Introdução */}
-                <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-                    Especial da Semana
-                </h3>
+        <section className="py-12">
+            <div className={portalContentClass}>
+                {/* Introdução Especial da Semana */}
+                <div id="introducao" className="mx-auto mb-6 max-w-4xl text-center sm:mb-7 md:mb-8">
+                    {/* Título da Introdução */}
+                    <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+                        Especial da Semana
+                    </h3>
 
-                {/* Descrição */}
-                <p
-                    id="descricao"
-                    className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
-                    style={{ animationDelay: "0.4s" }}
-                >
-                    Destaque editorial semanal: artigos, apps, tutoriais ou pontos de atenção especial.
-                </p>
-            </div>
+                    {/* Descrição */}
+                    <p
+                        id="descricao"
+                        className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
+                        style={{ animationDelay: "0.4s" }}
+                    >
+                        Destaque editorial semanal: artigos, apps, tutoriais ou pontos de atenção especial.
+                    </p>
+                </div>
 
-            {/* Linha divisória */}
-            <div className="max-w-4xl mx-auto my-8 sm:my-10 md:my-12">
+                {/* Linha divisória */}
+                <div className="my-8 w-full sm:my-10 md:my-12">
                 <div className="border-t border-border"></div>
-            </div>
+                </div>
 
-            <div className="max-w-4xl mx-auto">
+                <div className="w-full">
                 {/* Bento Grid - 3 Columns Layout */}
                 <div id="last-especial" className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* ============================================
@@ -202,6 +208,7 @@ export default function BentoGridEspecialSemana() {
                             </div>
                         </div>
                     ))}
+                </div>
                 </div>
             </div>
         </section>

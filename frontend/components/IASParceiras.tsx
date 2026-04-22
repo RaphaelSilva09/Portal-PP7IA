@@ -1,5 +1,6 @@
 "use client";
 
+import { portalContentClass } from "@/lib/layout";
 import { ArrowUpRight, Bot } from "lucide-react";
 import Link from "next/link";
 
@@ -7,9 +8,10 @@ const IAS = ["Claude", "ChatGPT", "Gemini", "Adapta", "Perplexity", "Grok", "Man
 
 export default function IASParceiras() {
     return (
-        <section id="ias-parceiras" className="py-8 px-4 sm:px-6 lg:px-8" style={{ scrollMarginTop: "100px" }}>
-            <div className="w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent"></div>
-            <div className="max-w-4xl mx-auto mb-8 mt-8">
+        <section id="ias-parceiras" className="py-8" style={{ scrollMarginTop: "100px" }}>
+            <div className={portalContentClass}>
+                <div className="w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent"></div>
+                <div className="mb-8 mt-8 w-full">
                 {/* ============================================
                 AS 7 IAS PARCEIRAS — card unificado
                 ============================================ */}
@@ -63,13 +65,14 @@ export default function IASParceiras() {
                     {/* Accent Line */}
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-cyan-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 </Link>
-            </div>
+                </div>
             
-            {/* Citação */}
-            <div className="max-w-4xl mx-auto flex justify-center mb-8">
-                <span className="bg-card/85 px-4 py-2 rounded-full text-sm font-semibold text-text-secondary text-center border border-border">
-                    &ldquo;Liderar é servir. Formar pessoas. Deixar legado.&rdquo;
-                </span>
+                {/* Citação */}
+                <div className="mb-8 flex justify-center">
+                    <span className="bg-card/85 px-4 py-2 rounded-full text-sm font-semibold text-text-secondary text-center border border-border">
+                        &ldquo;Liderar é servir. Formar pessoas. Deixar legado.&rdquo;
+                    </span>
+                </div>
             </div>
         </section>
     );

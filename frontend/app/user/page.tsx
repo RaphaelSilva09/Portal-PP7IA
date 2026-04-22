@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
+import { portalContentClass } from "@/lib/layout";
 import {
     AlertCircle,
     ArrowLeft,
@@ -224,8 +225,12 @@ export default function UserPage() {
         return (
             <div className="min-h-screen bg-background text-foreground">
                 <Navbar />
-                <main className="flex items-center justify-center min-h-[60vh]">
-                    <div className="text-text-secondary">Carregando...</div>
+                <main className="min-h-[60vh] pb-16 pt-8">
+                    <div className={portalContentClass}>
+                        <div className="mx-auto flex max-w-2xl items-center justify-center">
+                            <div className="text-text-secondary">Carregando...</div>
+                        </div>
+                    </div>
                 </main>
                 <Footer />
             </div>
@@ -241,9 +246,10 @@ export default function UserPage() {
         <div className="min-h-screen bg-background text-foreground">
             <Navbar />
             <main className="pb-16">
-                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="mb-8">
+                <div className={portalContentClass}>
+                    <div className="mx-auto max-w-2xl">
+                        {/* Header */}
+                        <div className="mb-8">
                         <button
                             onClick={() => router.push("/")}
                             className="portal-back-link cursor-pointer inline-flex items-center gap-2 text-text-secondary mb-4 transition-colors"
@@ -266,7 +272,7 @@ export default function UserPage() {
                                 </button>
                             )}
                         </div>
-                    </div>
+                        </div>
 
                     {/* Card de Informações */}
                     <div className="bg-bg-secondary border border-border-glass rounded-2xl p-6 space-y-6">
@@ -744,13 +750,14 @@ export default function UserPage() {
                                     <button
                                         onClick={handleDeleteAccount}
                                         disabled={isDeleting}
-                                className="cursor-pointer flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="cursor-pointer flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isDeleting ? "Excluindo..." : "Sim, Excluir"}
                                     </button>
                                 </div>
                             </div>
                         )}
+                    </div>
                     </div>
                 </div>
             </main>

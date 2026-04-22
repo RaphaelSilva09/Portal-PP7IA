@@ -4,6 +4,7 @@ import { FileText, Globe, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useTheme } from "next-themes";
 
+import { portalContentClass } from "@/lib/layout";
 import { BIBLIOTECA_TEMAS, BibliotecaItem } from "@/domain/entities/BibliotecaItem";
 import { useBiblioteca } from "@/presentation/hooks/useBiblioteca";
 import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
@@ -15,7 +16,7 @@ import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
  * Dados carregados dinamicamente do Supabase
  */
 export default function BentoGridBiblioteca() {
-    const { latest, activeLatest, filteredOlder, activeTema, setActiveTema, isLoading, error, lastUpdated } = useBiblioteca();
+    const { latest, activeLatest, filteredOlder, activeTema, setActiveTema, isLoading, error } = useBiblioteca();
     const { resolvedTheme } = useTheme();
     const isLight = resolvedTheme === "light";
     useScrollToHash(!isLoading);
@@ -30,10 +31,12 @@ export default function BentoGridBiblioteca() {
     // Estado de carregamento
     if (isLoading) {
         return (
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-                    <p className="text-text-secondary">Carregando biblioteca...</p>
+            <section className="py-12">
+                <div className={portalContentClass}>
+                    <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
+                        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+                        <p className="text-text-secondary">Carregando biblioteca...</p>
+                    </div>
                 </div>
             </section>
         );
@@ -42,12 +45,14 @@ export default function BentoGridBiblioteca() {
     // Estado de erro ou sem dados globais
     if (error || !latest) {
         return (
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center py-16">
-                        <p className="text-text-secondary text-lg">
-                            {error || "Nenhum conteúdo disponível na biblioteca no momento."}
-                        </p>
+            <section className="py-12">
+                <div className={portalContentClass}>
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center py-16">
+                            <p className="text-text-secondary text-lg">
+                                {error || "Nenhum conteúdo disponível na biblioteca no momento."}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -55,36 +60,36 @@ export default function BentoGridBiblioteca() {
     }
 
     return (
-        <section className="py-12 px-4 sm:px-6 lg:px-8">
-            {/* Introdução Biblioteca */}
-            <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
-                {/* Título da Introdução */}
-                <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-                    Biblioteca
-                </h3>
+        <section className="py-12">
+            <div className={portalContentClass}>
+                {/* Introdução Biblioteca */}
+                <div id="introducao" className="mx-auto mb-6 max-w-4xl text-center sm:mb-7 md:mb-8">
+                    {/* Título da Introdução */}
+                    <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+                        Biblioteca
+                    </h3>
 
-                {/* Descrição Biblioteca */}
-                <p
-                    id="descricao"
-                    className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
-                    style={{ animationDelay: "0.4s" }}
-                >
-                    Materiais, livros, artigos e outras recomendações pessoais do PP7+IAS.
-                </p>
+                    {/* Descrição Biblioteca */}
+                    <p
+                        id="descricao"
+                        className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
+                        style={{ animationDelay: "0.4s" }}
+                    >
+                        Materiais, livros, artigos e outras recomendações pessoais do PP7+IAS.
+                    </p>
 
-                {/* Linha divisória cinza */}
-                <div className="max-w-4xl mx-auto my-8 sm:my-10 md:my-12">
-                    <div className="border-t border-border"></div>
+                    {/* Linha divisória cinza */}
+                    <div className="my-8 w-full sm:my-10 md:my-12">
+                        <div className="border-t border-border"></div>
+                    </div>
+
+                    <p id="descricao" className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
+                        Cada aba abaixo corresponde a um tipo de material.
+                        Clique em qualquer aba para navegar entre as categorias e explorar os conteúdos disponíveis.
+                    </p>
                 </div>
 
-                <p id="descricao" className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-                    Cada aba abaixo corresponde a um tipo de material.
-                    Clique em qualquer aba para navegar entre as categorias e explorar os conteúdos disponíveis.
-                </p>
-            </div>
-
-
-            <div className="max-w-4xl mx-auto">
+                <div className="w-full">
                 {/* ============================================
                 TABS DE TEMAS
                 ============================================ */}
@@ -259,6 +264,7 @@ export default function BentoGridBiblioteca() {
                             </div>
                         ))
                     )}
+                </div>
                 </div>
             </div>
         </section>

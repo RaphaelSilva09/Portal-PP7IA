@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Header";
+import { portalContentClass } from "@/lib/layout";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -52,7 +53,7 @@ export default function DeclaracoesPage() {
             <Navbar />
 
             <main className="pb-16">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className={portalContentClass}>
                     {/* Back Link */}
                     <Link
                         href="/"
