@@ -490,6 +490,10 @@
     color: inherit !important;
 }
 
+.editorial-rich-text p:empty::before {
+    content: "\00a0";
+}
+
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);

@@ -5,6 +5,7 @@ import { useAuthModal } from "@/context/AuthModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSession } from "@/context/SessionContext";
 import { portalContentClass } from "@/lib/layout";
+import { hasMeaningfulEditorialContent, normalizeEditorialHtml } from "@/lib/editorialRichText";
 import { useEditorial } from "@/presentation/hooks/useEditorial";
 import TopoSvg from "@/assets/topo.svg";
 import HeroTitle from "./HeroTitle";
@@ -18,9 +19,11 @@ export default function HeroSection() {
     const [sanitizedEditorial, setSanitizedEditorial] = useState<string>("");
 
     useEffect(() => {
-        if (editorialContent && editorialContent !== "<p></p>") {
+        const normalizedEditorial = normalizeEditorialHtml(editorialContent);
+
+        if (hasMeaningfulEditorialContent(normalizedEditorial)) {
             import("isomorphic-dompurify").then(({ default: DOMPurify }) => {
-                setSanitizedEditorial(DOMPurify.sanitize(editorialContent));
+                setSanitizedEditorial(DOMPurify.sanitize(normalizedEditorial));
             });
         } else {
             setSanitizedEditorial("");
@@ -134,7 +137,7 @@ export default function HeroSection() {
                     <div className="bg-white/5 border border-white/10 rounded-2xl px-7 pt-7 pb-6 mb-6 mx-2 text-left">
                         <div className="font-bold font-sans text-slate-200 text-lg mb-4">Editorial</div>
                         <div
-                            className="prose prose-invert prose-sm max-w-none text-slate-300"
+                            className="editorial-rich-text prose prose-invert prose-sm max-w-none text-slate-300"
                             dangerouslySetInnerHTML={{ __html: sanitizedEditorial }}
                         />
                     </div>

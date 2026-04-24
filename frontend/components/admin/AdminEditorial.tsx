@@ -11,6 +11,7 @@ import { FeedbackMessage } from "@/components/admin";
 import { GlassCard } from "@/components/ui";
 import { supabase } from "@/infrastructure/config/supabase";
 import DIContainer from "@/infrastructure/di/container";
+import { hasMeaningfulEditorialContent, normalizeEditorialHtml } from "@/lib/editorialRichText";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
@@ -113,7 +114,7 @@ export function AdminEditorial() {
         immediatelyRender: false,
         editorProps: {
             attributes: {
-                class: "min-h-[240px] px-4 py-3 text-[var(--text-primary)] focus:outline-none",
+                class: "editorial-rich-text min-h-[240px] px-4 py-3 text-[var(--text-primary)] focus:outline-none",
             },
         },
     });
@@ -171,7 +172,7 @@ export function AdminEditorial() {
                 .single();
 
             if (data?.content && editor) {
-                editor.commands.setContent(data.content);
+                editor.commands.setContent(normalizeEditorialHtml(data.content));
             }
         } catch (err) {
             console.error("Erro ao carregar editorial:", err);
@@ -189,8 +190,9 @@ export function AdminEditorial() {
         if (!editor) return;
         setIsSaving(true);
         try {
+            const normalizedHtml = normalizeEditorialHtml(editor.getHTML());
             const useCase = DIContainer.getSaveEditorialUseCase();
-            await useCase.execute(editor.getHTML());
+            await useCase.execute(normalizedHtml);
             setFeedback({ show: true, message: "Editorial salvo com sucesso!", type: "success" });
         } catch (err) {
             console.error("Erro ao salvar editorial:", err);
@@ -200,7 +202,8 @@ export function AdminEditorial() {
         }
     };
 
-    const previewHtml = editor?.getHTML() ?? "";
+    const previewHtml = normalizeEditorialHtml(editor?.getHTML() ?? "");
+    const hasPreviewContent = hasMeaningfulEditorialContent(previewHtml);
 
     // —— Bubble de link (portal) ——
     const bubble = bubblePos && editor ? createPortal(
@@ -333,9 +336,9 @@ export function AdminEditorial() {
                     </div>
                 ) : (
                     <div className="px-6 py-4">
-                        {previewHtml && previewHtml !== "<p></p>" ? (
+                        {hasPreviewContent ? (
                             <div
-                                className="prose prose-invert prose-sm max-w-none text-slate-200"
+                                className="editorial-rich-text prose prose-invert prose-sm max-w-none text-slate-200"
                                 dangerouslySetInnerHTML={{ __html: previewHtml }}
                             />
                         ) : (
