@@ -1,5 +1,6 @@
 "use client";
 
+import { portalContentClass } from "@/lib/layout";
 import { BookOpen, FileText, Globe, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
@@ -9,6 +10,35 @@ import { useEbook } from "@/presentation/hooks/useEbook";
 import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
 import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
 import BookCard from "./BookCard";
+
+function compareMiniLivrosForDisplay(left: MiniLivro, right: MiniLivro): number {
+    if (left.partOrder !== right.partOrder) {
+        return left.partOrder - right.partOrder;
+    }
+
+    const leftHasManualIndex = left.index > 0;
+    const rightHasManualIndex = right.index > 0;
+
+    if (leftHasManualIndex && rightHasManualIndex) {
+        if (left.index !== right.index) {
+            return left.index - right.index;
+        }
+
+        return left.id - right.id;
+    }
+
+    if (leftHasManualIndex !== rightHasManualIndex) {
+        return leftHasManualIndex ? -1 : 1;
+    }
+
+    const createdAtDifference = right.createdAt.getTime() - left.createdAt.getTime();
+
+    if (createdAtDifference !== 0) {
+        return createdAtDifference;
+    }
+
+    return left.id - right.id;
+}
 
 /**
  * BentoGridMiniLivros Component
@@ -87,10 +117,12 @@ export default function BentoGridMiniLivros() {
     // Estado de carregamento
     if (isLoading || ebooksLoading) {
         return (
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-                    <p className="text-text-secondary">Carregando mini-livros...</p>
+            <section className="py-12">
+                <div className={portalContentClass}>
+                    <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-100 gap-4">
+                        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+                        <p className="text-text-secondary">Carregando mini-livros...</p>
+                    </div>
                 </div>
             </section>
         );
@@ -99,18 +131,27 @@ export default function BentoGridMiniLivros() {
     // Estado de erro
     if (error) {
         return (
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center py-16">
-                        <p className="text-text-secondary text-lg">{error}</p>
+            <section className="py-12">
+                <div className={portalContentClass}>
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center py-16">
+                            <p className="text-text-secondary text-lg">{error}</p>
+                        </div>
                     </div>
                 </div>
             </section>
         );
     }
 
+    const orderedMiniLivros = [...allMiniLivros].sort(compareMiniLivrosForDisplay);
+    const continuousMiniLivroNumberById = new Map(
+        orderedMiniLivros.map((miniLivro, sequenceIndex) => [miniLivro.id, String(sequenceIndex + 1).padStart(3, "0")]),
+    );
+    const getContinuousMiniLivroNumber = (miniLivro: MiniLivro): string =>
+        continuousMiniLivroNumberById.get(miniLivro.id) ?? miniLivro.formattedNumber;
+
     const selectedEbook = allEbooks.find(e => e.order === selectedEbookIndex + 1) ?? null;
-    const ebookMiniLivros = allMiniLivros.filter(ml => ml.partOrder === selectedEbookIndex + 1);
+    const ebookMiniLivros = orderedMiniLivros.filter(ml => ml.partOrder === selectedEbookIndex + 1);
     const featuredMiniLivro = ebookMiniLivros[0] ?? null;
     const gridMiniLivros = ebookMiniLivros.slice(1);
 
@@ -125,7 +166,8 @@ export default function BentoGridMiniLivros() {
     const hasMiniLivros = ebookMiniLivros.length > 0;
 
     return (
-        <section className="py-12 px-4 sm:px-6 lg:px-8">
+        <section className="py-12">
+            <div className={portalContentClass}>
             {/* Introdução Mini-livros — TEMPORARIAMENTE COMENTADO
             <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
                 <h3
@@ -141,7 +183,7 @@ export default function BentoGridMiniLivros() {
                     style={{ animationDelay: "0.4s" }}
                 >
                     Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
-                    Eles funcionarão como os capítulos de um livro. A cada 7 "capítulos", eu os compilarei em e-books (versões menores do livro).
+                    Eles funcionarão como os capítulos de um livro. A cada 7 &quot;capítulos&quot;, eu os compilarei em e-books (versões menores do livro).
                 </p>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-card/80 border border-border rounded-full w-fit">
                     <a
@@ -160,13 +202,13 @@ export default function BentoGridMiniLivros() {
             */}
 
             {/* Título e descrição da seção de e-books */}
-            <div className="text-center mx-auto mb-8">
-                                <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto line-clamp-2">
-                                    Mini-livros
-                                </h3>
+            <div className="mx-auto mb-8 max-w-4xl text-center">
+                <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto line-clamp-2">
+                    Mini-livros
+                </h3>
                 <p className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 leading-relaxed">
                     Em vez de um livro tradicional, publicarei uma série de textos menores — denominados Mini-livros — aqui mesmo.
-                    Eles funcionarão como os capítulos de um livro. A cada 7 "capítulos", eu os compilarei em e-books (versões menores do livro).
+                    Eles funcionarão como os capítulos de um livro. A cada 7 &quot;capítulos&quot;, eu os compilarei em e-books (versões menores do livro).
                 </p>
                 {/*
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-card/80 border border-border rounded-full w-fit">
@@ -181,12 +223,12 @@ export default function BentoGridMiniLivros() {
             </div>
 
             {/* Card do Livro principal — abaixo do "Leia aqui o Editorial", acima da linha cinza */}
-            <div className="max-w-4xl mx-auto">
+            <div className="w-full">
                 <BookCard />
             </div>
 
             {/* Linha cinza divisória */}
-            <div className="max-w-4xl mx-auto my-8 sm:my-10 md:my-12">
+            <div className="my-8 w-full sm:my-10 md:my-12">
                 <div className="border-t border-border"></div>
             </div>
 
@@ -196,7 +238,7 @@ export default function BentoGridMiniLivros() {
             </p>
 
             {/* Conteúdo principal */}
-            <div className="max-w-4xl mx-auto">
+            <div className="w-full">
 
                 {/* ============================================
                 ABAS DE E-BOOKS — sempre 3 slots fixos
@@ -353,7 +395,7 @@ export default function BentoGridMiniLivros() {
                             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-12">
                                 {/* Mini-Livro Number */}
                                 <p className="text-green-700 text-base sm:text-lg font-mono mb-2">
-                                    Mini-Livro #{featuredMiniLivro.formattedNumber}
+                                    Mini-Livro #{getContinuousMiniLivroNumber(featuredMiniLivro)}
                                 </p>
 
                                 {/* Title */}
@@ -414,7 +456,7 @@ export default function BentoGridMiniLivros() {
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Mini-Livro Number */}
                                 <p className="text-green-700 text-base sm:text-lg font-mono mb-2">
-                                    Mini-Livro #{miniLivro.formattedNumber}
+                                    Mini-Livro #{getContinuousMiniLivroNumber(miniLivro)}
                                 </p>
 
                                 {/* Title */}
@@ -463,6 +505,7 @@ export default function BentoGridMiniLivros() {
                         </div>
                     ))}
                 </div>
+            </div>
             </div>
         </section>
     );

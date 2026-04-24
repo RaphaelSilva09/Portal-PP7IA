@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Header";
+import { portalContentClass } from "@/lib/layout";
 import { ArrowLeft, Briefcase, Users } from "lucide-react";
 import Link from "next/link";
 
@@ -9,7 +10,7 @@ export default function QuemSomosPage() {
             <Navbar />
 
             <main className="pt-20 pb-16">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className={portalContentClass}>
                     {/* Back Link */}
                     <Link
                         href="/"
@@ -50,63 +51,103 @@ export default function QuemSomosPage() {
                     </section>
 
                     {/* Team Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 xl:gap-3">
                         {/* Card: Criador */}
-                        <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-purple-500/30 transition-all duration-300">
-                            <div className="mb-4">
-                                <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <Briefcase className="w-7 h-7 text-purple-400" />
+                        <div className="group relative h-full overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-5 xl:p-4 hover:bg-white/[0.07] hover:border-purple-500/30 transition-all duration-300">
+                            <div className="mb-3">
+                                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <Briefcase className="w-6 h-6 text-purple-400" />
                                 </div>
                             </div>
                             <div>
-                                <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider mb-2 block">
+                                <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider mb-1.5 block">
                                     Criador
                                 </span>
-                                <h3 className="text-base font-bold text-white mb-2">
+                                <h3 className="text-base font-bold text-white mb-2 leading-snug">
                                     Paulo Periquito
                                 </h3>
                                 <p className="text-sm text-gray-400 leading-relaxed">
-                                    Mentor, Investidor Anjo e Advisor. Mais de 40 anos de experiência em liderança executiva.
+                                    Mentor, investidor-anjo e advisor com 40+ anos de liderança.
                                 </p>
                             </div>
                         </div>
 
                         {/* Card: Assistente Técnico 1 */}
-                        <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-blue-500/30 transition-all duration-300">
-                            <div className="mb-4">
-                                <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <Users className="w-7 h-7 text-blue-400" />
+                        <div className="group relative h-full overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-5 xl:p-4 hover:bg-white/[0.07] hover:border-blue-500/30 transition-all duration-300">
+                            <div className="mb-3">
+                                <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <Users className="w-6 h-6 text-blue-400" />
                                 </div>
                             </div>
                             <div>
-                                <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-2 block">
+                                <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-1.5 block">
                                     Assistência Técnica
                                 </span>
-                                <h3 className="text-xl font-bold text-white mb-2">
+                                <h3 className="text-base font-bold text-white mb-2 leading-snug">
                                     Raphael Silva
                                 </h3>
                                 <p className="text-sm text-gray-400 leading-relaxed">
-                                    Estudante de Ciências da Computação. Desenvolvimento e implementação técnica.
+                                    Aluno de Ciência da Computação. Desenvolvimento técnico.
                                 </p>
                             </div>
                         </div>
 
                         {/* Card: Assistente Técnico 2 */}
-                        <div className="group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 hover:bg-white/[0.07] hover:border-blue-500/30 transition-all duration-300">
-                            <div className="mb-4">
-                                <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                    <Users className="w-7 h-7 text-blue-400" />
+                        <div className="group relative h-full overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-5 xl:p-4 hover:bg-white/[0.07] hover:border-blue-500/30 transition-all duration-300">
+                            <div className="mb-3">
+                                <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <Users className="w-6 h-6 text-blue-400" />
                                 </div>
                             </div>
                             <div>
-                                <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-2 block">
+                                <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-1.5 block">
                                     Assistência Técnica
                                 </span>
-                                <h3 className="text-xl font-bold text-white mb-2">
+                                <h3 className="text-base font-bold text-white mb-2 leading-snug">
                                     Lucas Periquito Costa
                                 </h3>
                                 <p className="text-sm text-gray-400 leading-relaxed">
-                                    Estudante de Engenharia da Computação. Suporte técnico e desenvolvimento.
+                                    Aluno de Engenharia da Computação. Suporte técnico.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Card: Assistente Técnico 3 */}
+                        <div className="group relative h-full overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-5 xl:p-4 hover:bg-white/[0.07] hover:border-blue-500/30 transition-all duration-300">
+                            <div className="mb-3">
+                                <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <Users className="w-6 h-6 text-blue-400" />
+                                </div>
+                            </div>
+                            <div>
+                                <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-1.5 block">
+                                    Assistência Técnica
+                                </span>
+                                <h3 className="text-base font-bold text-white mb-2 leading-snug">
+                                    Luiza Santana
+                                </h3>
+                                <p className="text-sm text-gray-400 leading-relaxed">
+                                    Aluna de Sistemas de Informação. Curadoria de conteúdo.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Card: Assistente Técnico 4 */}
+                        <div className="group relative h-full overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-5 xl:p-4 hover:bg-white/[0.07] hover:border-blue-500/30 transition-all duration-300">
+                            <div className="mb-3">
+                                <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <Users className="w-6 h-6 text-blue-400" />
+                                </div>
+                            </div>
+                            <div>
+                                <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-1.5 block">
+                                    Assistência Técnica
+                                </span>
+                                <h3 className="text-base font-bold text-white mb-2 leading-snug">
+                                    Davi Ferreira
+                                </h3>
+                                <p className="text-sm text-gray-400 leading-relaxed">
+                                    Aluno de Engenharia da Computação. Apoio técnico.
                                 </p>
                             </div>
                         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { portalContentClass } from "@/lib/layout";
 import { Mail, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -24,8 +25,8 @@ export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer id="footer" className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-bg-secondary border-t border-border-glass">
-            <div className="max-w-4xl mx-auto">
+        <footer id="footer" className="relative border-t border-border-glass bg-bg-secondary py-12 sm:py-16">
+            <div className={portalContentClass}>
                 {/* Top Section */}
                 <div className="flex flex-col md:flex-row gap-8 mb-12">
                     {/* Brand */}

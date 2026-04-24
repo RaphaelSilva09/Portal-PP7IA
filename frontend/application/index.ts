@@ -35,3 +35,10 @@ export type { GetEstudarResult } from "./usecases/GetEstudarUseCase";
 
 export { GetEbookUseCase } from "./usecases/GetEbookUseCase";
 export type { GetEbookResult } from "./usecases/GetEbookUseCase";
+
+export { GetContentViewNavigationUseCase } from "./usecases/GetContentViewNavigationUseCase";
+export type {
+    ContentViewNavigationLink,
+    GetContentViewNavigationInput,
+    GetContentViewNavigationResult,
+} from "./usecases/GetContentViewNavigationUseCase";

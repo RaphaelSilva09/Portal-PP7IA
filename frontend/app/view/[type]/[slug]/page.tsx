@@ -1,4 +1,7 @@
-import ViewIframe from "@/components/ViewIframe";
+import type { ContentType } from "@/domain/entities/ContentItem";
+import DIContainer from "@/infrastructure/di/container";
+import type { ContentViewNavigationLink } from "@/application/usecases/GetContentViewNavigationUseCase";
+import ViewContentFrame from "@/components/ViewContentFrame";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -16,6 +19,20 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     ebook: { folder: "mini-livros/intros", title: "E-book" },
     book: { folder: "mini-livros/livro", title: "Livro" },
 };
+
+const NAVIGABLE_TYPES: readonly ContentType[] = [
+    "newsletter",
+    "mini-livro",
+    "biblioteca",
+    "especial-semana",
+    "radar_oportunidades",
+    "estudar",
+    "ebook",
+];
+
+function isNavigableType(type: string): type is ContentType {
+    return NAVIGABLE_TYPES.includes(type as ContentType);
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { type, slug } = await params;
@@ -42,10 +59,19 @@ export default async function ViewPage({ params }: Props) {
     // Usa API route proxy para servir HTML do Supabase Storage
     // Isso resolve problemas de X-Frame-Options e CORS
     const htmlPath = `/api/proxy-html/${type}/${slug}`;
+    let previous: ContentViewNavigationLink | null = null;
+    let next: ContentViewNavigationLink | null = null;
 
-    return (
-        <div className="w-full h-screen bg-[var(--background)]">
-            <ViewIframe htmlPath={htmlPath} title={`${config.title} - ${slug}`} />
-        </div>
-    );
+    if (isNavigableType(type)) {
+        try {
+            const navigation = await DIContainer.getContentViewNavigationUseCase().execute({ type, slug });
+            previous = navigation.previous;
+            next = navigation.next;
+        } catch {
+            previous = null;
+            next = null;
+        }
+    }
+
+    return <ViewContentFrame htmlPath={htmlPath} title={`${config.title} - ${slug}`} previous={previous} next={next} />;
 }

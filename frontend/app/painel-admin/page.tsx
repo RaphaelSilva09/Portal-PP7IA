@@ -33,6 +33,7 @@ import {
 import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
+import { portalContentClass } from "@/lib/layout";
 import DIContainer from "@/infrastructure/di/container";
 import {
     ArrowLeft,
@@ -352,8 +353,8 @@ export default function PainelAdminPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[var(--bg-primary)] p-8">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="min-h-screen bg-[var(--bg-primary)] py-8">
+            <div className={`${portalContentClass} space-y-8`}>
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
                     <div className="space-y-4">

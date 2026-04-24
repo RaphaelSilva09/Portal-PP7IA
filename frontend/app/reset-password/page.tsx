@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useForgotPasswordModal } from "@/context/ForgotPasswordModalContext";
 import { usePasswordRecovery } from "@/hooks/usePasswordRecovery";
+import { portalContentClass } from "@/lib/layout";
 import { isValidPassword } from "@/lib/validators";
 import { AlertCircle, ArrowLeft, Check, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -17,7 +18,7 @@ function ResetPasswordPageContent() {
     const searchParams = useSearchParams();
     const { user } = useAuth();
     const { openModal: openForgotPasswordModal } = useForgotPasswordModal();
-    const { recoveryStatus, recoveryError, isLoading, resetPassword } = usePasswordRecovery();
+    const { recoveryError, isLoading, resetPassword } = usePasswordRecovery();
 
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,28 +26,19 @@ function ResetPasswordPageContent() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<{ newPassword?: string; confirmPassword?: string }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [isLegacyLink, setIsLegacyLink] = useState(false);
+    const isLegacyLink = Boolean(
+        searchParams.get("resetToken") || searchParams.get("access_token") || searchParams.get("refresh_token"),
+    );
 
     // TODO: Remove this page after 2026-04-22 (60 days post-migration)
 
     // Verifica se há token de link antigo e mostra mensagem de deprecação
     useEffect(() => {
-        const resetToken = searchParams.get("resetToken");
-        const accessToken = searchParams.get("access_token");
-        const refreshToken = searchParams.get("refresh_token");
-        const hasAnyToken = resetToken || accessToken || refreshToken;
-
-        // Se detectar link antigo, marca como legacy e evita processamento adicional
-        if (hasAnyToken) {
-            setIsLegacyLink(true);
-            return;
-        }
-
         // Se não há tokens e não há usuário logado, redireciona para home
-        if (!user) {
+        if (!isLegacyLink && !user) {
             router.push("/");
         }
-    }, [searchParams, user, router]);
+    }, [isLegacyLink, user, router]);
 
     /**
      * Valida formulário
@@ -94,8 +86,9 @@ function ResetPasswordPageContent() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
-            <div className="w-full max-w-md">
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+            <div className={portalContentClass}>
+                <div className="mx-auto w-full max-w-md">
                 {/* Back Button */}
                 <Link
                     href="/"
@@ -285,6 +278,7 @@ function ResetPasswordPageContent() {
                     )}
                 </div>
             </div>
+            </div>
         </div>
     );
 }
@@ -304,7 +298,9 @@ export default function ResetPasswordPage() {
         <Suspense
             fallback={
                 <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-                    <div>Carregando...</div>
+                    <div className={portalContentClass}>
+                        <div className="mx-auto max-w-md text-center text-text-secondary">Carregando...</div>
+                    </div>
                 </div>
             }
         >

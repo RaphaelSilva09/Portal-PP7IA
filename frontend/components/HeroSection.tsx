@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSession } from "@/context/SessionContext";
-import { useHomePageDates } from "@/presentation/hooks/useHomePageDates";
+import { portalContentClass } from "@/lib/layout";
 import { useEditorial } from "@/presentation/hooks/useEditorial";
 import TopoSvg from "@/assets/topo.svg";
 import HeroTitle from "./HeroTitle";
@@ -14,7 +14,6 @@ export default function HeroSection() {
     const { user } = useSession();
     const { openModal: openInviteModal } = useInviteModal();
     const { openModal: openAuthModal } = useAuthModal();
-    const { mostRecentDate } = useHomePageDates();
     const { content: editorialContent } = useEditorial();
     const [sanitizedEditorial, setSanitizedEditorial] = useState<string>("");
 
@@ -47,7 +46,7 @@ export default function HeroSection() {
     return (
         <section
             id="hero"
-            className="relative flex items-center justify-center pt-6 sm:pt-8 md:pt-12 lg:pt-16 pb-4 sm:pb-8 md:pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
+            className="relative flex items-center justify-center overflow-hidden pt-6 pb-4 sm:pt-8 sm:pb-8 md:pt-12 md:pb-12 lg:pt-16"
         >
             {/* SVG Background with Fade Effect */}
             <div
@@ -70,7 +69,8 @@ export default function HeroSection() {
                 }}
             />
             {/* Content */}
-            <div className="relative z-10 max-w-4xl mx-auto text-center px-2 sm:px-4">
+            <div className={portalContentClass}>
+                <div className="relative z-10 w-full text-center">
 
 {/* Main Title */}
                 <div
@@ -139,6 +139,7 @@ export default function HeroSection() {
                         />
                     </div>
                 )}
+                </div>
             </div>
         </section>
     );

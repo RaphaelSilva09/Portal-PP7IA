@@ -2,6 +2,7 @@
 
 import { FileText, Globe, Loader2 } from "lucide-react";
 
+import { portalContentClass } from "@/lib/layout";
 import { Newsletter } from "@/domain/entities/Newsletter";
 import { useNewsletters } from "@/presentation/hooks/useNewsletters";
 import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
@@ -12,16 +13,18 @@ import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
  * Dados carregados dinamicamente do Supabase
  */
 export default function BentoGridNewsletter() {
-    const { latest, older, isLoading, error, lastUpdated } = useNewsletters();
+    const { latest, older, isLoading, error } = useNewsletters();
     useScrollToHash(!isLoading);
 
     // Estado de carregamento
     if (isLoading) {
         return (
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-[400px] gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-brand-blue" />
-                    <p className="text-text-secondary">Carregando newsletters...</p>
+            <section className="py-12">
+                <div className={portalContentClass}>
+                    <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-[400px] gap-4">
+                        <Loader2 className="w-8 h-8 animate-spin text-brand-blue" />
+                        <p className="text-text-secondary">Carregando newsletters...</p>
+                    </div>
                 </div>
             </section>
         );
@@ -30,12 +33,14 @@ export default function BentoGridNewsletter() {
     // Estado de erro ou sem dados
     if (error || !latest) {
         return (
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center py-16">
-                        <p className="text-text-secondary text-lg">
-                            {error || "Nenhuma newsletter disponível no momento."}
-                        </p>
+            <section className="py-12">
+                <div className={portalContentClass}>
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center py-16">
+                            <p className="text-text-secondary text-lg">
+                                {error || "Nenhuma newsletter disponível no momento."}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -43,30 +48,31 @@ export default function BentoGridNewsletter() {
     }
 
     return (
-        <section className="py-12 px-4 sm:px-6 lg:px-8">
-            {/* Introdução Newsletter */}
-            <div id="introducao" className="text-center mx-auto mb-6 sm:mb-7 md:mb-8">
-                {/* Título da Introdução */}
-                <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-                    Newsletters
-                </h3>
+        <section className="py-12">
+            <div className={portalContentClass}>
+                {/* Introdução Newsletter */}
+                <div id="introducao" className="mx-auto mb-6 max-w-4xl text-center sm:mb-7 md:mb-8">
+                    {/* Título da Introdução */}
+                    <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+                        Newsletters
+                    </h3>
 
-                {/* Descrição Newsletter */}
-                <p
-                    id="descricao"
-                    className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
-                    style={{ animationDelay: "0.4s" }}
-                >
-                    Notícias semanais sobre as principais tecnologias
-                </p>
-            </div>
+                    {/* Descrição Newsletter */}
+                    <p
+                        id="descricao"
+                        className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
+                        style={{ animationDelay: "0.4s" }}
+                    >
+                        Notícias semanais sobre as principais tecnologias
+                    </p>
+                </div>
 
-            {/* Linha divisória cinza */}
-            <div className="max-w-4xl mx-auto my-8 sm:my-10 md:my-12">
+                {/* Linha divisória cinza */}
+                <div className="my-8 w-full sm:my-10 md:my-12">
                 <div className="border-t border-border"></div>
-            </div>
+                </div>
 
-            <div className="max-w-4xl mx-auto">
+                <div className="w-full">
                 {/* Bento Grid - 3 Columns Layout */}
                 <div id="last-newsletter" className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* ============================================
@@ -124,7 +130,7 @@ export default function BentoGridNewsletter() {
                                 {latest.pdfAvailable ? (
                                     <a
                                         href={latest.pdfPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-700 hover:bg-indigo-800 border border-indigo-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -188,7 +194,7 @@ export default function BentoGridNewsletter() {
                                     {newsletter.pdfAvailable ? (
                                         <a
                                             href={newsletter.pdfPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-700 hover:bg-indigo-800 border border-indigo-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
                                             <FileText className="w-5 h-5" />
                                             <span>PDF</span>
@@ -209,6 +215,7 @@ export default function BentoGridNewsletter() {
                             </div>
                         </div>
                     ))}
+                </div>
                 </div>
             </div>
         </section>

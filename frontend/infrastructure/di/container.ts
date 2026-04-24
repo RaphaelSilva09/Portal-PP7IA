@@ -23,6 +23,7 @@ import { GetActiveBookUseCase } from "../../application/usecases/GetActiveBookUs
 import { GetUsersUseCase } from "../../application/usecases/GetAllUsersUseCase";
 import { GetTodayRegistrationsUseCase } from "../../application/usecases/GetTodayRegistrationsUseCase";
 import { GetBibliotecaUseCase } from "../../application/usecases/GetBibliotecaUseCase";
+import { GetContentViewNavigationUseCase } from "../../application/usecases/GetContentViewNavigationUseCase";
 import { GetCurrentUserUseCase } from "../../application/usecases/GetCurrentUserUseCase";
 import { GetDashboardStatsUseCase } from "../../application/usecases/GetDashboardStatsUseCase";
 import { GetEbookUseCase } from "../../application/usecases/GetEbookUseCase";
@@ -258,6 +259,18 @@ class DIContainer {
 
     static getEbookUseCase(): GetEbookUseCase {
         return new GetEbookUseCase(this.getEbookRepository());
+    }
+
+    static getContentViewNavigationUseCase(): GetContentViewNavigationUseCase {
+        return new GetContentViewNavigationUseCase({
+            newsletterRepository: this.getNewsletterRepository(),
+            miniLivroRepository: this.getMiniLivroRepository(),
+            bibliotecaRepository: this.getBibliotecaRepository(),
+            especialSemanaRepository: this.getEspecialSemanaRepository(),
+            radarOportunidadesRepository: this.getRadarOportunidadesRepository(),
+            estudarRepository: this.getEstudarRepository(),
+            ebookRepository: this.getEbookRepository(),
+        });
     }
 
     static getActiveBookUseCase(): GetActiveBookUseCase {
