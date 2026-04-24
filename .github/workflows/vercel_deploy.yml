@@ -1,20 +1,12 @@
 name: Deploy to Vercel
 on:
     push:
-        branches:
-            - main
-            - develop
     pull_request:
         types:
             - closed
-        branches:
-            - main
-            - develop
 jobs:
     deploy:
-        if: |
-            (github.event_name == 'push' && contains(fromJSON('["RaphaelSilva09", "MerigoDavi"]'), github.actor)) ||
-            (github.event_name == 'pull_request' && github.event.pull_request.merged == true && contains(fromJSON('["RaphaelSilva09", "MerigoDavi"]'), github.event.pull_request.merged_by.login))
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -40,12 +32,11 @@ jobs:
                   MAIN_HOOK: ${{ secrets.main_hook }}
                   DEVELOP_HOOK: ${{ secrets.develop_hook }}
               run: |
-                  if [[ "${{ steps.branch.outputs.branch }}" == "main" ]]; then
+                  BRANCH_NAME="${{ steps.branch.outputs.branch }}"
+                  if [[ "$BRANCH_NAME" == "main" ]]; then
                     DEPLOY_HOOK="$MAIN_HOOK"
-                    BRANCH_NAME="main"
                   else
                     DEPLOY_HOOK="$DEVELOP_HOOK"
-                    BRANCH_NAME="develop"
                   fi
                   echo "Triggering Vercel deployment for branch: $BRANCH_NAME"
                   curl --fail --max-time 30 -X POST "$DEPLOY_HOOK"
