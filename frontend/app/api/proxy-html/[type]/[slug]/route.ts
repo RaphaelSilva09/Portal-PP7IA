@@ -25,6 +25,7 @@ const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
     "mini-livro": { bucket: "materiais", folder: "mini-livros/mini" },
     biblioteca: { bucket: "materiais", folder: "biblioteca" },
     "especial-semana": { bucket: "materiais", folder: "especial-da-semana" },
+    editorial: { bucket: "materiais", folder: "editoriais" },
     radar_oportunidades: { bucket: "materiais", folder: "radar-de-oportunidades" },
     estudar: { bucket: "materiais", folder: "estudar" },
     // ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
