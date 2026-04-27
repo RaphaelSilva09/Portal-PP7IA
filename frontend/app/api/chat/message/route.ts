@@ -80,24 +80,25 @@ export async function POST(request: NextRequest) {
 
     // Hybrid: detect "mini[ -]livro N" / "ML-N" / "MLNN" → fetch all chunks for that source
     // so broad questions like "o que tem no minilivro 3" get the whole chapter list.
+    // When a hybrid hit fires, skip the cross-source semantic search to keep the citation
+    // list focused on the explicitly-asked mini-livro.
     const directMatch = lastUser.content.match(/\b(?:mini[\s-]?livro|ml)[\s-]?0*(\d{1,2})\b/i);
     const directChunks = directMatch
         ? await chunkRepo.findBySlug("mini_livro", String(directMatch[1]).padStart(3, "0"))
         : [];
 
-    const semanticChunks = await chunkRepo.searchSimilar({
-        sourceType: "mini_livro",
-        queryEmbedding,
-        topK: RAG_TOP_K,
-    });
-    const relevantSemantic = semanticChunks.filter(c => c.similarity >= RAG_MIN_SIMILARITY);
-
-    // Merge direct hits first (they're guaranteed on-topic), then dedup against semantic.
-    const seen = new Set(directChunks.map(c => `${c.source_id}:${c.chunk_index}`));
-    const relevant = [
-        ...directChunks,
-        ...relevantSemantic.filter(c => !seen.has(`${c.source_id}:${c.chunk_index}`)),
-    ];
+    let relevant: typeof directChunks;
+    if (directChunks.length > 0) {
+        // Targeted query — only this mini-livro's chunks
+        relevant = directChunks;
+    } else {
+        const semanticChunks = await chunkRepo.searchSimilar({
+            sourceType: "mini_livro",
+            queryEmbedding,
+            topK: RAG_TOP_K,
+        });
+        relevant = semanticChunks.filter(c => c.similarity >= RAG_MIN_SIMILARITY);
+    }
 
     if (relevant.length === 0) {
         // Stream the no-match answer; bump usage but don't call LLM.
@@ -123,7 +124,23 @@ export async function POST(request: NextRequest) {
     // 6. Stream
     const provider = getLLMProvider();
     const startedAt = Date.now();
-    const citations = relevant.map(c => citationFromMetadata(c.metadata, c.similarity));
+
+    // Dedupe citations: one per (slug, chapter). Keep highest similarity per group.
+    // "Chapter" = first 2 levels of heading_path (book → chapter). Cap at 8.
+    const CITATION_CAP = 8;
+    const citationByChapter = new Map<string, ReturnType<typeof citationFromMetadata>>();
+    for (const c of relevant) {
+        const chapterKey = `${c.metadata.slug}|${(c.metadata.heading_path ?? []).slice(0, 2).join("|")}`;
+        const cit = citationFromMetadata(c.metadata, c.similarity);
+        const existing = citationByChapter.get(chapterKey);
+        if (!existing || cit.similarity > existing.similarity) {
+            // Trim heading_path to 2 levels for display (book + chapter, drop sub-section noise)
+            citationByChapter.set(chapterKey, { ...cit, heading_path: cit.heading_path.slice(0, 2) });
+        }
+    }
+    const citations = Array.from(citationByChapter.values())
+        .sort((a, b) => b.similarity - a.similarity)
+        .slice(0, CITATION_CAP);
 
     const stream = new ReadableStream({
         async start(controller) {
