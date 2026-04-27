@@ -21,7 +21,7 @@ This guide walks you through deploying the 4-layer solution to fix intermittent 
 - [ ] Git repository write access
 - [ ] Admin user account in the portal
 
-### Environment Checks
+### Environment Check
 ```bash
 # Verify you're in the correct directory
 pwd
