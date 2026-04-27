@@ -25,6 +25,3 @@ export function getSupabaseClientKey(): string {
     return resolvedKey;
 }
 
-export function getSupabaseEnvError(): string {
-    return SUPABASE_ENV_ERROR;
-}

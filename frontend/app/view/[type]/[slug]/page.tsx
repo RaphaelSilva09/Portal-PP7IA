@@ -13,6 +13,7 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     newsletter: { folder: "newsletters", title: "Newsletter" },
     "mini-livro": { folder: "mini-livros", title: "Mini-Livro" },
     biblioteca: { folder: "biblioteca", title: "Biblioteca" },
+    editorial: { folder: "editoriais", title: "Editorial" },
     "especial-semana": { folder: "especial-semana", title: "Especial da Semana" },
     radar_oportunidades: { folder: "radar-de-oportunidades", title: "Radar de Oportunidades" },
     estudar: { folder: "estudar", title: "Estudar" },

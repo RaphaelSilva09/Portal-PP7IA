@@ -3,357 +3,314 @@
 /**
  * AdminEditorial Component (Presentation Layer)
  *
- * Interface de edição do conteúdo editorial via TipTap rich text.
- * Auto-contida: gerencia seus próprios dados e estado.
+ * Upload fixo dos dois editoriais HTML exibidos na home.
  */
 
-import { FeedbackMessage } from "@/components/admin";
-import { GlassCard } from "@/components/ui";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+    EDITORIAL_ITEMS,
+    EDITORIAL_STORAGE_BUCKET,
+    EDITORIAL_STORAGE_FOLDER,
+    getEditorialFileName,
+    getEditorialStoragePath,
+    getEditorialViewPath,
+    type EditorialSlug,
+} from "@/constants/editorials";
+import { GlassCard, GradientButton } from "@/components/ui";
 import { supabase } from "@/infrastructure/config/supabase";
-import DIContainer from "@/infrastructure/di/container";
-import { useEditor, EditorContent, Editor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import TextAlign from "@tiptap/extension-text-align";
-import Underline from "@tiptap/extension-underline";
-import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Check, Loader2, Save, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { AlertCircle, FileText, Loader2, Trash2, Upload, X } from "lucide-react";
+import { ConfirmDialog } from "./ConfirmDialog";
+import { FeedbackMessage } from "./FeedbackMessage";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-type EditorTab = "editar" | "preview";
-type LinkMode = "idle" | "input";
+type EditorialFileMap = Record<EditorialSlug, string | null>;
 
-// —— Toolbar ——
-function Toolbar({ editor }: { editor: Editor | null }) {
-    if (!editor) return null;
+const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
 
-    const btn = (active: boolean, onClick: () => void, label: ReactNode, title: string) => (
-        <button
-            type="button"
-            title={title}
-            onMouseDown={e => { e.preventDefault(); onClick(); }}
-            className={`px-2.5 py-1.5 rounded text-sm font-medium transition-colors ${
-                active
-                    ? "bg-[var(--brand-blue)] text-white"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)]"
-            }`}
-        >
-            {label}
-        </button>
-    );
+interface EditorialUploadFieldProps {
+    id: string;
+    label: string;
+    description: string;
+    slug: EditorialSlug;
+    file: File | null;
+    existingFileName: string | null;
+    isDeletingExisting: boolean;
+    onChange: (slug: EditorialSlug, file: File | null) => void;
+    onDeleteExisting: (slug: EditorialSlug) => void;
+}
 
+function EditorialUploadField({
+    id,
+    label,
+    description,
+    slug,
+    file,
+    existingFileName,
+    isDeletingExisting,
+    onChange,
+    onDeleteExisting,
+}: EditorialUploadFieldProps) {
     return (
-        <div className="flex flex-wrap items-center gap-1 p-2 border-b border-[var(--border-glass)] bg-[var(--bg-secondary)] rounded-t-lg">
-            {btn(editor.isActive("bold"), () => editor.chain().focus().toggleBold().run(), <strong>N</strong>, "Negrito")}
-            {btn(editor.isActive("italic"), () => editor.chain().focus().toggleItalic().run(), <em>I</em>, "Itálico")}
-            {btn(editor.isActive("underline"), () => editor.chain().focus().toggleUnderline().run(), <u>S</u>, "Sublinhado")}
-            <div className="w-px h-5 bg-[var(--border-glass)] mx-1" />
-            {btn(!editor.isActive("heading"), () => editor.chain().focus().setParagraph().run(), "P", "Parágrafo")}
-            {btn(editor.isActive("heading", { level: 1 }), () => editor.chain().focus().toggleHeading({ level: 1 }).run(), "H1", "Título 1")}
-            {btn(editor.isActive("heading", { level: 2 }), () => editor.chain().focus().toggleHeading({ level: 2 }).run(), "H2", "Título 2")}
-            <div className="w-px h-5 bg-[var(--border-glass)] mx-1" />
-            {btn(editor.isActive("bulletList"), () => editor.chain().focus().toggleBulletList().run(), "• Lista", "Lista de pontos")}
-            {btn(editor.isActive("orderedList"), () => editor.chain().focus().toggleOrderedList().run(), "1. Lista numérica", "Lista numerada")}
-            <div className="w-px h-5 bg-[var(--border-glass)] mx-1" />
-            {btn(editor.isActive({ textAlign: "left" }), () => editor.chain().focus().setTextAlign("left").run(), <AlignLeft className="w-4 h-4" />, "Alinhar à esquerda")}
-            {btn(editor.isActive({ textAlign: "center" }), () => editor.chain().focus().setTextAlign("center").run(), <AlignCenter className="w-4 h-4" />, "Centralizar")}
-            {btn(editor.isActive({ textAlign: "right" }), () => editor.chain().focus().setTextAlign("right").run(), <AlignRight className="w-4 h-4" />, "Alinhar à direita")}
-            {btn(editor.isActive({ textAlign: "justify" }), () => editor.chain().focus().setTextAlign("justify").run(), <AlignJustify className="w-4 h-4" />, "Justificar")}
+        <div className="rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/40 p-5 space-y-4">
+            <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[var(--text-primary)]">
+                    <FileText className="w-5 h-5 text-[var(--brand-blue)]" />
+                    <h3 className="text-lg font-semibold">{label}</h3>
+                </div>
+                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">{description}</p>
+            </div>
+
+            <div className="text-xs text-[var(--text-secondary)] space-y-1">
+                <p>Destino no storage: <code>{getEditorialStoragePath(slug)}</code></p>
+                <p>Leitura pública: <code>{getEditorialViewPath(slug)}</code></p>
+            </div>
+
+            {existingFileName ? (
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-[var(--brand-green)]">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span className="truncate">Arquivo atual: {existingFileName}</span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => onDeleteExisting(slug)}
+                        disabled={isDeletingExisting}
+                        className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-300 transition-colors hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {isDeletingExisting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        {isDeletingExisting ? "Deletando..." : "Deletar HTML atual"}
+                    </button>
+                </div>
+            ) : (
+                <div className="text-sm text-[var(--text-secondary)]">Nenhum HTML enviado ainda.</div>
+            )}
+
+            <div>
+                <label className={LABEL_CLASS}>Arquivo HTML</label>
+                <div className="relative">
+                    <input
+                        type="file"
+                        accept=".html"
+                        onChange={e => onChange(slug, e.target.files?.[0] ?? null)}
+                        className="hidden"
+                        id={id}
+                    />
+                    <label
+                        htmlFor={id}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border-glass)] rounded-lg text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-blue)]/50 transition-colors"
+                    >
+                        <Upload className="w-5 h-5 shrink-0" />
+                        <span className="truncate">
+                            {file ? file.name : existingFileName ? "Escolher novo HTML (substitui o atual)" : "Selecionar arquivo HTML"}
+                        </span>
+                    </label>
+                    {file && (
+                        <button
+                            type="button"
+                            onClick={() => onChange(slug, null)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-red-400 transition-colors"
+                            aria-label={`Remover arquivo ${label}`}
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
 
 // —— Componente principal ——
 export function AdminEditorial() {
-    const [tab, setTab] = useState<EditorTab>("editar");
+    const queryClient = useQueryClient();
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [deletingSlug, setDeletingSlug] = useState<EditorialSlug | null>(null);
+    const [pendingDeleteSlug, setPendingDeleteSlug] = useState<EditorialSlug | null>(null);
     const [feedback, setFeedback] = useState<{ show: boolean; message: string; type: "success" | "error" | "warning" }>({
         show: false,
         message: "",
         type: "success",
     });
-
-    // —— Bubble de link ——
-    const [linkMode, setLinkMode] = useState<LinkMode>("idle");
-    const [linkUrl, setLinkUrl] = useState("");
-    const [bubblePos, setBubblePos] = useState<{ top: number; left: number } | null>(null);
-    const linkInputRef = useRef<HTMLInputElement>(null);
-    const bubbleRef = useRef<HTMLDivElement>(null);
-    const linkModeRef = useRef<LinkMode>("idle");
-    const BASE_W = 128; // px base
-    const MAX_W = BASE_W * 3; // triplo
-
-    // mantém ref sincronizada para uso dentro de event listeners
-    useEffect(() => { linkModeRef.current = linkMode; }, [linkMode]);
-
-    const resetLink = useCallback(() => {
-        setLinkMode("idle");
-        setLinkUrl("");
-        setBubblePos(null);
-    }, []);
-
-    const confirmLink = useCallback((editorInstance: Editor) => {
-        const url = linkUrl.trim();
-        if (url) {
-            editorInstance.chain().focus().setLink({ href: url }).run();
-        } else {
-            editorInstance.chain().focus().unsetLink().run();
-        }
-        setLinkMode("idle");
-        setLinkUrl("");
-        // mantém bubblePos — a seleção ainda está ativa, será atualizada pelo próximo evento
-    }, [linkUrl]);
-
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Underline,
-            TextAlign.configure({ types: ["heading", "paragraph"] }),
-        ],
-        immediatelyRender: false,
-        editorProps: {
-            attributes: {
-                class: "min-h-[240px] px-4 py-3 text-[var(--text-primary)] focus:outline-none",
-            },
-        },
+    const [existingFiles, setExistingFiles] = useState<EditorialFileMap>({
+        "primeiros-usuarios": null,
+        semanais: null,
+    });
+    const [selectedFiles, setSelectedFiles] = useState<Record<EditorialSlug, File | null>>({
+        "primeiros-usuarios": null,
+        semanais: null,
     });
 
-    // —— Posiciona o bubble ao mudar a seleção ——
-    useEffect(() => {
-        if (!editor) return;
-
-        const updateBubble = () => {
-            // enquanto o usuário digita o link não reposiciona
-            if (linkModeRef.current === "input") return;
-
-            const { empty } = editor.state.selection;
-            if (empty) {
-                setBubblePos(null);
-                return;
-            }
-
-            const sel = window.getSelection();
-            if (!sel || sel.rangeCount === 0) return;
-
-            const rect = sel.getRangeAt(0).getBoundingClientRect();
-            if (!rect.width) return;
-
-            setBubblePos({
-                top: rect.bottom + window.scrollY + 8,
-                left: rect.left + window.scrollX + rect.width / 2,
-            });
-        };
-
-        // Esconde o bubble ao clicar fora do editor e fora do bubble
-        const handleMouseDown = (e: MouseEvent) => {
-            if (bubbleRef.current?.contains(e.target as Node)) return;
-            if ((editor.view.dom as HTMLElement).contains(e.target as Node)) return;
-            resetLink();
-        };
-
-        editor.on("selectionUpdate", updateBubble);
-        document.addEventListener("mousedown", handleMouseDown);
-
-        return () => {
-            editor.off("selectionUpdate", updateBubble);
-            document.removeEventListener("mousedown", handleMouseDown);
-        };
-    }, [editor, resetLink]);
-
-    // —— Carregar conteúdo atual ——
-    const loadContent = useCallback(async () => {
+    const loadFiles = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data } = await supabase
-                .from("editorial")
-                .select("content")
-                .eq("id", 1)
-                .single();
+            const { data, error } = await supabase.storage
+                .from(EDITORIAL_STORAGE_BUCKET)
+                .list(EDITORIAL_STORAGE_FOLDER, { limit: 100 });
 
-            if (data?.content && editor) {
-                editor.commands.setContent(data.content);
-            }
+            if (error) throw error;
+
+            const availableFiles = new Set((data ?? []).map(item => item.name));
+            setExistingFiles({
+                "primeiros-usuarios": availableFiles.has(getEditorialFileName("primeiros-usuarios"))
+                    ? getEditorialFileName("primeiros-usuarios")
+                    : null,
+                semanais: availableFiles.has(getEditorialFileName("semanais"))
+                    ? getEditorialFileName("semanais")
+                    : null,
+            });
         } catch (err) {
-            console.error("Erro ao carregar editorial:", err);
+            console.error("Erro ao carregar editoriais:", err);
+            setFeedback({ show: true, message: "Erro ao carregar arquivos editoriais.", type: "error" });
         } finally {
             setIsLoading(false);
         }
-    }, [editor]);
+    }, []);
 
     useEffect(() => {
-        if (editor) loadContent();
-    }, [editor, loadContent]);
+        loadFiles();
+    }, [loadFiles]);
+
+    const hasPendingUploads = useMemo(() => Object.values(selectedFiles).some(Boolean), [selectedFiles]);
+
+    const handleFileChange = (slug: EditorialSlug, file: File | null) => {
+        setSelectedFiles(prev => ({ ...prev, [slug]: file }));
+    };
 
     // —— Salvar ——
     const handleSave = async () => {
-        if (!editor) return;
+        if (!hasPendingUploads) {
+            setFeedback({ show: true, message: "Selecione pelo menos um HTML para enviar.", type: "warning" });
+            return;
+        }
+
         setIsSaving(true);
         try {
-            const useCase = DIContainer.getSaveEditorialUseCase();
-            await useCase.execute(editor.getHTML());
-            setFeedback({ show: true, message: "Editorial salvo com sucesso!", type: "success" });
+            for (const item of EDITORIAL_ITEMS) {
+                const file = selectedFiles[item.slug];
+                if (!file) continue;
+
+                const { error } = await supabase.storage
+                    .from(EDITORIAL_STORAGE_BUCKET)
+                    .upload(getEditorialStoragePath(item.slug), file, {
+                        cacheControl: "3600",
+                        upsert: true,
+                    });
+
+                if (error) throw error;
+            }
+
+            setSelectedFiles({
+                "primeiros-usuarios": null,
+                semanais: null,
+            });
+            await loadFiles();
+            await queryClient.invalidateQueries({ queryKey: ["editoriais"] });
+            setFeedback({ show: true, message: "Editoriais atualizados com sucesso!", type: "success" });
         } catch (err) {
-            console.error("Erro ao salvar editorial:", err);
-            setFeedback({ show: true, message: "Erro ao salvar. Tente novamente.", type: "error" });
+            console.error("Erro ao salvar editoriais:", err);
+            setFeedback({ show: true, message: "Erro ao enviar os HTMLs. Tente novamente.", type: "error" });
         } finally {
             setIsSaving(false);
         }
     };
 
-    const previewHtml = editor?.getHTML() ?? "";
+    const handleDeleteExisting = async (slug: EditorialSlug) => {
+        setDeletingSlug(slug);
+        try {
+            const { error } = await supabase.storage
+                .from(EDITORIAL_STORAGE_BUCKET)
+                .remove([getEditorialStoragePath(slug)]);
 
-    // —— Bubble de link (portal) ——
-    const bubble = bubblePos && editor ? createPortal(
-        <div
-            ref={bubbleRef}
-            style={{ position: "absolute", top: bubblePos.top, left: bubblePos.left, transform: "translateX(-50%)", zIndex: 9999 }}
-            // preventDefault impede que o editor perca o foco/seleção ao interagir com o bubble
-            onMouseDown={e => e.preventDefault()}
-        >
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card/95 border border-border shadow-2xl text-sm">
-                {linkMode === "idle" ? (
-                    <button
-                        type="button"
-                        className="text-foreground hover:text-foreground transition-colors whitespace-nowrap text-xs font-medium min-h-8 px-1"
-                        onMouseDown={e => {
-                            e.preventDefault(); // garante que o editor mantém a seleção
-                            const existing = editor.getAttributes("link").href ?? "";
-                            setLinkUrl(existing);
-                            setLinkMode("input");
-                            setTimeout(() => {
-                                if (linkInputRef.current) {
-                                    linkInputRef.current.style.width = `${BASE_W}px`;
-                                    linkInputRef.current.focus();
-                                    linkInputRef.current.select();
-                                }
-                            }, 20);
-                        }}
-                    >
-                        Atribuir link
-                    </button>
-                ) : (
-                    <>
-                        <input
-                            ref={linkInputRef}
-                            type="url"
-                            value={linkUrl}
-                            placeholder="https://..."
-                            // stopPropagation para que o input receba foco normalmente
-                            // sem acionar o preventDefault do container
-                            onMouseDown={e => e.stopPropagation()}
-                            onChange={e => {
-                                setLinkUrl(e.target.value);
-                                // cresce até triplo do valor base
-                                e.target.style.width = "0";
-                                e.target.style.width =
-                                    Math.min(Math.max(e.target.scrollWidth, BASE_W), MAX_W) + "px";
-                            }}
-                            onKeyDown={e => {
-                                if (e.key === "Enter") { e.preventDefault(); confirmLink(editor); }
-                                if (e.key === "Escape") resetLink();
-                            }}
-                            style={{ width: `${BASE_W}px` }}
-                            className="bg-transparent text-foreground placeholder:text-text-secondary outline-none border-none text-xs min-w-0"
-                        />
-                        <div className="w-px h-4 bg-border mx-0.5" />
-                        <button
-                            type="button"
-                            title="Cancelar"
-                            onMouseDown={e => { e.preventDefault(); resetLink(); }}
-                            className="text-text-secondary hover:text-foreground transition-colors min-h-8 min-w-8 flex items-center justify-center"
-                        >
-                            <X className="w-3 h-3" />
-                        </button>
-                        <button
-                            type="button"
-                            title="Confirmar (Enter)"
-                            onMouseDown={e => { e.preventDefault(); confirmLink(editor); }}
-                            className="text-text-secondary hover:text-foreground transition-colors min-h-8 min-w-8 flex items-center justify-center"
-                        >
-                            <Check className="w-3 h-3" />
-                        </button>
-                    </>
-                )}
-            </div>
-        </div>,
-        document.body,
-    ) : null;
+            if (error) throw error;
+
+            await loadFiles();
+            await queryClient.invalidateQueries({ queryKey: ["editoriais"] });
+            setFeedback({ show: true, message: "HTML editorial deletado com sucesso!", type: "success" });
+        } catch (err) {
+            console.error("Erro ao deletar editorial:", err);
+            setFeedback({ show: true, message: "Erro ao deletar o HTML. Tente novamente.", type: "error" });
+        } finally {
+            setDeletingSlug(null);
+        }
+    };
+
+    const pendingDeleteItem = pendingDeleteSlug
+        ? EDITORIAL_ITEMS.find(item => item.slug === pendingDeleteSlug) ?? null
+        : null;
 
     return (
         <div className="space-y-6">
-            {/* Cabeçalho */}
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-[var(--text-primary)]">Editorial</h2>
-                <button
+                <GradientButton
                     onClick={handleSave}
-                    disabled={isSaving || isLoading}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--brand-blue)] text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px] disabled:opacity-40 disabled:cursor-not-allowed"
+                    disabled={isSaving || isLoading || !hasPendingUploads}
+                    loading={isSaving}
+                    loadingText="Enviando..."
                 >
-                    {isSaving ? (
-                        <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Salvando...
-                        </>
-                    ) : (
-                        <>
-                            <Save className="w-4 h-4" />
-                            Salvar
-                        </>
-                    )}
-                </button>
+                    Salvar HTMLs
+                </GradientButton>
             </div>
 
-            <GlassCard variant="bordered" padding="none">
-                {/* Sub-abas */}
-                <div className="flex border-b border-[var(--border-glass)]">
-                    {(["editar", "preview"] as EditorTab[]).map(t => (
-                        <button
-                            key={t}
-                            onClick={() => setTab(t)}
-                            className={`px-6 py-3 text-sm font-medium capitalize transition-colors ${
-                                tab === t
-                                    ? "text-[var(--text-primary)] border-b-2 border-[var(--brand-blue)]"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                            }`}
-                        >
-                            {t === "editar" ? "Editar" : "Pré-visualização"}
-                        </button>
-                    ))}
+            <GlassCard variant="elevated" padding="lg">
+                <div className="space-y-6">
+                    <div className="space-y-2">
+                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                            A home agora aponta para dois editoriais fixos. Envie um arquivo HTML para cada destino e o portal exibirá os botões automaticamente.
+                        </p>
+                        <p className="text-xs text-[var(--text-secondary)]/80">
+                            Pasta de storage usada: <code>{EDITORIAL_STORAGE_FOLDER}</code>
+                        </p>
+                    </div>
+
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-16 text-[var(--text-secondary)]">
+                            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                            Carregando...
+                        </div>
+                    ) : (
+                        <div className="grid gap-5 xl:grid-cols-2">
+                            {EDITORIAL_ITEMS.map(item => (
+                                <EditorialUploadField
+                                    key={item.slug}
+                                    id={`editorial-upload-${item.slug}`}
+                                    label={item.title}
+                                    description={item.description}
+                                    slug={item.slug}
+                                    file={selectedFiles[item.slug]}
+                                    existingFileName={existingFiles[item.slug]}
+                                    isDeletingExisting={deletingSlug === item.slug}
+                                    onChange={handleFileChange}
+                                    onDeleteExisting={setPendingDeleteSlug}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
-
-                {isLoading ? (
-                    <div className="flex items-center justify-center py-16 text-[var(--text-secondary)]">
-                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                        Carregando...
-                    </div>
-                ) : tab === "editar" ? (
-                    <div className="rounded-b-lg">
-                        <Toolbar editor={editor} />
-                        <EditorContent editor={editor} />
-                    </div>
-                ) : (
-                    <div className="px-6 py-4">
-                        {previewHtml && previewHtml !== "<p></p>" ? (
-                            <div
-                                className="prose prose-invert prose-sm max-w-none text-slate-200"
-                                dangerouslySetInnerHTML={{ __html: previewHtml }}
-                            />
-                        ) : (
-                            <p className="text-[var(--text-secondary)] text-sm italic">
-                                Nenhum conteúdo para pré-visualizar.
-                            </p>
-                        )}
-                    </div>
-                )}
             </GlassCard>
-
-            {bubble}
 
             <FeedbackMessage
                 isVisible={feedback.show}
                 message={feedback.message}
                 type={feedback.type}
                 onClose={() => setFeedback(prev => ({ ...prev, show: false }))}
+            />
+            <ConfirmDialog
+                isOpen={pendingDeleteItem !== null}
+                title="Confirmar exclusão"
+                message={pendingDeleteItem
+                    ? `Você realmente deseja deletar o arquivo HTML de "${pendingDeleteItem.title}"? Esta ação remove o editorial do storage.`
+                    : ""}
+                confirmLabel="Deletar HTML"
+                cancelLabel="Cancelar"
+                variant="danger"
+                onConfirm={() => {
+                    if (pendingDeleteSlug) {
+                        void handleDeleteExisting(pendingDeleteSlug);
+                    }
+                }}
+                onCancel={() => setPendingDeleteSlug(null)}
             />
         </div>
     );

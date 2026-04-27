@@ -123,6 +123,7 @@ test.describe("Auth session resilience", () => {
         await page.goto("/auth/confirm");
 
         await expect(page).toHaveURL(/\/$/);
-        await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
+        // Dois botões "Entrar" ficam visíveis quando o modal abre (navbar + modal submit) — .first() evita strict-mode violation
+        await expect(page.getByRole("button", { name: "Entrar" }).first()).toBeVisible();
     });
 });

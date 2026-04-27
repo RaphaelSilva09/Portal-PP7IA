@@ -1,33 +1,64 @@
 /**
  * useEditorial Hook (Presentation Layer)
  *
- * Hook React para buscar o conteúdo editorial da página principal.
+ * Hook React para listar os editoriais fixos da página principal.
  */
 
 "use client";
 
+import {
+    EDITORIAL_ITEMS,
+    EDITORIAL_STORAGE_BUCKET,
+    EDITORIAL_STORAGE_FOLDER,
+    getEditorialFileName,
+    getEditorialViewPath,
+    type EditorialSlug,
+} from "@/constants/editorials";
+import { supabase } from "@/infrastructure/config/supabase";
 import { useQuery } from "@tanstack/react-query";
-import DIContainer from "../../infrastructure/di/container";
+
+export interface EditorialLink {
+    slug: EditorialSlug;
+    title: string;
+    description: string;
+    audienceLabel: string;
+    ctaLabel: string;
+    href: string;
+    available: boolean;
+}
 
 interface UseEditorialResult {
-    content: string;
+    editorials: EditorialLink[];
     isLoading: boolean;
     error: string | null;
 }
 
 export function useEditorial(): UseEditorialResult {
     const { data, isLoading, error } = useQuery({
-        queryKey: ["editorial"],
+        queryKey: ["editoriais"],
         queryFn: async () => {
-            const useCase = DIContainer.getEditorialUseCase();
-            return await useCase.execute();
+            const { data, error } = await supabase.storage
+                .from(EDITORIAL_STORAGE_BUCKET)
+                .list(EDITORIAL_STORAGE_FOLDER, { limit: 100 });
+
+            if (error) {
+                throw error;
+            }
+
+            const availableFiles = new Set((data ?? []).map(item => item.name));
+
+            return EDITORIAL_ITEMS.map(item => ({
+                ...item,
+                href: getEditorialViewPath(item.slug),
+                available: availableFiles.has(getEditorialFileName(item.slug)),
+            }));
         },
         staleTime: 5 * 60 * 1000,
     });
 
     return {
-        content: data?.content ?? "",
+        editorials: data ?? EDITORIAL_ITEMS.map(item => ({ ...item, href: getEditorialViewPath(item.slug), available: false })),
         isLoading,
-        error: error ? "Erro ao carregar editorial." : null,
+        error: error ? "Erro ao carregar editoriais." : null,
     };
 }
