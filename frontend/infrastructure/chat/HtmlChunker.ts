@@ -17,9 +17,14 @@ interface DomTagNode {
 type DomNode = DomTextNode | DomTagNode | { type: string };
 
 export interface ChunkerOptions {
+    /** Word count threshold above which a section is split. */
     maxTokens?: number;
+    /** Word count of overlap between consecutive split chunks. */
     overlapTokens?: number;
-    minTokens?: number;
+    /** Trimmed character length below which a section merges with the next.
+     *  Uses chars (not words) so single-character throwaway fragments are
+     *  pruned without nuking short-but-real prose paragraphs. */
+    minChars?: number;
 }
 
 export interface ChunkerInput {
@@ -29,7 +34,7 @@ export interface ChunkerInput {
     title?: string;
 }
 
-const DEFAULTS = { maxTokens: 800, overlapTokens: 100, minTokens: 100 } as const;
+const DEFAULTS = { maxTokens: 800, overlapTokens: 100, minChars: 100 } as const;
 const HEADING_LEVELS = ["h1", "h2", "h3"] as const;
 const HEADING_SET = new Set<string>(HEADING_LEVELS);
 
@@ -66,8 +71,6 @@ const INLINE_TAGS = new Set<string>([
 interface RawSection {
     headingPath: string[];
     text: string;
-    charStart: number;
-    charEnd: number;
 }
 
 function deeperPath(a: string[], b: string[]): string[] {
@@ -87,11 +90,11 @@ export class HtmlChunker {
         const opts = {
             maxTokens: overrides.maxTokens ?? this.opts.maxTokens,
             overlapTokens: overrides.overlapTokens ?? this.opts.overlapTokens,
-            minTokens: overrides.minTokens ?? this.opts.minTokens,
+            minChars: overrides.minChars ?? this.opts.minChars,
         };
 
         const sections = this.collectSections(html);
-        const merged = this.mergeUndersized(sections, opts.minTokens);
+        const merged = this.mergeUndersized(sections, opts.minChars);
         const split = merged.flatMap((s) =>
             this.splitOversized(s, opts.maxTokens, opts.overlapTokens),
         );
@@ -105,8 +108,10 @@ export class HtmlChunker {
                 heading_path: s.headingPath,
                 slug: overrides.slug ?? "",
                 title: overrides.title ?? "",
-                char_start: s.charStart,
-                char_end: s.charEnd,
+                // char_start/char_end reserved for future use; tracking real HTML offsets
+                // requires cheerio { withStartIndices: true } and isn't wired in v1.
+                char_start: 0,
+                char_end: 0,
             },
         }));
     }
@@ -116,17 +121,12 @@ export class HtmlChunker {
         const sections: RawSection[] = [];
         const headingStack: string[] = [];
         let buffer = "";
-        let sectionStart = 0;
 
         const flush = () => {
-            const text = buffer;
             sections.push({
                 headingPath: [...headingStack],
-                text,
-                charStart: sectionStart,
-                charEnd: sectionStart + text.length,
+                text: buffer,
             });
-            sectionStart = sectionStart + text.length;
             buffer = "";
         };
 
@@ -187,7 +187,7 @@ export class HtmlChunker {
         return sections;
     }
 
-    private mergeUndersized(sections: RawSection[], minTokens: number): RawSection[] {
+    private mergeUndersized(sections: RawSection[], minChars: number): RawSection[] {
         if (sections.length === 0) return [];
 
         // Pre-pass: absorb whitespace-only sections forward so they don't
@@ -216,13 +216,11 @@ export class HtmlChunker {
         while (i < cleaned.length) {
             const cur = cleaned[i];
             const curSize = cur.text.trim().length;
-            if (curSize < minTokens && i + 1 < cleaned.length) {
+            if (curSize < minChars && i + 1 < cleaned.length) {
                 const next = cleaned[i + 1];
                 passOne.push({
                     headingPath: deeperPath(cur.headingPath, next.headingPath),
                     text: cur.text + " " + next.text,
-                    charStart: cur.charStart,
-                    charEnd: next.charEnd,
                 });
                 i += 2;
             } else {
@@ -247,7 +245,6 @@ export class HtmlChunker {
             return [section];
         }
 
-        const totalChars = section.charEnd - section.charStart;
         const totalWords = words.length;
         const step = Math.max(1, maxTokens - overlapTokens);
         const out: RawSection[] = [];
@@ -256,13 +253,9 @@ export class HtmlChunker {
         while (startIdx < totalWords) {
             const endIdx = Math.min(totalWords, startIdx + maxTokens);
             const windowText = words.slice(startIdx, endIdx).join(" ");
-            const cs = section.charStart + Math.floor((startIdx / totalWords) * totalChars);
-            const ce = section.charStart + Math.floor((endIdx / totalWords) * totalChars);
             out.push({
                 headingPath: section.headingPath,
                 text: windowText,
-                charStart: cs,
-                charEnd: ce,
             });
             if (endIdx >= totalWords) break;
             startIdx += step;

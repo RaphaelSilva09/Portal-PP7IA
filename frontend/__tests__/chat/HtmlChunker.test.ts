@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { HtmlChunker } from "@/infrastructure/chat/HtmlChunker";
 
-const chunker = new HtmlChunker({ maxTokens: 80, overlapTokens: 10, minTokens: 10 });
+const chunker = new HtmlChunker({ maxTokens: 80, overlapTokens: 10, minChars: 10 });
 
 describe("HtmlChunker", () => {
     it("splits at h2 boundaries and records heading_path", () => {
@@ -52,7 +52,7 @@ describe("HtmlChunker", () => {
             <h3>Sub</h3>
             <p>Conteúdo aqui é suficiente para virar chunk próprio.</p>
         `;
-        const chunks = chunker.chunk(html, { minTokens: 1 });
+        const chunks = chunker.chunk(html, { minChars: 1 });
         expect(chunks[0].metadata.heading_path).toEqual(["Top", "Mid", "Sub"]);
     });
 
