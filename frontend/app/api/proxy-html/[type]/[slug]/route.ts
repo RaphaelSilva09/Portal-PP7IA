@@ -88,7 +88,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
             console.error(`Erro ao buscar arquivo do Supabase: ${response.status} ${response.statusText}`);
             return NextResponse.json({ error: "Erro ao buscar arquivo" }, { status: response.status });
         }
-        
+
         // Obtém conteúdo HTML
         const htmlContent = await response.text();
 
