@@ -125,6 +125,9 @@ export class HtmlChunker {
         $("nav, header, footer, aside, script, style, noscript").remove();
         $('[class*="breadcrumb" i], [class*="toc" i], [class*="nav" i], [class*="menu" i]').remove();
         $('[id*="breadcrumb" i], [id*="toc" i], [id*="nav" i]').remove();
+        // PP7IAS mini-livros: chapter tabs (clickable nav with truncated labels).
+        // Drop exact .tabs container and any standalone .tab items.
+        $(".tabs, .tab").remove();
 
         const sections: RawSection[] = [];
         const headingStack: string[] = [];
