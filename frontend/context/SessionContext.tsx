@@ -49,6 +49,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
     // Ref para evitar re-subscrições desnecessárias
     const userRef = useRef<User | null>(null);
+    // Ref para o safety timer de signIn/signOut — compartilhado para evitar interferência entre chamadas
+    const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     /**
      * Limpa mensagens de erro
@@ -151,12 +153,20 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 setUser(null);
                 userRef.current = null;
                 setEmailConfirmationRequired(false);
+                if (safetyTimerRef.current) {
+                    clearTimeout(safetyTimerRef.current);
+                    safetyTimerRef.current = null;
+                }
                 setIsLoading(false);
                 return;
             }
 
             // Ignora SIGNED_IN se o userId é o mesmo (evita re-fetch desnecessário)
             if (event === "SIGNED_IN" && session?.user?.id === userRef.current?.id) {
+                if (safetyTimerRef.current) {
+                    clearTimeout(safetyTimerRef.current);
+                    safetyTimerRef.current = null;
+                }
                 setIsLoading(false);
                 return;
             }
@@ -184,6 +194,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
                         userRef.current = null;
                     }
                 } finally {
+                    if (safetyTimerRef.current) {
+                        clearTimeout(safetyTimerRef.current);
+                        safetyTimerRef.current = null;
+                    }
                     if (mounted) {
                         setIsLoading(false);
                     }
@@ -258,6 +272,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
         return () => {
             mounted = false;
             initialSessionRevalidationTimers.forEach(clearTimeout);
+            if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
             subscription.unsubscribe();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('pageshow', handlePageShow);
@@ -294,20 +309,29 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setIsLoading(true);
         setError(null);
 
-        // Safety net: garante que loading nunca fica preso se o onAuthStateChange
-        // atrasar ou não disparar (Safari/ITP, falhas silenciosas de browser)
-        const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
+        // Safety net: cancela timer anterior e registra novo — garante que loading
+        // nunca fica preso se onAuthStateChange atrasar ou não disparar.
+        // Na ausência de erro, isLoading só resolve quando onAuthStateChange disparar
+        // (SIGNED_IN/TOKEN_REFRESHED), eliminando a janela isLoading=false && user=null
+        // que ativava guards de rota prematuramente.
+        if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = setTimeout(() => {
+            safetyTimerRef.current = null;
+            setIsLoading(false);
+        }, 8000);
 
         try {
             const useCase = DIContainer.getSignInUseCase();
             await useCase.execute(params);
         } catch (err) {
+            if (safetyTimerRef.current) {
+                clearTimeout(safetyTimerRef.current);
+                safetyTimerRef.current = null;
+            }
+            setIsLoading(false);
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer login.";
             setError(errorMessage);
             throw err;
-        } finally {
-            clearTimeout(safetyTimer);
-            setIsLoading(false);
         }
     }, []);
 
@@ -318,18 +342,25 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setIsLoading(true);
         setError(null);
 
-        const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
+        // Mesma estratégia do signIn: isLoading resolve via onAuthStateChange (SIGNED_OUT).
+        if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = setTimeout(() => {
+            safetyTimerRef.current = null;
+            setIsLoading(false);
+        }, 8000);
 
         try {
             const useCase = DIContainer.getSignOutUseCase();
             await useCase.execute();
         } catch (err) {
+            if (safetyTimerRef.current) {
+                clearTimeout(safetyTimerRef.current);
+                safetyTimerRef.current = null;
+            }
+            setIsLoading(false);
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer logout.";
             setError(errorMessage);
             throw err;
-        } finally {
-            clearTimeout(safetyTimer);
-            setIsLoading(false);
         }
     }, []);
 
