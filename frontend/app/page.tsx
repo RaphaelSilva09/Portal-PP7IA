@@ -1,11 +1,9 @@
-import dynamic from "next/dynamic";
 import BentoGrid from "@/components/BentoGridConteudo";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import IASParceiras from "@/components/IASParceiras";
 import Navbar from "@/components/Header";
-
-const ChatBubble = dynamic(() => import("@/components/chat/ChatBubble"), { ssr: false });
+import ChatBubble from "@/components/chat/ChatBubble";
 
 export default function Home() {
     return (
