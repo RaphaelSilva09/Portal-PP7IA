@@ -528,8 +528,9 @@ describe('SessionContext', () => {
         });
     });
 
-    it('signIn bem-sucedido → isLoading resolvido para false pelo finally', async () => {
+    it('signIn bem-sucedido → isLoading permanece true até onAuthStateChange (SIGNED_IN) disparar', async () => {
         mockSignInExecute.mockResolvedValue(undefined);
+        mockGetUserFromSession.mockResolvedValue(mockUser);
 
         render(
             <SessionProvider>
@@ -543,6 +544,16 @@ describe('SessionContext', () => {
 
         await act(async () => {
             screen.getByText('Sign In').click();
+        });
+
+        // isLoading deve permanecer true: resolve somente via onAuthStateChange, não pelo finally
+        expect(screen.getByTestId('loading').textContent).toBe('loading');
+
+        // Simula SIGNED_IN — só então isLoading deve resolver
+        await act(async () => {
+            await capturedCallback.value!('SIGNED_IN', {
+                user: { id: 'u1', app_metadata: { role: 'user' } },
+            });
         });
 
         await waitFor(() => {
@@ -661,7 +672,7 @@ describe('SessionContext', () => {
         });
     });
 
-    it('signOut bem-sucedido → isLoading resolvido para false pelo finally', async () => {
+    it('signOut bem-sucedido → isLoading permanece true até onAuthStateChange (SIGNED_OUT) disparar', async () => {
         mockSignOutExecute.mockResolvedValue(undefined);
 
         render(
@@ -676,6 +687,14 @@ describe('SessionContext', () => {
 
         await act(async () => {
             screen.getByText('Sign Out').click();
+        });
+
+        // isLoading deve permanecer true: resolve somente via onAuthStateChange, não pelo finally
+        expect(screen.getByTestId('loading').textContent).toBe('loading');
+
+        // Simula SIGNED_OUT — só então isLoading deve resolver
+        await act(async () => {
+            await capturedCallback.value!('SIGNED_OUT', null);
         });
 
         await waitFor(() => {

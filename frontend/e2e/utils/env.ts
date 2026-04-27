@@ -4,6 +4,9 @@ import path from "node:path";
 const ENV_FILES = [".env.local", ".env"];
 
 function readEnvValue(name: string): string | undefined {
+    // process.env takes precedence — allows playwright.local.config.ts to override
+    if (process.env[name]) return process.env[name];
+
     for (const fileName of ENV_FILES) {
         const filePath = path.join(process.cwd(), fileName);
 

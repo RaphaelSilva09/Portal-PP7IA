@@ -49,6 +49,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
     // Ref para evitar re-subscrições desnecessárias
     const userRef = useRef<User | null>(null);
+    // Ref para o safety timer de signIn/signOut — compartilhado para evitar interferência entre chamadas
+    const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     /**
      * Limpa mensagens de erro
@@ -151,12 +153,20 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 setUser(null);
                 userRef.current = null;
                 setEmailConfirmationRequired(false);
+                if (safetyTimerRef.current) {
+                    clearTimeout(safetyTimerRef.current);
+                    safetyTimerRef.current = null;
+                }
                 setIsLoading(false);
                 return;
             }
 
             // Ignora SIGNED_IN se o userId é o mesmo (evita re-fetch desnecessário)
             if (event === "SIGNED_IN" && session?.user?.id === userRef.current?.id) {
+                if (safetyTimerRef.current) {
+                    clearTimeout(safetyTimerRef.current);
+                    safetyTimerRef.current = null;
+                }
                 setIsLoading(false);
                 return;
             }
@@ -184,6 +194,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
                         userRef.current = null;
                     }
                 } finally {
+                    if (safetyTimerRef.current) {
+                        clearTimeout(safetyTimerRef.current);
+                        safetyTimerRef.current = null;
+                    }
                     if (mounted) {
                         setIsLoading(false);
                     }
@@ -237,20 +251,37 @@ export function SessionProvider({ children }: SessionProviderProps) {
             }
         })();
 
-        // Re-verifica sessão ao retornar à aba após inatividade (browser throttle)
+        // Re-verifica sessão ao retornar à aba após inatividade (browser throttle).
+        // Lê o resultado de getSession para sincronizar estado proativamente:
+        // no iOS, SIGNED_OUT pode não disparar após longo background — sem esta guarda
+        // o botão de perfil fica visível mas a sessão está morta.
         const handleVisibilityChange = async () => {
             if (document.visibilityState !== 'visible') return;
-            await supabase.auth.getSession();
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session && userRef.current !== null) {
+                    setUser(null);
+                    userRef.current = null;
+                    setIsLoading(false);
+                }
+            } catch { /* offline ou SDK falhou — mantém estado atual */ }
         };
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         // Restauração via bfcache (Safari/Chrome iOS — botão Voltar)
-        // e.persisted === true indica que a página foi restaurada do cache, não recarregada
-        // O onAuthStateChange não é redispachado nesse caso, então forçamos uma verificação
-        const handlePageShow = (e: PageTransitionEvent) => {
-            if (e.persisted) {
-                supabase.auth.getSession();
-            }
+        // e.persisted === true indica que a página foi restaurada do cache, não recarregada.
+        // Mesmo guard de sessão: bfcache preserva estado React antigo, então sessão
+        // pode ter expirado enquanto a página estava cacheada.
+        const handlePageShow = async (e: PageTransitionEvent) => {
+            if (!e.persisted) return;
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session && userRef.current !== null) {
+                    setUser(null);
+                    userRef.current = null;
+                    setIsLoading(false);
+                }
+            } catch { /* idem */ }
         };
         window.addEventListener('pageshow', handlePageShow);
 
@@ -258,6 +289,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
         return () => {
             mounted = false;
             initialSessionRevalidationTimers.forEach(clearTimeout);
+            if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
             subscription.unsubscribe();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('pageshow', handlePageShow);
@@ -294,20 +326,43 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setIsLoading(true);
         setError(null);
 
-        // Safety net: garante que loading nunca fica preso se o onAuthStateChange
-        // atrasar ou não disparar (Safari/ITP, falhas silenciosas de browser)
-        const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
+        // Safety net: cancela timer anterior e registra novo — garante que loading
+        // nunca fica preso se onAuthStateChange atrasar ou não disparar.
+        // Na ausência de erro, isLoading só resolve quando onAuthStateChange disparar
+        // (SIGNED_IN/TOKEN_REFRESHED), eliminando a janela isLoading=false && user=null
+        // que ativava guards de rota prematuramente.
+        // Se o timer disparar e userRef ainda for null (SIGNED_IN não chegou — iOS Safari),
+        // verifica sessão diretamente para não deixar o usuário preso no estado "não logado".
+        if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = setTimeout(async () => {
+            safetyTimerRef.current = null;
+            if (userRef.current === null) {
+                try {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session?.user) {
+                        const repository = DIContainer.getAuthRepository();
+                        const role = (session.user.app_metadata?.role as string) || "user";
+                        const userData = await repository.getUserFromSession(session.user.id, role);
+                        setUser(userData);
+                        userRef.current = userData;
+                    }
+                } catch { /* falha silenciosa — isLoading resolve abaixo */ }
+            }
+            setIsLoading(false);
+        }, 8000);
 
         try {
             const useCase = DIContainer.getSignInUseCase();
             await useCase.execute(params);
         } catch (err) {
+            if (safetyTimerRef.current) {
+                clearTimeout(safetyTimerRef.current);
+                safetyTimerRef.current = null;
+            }
+            setIsLoading(false);
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer login.";
             setError(errorMessage);
             throw err;
-        } finally {
-            clearTimeout(safetyTimer);
-            setIsLoading(false);
         }
     }, []);
 
@@ -318,18 +373,25 @@ export function SessionProvider({ children }: SessionProviderProps) {
         setIsLoading(true);
         setError(null);
 
-        const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
+        // Mesma estratégia do signIn: isLoading resolve via onAuthStateChange (SIGNED_OUT).
+        if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = setTimeout(() => {
+            safetyTimerRef.current = null;
+            setIsLoading(false);
+        }, 8000);
 
         try {
             const useCase = DIContainer.getSignOutUseCase();
             await useCase.execute();
         } catch (err) {
+            if (safetyTimerRef.current) {
+                clearTimeout(safetyTimerRef.current);
+                safetyTimerRef.current = null;
+            }
+            setIsLoading(false);
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao fazer logout.";
             setError(errorMessage);
             throw err;
-        } finally {
-            clearTimeout(safetyTimer);
-            setIsLoading(false);
         }
     }, []);
 
