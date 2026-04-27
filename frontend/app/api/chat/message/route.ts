@@ -73,16 +73,31 @@ export async function POST(request: NextRequest) {
         }));
     }
 
-    // 3. Embed + 4. Retrieve
+    // 3. Embed + 4. Retrieve (semantic + hybrid by mini-livro number)
     const embedder = getEmbeddingProvider();
     const queryEmbedding = await embedder.embed(lastUser.content);
     const chunkRepo = new RagChunkRepository();
-    const allChunks = await chunkRepo.searchSimilar({
+
+    // Hybrid: detect "mini[ -]livro N" / "ML-N" / "MLNN" → fetch all chunks for that source
+    // so broad questions like "o que tem no minilivro 3" get the whole chapter list.
+    const directMatch = lastUser.content.match(/\b(?:mini[\s-]?livro|ml)[\s-]?0*(\d{1,2})\b/i);
+    const directChunks = directMatch
+        ? await chunkRepo.findBySlug("mini_livro", String(directMatch[1]).padStart(3, "0"))
+        : [];
+
+    const semanticChunks = await chunkRepo.searchSimilar({
         sourceType: "mini_livro",
         queryEmbedding,
         topK: RAG_TOP_K,
     });
-    const relevant = allChunks.filter(c => c.similarity >= RAG_MIN_SIMILARITY);
+    const relevantSemantic = semanticChunks.filter(c => c.similarity >= RAG_MIN_SIMILARITY);
+
+    // Merge direct hits first (they're guaranteed on-topic), then dedup against semantic.
+    const seen = new Set(directChunks.map(c => `${c.source_id}:${c.chunk_index}`));
+    const relevant = [
+        ...directChunks,
+        ...relevantSemantic.filter(c => !seen.has(`${c.source_id}:${c.chunk_index}`)),
+    ];
 
     if (relevant.length === 0) {
         // Stream the no-match answer; bump usage but don't call LLM.

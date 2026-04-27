@@ -47,6 +47,25 @@ export class RagChunkRepository {
         return typeof data === "number" ? data : 0;
     }
 
+    /** Fetch all chunks for a given source by slug. Used for "what's in mini-livro N" queries. */
+    async findBySlug(sourceType: string, slug: string): Promise<RetrievedChunk[]> {
+        const { data, error } = await this.supabase
+            .from("rag_chunks")
+            .select("source_type, source_id, chunk_index, content, metadata")
+            .eq("source_type", sourceType)
+            .eq("metadata->>slug", slug)
+            .order("chunk_index", { ascending: true });
+        if (error) throw new Error(`findBySlug: ${error.message}`);
+        return (data ?? []).map(r => ({
+            source_type: r.source_type,
+            source_id: r.source_id,
+            chunk_index: r.chunk_index,
+            content: r.content,
+            metadata: r.metadata as RetrievedChunk["metadata"],
+            similarity: 1.0, // hybrid hit — treat as max relevance
+        }));
+    }
+
     async searchSimilar({ sourceType, queryEmbedding, topK }: SearchOptions): Promise<RetrievedChunk[]> {
         const { data, error } = await this.supabase.rpc("match_rag_chunks", {
             p_source_type: sourceType,
