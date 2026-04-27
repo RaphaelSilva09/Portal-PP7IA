@@ -473,27 +473,68 @@ Existing test layers per `TESTES.md`:
   - Rate limit path (mockable): user at 30/30 → sends message → sees daily-limit message.
 - Skip mobile e2e for v1; add later if needed.
 
-## 12. Local validation plan (no production deploy)
+## 12. Dev validation plan (no production deploy)
 
-This is the path the project owner will run before any production rollout.
+Validation runs against a **separate Supabase dev project** (`pp7ia-dev`), not local Docker Supabase and not prod. The dev project mirrors prod schema + a copy of the `mini_livros` content. The local Next.js app (`pnpm dev` from `frontend/`) points at the dev project via `frontend/.env.local`.
 
-1. Apply `20260424000000_rag_chat.sql` to a **local Supabase instance** via `supabase db reset` or equivalent.
-2. Set the env vars (`GEMINI_API_KEY` minimum) in `.env.local`.
-3. `pnpm run dev`.
-4. Sign in as the admin user.
-5. Visit `/painel-admin` → click "Reindexar mini-livros" → verify the response payload reports correct chunk counts, and that `rag_chunks` is populated (`SELECT count(*), source_type FROM rag_chunks GROUP BY source_type`).
-6. Visit `/` while logged in. Open chat → ask 3 representative questions → verify:
+### 12.1 Dev project bring-up (one-time)
+
+1. Create `pp7ia-dev` Supabase project. Note the project ref (16-char ID from `https://supabase.com/dashboard/project/<REF>`).
+2. From repo root: `cd supabase && supabase link --project-ref <DEV_REF>`.
+3. **Sync schema to dev** — choose one path:
+   - **Clean migration path (preferred long-term):** `supabase db reset --linked` wipes dev and applies all 16 repo migrations from scratch. Includes all GRANTs and RLS policies correctly.
+   - **Quick dump path (used initially):** `pg_dump --data-only --table=public.mini_livros` from prod, restore via `psql` to dev. Faster, but `pg_dump` schema-only restore can omit schema-level grants on newer Supabase projects (2024+ default lock down `public` for `anon`).
+4. **If quick dump path was used and "permission denied for schema public" appears** in the app, re-grant manually in dev SQL Editor:
+   ```sql
+   GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+   GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon, authenticated;
+   GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
+   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO anon, authenticated;
+   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO anon, authenticated;
+   ```
+   Verify policies transferred: `SELECT count(*) FROM pg_policies WHERE schemaname='public'` should match prod policy count.
+5. Create test users via Supabase Studio → Authentication → Users:
+   - `admin@test.local` — grant admin role using whatever pattern `app/api/admin/users/` already enforces.
+   - `user@test.local` — normal user.
+6. Wire `frontend/.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=<dev URL>
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<dev anon>
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<dev anon>
+   SUPABASE_SERVICE_ROLE_KEY=<dev service role>
+   GEMINI_API_KEY=<your Gemini key>
+   ```
+7. From `frontend/` dir (not repo root — root has no scripts): `pnpm install && pnpm dev`. App boots at `http://localhost:3000`, hits dev DB.
+
+### 12.2 RAG validation flow (per branch / per change)
+
+1. Apply the new RAG migration to dev: `cd supabase && supabase db push` (paste DB password). Adds `rag_chunks` + `rag_usage` to dev only.
+2. Sign in as `admin@test.local`.
+3. Visit `/painel-admin` → click "Reindexar mini-livros" → verify the response payload reports correct chunk counts, and that `rag_chunks` is populated (`SELECT count(*), source_type FROM rag_chunks GROUP BY source_type` from dev SQL Editor).
+4. Visit `/` while logged in as the admin or normal user. Open chat → ask 3 representative questions → verify:
    - Tokens stream visibly.
    - Citations appear and links resolve to real `/mini-livros/<slug>` pages with correct anchors.
-   - Counter updates after each message.
-7. Sign out. Open chat → send a message → confirm:
+   - Counter in disclaimer updates after each message.
+5. Sign out. Open chat → send a message → confirm:
    - PT-BR login prompt appears.
    - "Entrar" button opens `AuthModal`.
-   - Vercel/server logs show no embedding or LLM API call was made (the auth gate cut it off).
-8. Run the full Vitest + Playwright suites locally and verify they pass.
-9. Hand off to the project owner for review before any prod deploy.
+   - Server logs show no embedding or LLM API call was made (the auth gate cut it off before any external request).
+6. Hit rate limit by sending 30 messages as one user → confirm 31st returns the friendly limit message and no LLM call occurred.
+7. Run `pnpm test` and `pnpm test:e2e` from `frontend/` and verify they pass.
+8. Hand off for project owner review before any prod deploy.
 
-**Production deploy is explicitly out of scope of this spec.** When approved, deploy steps (apply migration to prod Supabase, add env vars to Vercel, merge PR, run reindex) will be handled in a separate change.
+**Production deploy is explicitly out of scope of this spec.** When approved, prod deploy steps (apply migration to prod Supabase, add env vars to Vercel, merge PR, run reindex) will be handled as a separate change with its own checklist.
+
+### 12.3 Prod deploy ordering (when authorized later)
+
+Apply schema before code, never the reverse — reverse order means brief window where deployed app references tables that don't exist yet → 500s for users.
+
+1. Apply `20260424000000_rag_chat.sql` to prod Supabase via `supabase db push --linked` (linked to prod project at that moment). Tables created, unused, harmless.
+2. Add prod env vars to Vercel project settings (`GEMINI_API_KEY`, etc.) with `NEXT_PUBLIC_CHAT_ENABLED=false` initially.
+3. Merge `feat/RAGChat` → main → Vercel deploys. `<ChatBubble />` hidden via flag.
+4. Login to prod as admin → `/painel-admin` → click "Reindexar mini-livros". Verify chunk counts.
+5. Smoke test by toggling flag to `true` for one session (incognito) — confirm chat works on prod.
+6. Flip `NEXT_PUBLIC_CHAT_ENABLED=true` permanently. Trigger Vercel redeploy.
 
 ## 13. Rollback
 
