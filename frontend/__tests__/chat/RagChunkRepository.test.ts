@@ -18,15 +18,16 @@ function mockClient(overrides: Partial<{ delete: unknown; insert: unknown; rpc: 
 describe("RagChunkRepository", () => {
     beforeEach(() => vi.clearAllMocks());
 
-    it("replaceAllForSource: deletes then inserts chunks", async () => {
-        const client = mockClient();
+    it("replaceAllForSource: calls replace_rag_chunks RPC with chunks payload", async () => {
+        const rpc = vi.fn().mockResolvedValue({ data: 1, error: null });
+        const client = mockClient({ rpc });
         const repo = new RagChunkRepository(client);
 
         const inserted = await repo.replaceAllForSource({
             sourceType: "mini_livro",
             chunks: [{
                 source_type: "mini_livro",
-                source_id: "00000000-0000-0000-0000-000000000001",
+                source_id: "1",
                 chunk_index: 0,
                 content: "hi",
                 embedding: Array(3072).fill(0),
@@ -35,7 +36,13 @@ describe("RagChunkRepository", () => {
         });
 
         expect(inserted).toBe(1);
-        expect(client.from).toHaveBeenCalledWith("rag_chunks");
+        expect(rpc).toHaveBeenCalledWith("replace_rag_chunks", expect.objectContaining({
+            p_source_type: "mini_livro",
+        }));
+        // confirm embedding was serialized as bracket-array string
+        const callArgs = rpc.mock.calls[0][1];
+        expect(typeof callArgs.p_chunks[0].embedding).toBe("string");
+        expect((callArgs.p_chunks[0].embedding as string).startsWith("[")).toBe(true);
     });
 
     it("replaceAllForSource: returns 0 when no chunks (still deletes)", async () => {

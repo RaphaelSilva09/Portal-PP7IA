@@ -19,33 +19,32 @@ export class RagChunkRepository {
 
     /** Atomically replace all chunks for a source_type. */
     async replaceAllForSource({ sourceType, chunks }: ReplaceOptions): Promise<number> {
-        const { error: deleteError } = await this.supabase
-            .from("rag_chunks")
-            .delete()
-            .eq("source_type", sourceType);
-        if (deleteError) throw new Error(`replaceAllForSource: delete failed: ${deleteError.message}`);
+        // Edge case: empty corpus still wipes existing chunks for this source.
+        if (chunks.length === 0) {
+            const { error } = await this.supabase
+                .from("rag_chunks")
+                .delete()
+                .eq("source_type", sourceType);
+            if (error) throw new Error(`replaceAllForSource: delete failed: ${error.message}`);
+            return 0;
+        }
 
-        if (chunks.length === 0) return 0;
-
-        const rows = chunks.map(c => ({
+        const payload = chunks.map(c => ({
             source_type: c.source_type,
             source_id: c.source_id,
             chunk_index: c.chunk_index,
             content: c.content,
-            embedding: c.embedding,
+            // pgvector accepts string '[a,b,c,...]' literal — JSON-serialize the array
+            embedding: `[${c.embedding.join(",")}]`,
             metadata: c.metadata,
         }));
 
-        // Insert in batches of 200 to stay within Postgrest payload limits
-        const BATCH = 200;
-        let inserted = 0;
-        for (let i = 0; i < rows.length; i += BATCH) {
-            const slice = rows.slice(i, i + BATCH);
-            const { error } = await this.supabase.from("rag_chunks").insert(slice);
-            if (error) throw new Error(`replaceAllForSource: insert failed: ${error.message}`);
-            inserted += slice.length;
-        }
-        return inserted;
+        const { data, error } = await this.supabase.rpc("replace_rag_chunks", {
+            p_source_type: sourceType,
+            p_chunks: payload,
+        });
+        if (error) throw new Error(`replaceAllForSource: ${error.message}`);
+        return typeof data === "number" ? data : 0;
     }
 
     async searchSimilar({ sourceType, queryEmbedding, topK }: SearchOptions): Promise<RetrievedChunk[]> {
