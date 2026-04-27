@@ -118,6 +118,14 @@ export class HtmlChunker {
 
     private collectSections(html: string): RawSection[] {
         const $ = cheerio.load(html);
+        // Strip nav/header/footer/aside + script/style + common nav-class elements
+        // before walking. Mini-livros HTML has a TOC nav block with CSS-truncated
+        // labels that confused the LLM when retrieved. These elements rarely
+        // contribute retrievable content.
+        $("nav, header, footer, aside, script, style, noscript").remove();
+        $('[class*="breadcrumb" i], [class*="toc" i], [class*="nav" i], [class*="menu" i]').remove();
+        $('[id*="breadcrumb" i], [id*="toc" i], [id*="nav" i]').remove();
+
         const sections: RawSection[] = [];
         const headingStack: string[] = [];
         let buffer = "";
