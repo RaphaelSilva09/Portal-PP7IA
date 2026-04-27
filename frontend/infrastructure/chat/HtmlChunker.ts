@@ -129,6 +129,21 @@ export class HtmlChunker {
         // Drop exact .tabs container and any standalone .tab items.
         $(".tabs, .tab").remove();
 
+        // PP7IAS mini-livros: promote .chapter-title (with optional preceding .st)
+        // to h2 so heading_path captures full chapter names like "Capítulo I A
+        // Ilusão da Competência" instead of leaving them as plain body text.
+        $(".chapter-title").each((_, el) => {
+            const $el = $(el);
+            const $st = $el.prev(".st");
+            const stText = $st.length ? $st.text().trim() : "";
+            const titleText = $el.text().trim();
+            const combined = stText ? `${stText} ${titleText}` : titleText;
+            if (!combined) return;
+            const $h2 = $("<h2></h2>").text(combined);
+            $el.replaceWith($h2);
+            $st.remove();
+        });
+
         const sections: RawSection[] = [];
         const headingStack: string[] = [];
         let buffer = "";
