@@ -61,4 +61,5 @@ coverage/
 #AI helpers
 .claude/
 CLAUDE.md
+docs/agent-findings.md
 .vercel
