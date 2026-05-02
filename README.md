@@ -10,8 +10,6 @@
 
 **Full documentation** → [**Documentation Index**](docs/README.md)
 
----
-
 ## Objetivo
 
 O Portal-PP7IA é uma plataforma web que centraliza conteúdos, artigos, newsletters e mini-livros relacionados à Inteligência Artificial, com foco em acessibilidade, colaboração e educação
