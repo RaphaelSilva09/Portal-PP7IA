@@ -1,6 +1,5 @@
-import type { ContentType } from "@/domain/entities/ContentItem";
 import DIContainer from "@/infrastructure/di/container";
-import type { ContentViewNavigationLink } from "@/application/usecases/GetContentViewNavigationUseCase";
+import type { ContentViewNavigationLink, ContentViewNavigationType } from "@/application/usecases/GetContentViewNavigationUseCase";
 import ViewContentFrame from "@/components/ViewContentFrame";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -21,7 +20,7 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     book: { folder: "mini-livros/livro", title: "Livro" },
 };
 
-const NAVIGABLE_TYPES: readonly ContentType[] = [
+const NAVIGABLE_TYPES: readonly ContentViewNavigationType[] = [
     "newsletter",
     "mini-livro",
     "biblioteca",
@@ -29,10 +28,11 @@ const NAVIGABLE_TYPES: readonly ContentType[] = [
     "radar_oportunidades",
     "estudar",
     "ebook",
+    "book",
 ];
 
-function isNavigableType(type: string): type is ContentType {
-    return NAVIGABLE_TYPES.includes(type as ContentType);
+function isNavigableType(type: string): type is ContentViewNavigationType {
+    return NAVIGABLE_TYPES.includes(type as ContentViewNavigationType);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

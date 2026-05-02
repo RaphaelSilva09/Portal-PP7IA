@@ -259,6 +259,7 @@ class DIContainer {
 
     static getContentViewNavigationUseCase(): GetContentViewNavigationUseCase {
         return new GetContentViewNavigationUseCase({
+            bookRepository: this.getBookRepository(),
             newsletterRepository: this.getNewsletterRepository(),
             miniLivroRepository: this.getMiniLivroRepository(),
             bibliotecaRepository: this.getBibliotecaRepository(),

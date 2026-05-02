@@ -1,3 +1,4 @@
+import type { Book } from "@/domain/entities/Book";
 import type { BibliotecaItem } from "@/domain/entities/BibliotecaItem";
 import type { ContentType } from "@/domain/entities/ContentItem";
 import type { Ebook } from "@/domain/entities/Ebook";
@@ -6,6 +7,7 @@ import type { Estudar } from "@/domain/entities/Estudar";
 import type { MiniLivro } from "@/domain/entities/MiniLivro";
 import type { Newsletter } from "@/domain/entities/Newsletter";
 import type { RadarOportunidades } from "@/domain/entities/RadarOportunidades";
+import type { IBookRepository } from "@/domain/repositories/IBookRepository";
 import type { IBibliotecaRepository } from "@/domain/repositories/IBibliotecaRepository";
 import type { IEbookRepository } from "@/domain/repositories/IEbookRepository";
 import type { IEspecialSemanaRepository } from "@/domain/repositories/IEspecialSemanaRepository";
@@ -23,8 +25,11 @@ const EMPTY_RESULT: GetContentViewNavigationResult = {
 const NO_INDEX = 0;
 const UNORDERED_PART_POSITION = Number.MAX_SAFE_INTEGER;
 const UNORDERED_EBOOK_POSITION = Number.MAX_SAFE_INTEGER;
+const BOOK_PART_POSITION = 0;
 
-type NavigationType = ContentType;
+export type ContentViewNavigationType = ContentType | "book";
+
+type NavigationType = ContentViewNavigationType;
 
 export interface GetContentViewNavigationInput {
     type: NavigationType;
@@ -45,6 +50,7 @@ export interface GetContentViewNavigationResult {
 }
 
 interface NavigationCandidate extends ContentViewNavigationLink {
+    viewType: NavigationType;
     createdAt: Date;
     index: number;
     order: number | null;
@@ -53,6 +59,7 @@ interface NavigationCandidate extends ContentViewNavigationLink {
 }
 
 interface GetContentViewNavigationDependencies {
+    bookRepository: Pick<IBookRepository, "getActiveBook">;
     newsletterRepository: Pick<INewsletterRepository, "getAll">;
     miniLivroRepository: Pick<IMiniLivroRepository, "getAll">;
     bibliotecaRepository: Pick<IBibliotecaRepository, "getAll">;
@@ -62,28 +69,36 @@ interface GetContentViewNavigationDependencies {
     ebookRepository: Pick<IEbookRepository, "getAll">;
 }
 
-function extractSlugFromViewPath(path: string | null): string | null {
+function extractViewReference(path: string | null): { type: NavigationType; slug: string } | null {
     if (!path) {
         return null;
     }
 
-    const match = path.match(/^\/view\/[^/]+\/([^/?#]+)$/);
-    return match?.[1] ?? null;
+    const match = path.match(/^\/view\/([^/]+)\/([^/?#]+)$/);
+
+    if (!match) {
+        return null;
+    }
+
+    return {
+        type: match[1] as NavigationType,
+        slug: match[2],
+    };
 }
 
 function buildNavigationCandidate(params: {
     id: number;
     title: string;
     href: string | null;
-    createdAt: Date;
+    createdAt?: Date;
     index?: number;
     order?: number | null;
     tema?: string | null;
     partOrder?: number | null;
 }): NavigationCandidate | null {
-    const slug = extractSlugFromViewPath(params.href);
+    const viewReference = extractViewReference(params.href);
 
-    if (!params.href || !slug) {
+    if (!params.href || !viewReference) {
         return null;
     }
 
@@ -91,8 +106,9 @@ function buildNavigationCandidate(params: {
         id: params.id,
         title: params.title,
         href: params.href,
-        slug,
-        createdAt: params.createdAt,
+        slug: viewReference.slug,
+        viewType: viewReference.type,
+        createdAt: params.createdAt ?? new Date(0),
         index: params.index ?? NO_INDEX,
         order: params.order ?? null,
         tema: params.tema ?? null,
@@ -145,6 +161,58 @@ function compareMiniLivroCandidates(left: NavigationCandidate, right: Navigation
     }
 
     return compareIndexedCandidates(left, right);
+}
+
+function getBookJourneyPartOrder(candidate: NavigationCandidate): number {
+    if (candidate.viewType === "book") {
+        return BOOK_PART_POSITION;
+    }
+
+    return candidate.partOrder ?? candidate.order ?? UNORDERED_PART_POSITION;
+}
+
+function getBookJourneyKindOrder(candidate: NavigationCandidate): number {
+    if (candidate.viewType === "book") {
+        return 0;
+    }
+
+    if (candidate.viewType === "ebook") {
+        return 1;
+    }
+
+    return 2;
+}
+
+function compareBookJourneyCandidates(left: NavigationCandidate, right: NavigationCandidate): number {
+    const partDifference = getBookJourneyPartOrder(left) - getBookJourneyPartOrder(right);
+
+    if (partDifference !== 0) {
+        return partDifference;
+    }
+
+    const kindDifference = getBookJourneyKindOrder(left) - getBookJourneyKindOrder(right);
+
+    if (kindDifference !== 0) {
+        return kindDifference;
+    }
+
+    if (left.viewType === "mini-livro" && right.viewType === "mini-livro") {
+        return compareIndexedCandidates(left, right);
+    }
+
+    if (left.viewType === "ebook" && right.viewType === "ebook") {
+        return compareEbookCandidates(left, right);
+    }
+
+    return left.id - right.id;
+}
+
+function mapBookCandidate(item: Book): NavigationCandidate | null {
+    return buildNavigationCandidate({
+        id: item.id,
+        title: item.title,
+        href: item.introHtmlPath,
+    });
 }
 
 function mapNewsletterCandidate(item: Newsletter): NavigationCandidate | null {
@@ -223,24 +291,14 @@ export class GetContentViewNavigationUseCase {
     constructor(private readonly dependencies: GetContentViewNavigationDependencies) {}
 
     async execute({ type, slug }: GetContentViewNavigationInput): Promise<GetContentViewNavigationResult> {
-        const candidates = await this.getCandidates(type);
-        const current = candidates.find(item => item.slug === slug);
+        const candidates = await this.getCandidatesForType(type);
+        const current = candidates.find(item => item.viewType === type && item.slug === slug);
 
         if (!current) {
             return EMPTY_RESULT;
         }
 
-        const scopedCandidates = this.filterCandidatesByScope(type, candidates, current).sort((left, right) => {
-            if (type === "ebook") {
-                return compareEbookCandidates(left, right);
-            }
-
-            if (type === "mini-livro") {
-                return compareMiniLivroCandidates(left, right);
-            }
-
-            return compareIndexedCandidates(left, right);
-        });
+        const scopedCandidates = this.sortCandidates(type, this.filterCandidatesByScope(type, candidates, current));
 
         const currentIndex = scopedCandidates.findIndex(item => item.slug === current.slug);
 
@@ -253,6 +311,14 @@ export class GetContentViewNavigationUseCase {
             previous: this.toNavigationLink(scopedCandidates[currentIndex - 1] ?? null),
             next: this.toNavigationLink(scopedCandidates[currentIndex + 1] ?? null),
         };
+    }
+
+    private async getCandidatesForType(type: NavigationType): Promise<NavigationCandidate[]> {
+        if (this.isBookJourneyType(type)) {
+            return this.getBookJourneyCandidates();
+        }
+
+        return this.getCandidates(type);
     }
 
     private async getCandidates(type: NavigationType): Promise<NavigationCandidate[]> {
@@ -288,6 +354,34 @@ export class GetContentViewNavigationUseCase {
         }
 
         return [];
+    }
+
+    private async getBookJourneyCandidates(): Promise<NavigationCandidate[]> {
+        const [book, ebooks, miniLivros] = await Promise.all([
+            this.dependencies.bookRepository.getActiveBook(),
+            this.dependencies.ebookRepository.getAll(),
+            this.dependencies.miniLivroRepository.getAll(),
+        ]);
+
+        return [
+            book ? mapBookCandidate(book) : null,
+            ...ebooks.map(mapEbookCandidate),
+            ...miniLivros.map(mapMiniLivroCandidate),
+        ].filter((item): item is NavigationCandidate => item !== null);
+    }
+
+    private sortCandidates(type: NavigationType, candidates: NavigationCandidate[]): NavigationCandidate[] {
+        return [...candidates].sort((left, right) => {
+            if (this.isBookJourneyType(type)) {
+                return compareBookJourneyCandidates(left, right);
+            }
+
+            return compareIndexedCandidates(left, right);
+        });
+    }
+
+    private isBookJourneyType(type: NavigationType): type is "book" | "ebook" | "mini-livro" {
+        return type === "book" || type === "ebook" || type === "mini-livro";
     }
 
     private filterCandidatesByScope(

@@ -9,6 +9,20 @@ import { useMiniLivros } from "../presentation/hooks/useMiniLivros";
 import { useNewsletters } from "../presentation/hooks/useNewsletters";
 import { useRadarOportunidades } from "../presentation/hooks/useRadarOportunidades";
 
+type LatestTitleItem = {
+    createdAt: Date;
+    title: string;
+};
+
+function getLatestTitles<T extends LatestTitleItem>(items: Array<T | null | undefined>, limit = 2): string[] {
+    return items
+        .filter((item): item is T => item != null)
+        .slice()
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, limit)
+        .map(item => item.title);
+}
+
 function LatestTitles({ titles }: { titles: string[] }) {
     if (titles.length === 0) {
         return <p className="mt-4 text-xs text-text-secondary/85 tracking-tight">Sem conteúdos editoriais neste momento.</p>;
@@ -72,32 +86,12 @@ export default function BentoGrid() {
     const biblioteca = useBiblioteca();
     const estudar = useEstudar();
 
-    const newsletterTitles = [newsletters.latest, ...newsletters.older]
-        .filter((item): item is NonNullable<typeof newsletters.latest> => item !== null)
-        .slice(0, 2)
-        .map(item => item.title);
-
-    const especialTitles = [especial.latest, ...especial.older]
-        .filter((item): item is NonNullable<typeof especial.latest> => item !== null)
-        .slice(0, 2)
-        .map(item => item.title);
-
-    const radarTitles = [radar.latest, ...radar.older]
-        .filter((item): item is NonNullable<typeof radar.latest> => item !== null)
-        .slice(0, 2)
-        .map(item => item.title);
-
-    const miniLivrosTitles = miniLivros.all.slice(0, 2).map(item => item.title);
-
-    const bibliotecaTitles = [biblioteca.latest, ...biblioteca.older]
-        .filter((item): item is NonNullable<typeof biblioteca.latest> => item !== null)
-        .slice(0, 2)
-        .map(item => item.title);
-
-    const estudarTitles = [estudar.latest, ...estudar.older]
-        .filter((item): item is NonNullable<typeof estudar.latest> => item !== null)
-        .slice(0, 2)
-        .map(item => item.title);
+    const newsletterTitles = getLatestTitles([newsletters.latest, ...newsletters.older]);
+    const especialTitles = getLatestTitles([especial.latest, ...especial.older]);
+    const radarTitles = getLatestTitles([radar.latest, ...radar.older]);
+    const miniLivrosTitles = getLatestTitles(miniLivros.all);
+    const bibliotecaTitles = getLatestTitles([biblioteca.latest, ...biblioteca.older]);
+    const estudarTitles = getLatestTitles([estudar.latest, ...estudar.older]);
 
     return (
         <section id="indice" className="py-8" style={{ scrollMarginTop: "100px" }}>
