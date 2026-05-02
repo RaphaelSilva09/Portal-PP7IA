@@ -30,6 +30,7 @@ import { GetEbookUseCase } from "../../application/usecases/GetEbookUseCase";
 import { GetEspecialSemanaUseCase } from "../../application/usecases/GetEspecialSemanaUseCase";
 import { GetEstudarUseCase } from "../../application/usecases/GetEstudarUseCase";
 import { GetMiniLivrosUseCase } from "../../application/usecases/GetMiniLivrosUseCase";
+import { GetMiniLivroSectionsUseCase } from "../../application/usecases/GetMiniLivroSectionsUseCase";
 import { GetNewslettersUseCase } from "../../application/usecases/GetNewslettersUseCase";
 import { GetPortalNewsUseCase } from "../../application/usecases/GetPortalNewsUseCase";
 import { GetRadarOportunidadesUseCase } from "../../application/usecases/GetRadarOportunidadesUseCase";
@@ -55,6 +56,7 @@ import { SupabaseEspecialSemanaRepository } from "../repositories/SupabaseEspeci
 import { SupabaseEstudarRepository } from "../repositories/SupabaseEstudarRepository";
 import { SupabaseHomeDatesRepository } from "../repositories/SupabaseHomeDatesRepository";
 import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
+import { SupabaseMiniLivroSectionRepository } from "../repositories/SupabaseMiniLivroSectionRepository";
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
 import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNewsRepository";
 import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
@@ -69,6 +71,7 @@ class DIContainer {
     private static authRepositoryInstance: SupabaseAuthRepository | null = null;
     private static newsletterRepositoryInstance: SupabaseNewsletterRepository | null = null;
     private static miniLivroRepositoryInstance: SupabaseMiniLivroRepository | null = null;
+    private static miniLivroSectionRepositoryInstance: SupabaseMiniLivroSectionRepository | null = null;
     private static bibliotecaRepositoryInstance: SupabaseBibliotecaRepository | null = null;
     private static especialSemanaRepositoryInstance: SupabaseEspecialSemanaRepository | null = null;
     private static radarOportunidadesRepositoryInstance: SupabaseRadarOportunidadesRepository | null = null;
@@ -115,6 +118,13 @@ class DIContainer {
             this.miniLivroRepositoryInstance = new SupabaseMiniLivroRepository(supabaseAnon);
         }
         return this.miniLivroRepositoryInstance;
+    }
+
+    static getMiniLivroSectionRepository(): SupabaseMiniLivroSectionRepository {
+        if (!this.miniLivroSectionRepositoryInstance) {
+            this.miniLivroSectionRepositoryInstance = new SupabaseMiniLivroSectionRepository(supabaseAnon);
+        }
+        return this.miniLivroSectionRepositoryInstance;
     }
 
     /**
@@ -262,6 +272,7 @@ class DIContainer {
             bookRepository: this.getBookRepository(),
             newsletterRepository: this.getNewsletterRepository(),
             miniLivroRepository: this.getMiniLivroRepository(),
+            miniLivroSectionRepository: this.getMiniLivroSectionRepository(),
             bibliotecaRepository: this.getBibliotecaRepository(),
             especialSemanaRepository: this.getEspecialSemanaRepository(),
             radarOportunidadesRepository: this.getRadarOportunidadesRepository(),
@@ -411,6 +422,10 @@ class DIContainer {
         return new GetMiniLivrosUseCase(this.getMiniLivroRepository());
     }
 
+    static getMiniLivroSectionsUseCase(): GetMiniLivroSectionsUseCase {
+        return new GetMiniLivroSectionsUseCase(this.getMiniLivroSectionRepository());
+    }
+
     static getBibliotecaUseCase(): GetBibliotecaUseCase {
         return new GetBibliotecaUseCase(this.getBibliotecaRepository());
     }
@@ -437,6 +452,7 @@ class DIContainer {
         this.authRepositoryInstance = null;
         this.newsletterRepositoryInstance = null;
         this.miniLivroRepositoryInstance = null;
+        this.miniLivroSectionRepositoryInstance = null;
         this.bibliotecaRepositoryInstance = null;
         this.especialSemanaRepositoryInstance = null;
         this.radarOportunidadesRepositoryInstance = null;
