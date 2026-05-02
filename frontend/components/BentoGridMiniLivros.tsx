@@ -6,10 +6,107 @@ import { useState } from "react";
 import { useTheme } from "next-themes";
 
 import { MiniLivro } from "@/domain/entities/MiniLivro";
+import { MiniLivroSection } from "@/domain/entities/MiniLivroSection";
 import { useEbook } from "@/presentation/hooks/useEbook";
+import { useMiniLivroSections } from "@/presentation/hooks/useMiniLivroSections";
 import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
 import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
 import BookCard from "./BookCard";
+
+function SectionReadButton({ section, label, className }: { section: MiniLivroSection; label: string; className: string }) {
+    if (section.htmlAvailable) {
+        return (
+            <a href={section.htmlPath!} className={className}>
+                <BookOpen className="w-5 h-5 shrink-0" />
+                <span>{label}</span>
+            </a>
+        );
+    }
+
+    return (
+        <button
+            disabled
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm cursor-not-allowed opacity-90 whitespace-nowrap"
+        >
+            <BookOpen className="w-5 h-5 shrink-0" />
+            <span>Indisponível</span>
+        </button>
+    );
+}
+
+function PrefacioCard({ section, isLight }: { section: MiniLivroSection; isLight: boolean }) {
+    return (
+        <div className="group relative overflow-hidden rounded-3xl min-h-[220px] transition-all duration-500 hover:scale-[1.01] mb-8">
+            <div
+                className="absolute inset-0"
+                style={{
+                    background: isLight
+                        ? "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.16), transparent), radial-gradient(ellipse 60% 40% at 85% 100%, rgba(59, 130, 246, 0.12), transparent), linear-gradient(180deg, #f8fbff 0%, #ecfeff 100%)"
+                        : "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.26), transparent), radial-gradient(ellipse 60% 40% at 85% 100%, rgba(59, 130, 246, 0.18), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
+                }}
+            />
+            <div className="absolute inset-0 rounded-3xl border border-emerald-500/25 dark:border-emerald-400/20" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700">
+                <div className="absolute inset-0 shimmer" />
+            </div>
+
+            <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-10">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 bg-white/80 border border-emerald-300 text-emerald-900 dark:bg-white/10 dark:border-emerald-400/20 dark:text-emerald-300">
+                    <BookOpen className="w-4 h-4" />
+                    <span className="text-sm font-semibold">Prefácio</span>
+                </div>
+
+                <h3 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl">
+                    {section.title}
+                </h3>
+
+                {section.description && (
+                    <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-3xl">
+                        {section.description}
+                    </p>
+                )}
+
+                <SectionReadButton
+                    section={section}
+                    label="Ler Prefácio"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                />
+            </div>
+        </div>
+    );
+}
+
+function EncerramentoCard({ section, position }: { section: MiniLivroSection; position: number }) {
+    return (
+        <div className="group relative overflow-hidden rounded-3xl min-h-[220px] bg-card/80 backdrop-blur-sm border border-border transition-all duration-300 hover:bg-accent/40 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(124,58,237,0.12)]">
+            <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
+                <p className="text-purple-700 dark:text-purple-300 text-base sm:text-lg font-mono mb-2">
+                    Encerramento #{String(position).padStart(2, "0")}
+                </p>
+
+                <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-foreground mt-1 mb-3 tracking-tight line-clamp-2">
+                    {section.title}
+                </h4>
+
+                {section.description && (
+                    <p className="text-text-secondary text-base sm:text-lg mb-8 leading-relaxed line-clamp-4">
+                        {section.description}
+                    </p>
+                )}
+
+                <div className="mt-auto">
+                    <SectionReadButton
+                        section={section}
+                        label="Ler Encerramento"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-violet-700 hover:bg-violet-800 border border-violet-800 rounded-full text-white font-medium text-sm transition-all duration-300 whitespace-nowrap"
+                    />
+                </div>
+
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-purple-600 to-violet-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+            </div>
+        </div>
+    );
+}
 
 function compareMiniLivrosForDisplay(left: MiniLivro, right: MiniLivro): number {
     if (left.partOrder !== right.partOrder) {
@@ -48,9 +145,10 @@ function compareMiniLivrosForDisplay(left: MiniLivro, right: MiniLivro): number 
 export default function BentoGridMiniLivros() {
     const { all: allMiniLivros, isLoading, error } = useMiniLivros();
     const { all: allEbooks, isLoading: ebooksLoading } = useEbook();
+    const { prefacio, encerramentos, isLoading: sectionsLoading } = useMiniLivroSections();
     const { resolvedTheme } = useTheme();
     const isLight = resolvedTheme === "light";
-    useScrollToHash(!isLoading && !ebooksLoading);
+    useScrollToHash(!isLoading && !ebooksLoading && !sectionsLoading);
 
     const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
 
@@ -115,7 +213,7 @@ export default function BentoGridMiniLivros() {
     const isFirstTheme = selectedEbookIndex === 0;
 
     // Estado de carregamento
-    if (isLoading || ebooksLoading) {
+    if (isLoading || ebooksLoading || sectionsLoading) {
         return (
             <section className="py-12">
                 <div className={portalContentClass}>
@@ -164,6 +262,7 @@ export default function BentoGridMiniLivros() {
             selectedEbook.coverPdfAvailable),
     );
     const hasMiniLivros = ebookMiniLivros.length > 0;
+    const shouldShowEncerramento = selectedEbookIndex === 2 && encerramentos.length > 0;
 
     return (
         <section className="py-12">
@@ -226,6 +325,12 @@ export default function BentoGridMiniLivros() {
             <div className="w-full">
                 <BookCard />
             </div>
+
+            {prefacio && (
+                <div className="w-full">
+                    <PrefacioCard section={prefacio} isLight={isLight} />
+                </div>
+            )}
 
             {/* Linha cinza divisória */}
             <div className="my-8 w-full sm:my-10 md:my-12">
@@ -505,6 +610,25 @@ export default function BentoGridMiniLivros() {
                         </div>
                     ))}
                 </div>
+
+                {shouldShowEncerramento && (
+                    <div className="mt-10 space-y-6">
+                        <div className="text-center mx-auto max-w-4xl">
+                            <h3 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 tracking-tight">
+                                Encerramento
+                            </h3>
+                            <p className="text-base sm:text-lg text-text-secondary leading-relaxed">
+                                Depois do último capítulo, seguem os blocos finais desta jornada.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            {encerramentos.map((section, index) => (
+                                <EncerramentoCard key={section.id} section={section} position={index + 1} />
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
             </div>
         </section>
