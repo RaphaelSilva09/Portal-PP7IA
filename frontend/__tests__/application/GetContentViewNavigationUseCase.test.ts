@@ -1,5 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { GetContentViewNavigationUseCase } from "@/application/usecases/GetContentViewNavigationUseCase";
+import { Book } from "@/domain/entities/Book";
+import type { BookProps } from "@/domain/entities/Book";
 import { Newsletter } from "@/domain/entities/Newsletter";
 import type { NewsletterProps } from "@/domain/entities/Newsletter";
 import { BibliotecaItem } from "@/domain/entities/BibliotecaItem";
@@ -10,6 +12,7 @@ import { Ebook } from "@/domain/entities/Ebook";
 import type { EbookProps } from "@/domain/entities/Ebook";
 
 const dependencies = {
+    bookRepository: { getActiveBook: vi.fn() },
     newsletterRepository: { getAll: vi.fn() },
     miniLivroRepository: { getAll: vi.fn() },
     bibliotecaRepository: { getAll: vi.fn() },
@@ -30,6 +33,22 @@ function makeNewsletter(overrides: Partial<NewsletterProps> = {}) {
         pdfPath: null,
         readTime: 5,
         index: 1,
+        ...overrides,
+    });
+}
+
+function makeBook(overrides: Partial<BookProps> = {}) {
+    return Book.create({
+        id: 1,
+        title: "Livro principal",
+        subtitle: null,
+        description: null,
+        coverImagePath: null,
+        coverPdfPath: null,
+        introHtmlPath: "/materiais/mini-livros/livro/introducao-livro.html",
+        introPdfPath: null,
+        badgeText: null,
+        isActive: true,
         ...overrides,
     });
 }
@@ -84,6 +103,7 @@ function makeEbook(overrides: Partial<EbookProps> = {}) {
 describe("GetContentViewNavigationUseCase", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        dependencies.bookRepository.getActiveBook.mockResolvedValue(null);
         dependencies.newsletterRepository.getAll.mockResolvedValue([]);
         dependencies.miniLivroRepository.getAll.mockResolvedValue([]);
         dependencies.bibliotecaRepository.getAll.mockResolvedValue([]);
@@ -121,7 +141,39 @@ describe("GetContentViewNavigationUseCase", () => {
         expect(result.next).toBeNull();
     });
 
-    it("continua mini-livro para o próximo partOrder quando a parte atual termina", async () => {
+    it("liga a introdução do livro à introdução da primeira parte", async () => {
+        dependencies.bookRepository.getActiveBook.mockResolvedValue(makeBook());
+        dependencies.ebookRepository.getAll.mockResolvedValue([
+            makeEbook({ id: 1, title: "Parte I", introHtmlPath: "/materiais/mini-livros/ebook/parte-i/introducao_parte-i.html", order: 1 }),
+        ]);
+
+        const result = await useCase.execute({ type: "book", slug: "introducao-livro" });
+
+        expect(result.previous).toBeNull();
+        expect(result.next?.title).toBe("Parte I");
+        expect(result.next?.href).toBe("/view/ebook/parte-i");
+    });
+
+    it("leva da introdução da parte para o primeiro capítulo da mesma parte", async () => {
+        dependencies.ebookRepository.getAll.mockResolvedValue([
+            makeEbook({ id: 1, title: "Parte I", introHtmlPath: "/materiais/mini-livros/ebook/parte-i/introducao_parte-i.html", order: 1 }),
+        ]);
+        dependencies.miniLivroRepository.getAll.mockResolvedValue([
+            makeMiniLivro({ id: 1, title: "Parte 1 - A", htmlPath: "/materiais/mini-livros/parte-1-a.html", index: 1, partOrder: 1 }),
+            makeMiniLivro({ id: 2, title: "Parte 1 - B", htmlPath: "/materiais/mini-livros/parte-1-b.html", index: 2, partOrder: 1 }),
+        ]);
+
+        const result = await useCase.execute({ type: "ebook", slug: "parte-i" });
+
+        expect(result.previous).toBeNull();
+        expect(result.next?.title).toBe("Parte 1 - A");
+    });
+
+    it("continua mini-livro para a introdução da próxima parte quando a parte atual termina", async () => {
+        dependencies.ebookRepository.getAll.mockResolvedValue([
+            makeEbook({ id: 1, title: "Parte I", introHtmlPath: "/materiais/mini-livros/ebook/parte-i/introducao_parte-i.html", order: 1 }),
+            makeEbook({ id: 2, title: "Parte II", introHtmlPath: "/materiais/mini-livros/ebook/parte-ii/introducao_parte-ii.html", order: 2 }),
+        ]);
         dependencies.miniLivroRepository.getAll.mockResolvedValue([
             makeMiniLivro({ id: 1, title: "Parte 1 - A", htmlPath: "/materiais/mini-livros/parte-1-a.html", index: 1, partOrder: 1 }),
             makeMiniLivro({ id: 2, title: "Parte 2 - A", htmlPath: "/materiais/mini-livros/parte-2-a.html", index: 1, partOrder: 2 }),
@@ -131,7 +183,8 @@ describe("GetContentViewNavigationUseCase", () => {
         const result = await useCase.execute({ type: "mini-livro", slug: "parte-1-b" });
 
         expect(result.previous?.title).toBe("Parte 1 - A");
-        expect(result.next?.title).toBe("Parte 2 - A");
+        expect(result.next?.title).toBe("Parte II");
+        expect(result.next?.href).toBe("/view/ebook/parte-ii");
     });
 
     it("ordena mini-livros por partOrder antes do index", async () => {
@@ -146,6 +199,21 @@ describe("GetContentViewNavigationUseCase", () => {
 
         expect(result.previous?.title).toBe("Parte 1 - B");
         expect(result.next?.title).toBe("Parte 2 - B");
+    });
+
+    it("mantém a continuidade entre capítulos quando a próxima parte não tem introdução", async () => {
+        dependencies.ebookRepository.getAll.mockResolvedValue([
+            makeEbook({ id: 1, title: "Parte I", introHtmlPath: "/materiais/mini-livros/ebook/parte-i/introducao_parte-i.html", order: 1 }),
+        ]);
+        dependencies.miniLivroRepository.getAll.mockResolvedValue([
+            makeMiniLivro({ id: 1, title: "Parte 1 - A", htmlPath: "/materiais/mini-livros/parte-1-a.html", index: 1, partOrder: 1 }),
+            makeMiniLivro({ id: 2, title: "Parte 1 - B", htmlPath: "/materiais/mini-livros/parte-1-b.html", index: 2, partOrder: 1 }),
+            makeMiniLivro({ id: 3, title: "Parte 2 - A", htmlPath: "/materiais/mini-livros/parte-2-a.html", index: 1, partOrder: 2 }),
+        ]);
+
+        const result = await useCase.execute({ type: "mini-livro", slug: "parte-1-b" });
+
+        expect(result.next?.title).toBe("Parte 2 - A");
     });
 
     it("ordena ebooks por order", async () => {
