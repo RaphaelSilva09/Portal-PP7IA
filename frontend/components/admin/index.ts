@@ -23,3 +23,4 @@ export { FeedbackMessage } from "./FeedbackMessage";
 export { UserCard } from "./UserCard";
 export { UserEditModal } from "./UserEditModal";
 export { UserManager } from "./UserManager";
+export { ReindexButton } from "./ReindexButton";

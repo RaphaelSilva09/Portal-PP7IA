@@ -63,3 +63,4 @@ coverage/
 CLAUDE.md
 docs/agent-findings.md
 .vercel
+.superpowers/
