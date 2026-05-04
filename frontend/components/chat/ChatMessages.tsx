@@ -13,10 +13,11 @@ interface Props {
 
 export function ChatMessages({ messages, error, onLoginClick }: Props) {
     const ref = useRef<HTMLDivElement>(null);
+    const isStreaming = messages[messages.length - 1]?.streaming ?? false;
 
     useEffect(() => {
-        ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
-    }, [messages, error]);
+        ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: isStreaming ? "auto" : "smooth" });
+    }, [messages, error, isStreaming]);
 
     return (
         <div

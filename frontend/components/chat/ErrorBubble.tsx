@@ -10,8 +10,8 @@ interface Props {
 
 export function ErrorBubble({ code, message, onLoginClick }: Props) {
     return (
-        <div className="self-start max-w-[90%] rounded-[22px_22px_22px_8px] border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[14px] leading-6 text-amber-950 shadow-[0_3px_10px_rgba(120,53,15,0.05)] dark:bg-amber-400/10 dark:text-amber-100 dark:shadow-none">
-            <span className="block font-medium">{message}</span>
+        <div className="self-start max-w-[90%] rounded-[22px_22px_22px_8px] border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[14px] leading-6 shadow-[0_3px_10px_rgba(120,53,15,0.05)] dark:bg-amber-400/10 dark:shadow-none">
+            <span className="chat-error-message block font-medium">{message}</span>
             {code === "auth_required" && onLoginClick && (
                 <div className="mt-3">
                     <button
