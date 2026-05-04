@@ -19,7 +19,6 @@ This guide walks you through deploying the 4-layer solution to fix intermittent 
 - [ ] Supabase project admin access
 - [ ] Vercel deployment access (or hosting platform)
 - [ ] Git repository write access
-- [ ] Admin user account in the portal
 
 ### Environment Check
 ```bash

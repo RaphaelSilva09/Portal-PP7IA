@@ -19,6 +19,7 @@ import type { EbookFormData } from "@/components/admin";
 import {
     AdminBook,
     AdminEditorial,
+    AdminMiniLivroSections,
     AdminPortalNews,
     AnnouncementBarTab,
     ConfirmDialog,
@@ -62,7 +63,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 // Seções principais do painel (navegação de alto nível)
 type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso";
 
-type ContentTab = ContentType | "livro";
+type ContentTab = ContentType | "livro" | "mini-livro-sections";
 
 // Tabs de conteúdo (sub-navegação)
 const SORTABLE_TYPES = new Set<ContentTab>(["newsletter", "mini-livro", "biblioteca", "especial-semana", "radar_oportunidades", "estudar"]);
@@ -84,6 +85,7 @@ const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[
     { type: "estudar", label: "Estudar", icon: GraduationCap },
     { type: "livro", label: "Livro", icon: BookText },
     { type: "mini-livro", label: "Mini-livros", icon: BookOpen },
+    { type: "mini-livro-sections", label: "Seções Mini-livros", icon: BookText },
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
     { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
 ];
@@ -145,6 +147,7 @@ export default function PainelAdminPage() {
     const loadItems = useCallback(async () => {
         if (mainSection !== "conteudo") return;
         if (contentTab === "livro") return; // singleton gerenciado pelo AdminBook
+        if (contentTab === "mini-livro-sections") return; // CRUD dedicado
 
         setIsLoading(true);
         try {
@@ -481,6 +484,8 @@ export default function PainelAdminPage() {
                         {/* Aba Livro — singleton, gerenciado pelo AdminBook */}
                         {contentTab === "livro" ? (
                             <AdminBook />
+                        ) : contentTab === "mini-livro-sections" ? (
+                            <AdminMiniLivroSections />
                         ) : showForm ? (
                             contentTab === "ebook" ? (
                                 <EbookForm

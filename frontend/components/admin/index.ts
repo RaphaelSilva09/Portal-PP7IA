@@ -5,6 +5,7 @@
  */
 
 export { AdminBook } from "./AdminBook";
+export { AdminMiniLivroSections } from "./AdminMiniLivroSections";
 export { AnnouncementBarForm } from "./AnnouncementBarForm";
 export type { AnnouncementBarFormSubmitData } from "./AnnouncementBarForm";
 export { AnnouncementBarPreview } from "./AnnouncementBarPreview";
@@ -23,4 +24,3 @@ export { UserCard } from "./UserCard";
 export { UserEditModal } from "./UserEditModal";
 export { UserManager } from "./UserManager";
 export { ReindexButton } from "./ReindexButton";
-

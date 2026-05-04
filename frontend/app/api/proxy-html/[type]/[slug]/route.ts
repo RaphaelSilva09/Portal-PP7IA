@@ -17,6 +17,8 @@
  * - Headers de segurança adequados
  */
 import { NextRequest, NextResponse } from "next/server";
+import { extractStoragePathFromSourcePath } from "@/constants/miniLivroSections";
+import DIContainer from "@/infrastructure/di/container";
 
 // Mapeamento de tipos de conteúdo para bucket e pastas do Supabase Storage
 // Estrutura: Bucket único "materiais" com subpastas por tipo de conteúdo
@@ -31,6 +33,7 @@ const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
     // ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
     ebook: { bucket: "materiais", folder: "mini-livros/ebook" },
     book: { bucket: "materiais", folder: "mini-livros/livro" },
+    "mini-livro-section": { bucket: "materiais", folder: "mini-livros/sections" },
 };
 
 // Tipos válidos de conteúdo
@@ -65,8 +68,6 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
         // Constrói URL do Supabase Storage
         const config = STORAGE_CONFIG[type];
-        // Ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
-        const fileName = type === "ebook" ? `${slug}/introducao_${slug}.html` : `${slug}.html`;
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
         if (!supabaseUrl) {
@@ -74,9 +75,29 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
             return NextResponse.json({ error: "Configuração do servidor inválida" }, { status: 500 });
         }
 
+        let objectPath: string | null;
+
+        if (type === "mini-livro-section") {
+            const sectionId = Number(slug);
+
+            if (!Number.isInteger(sectionId) || sectionId <= 0) {
+                return NextResponse.json({ error: "Slug inválido" }, { status: 400 });
+            }
+
+            const section = await DIContainer.getMiniLivroSectionRepository().getById(sectionId);
+            objectPath = extractStoragePathFromSourcePath(section?.sourceHtmlPath ?? null);
+        } else {
+            const fileName = type === "ebook" ? `${slug}/introducao_${slug}.html` : `${slug}.html`;
+            objectPath = `${config.folder}/${fileName}`;
+        }
+
+        if (!objectPath) {
+            return NextResponse.json({ error: "Arquivo não encontrado" }, { status: 404 });
+        }
+
         // URL pública do arquivo no Supabase Storage
-        // Estrutura: {supabase}/storage/v1/object/public/{bucket}/{folder}/{filename}
-        const fileUrl = `${supabaseUrl}/storage/v1/object/public/${config.bucket}/${config.folder}/${fileName}`;
+        // Estrutura: {supabase}/storage/v1/object/public/{bucket}/{objectPath}
+        const fileUrl = `${supabaseUrl}/storage/v1/object/public/${config.bucket}/${objectPath}`;
 
         // Busca o arquivo do Supabase (sem cache: conteúdo pode ser atualizado a qualquer momento)
         const response = await fetch(fileUrl, { cache: "no-store" });

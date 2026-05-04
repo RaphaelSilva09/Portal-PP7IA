@@ -1,6 +1,5 @@
-import type { ContentType } from "@/domain/entities/ContentItem";
 import DIContainer from "@/infrastructure/di/container";
-import type { ContentViewNavigationLink } from "@/application/usecases/GetContentViewNavigationUseCase";
+import type { ContentViewNavigationLink, ContentViewNavigationType } from "@/application/usecases/GetContentViewNavigationUseCase";
 import ViewContentFrame from "@/components/ViewContentFrame";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -19,9 +18,10 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     estudar: { folder: "estudar", title: "Estudar" },
     ebook: { folder: "mini-livros/intros", title: "E-book" },
     book: { folder: "mini-livros/livro", title: "Livro" },
+    "mini-livro-section": { folder: "mini-livros/sections", title: "Seção de Mini-livro" },
 };
 
-const NAVIGABLE_TYPES: readonly ContentType[] = [
+const NAVIGABLE_TYPES: readonly ContentViewNavigationType[] = [
     "newsletter",
     "mini-livro",
     "biblioteca",
@@ -29,10 +29,12 @@ const NAVIGABLE_TYPES: readonly ContentType[] = [
     "radar_oportunidades",
     "estudar",
     "ebook",
+    "book",
+    "mini-livro-section",
 ];
 
-function isNavigableType(type: string): type is ContentType {
-    return NAVIGABLE_TYPES.includes(type as ContentType);
+function isNavigableType(type: string): type is ContentViewNavigationType {
+    return NAVIGABLE_TYPES.includes(type as ContentViewNavigationType);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -41,6 +43,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!config) {
         return { title: "Não encontrado" };
+    }
+
+    if (type === "mini-livro-section") {
+        const sectionId = Number(slug);
+
+        if (Number.isInteger(sectionId) && sectionId > 0) {
+            const section = await DIContainer.getMiniLivroSectionRepository().getById(sectionId);
+
+            if (section) {
+                return {
+                    title: `${section.title} | Portal PP7+IA`,
+                    description: section.description || `Visualização de ${config.title} do Portal PP7+IA`,
+                };
+            }
+        }
     }
 
     return {
@@ -62,6 +79,19 @@ export default async function ViewPage({ params }: Props) {
     const htmlPath = `/api/proxy-html/${type}/${slug}`;
     let previous: ContentViewNavigationLink | null = null;
     let next: ContentViewNavigationLink | null = null;
+    let pageTitle = `${config.title} - ${slug}`;
+
+    if (type === "mini-livro-section") {
+        const sectionId = Number(slug);
+
+        if (Number.isInteger(sectionId) && sectionId > 0) {
+            const section = await DIContainer.getMiniLivroSectionRepository().getById(sectionId);
+
+            if (section) {
+                pageTitle = section.title;
+            }
+        }
+    }
 
     if (isNavigableType(type)) {
         try {
@@ -74,5 +104,5 @@ export default async function ViewPage({ params }: Props) {
         }
     }
 
-    return <ViewContentFrame htmlPath={htmlPath} title={`${config.title} - ${slug}`} previous={previous} next={next} />;
+    return <ViewContentFrame htmlPath={htmlPath} title={pageTitle} previous={previous} next={next} />;
 }
