@@ -8,3 +8,5 @@ VALUES
   (NOW(), 'Introdução às 7 IAs', NULL, NULL, 5),
   (NOW(), 'Quais são as 7 IAs', NULL, NULL, 5)
 ON CONFLICT ("title") DO NOTHING;
+
+
