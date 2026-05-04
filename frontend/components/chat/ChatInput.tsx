@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, KeyboardEvent } from "react";
-import { Send } from "lucide-react";
+import { LoaderCircle, Send } from "lucide-react";
 
 interface Props {
-    disabled: boolean;
+    isStreaming: boolean;
     onSend: (text: string) => void;
 }
 
-export function ChatInput({ disabled, onSend }: Props) {
+export function ChatInput({ isStreaming, onSend }: Props) {
     const [text, setText] = useState("");
+    const canSend = text.trim().length > 0 && !isStreaming;
 
     const submit = () => {
         const trimmed = text.trim();
-        if (!trimmed || disabled) return;
+        if (!trimmed || isStreaming) return;
         onSend(trimmed);
         setText("");
     };
@@ -26,25 +27,29 @@ export function ChatInput({ disabled, onSend }: Props) {
     };
 
     return (
-        <div className="flex items-end gap-2 p-3 bg-white border-t border-[rgba(99,132,181,0.22)]">
-            <textarea
-                value={text}
-                onChange={e => setText(e.target.value)}
-                onKeyDown={onKeyDown}
-                disabled={disabled}
-                placeholder="Faça uma pergunta sobre o livro..."
-                className="flex-1 min-h-[36px] max-h-[80px] rounded-[18px] border border-[rgba(99,132,181,0.22)] bg-[#e4ecfb] text-[#162338] text-[13px] px-3.5 py-2 resize-none outline-none focus:ring-2 focus:ring-blue-500"
-                rows={1}
-            />
-            <button
-                type="button"
-                onClick={submit}
-                disabled={disabled}
-                aria-label="Enviar mensagem"
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center disabled:opacity-50 shadow-[0_0_20px_rgba(59,130,246,0.22)]"
-            >
-                <Send size={16} />
-            </button>
+        <div className="border-t border-border/80 bg-background/90 px-3 py-3 dark:bg-background/55">
+            <div className="flex items-end gap-2.5 rounded-[22px] border border-border/80 bg-card/85 p-2 backdrop-blur-sm transition-[border-color,box-shadow] duration-200 focus-within:border-brand-blue/30 focus-within:shadow-[inset_0_0_0_1px_rgba(29,78,216,0.08)] dark:bg-background/70 dark:focus-within:shadow-[inset_0_0_0_1px_rgba(59,158,255,0.12)]">
+                <textarea
+                    value={text}
+                    onChange={e => setText(e.target.value)}
+                    onKeyDown={onKeyDown}
+                    disabled={isStreaming}
+                    placeholder={isStreaming ? "Assistente respondendo..." : "Faça uma pergunta sobre o livro..."}
+                    className="chat-input-textarea min-h-[44px] max-h-[120px] flex-1 resize-none appearance-none bg-transparent px-2.5 py-2 text-[14px] leading-6 text-foreground outline-none placeholder:text-text-secondary/70 disabled:cursor-not-allowed disabled:text-text-secondary disabled:opacity-90"
+                    rows={1}
+                />
+                <button
+                    type="button"
+                    onClick={submit}
+                    disabled={!canSend}
+                    aria-label={isStreaming ? "Assistente respondendo" : "Enviar mensagem"}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-purple-700 text-white shadow-[0_3px_10px_rgba(29,78,216,0.12)] transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_6px_14px_rgba(29,78,216,0.16)] focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-[0_3px_10px_rgba(29,78,216,0.12)]"
+                >
+                    {isStreaming
+                        ? <LoaderCircle size={16} className="animate-spin" />
+                        : <Send size={16} />}
+                </button>
+            </div>
         </div>
     );
 }

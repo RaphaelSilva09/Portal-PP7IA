@@ -833,6 +833,20 @@ body {
     outline-offset: 2px;
 }
 
+.chat-input-textarea:focus,
+.chat-input-textarea:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.light .chat-status-chip {
+    color: #000000 !important;
+}
+
+.dark .chat-status-chip {
+    color: #86efac !important;
+}
+
 /* ============================================
    Scrollbar
    ============================================ */

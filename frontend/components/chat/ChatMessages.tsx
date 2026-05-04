@@ -23,7 +23,7 @@ export function ChatMessages({ messages, error, onLoginClick }: Props) {
             ref={ref}
             role="log"
             aria-live="polite"
-            className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-gradient-to-b from-[rgba(238,244,255,0.4)] to-[rgba(255,255,255,0.4)]"
+            className="flex flex-1 flex-col gap-3.5 overflow-y-auto bg-linear-to-b from-accent/30 via-background/80 to-background px-4 py-4 dark:from-accent/20 dark:via-background dark:to-background"
         >
             {messages.map((m, i) => (
                 <MessageBubble
