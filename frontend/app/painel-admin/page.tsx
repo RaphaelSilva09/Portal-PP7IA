@@ -28,6 +28,7 @@ import {
     Dashboard,
     EbookForm,
     FeedbackMessage,
+    ReindexButton,
     SortableContentTable,
     UserManager,
 } from "@/components/admin";
@@ -448,7 +449,15 @@ export default function PainelAdminPage() {
                 </GlassCard>
 
                 {/* Conteúdo por Seção */}
-                {mainSection === "inicio" && <Dashboard />}
+                {mainSection === "inicio" && (
+                    <>
+                        <section className="my-6">
+                            <h2 className="text-lg font-semibold mb-2 text-[#162338] dark:text-slate-100">Assistente RAG</h2>
+                            <ReindexButton />
+                        </section>
+                        <Dashboard />
+                    </>
+                )}
 
                 {mainSection === "conteudo" && (
                     <div className="space-y-6">

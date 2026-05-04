@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import IASParceiras from "@/components/IASParceiras";
 import Navbar from "@/components/Header";
+import ChatBubble from "@/components/chat/ChatBubble";
 
 export default function HomePage() {
     return (
@@ -12,6 +13,7 @@ export default function HomePage() {
             <BentoGrid />
             <IASParceiras />
             <Footer />
+            {process.env.NEXT_PUBLIC_CHAT_ENABLED !== "false" && <ChatBubble />}
         </main>
     );
 }
