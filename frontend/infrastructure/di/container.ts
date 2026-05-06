@@ -48,6 +48,7 @@ import { supabase, supabaseAnon } from "../config/supabase";
 import { SupabaseAnnouncementBarRepository } from "../repositories/SupabaseAnnouncementBarRepository";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
 import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
+import { BetterAuthRepository } from "../repositories/BetterAuthRepository";
 import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
 import { SupabaseBibliotecaRepository } from "../repositories/SupabaseBibliotecaRepository";
 import { SupabaseBookRepository } from "../repositories/SupabaseBookRepository";
@@ -69,7 +70,7 @@ import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserMa
  * Lazy Initialization: Cria instâncias apenas quando necessário
  */
 class DIContainer {
-    private static authRepositoryInstance: SupabaseAuthRepository | null = null;
+    private static authRepositoryInstance: BetterAuthRepository | null = null;
     private static newsletterRepositoryInstance: SupabaseNewsletterRepository | null = null;
     private static miniLivroRepositoryInstance: SupabaseMiniLivroRepository | null = null;
     private static bibliotecaRepositoryInstance: SupabaseBibliotecaRepository | null = null;
@@ -92,9 +93,9 @@ class DIContainer {
      * Obtém instância do repositório de autenticação
      * Singleton Pattern
      */
-    static getAuthRepository(): SupabaseAuthRepository {
+    static getAuthRepository(): BetterAuthRepository {
         if (!this.authRepositoryInstance) {
-            this.authRepositoryInstance = new SupabaseAuthRepository(supabase);
+            this.authRepositoryInstance = new BetterAuthRepository();
         }
         return this.authRepositoryInstance;
     }
