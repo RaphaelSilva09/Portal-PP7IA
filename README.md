@@ -1,6 +1,6 @@
 # Portal-PP7IA
 
-> Portal colaborativo para divulgação de conteúdos sobre Inteligência Artificial, mini-livros, newsletters e materiais educativos.
+Portal colaborativo para divulgação de conteúdos sobre Inteligência Artificial, mini-livros, newsletters e materiais educativos.
 
 ## 📚 Documentation
 
