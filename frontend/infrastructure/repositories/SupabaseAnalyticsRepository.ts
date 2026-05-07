@@ -1,17 +1,17 @@
 /**
  * SupabaseAnalyticsRepository (Infrastructure Layer)
  *
- * Implementação concreta do IAnalyticsRepository usando Supabase.
+ * Implementação concreta do IAnalyticsRepository usando Postgres direto via `pg` Pool.
  * Obtém estatísticas agregadas para dashboard admin.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta APIs Supabase para nosso domínio
+ * - Adapter Pattern: Adapta Postgres para nosso domínio
  * - SRP: Responsável apenas por estatísticas e métricas
  * - Graceful Degradation: Retorna valores padrão em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import {
     ContentStats,
     DashboardStats,
@@ -21,8 +21,6 @@ import {
 } from "../../domain/repositories/IAnalyticsRepository";
 
 export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     async getContentStats(): Promise<ContentStats> {
         try {
             // Buscar contadores de todas as tabelas em paralelo
@@ -58,33 +56,44 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
 
     async getUserStats(): Promise<UserStats> {
         try {
-            // Total de usuários
-            const { count: totalUsers, error: totalError } = await this.supabase
-                .from("users")
-                .select("*", { count: "exact", head: true });
-
-            if (totalError) {
-                console.error("Erro ao contar usuários:", totalError.message);
+            // Total de usuários (better-auth "user" table)
+            let totalUsers = 0;
+            try {
+                const { rows } = await pool.query<{ count: string }>(
+                    `SELECT count(*)::text AS count FROM "user"`,
+                );
+                totalUsers = Number(rows[0]?.count ?? 0);
+            } catch (totalError) {
+                const message = totalError instanceof Error ? totalError.message : String(totalError);
+                console.error("Erro ao contar usuários:", message);
             }
 
             // Usuários dos últimos 30 dias
             const cutoffDate = new Date();
             cutoffDate.setDate(cutoffDate.getDate() - 30);
 
-            const { count: newUsers, error: newError } = await this.supabase
-                .from("users")
-                .select("*", { count: "exact", head: true })
-                .gte("created_at", cutoffDate.toISOString());
-
-            if (newError) {
-                console.error("Erro ao contar novos usuários:", newError.message);
+            let newUsers = 0;
+            try {
+                const { rows } = await pool.query<{ count: string }>(
+                    `SELECT count(*)::text AS count FROM "user" WHERE "createdAt" >= $1`,
+                    [cutoffDate.toISOString()],
+                );
+                newUsers = Number(rows[0]?.count ?? 0);
+            } catch (newError) {
+                const message = newError instanceof Error ? newError.message : String(newError);
+                console.error("Erro ao contar novos usuários:", message);
             }
 
             // Contar admins via função SQL segura (valida is_admin internamente)
-            const { data: adminCount, error: adminError } = await this.supabase.rpc("count_admins");
-
-            if (adminError) {
-                console.error("Erro ao contar admins:", adminError.message);
+            let adminCount = 0;
+            try {
+                const { rows } = await pool.query<{ count_admins: number }>(
+                    `SELECT public.count_admins() AS count_admins`,
+                );
+                adminCount = rows[0]?.count_admins ?? 0;
+            } catch (adminError) {
+                const message = adminError instanceof Error ? adminError.message : String(adminError);
+                console.error("Erro ao contar admins:", message);
             }
 
             return {
@@ -103,10 +112,10 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
     }
 
     async getStorageStats(): Promise<StorageStats | null> {
-        // Storage stats não disponível via API pública do Supabase
+        // Storage stats não disponível via API pública do banco
         // Retornar null por enquanto
         // Em produção, poderia ser implementado via função no banco
-        // ou via API do Supabase Management API (requer service_role)
+        // ou via API de gerenciamento de objeto/blob (requer credenciais privilegiadas)
         return null;
     }
 
@@ -190,14 +199,11 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
      */
     private async countTable(tableName: string): Promise<number> {
         try {
-            const { count, error } = await this.supabase.from(tableName).select("*", { count: "exact", head: true });
+            const { rows } = await pool.query<{ count: string }>(
+                `SELECT count(*)::text AS count FROM ${tableName}`,
+            );
 
-            if (error) {
-                console.error(`Erro ao contar ${tableName}:`, error.message);
-                return 0;
-            }
-
-            return count ?? 0;
+            return Number(rows[0]?.count ?? 0);
         } catch (err) {
             console.error(`Erro inesperado ao contar ${tableName}:`, err);
             return 0;
@@ -213,21 +219,20 @@ export class SupabaseAnalyticsRepository implements IAnalyticsRepository {
         limit: number,
     ): Promise<Array<{ type: string; id: number; title: string; createdAt: Date }>> {
         try {
-            const { data, error } = await this.supabase
-                .from(tableName)
-                .select("id, title, created_at")
-                .order("id", { ascending: false })
-                .limit(limit);
+            const { rows } = await pool.query<{ id: number; title: string; created_at: string | Date }>(
+                `SELECT id, title, created_at FROM ${tableName} ORDER BY id DESC LIMIT $1`,
+                [limit],
+            );
 
-            if (error || !data) {
+            if (!rows || rows.length === 0) {
                 return [];
             }
 
-            return data.map(row => ({
+            return rows.map(row => ({
                 type,
                 id: row.id,
                 title: row.title,
-                createdAt: new Date(row.created_at),
+                createdAt: new Date(row.created_at as string),
             }));
         } catch (err) {
             console.error(`Erro ao buscar recentes de ${tableName}:`, err);

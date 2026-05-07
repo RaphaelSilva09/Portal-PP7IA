@@ -1,17 +1,17 @@
 /**
  * SupabaseEspecialSemanaRepository (Infrastructure Layer)
  *
- * Implementação concreta do IEspecialSemanaRepository usando Supabase.
+ * Implementação concreta do IEspecialSemanaRepository usando Postgres direto via `pg` Pool.
  * Inclui tratamento de erros resiliente - nunca quebra a aplicação.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta a API do Supabase para nosso domínio
- * - SRP: Responsável apenas pela comunicação com Supabase
+ * - Adapter Pattern: Adapta Postgres para nosso domínio
+ * - SRP: Responsável apenas pela comunicação com o banco
  * - Graceful Degradation: Retorna dados vazios em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import { EspecialSemana, EspecialSemanaProps } from "../../domain/entities/EspecialSemana";
 import {
     CreateEspecialSemanaInput,
@@ -20,7 +20,7 @@ import {
 } from "../../domain/repositories/IEspecialSemanaRepository";
 
 /**
- * Interface que representa a estrutura da tabela no Supabase
+ * Interface que representa a estrutura da tabela no banco
  */
 interface SupabaseEspecialSemanaRow {
     id: number;
@@ -33,27 +33,22 @@ interface SupabaseEspecialSemanaRow {
 }
 
 /**
- * Adapter Pattern: Adapta Supabase para nossa interface de domínio
+ * Adapter Pattern: Adapta Postgres para nossa interface de domínio
  */
 export class SupabaseEspecialSemanaRepository implements IEspecialSemanaRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     async getAll(): Promise<EspecialSemana[]> {
         try {
-            const { data, error } = await this.supabase.from("especial_semana").select("*");
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM especial_semana`,
+            );
 
-            if (error) {
-                console.error("Erro ao buscar especial_semana:", error.message);
+            if (!rows || rows.length === 0) {
                 return [];
             }
 
-            if (!data || data.length === 0) {
-                return [];
-            }
-
-            const items = data
-                .filter((row): row is SupabaseEspecialSemanaRow => this.isValidRow(row))
-                .map(row => this.mapToEntity(row));
+            const items = rows
+                .filter(row => this.isValidRow(row))
+                .map(row => this.mapToEntity(row as unknown as SupabaseEspecialSemanaRow));
             return this.sortByIndex(items);
         } catch (err) {
             console.error("Erro inesperado ao buscar especial-semana:", err);
@@ -63,9 +58,13 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
 
     async getById(id: number): Promise<EspecialSemana | null> {
         try {
-            const { data, error } = await this.supabase.from("especial_semana").select("*").eq("id", id).single();
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM especial_semana WHERE id = $1 LIMIT 1`,
+                [id],
+            );
 
-            if (error || !data) {
+            const data = rows[0] ?? null;
+            if (!data) {
                 return null;
             }
 
@@ -92,19 +91,23 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
 
     async create(input: CreateEspecialSemanaInput): Promise<EspecialSemana> {
         try {
-            const { data, error } = await this.supabase
-                .from("especial_semana")
-                .insert({
-                    title: input.title,
-                    read_time: input.readTime,
-                    html_path: input.htmlPath || null,
-                    pdf_path: input.pdfPath || null,
-                })
-                .select()
-                .single();
+            const now = new Date().toISOString();
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `INSERT INTO especial_semana (title, read_time, html_path, pdf_path, created_at)
+                 VALUES ($1, $2, $3, $4, $5)
+                 RETURNING *`,
+                [
+                    input.title,
+                    input.readTime,
+                    input.htmlPath || null,
+                    input.pdfPath || null,
+                    now,
+                ],
+            );
 
-            if (error || !data) {
-                throw new Error(`Erro ao criar especial_semana: ${error?.message}`);
+            const data = rows[0] ?? null;
+            if (!data || !this.isValidRow(data)) {
+                throw new Error(`Erro ao criar especial_semana: nenhum registro retornado`);
             }
 
             return this.mapToEntity(data);
@@ -123,14 +126,24 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
             if (input.htmlPath !== undefined) updateData.html_path = input.htmlPath;
             if (input.pdfPath !== undefined) updateData.pdf_path = input.pdfPath;
 
-            const { data, error } = await this.supabase
-                .from("especial_semana")
-                .update(updateData)
-                .eq("id", id)
-                .select()
-                .single();
+            const columns = Object.keys(updateData);
+            const values = Object.values(updateData);
 
-            if (error || !data) {
+            if (columns.length === 0) {
+                // Nenhum campo para atualizar — retorna o registro atual
+                return await this.getById(id);
+            }
+
+            const setClause = columns.map((c, i) => `"${c}" = $${i + 1}`).join(", ");
+            const idPlaceholder = `$${columns.length + 1}`;
+
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `UPDATE especial_semana SET ${setClause} WHERE id = ${idPlaceholder} RETURNING *`,
+                [...values, id],
+            );
+
+            const data = rows[0] ?? null;
+            if (!data || !this.isValidRow(data)) {
                 return null;
             }
 
@@ -143,9 +156,8 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
 
     async delete(id: number): Promise<boolean> {
         try {
-            const { error } = await this.supabase.from("especial_semana").delete().eq("id", id);
-
-            return !error;
+            await pool.query(`DELETE FROM especial_semana WHERE id = $1`, [id]);
+            return true;
         } catch (err) {
             console.error("Erro ao deletar especial-semana:", err);
             return false;
@@ -154,16 +166,11 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
 
     async count(): Promise<number> {
         try {
-            const { count, error } = await this.supabase
-                .from("especial_semana")
-                .select("*", { count: "exact", head: true });
+            const { rows } = await pool.query<{ count: string }>(
+                `SELECT count(*)::text AS count FROM especial_semana`,
+            );
 
-            if (error) {
-                console.error("Erro ao contar especial-semana:", error.message);
-                return 0;
-            }
-
-            return count ?? 0;
+            return Number(rows[0]?.count ?? 0);
         } catch (err) {
             console.error("Erro inesperado ao contar especial-semana:", err);
             return 0;
@@ -171,21 +178,21 @@ export class SupabaseEspecialSemanaRepository implements IEspecialSemanaReposito
     }
 
     /**
-     * Valida se o row do Supabase contém os campos necessários
+     * Valida se o row do banco contém os campos necessários
      */
     private isValidRow(row: unknown): row is SupabaseEspecialSemanaRow {
         if (!row || typeof row !== "object") return false;
         const r = row as Record<string, unknown>;
         return (
             typeof r.id === "number" &&
-            typeof r.created_at === "string" &&
+            (typeof r.created_at === "string" || r.created_at instanceof Date) &&
             typeof r.title === "string" &&
             typeof r.read_time === "number"
         );
     }
 
     /**
-     * Mapeia row do Supabase para entidade de domínio
+     * Mapeia row do banco para entidade de domínio
      */
     private mapToEntity(row: SupabaseEspecialSemanaRow): EspecialSemana {
         const props: EspecialSemanaProps = {

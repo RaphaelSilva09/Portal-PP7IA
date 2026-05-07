@@ -1,11 +1,11 @@
 /**
  * SupabaseHomeDatesRepository (Infrastructure Layer)
  *
- * Repository for accessing mv_home_latest_dates materialized view.
+ * Repository for accessing mv_home_latest_dates materialized view via Postgres direto (`pg` Pool).
  * Replaces 6 parallel queries (.getLatest() on each content table) with single MV query.
  *
  * Performance improvement:
- * - Before: 6 parallel queries to Supabase (~500ms with network latency)
+ * - Before: 6 parallel queries (~500ms with network latency)
  * - After: 1 query to materialized view (~50ms)
  * - Reduction: 90% faster, 83% fewer queries
  *
@@ -16,7 +16,7 @@
  * - SRP: Responsible only for fetching home dates from MV
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 
 /**
  * Row structure from mv_home_latest_dates materialized view
@@ -43,31 +43,24 @@ export interface HomePageDates {
  * Repository for home dates materialized view
  */
 export class SupabaseHomeDatesRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     /**
      * Fetches latest created_at from all content sections via materialized view
      * Returns null for missing/invalid dates (graceful degradation)
      */
     async getLatestDates(): Promise<HomePageDates> {
         try {
-            const { data, error } = await this.supabase
-                .from("mv_home_latest_dates")
-                .select("section_name, latest_created_at");
+            const { rows } = await pool.query<HomeDateRecord>(
+                `SELECT section_name, latest_created_at FROM mv_home_latest_dates`,
+            );
 
-            if (error) {
-                console.error("[SupabaseHomeDatesRepository] Error fetching home dates:", error.message);
-                return this.emptyDates();
-            }
-
-            if (!data || data.length === 0) {
+            if (!rows || rows.length === 0) {
                 console.warn("[SupabaseHomeDatesRepository] No data returned from mv_home_latest_dates");
                 return this.emptyDates();
             }
 
             // Convert array of records to Map for O(1) lookup
             const dateMap = new Map<string, Date>();
-            for (const row of data) {
+            for (const row of rows) {
                 if (row.section_name && row.latest_created_at) {
                     const parsedDate = new Date(row.latest_created_at);
                     // Validate date is not Invalid Date

@@ -1,15 +1,15 @@
 /**
  * SupabaseEstudarRepository (Infrastructure Layer)
  *
- * Implementação concreta do IEstudarRepository usando Supabase.
+ * Implementação concreta do IEstudarRepository usando Postgres direto via `pg` Pool.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta a API do Supabase para nosso domínio
+ * - Adapter Pattern: Adapta Postgres para nosso domínio
  * - Graceful Degradation: Retorna dados vazios em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import { Estudar, EstudarProps } from "../../domain/entities/Estudar";
 import { IEstudarRepository } from "../../domain/repositories/IEstudarRepository";
 
@@ -24,18 +24,13 @@ interface SupabaseEstudarRow {
 }
 
 export class SupabaseEstudarRepository implements IEstudarRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     async getAll(): Promise<Estudar[]> {
         try {
-            const { data, error } = await this.supabase.from("estudar").select("*");
+            const { rows } = await pool.query(
+                `SELECT * FROM estudar`,
+            );
 
-            if (error || !data) {
-                console.error("Erro ao buscar estudar:", error?.message);
-                return [];
-            }
-
-            const items = data
+            const items = (rows as unknown[])
                 .filter((row): row is SupabaseEstudarRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
             return this.sortByIndex(items);
@@ -47,9 +42,13 @@ export class SupabaseEstudarRepository implements IEstudarRepository {
 
     async getById(id: number): Promise<Estudar | null> {
         try {
-            const { data, error } = await this.supabase.from("estudar").select("*").eq("id", id).single();
+            const { rows } = await pool.query(
+                `SELECT * FROM estudar WHERE id = $1 LIMIT 1`,
+                [id],
+            );
 
-            if (error || !data || !this.isValidRow(data)) return null;
+            const data: unknown = rows[0] ?? null;
+            if (!data || !this.isValidRow(data)) return null;
             return this.mapToEntity(data);
         } catch {
             return null;

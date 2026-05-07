@@ -1,22 +1,22 @@
 /**
  * SupabaseBibliotecaRepository (Infrastructure Layer)
  *
- * Implementação concreta do IBibliotecaRepository usando Supabase.
+ * Implementação concreta do IBibliotecaRepository usando Postgres direto via `pg` Pool.
  * Inclui tratamento de erros resiliente - nunca quebra a aplicação.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta a API do Supabase para nosso domínio
- * - SRP: Responsável apenas pela comunicação com Supabase
+ * - Adapter Pattern: Adapta Postgres para nosso domínio
+ * - SRP: Responsável apenas pela comunicação com o banco
  * - Graceful Degradation: Retorna dados vazios em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import { BibliotecaItem, BibliotecaItemProps, BibliotecaTema } from "../../domain/entities/BibliotecaItem";
 import { IBibliotecaRepository } from "../../domain/repositories/IBibliotecaRepository";
 
 /**
- * Interface que representa a estrutura da tabela no Supabase
+ * Interface que representa a estrutura da tabela no banco
  */
 interface SupabaseBibliotecaRow {
     id: number;
@@ -47,31 +47,26 @@ function parseTema(raw: unknown): BibliotecaTema {
 }
 
 /**
- * Adapter Pattern: Adapta Supabase para nossa interface de domínio
+ * Adapter Pattern: Adapta Postgres para nossa interface de domínio
  */
 export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     /**
      * Obtém todos os itens da biblioteca ordenados por data (mais recentes primeiro)
      * Retorna array vazio em caso de erro (graceful degradation)
      */
     async getAll(): Promise<BibliotecaItem[]> {
         try {
-            const { data, error } = await this.supabase.from("biblioteca").select("*");
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM biblioteca`,
+            );
 
-            if (error) {
-                console.error("Erro ao buscar biblioteca:", error.message);
+            if (!rows || rows.length === 0) {
                 return [];
             }
 
-            if (!data || data.length === 0) {
-                return [];
-            }
-
-            const items = data
-                .filter((row): row is SupabaseBibliotecaRow => this.isValidRow(row))
-                .map(row => this.mapToEntity(row));
+            const items = rows
+                .filter(row => this.isValidRow(row))
+                .map(row => this.mapToEntity(row as unknown as SupabaseBibliotecaRow));
             return this.sortByIndex(items);
         } catch (err) {
             console.error("Erro inesperado ao buscar biblioteca:", err);
@@ -97,9 +92,13 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
      */
     async getById(id: number): Promise<BibliotecaItem | null> {
         try {
-            const { data, error } = await this.supabase.from("biblioteca").select("*").eq("id", id).single();
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM biblioteca WHERE id = $1 LIMIT 1`,
+                [id],
+            );
 
-            if (error || !data) {
+            const data = rows[0] ?? null;
+            if (!data) {
                 return null;
             }
 
@@ -124,7 +123,7 @@ export class SupabaseBibliotecaRepository implements IBibliotecaRepository {
     }
 
     /**
-     * Mapeia dados do Supabase para entidade de domínio
+     * Mapeia dados do banco para entidade de domínio
      * Adapter Pattern: Traduz formato externo para domínio
      */
     private mapToEntity(row: SupabaseBibliotecaRow): BibliotecaItem {

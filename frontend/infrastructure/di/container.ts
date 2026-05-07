@@ -44,12 +44,10 @@ import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
 import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
 import { VerifyPasswordResetOTPUseCase } from "../../application/usecases/VerifyPasswordResetOTPUseCase";
-import { supabase, supabaseAnon } from "../config/supabase";
 import { SupabaseAnnouncementBarRepository } from "../repositories/SupabaseAnnouncementBarRepository";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
 import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
 import { BetterAuthRepository } from "../repositories/BetterAuthRepository";
-import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
 import { SupabaseBibliotecaRepository } from "../repositories/SupabaseBibliotecaRepository";
 import { SupabaseBookRepository } from "../repositories/SupabaseBookRepository";
 import { SupabaseContentRepository } from "../repositories/SupabaseContentRepository";
@@ -106,7 +104,7 @@ class DIContainer {
      */
     static getNewsletterRepository(): SupabaseNewsletterRepository {
         if (!this.newsletterRepositoryInstance) {
-            this.newsletterRepositoryInstance = new SupabaseNewsletterRepository(supabaseAnon);
+            this.newsletterRepositoryInstance = new SupabaseNewsletterRepository();
         }
         return this.newsletterRepositoryInstance;
     }
@@ -117,7 +115,7 @@ class DIContainer {
      */
     static getMiniLivroRepository(): SupabaseMiniLivroRepository {
         if (!this.miniLivroRepositoryInstance) {
-            this.miniLivroRepositoryInstance = new SupabaseMiniLivroRepository(supabaseAnon);
+            this.miniLivroRepositoryInstance = new SupabaseMiniLivroRepository();
         }
         return this.miniLivroRepositoryInstance;
     }
@@ -128,7 +126,7 @@ class DIContainer {
      */
     static getBibliotecaRepository(): SupabaseBibliotecaRepository {
         if (!this.bibliotecaRepositoryInstance) {
-            this.bibliotecaRepositoryInstance = new SupabaseBibliotecaRepository(supabaseAnon);
+            this.bibliotecaRepositoryInstance = new SupabaseBibliotecaRepository();
         }
         return this.bibliotecaRepositoryInstance;
     }
@@ -139,7 +137,7 @@ class DIContainer {
      */
     static getEspecialSemanaRepository(): SupabaseEspecialSemanaRepository {
         if (!this.especialSemanaRepositoryInstance) {
-            this.especialSemanaRepositoryInstance = new SupabaseEspecialSemanaRepository(supabaseAnon);
+            this.especialSemanaRepositoryInstance = new SupabaseEspecialSemanaRepository();
         }
         return this.especialSemanaRepositoryInstance;
     }
@@ -150,7 +148,7 @@ class DIContainer {
      */
     static getRadarOportunidadesRepository(): SupabaseRadarOportunidadesRepository {
         if (!this.radarOportunidadesRepositoryInstance) {
-            this.radarOportunidadesRepositoryInstance = new SupabaseRadarOportunidadesRepository(supabaseAnon);
+            this.radarOportunidadesRepositoryInstance = new SupabaseRadarOportunidadesRepository();
         }
         return this.radarOportunidadesRepositoryInstance;
     }
@@ -161,7 +159,7 @@ class DIContainer {
      */
     static getEstudarRepository(): SupabaseEstudarRepository {
         if (!this.estudarRepositoryInstance) {
-            this.estudarRepositoryInstance = new SupabaseEstudarRepository(supabaseAnon);
+            this.estudarRepositoryInstance = new SupabaseEstudarRepository();
         }
         return this.estudarRepositoryInstance;
     }
@@ -172,7 +170,7 @@ class DIContainer {
      */
     static getBookRepository(): SupabaseBookRepository {
         if (!this.bookRepositoryInstance) {
-            this.bookRepositoryInstance = new SupabaseBookRepository(supabaseAnon);
+            this.bookRepositoryInstance = new SupabaseBookRepository();
         }
         return this.bookRepositoryInstance;
     }
@@ -183,7 +181,7 @@ class DIContainer {
      */
     static getEbookRepository(): SupabaseEbookRepository {
         if (!this.ebookRepositoryInstance) {
-            this.ebookRepositoryInstance = new SupabaseEbookRepository(supabaseAnon);
+            this.ebookRepositoryInstance = new SupabaseEbookRepository();
         }
         return this.ebookRepositoryInstance;
     }
@@ -205,7 +203,7 @@ class DIContainer {
      */
     static getAnalyticsRepository(): SupabaseAnalyticsRepository {
         if (!this.analyticsRepositoryInstance) {
-            this.analyticsRepositoryInstance = new SupabaseAnalyticsRepository(supabase);
+            this.analyticsRepositoryInstance = new SupabaseAnalyticsRepository();
         }
         return this.analyticsRepositoryInstance;
     }
@@ -280,7 +278,7 @@ class DIContainer {
 
     static getEditorialRepository(): SupabaseEditorialRepository {
         if (!this.editorialRepositoryInstance) {
-            this.editorialRepositoryInstance = new SupabaseEditorialRepository(supabase); // supabase: precisa de sessão para escrita via RLS
+            this.editorialRepositoryInstance = new SupabaseEditorialRepository();
         }
         return this.editorialRepositoryInstance;
     }
@@ -295,7 +293,7 @@ class DIContainer {
 
     static getPortalNewsRepository(): SupabasePortalNewsRepository {
         if (!this.portalNewsRepositoryInstance) {
-            this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository(supabaseAnon);
+            this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository();
         }
         return this.portalNewsRepositoryInstance;
     }
@@ -310,7 +308,7 @@ class DIContainer {
      */
     static getHomeDatesRepository(): SupabaseHomeDatesRepository {
         if (!this.homeDatesRepositoryInstance) {
-            this.homeDatesRepositoryInstance = new SupabaseHomeDatesRepository(supabaseAnon);
+            this.homeDatesRepositoryInstance = new SupabaseHomeDatesRepository();
         }
         return this.homeDatesRepositoryInstance;
     }
@@ -321,7 +319,7 @@ class DIContainer {
      */
     static getAnnouncementBarRepository(): SupabaseAnnouncementBarRepository {
         if (!this.announcementBarRepositoryInstance) {
-            this.announcementBarRepositoryInstance = new SupabaseAnnouncementBarRepository(supabaseAnon, supabase);
+            this.announcementBarRepositoryInstance = new SupabaseAnnouncementBarRepository();
         }
         return this.announcementBarRepositoryInstance;
     }
