@@ -31,7 +31,7 @@ Frontend-specific documentation:
 
 - [**Architecture Diagrams**](../frontend/docs/ARCHITECTURE_DIAGRAMS.md) - Visual architecture documentation
 - [**Usage Examples**](../frontend/docs/USAGE_EXAMPLES.md) - Code examples and recipes
-- [**Design System**](../frontend/docs/development/DESIGN_SYSTEM.md) - Colors, typography, components
+- [**Design System**](../frontend/docs/development/DESIGN_SYSTEM.md) - Colors, typographys, components
 
 ## 📂 Project Structure
 
