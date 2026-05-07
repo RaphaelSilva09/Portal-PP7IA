@@ -16,7 +16,11 @@
  * - Sanitização de entrada contra path traversal
  * - Headers de segurança adequados
  */
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
+
+const STORAGE_ROOT = process.env.STORAGE_ROOT ?? "./data";
 
 // Mapeamento de tipos de conteúdo para bucket e pastas do Supabase Storage
 // Estrutura: Bucket único "materiais" com subpastas por tipo de conteúdo
@@ -62,34 +66,29 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
             return NextResponse.json({ error: "Slug inválido" }, { status: 400 });
         }
 
-        // Constrói URL do Supabase Storage
         const config = STORAGE_CONFIG[type];
         // Ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
         const fileName = type === "ebook" ? `${slug}/introducao_${slug}.html` : `${slug}.html`;
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-        if (!supabaseUrl) {
-            console.error("NEXT_PUBLIC_SUPABASE_URL não configurado");
-            return NextResponse.json({ error: "Configuração do servidor inválida" }, { status: 500 });
+        // Read directly from Railway Volume (mounted at STORAGE_ROOT)
+        // Path on disk: STORAGE_ROOT/{bucket}/{folder}/{filename}
+        const root = path.resolve(STORAGE_ROOT);
+        const target = path.resolve(root, config.bucket, config.folder, fileName);
+
+        if (target !== root && !target.startsWith(root + path.sep)) {
+            return NextResponse.json({ error: "Caminho inválido" }, { status: 400 });
         }
 
-        // URL pública do arquivo no Supabase Storage
-        // Estrutura: {supabase}/storage/v1/object/public/{bucket}/{folder}/{filename}
-        const fileUrl = `${supabaseUrl}/storage/v1/object/public/${config.bucket}/${config.folder}/${fileName}`;
-
-        // Busca o arquivo do Supabase (sem cache: conteúdo pode ser atualizado a qualquer momento)
-        const response = await fetch(fileUrl, { cache: "no-store" });
-
-        if (!response.ok) {
-            if (response.status === 404) {
+        let htmlContent: string;
+        try {
+            htmlContent = await fs.readFile(target, "utf8");
+        } catch (err: unknown) {
+            const code = (err as { code?: string }).code;
+            if (code === "ENOENT") {
                 return NextResponse.json({ error: "Arquivo não encontrado" }, { status: 404 });
             }
-            console.error(`Erro ao buscar arquivo do Supabase: ${response.status} ${response.statusText}`);
-            return NextResponse.json({ error: "Erro ao buscar arquivo" }, { status: response.status });
+            throw err;
         }
-        
-        // Obtém conteúdo HTML
-        const htmlContent = await response.text();
 
         // Retorna HTML com headers apropriados
         return new NextResponse(htmlContent, {
