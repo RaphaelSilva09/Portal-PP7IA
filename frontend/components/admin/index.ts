@@ -11,6 +11,8 @@ export type { AnnouncementBarFormSubmitData } from "./AnnouncementBarForm";
 export { AnnouncementBarPreview } from "./AnnouncementBarPreview";
 export { AnnouncementBarTab } from "./AnnouncementBarTab";
 export { AdminEditorial } from "./AdminEditorial";
+export { AdminHomeBlockDescriptions } from "./AdminHomeBlockDescriptions";
+export { AdminHomeRecomendacoesPaulo } from "./AdminHomeRecomendacoesPaulo";
 export { AdminPortalNews } from "./AdminPortalNews";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { ContentForm } from "./ContentForm";

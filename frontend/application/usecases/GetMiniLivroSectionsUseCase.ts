@@ -2,7 +2,7 @@ import type { MiniLivroSection } from "@/domain/entities/MiniLivroSection";
 import type { IMiniLivroSectionRepository } from "@/domain/repositories/IMiniLivroSectionRepository";
 
 export interface GetMiniLivroSectionsOutput {
-    prefacio: MiniLivroSection | null;
+    introducoes: MiniLivroSection[];
     encerramentos: MiniLivroSection[];
     all: MiniLivroSection[];
 }
@@ -14,7 +14,7 @@ export class GetMiniLivroSectionsUseCase {
         const all = await this.repository.getAll();
 
         return {
-            prefacio: all.find(item => item.kind === "prefacio") ?? null,
+            introducoes: all.filter(item => item.kind === "introducao"),
             encerramentos: all.filter(item => item.kind === "encerramento"),
             all,
         };

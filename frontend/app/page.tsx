@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import IASParceiras from "@/components/IASParceiras";
 import Navbar from "@/components/Header";
+import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
 import ChatBubble from "@/components/chat/ChatBubble";
 
 export default function Home() {
@@ -12,6 +13,7 @@ export default function Home() {
             <HeroSection />
             <BentoGrid />
             <IASParceiras />
+            <HomeRecomendacoesPaulo />
             <Footer />
             {process.env.NEXT_PUBLIC_CHAT_ENABLED !== "false" && <ChatBubble />}
         </main>

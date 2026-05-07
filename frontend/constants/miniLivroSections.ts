@@ -4,19 +4,19 @@ export const MINI_LIVRO_SECTION_STORAGE_BUCKET = "materiais";
 export const MINI_LIVRO_SECTION_STORAGE_FOLDER = "mini-livros/sections";
 export const MINI_LIVRO_SECTION_SOURCE_PREFIX = `/${MINI_LIVRO_SECTION_STORAGE_BUCKET}/${MINI_LIVRO_SECTION_STORAGE_FOLDER}`;
 
-export function getMiniLivroSectionStoragePath(kind: "prefacio" | "encerramento", id?: number): string {
-    if (kind === "prefacio") {
-        return `${MINI_LIVRO_SECTION_STORAGE_FOLDER}/prefacio.html`;
+export function getMiniLivroSectionStoragePath(kind: "introducao" | "encerramento", id?: number): string {
+    if (!id) {
+        throw new Error(`${kind === "introducao" ? "Introdução" : "Encerramento"} requer um ID para montar o caminho do HTML.`);
     }
 
-    if (!id) {
-        throw new Error("Encerramento requer um ID para montar o caminho do HTML.");
+    if (kind === "introducao") {
+        return `${MINI_LIVRO_SECTION_STORAGE_FOLDER}/introducao/${id}.html`;
     }
 
     return `${MINI_LIVRO_SECTION_STORAGE_FOLDER}/encerramento/${id}.html`;
 }
 
-export function getMiniLivroSectionSourcePath(kind: "prefacio" | "encerramento", id?: number): string {
+export function getMiniLivroSectionSourcePath(kind: "introducao" | "encerramento", id?: number): string {
     return `/${MINI_LIVRO_SECTION_STORAGE_BUCKET}/${getMiniLivroSectionStoragePath(kind, id)}`;
 }
 

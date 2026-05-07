@@ -36,16 +36,16 @@ export default function AnnouncementBar({ bars }: AnnouncementBarProps) {
     const touchStartX = useRef<number | null>(null);
 
     const visibleBars = bars.filter(b => !closedIds.includes(b.id));
+    const total = visibleBars.length;
+    const showNav = total > 1;
+
+    const goNext = () => setCurrentIndex(i => (i + 1) % total);
+    const goPrev = () => setCurrentIndex(i => (i - 1 + total) % total);
 
     if (!mounted || visibleBars.length === 0) return null;
 
     const bar = visibleBars[currentIndex % visibleBars.length];
-    const total = visibleBars.length;
-    const showNav = total > 1;
     const showClose = bar.isClosable;
-
-    const goNext = () => setCurrentIndex(i => (i + 1) % total);
-    const goPrev = () => setCurrentIndex(i => (i - 1 + total) % total);
 
     const handleClose = () => {
         const newClosed = [...closedIds, bar.id];
@@ -77,13 +77,23 @@ export default function AnnouncementBar({ bars }: AnnouncementBarProps) {
         <div
             role="alert"
             aria-live="polite"
-            className="relative w-full flex items-center py-2 px-10"
+            className="announcement-bar relative w-full flex items-center py-2 px-10"
             style={{ backgroundColor: bar.bgColor, color: bar.textColor }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
         >
+            {showNav && (
+                <span
+                    className="announcement-tick"
+                    aria-hidden="true"
+                    onAnimationIteration={goNext}
+                />
+            )}
             {/* Centro: mensagem + link + navegação */}
-            <div className="flex-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm font-medium text-center">
+            <div
+                key={bar.id}
+                className="announcement-swap flex-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm font-medium text-center"
+            >
                 {showNav && (
                     <button
                         onClick={goPrev}
