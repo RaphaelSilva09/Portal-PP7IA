@@ -4,6 +4,7 @@
  * useHomePageDates (Presentation Layer)
  *
  * Busca data do item mais recente de cada seção de conteúdo via materialized view.
+ * Consome o endpoint HTTP `/api/content/latest-dates`.
  * Compara as datas em nível de dia para identificar quais seções foram
  * atualizadas mais recentemente e retorna flags `isNew` para cada uma.
  *
@@ -19,7 +20,6 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import DIContainer from "../../infrastructure/di/container";
 
 export interface HomePageNewFlags {
     newsletter: boolean;
@@ -35,6 +35,15 @@ export interface UseHomePageDatesResult {
     /** Data mais recente entre todas as seções, formatada como "dd.mm.yyyy". Vazio enquanto carrega ou sem dados. */
     mostRecentDate: string;
     isLoading: boolean;
+}
+
+interface HomePageDates {
+    newsletter: Date | null;
+    especial: Date | null;
+    radar: Date | null;
+    miniLivros: Date | null;
+    biblioteca: Date | null;
+    estudar: Date | null;
 }
 
 const DEFAULT_FLAGS: HomePageNewFlags = {
@@ -59,12 +68,28 @@ function formatDate(d: Date): string {
     return `${dd}.${mm}.${d.getFullYear()}`;
 }
 
+/** Converte ISO string -> Date | null (mantém null se valor ausente/ inválido). */
+function toDate(raw: unknown): Date | null {
+    if (!raw) return null;
+    const d = new Date(raw as string);
+    return isNaN(d.getTime()) ? null : d;
+}
+
 export function useHomePageDates(): UseHomePageDatesResult {
     const { data, isLoading } = useQuery({
         queryKey: ["homePageDates"],
-        queryFn: async () => {
-            const repo = DIContainer.getHomeDatesRepository();
-            return await repo.getLatestDates();
+        queryFn: async (): Promise<HomePageDates> => {
+            const res = await fetch("/api/content/latest-dates");
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json = (await res.json()) as Record<string, string | null | undefined>;
+            return {
+                newsletter: toDate(json.newsletter),
+                especial: toDate(json.especial),
+                radar: toDate(json.radar),
+                miniLivros: toDate(json.miniLivros),
+                biblioteca: toDate(json.biblioteca),
+                estudar: toDate(json.estudar),
+            };
         },
         staleTime: 15 * 60 * 1000, // 15 minutes (aligned with 10min MV refresh + margin)
         refetchOnMount: "always",

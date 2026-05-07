@@ -9,8 +9,6 @@
 
 import { FeedbackMessage } from "@/components/admin";
 import { GlassCard } from "@/components/ui";
-import { supabase } from "@/infrastructure/config/supabase";
-import DIContainer from "@/infrastructure/di/container";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
@@ -164,11 +162,12 @@ export function AdminEditorial() {
     const loadContent = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data } = await supabase
-                .from("editorial")
-                .select("content")
-                .eq("id", 1)
-                .single();
+            const res = await fetch("/api/content/editorial");
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const data = (await res.json()) as { content?: string };
 
             if (data?.content && editor) {
                 editor.commands.setContent(data.content);
@@ -189,8 +188,15 @@ export function AdminEditorial() {
         if (!editor) return;
         setIsSaving(true);
         try {
-            const useCase = DIContainer.getSaveEditorialUseCase();
-            await useCase.execute(editor.getHTML());
+            const res = await fetch("/api/content/editorial", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: editor.getHTML() }),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             setFeedback({ show: true, message: "Editorial salvo com sucesso!", type: "success" });
         } catch (err) {
             console.error("Erro ao salvar editorial:", err);

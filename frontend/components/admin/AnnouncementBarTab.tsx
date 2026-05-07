@@ -11,14 +11,39 @@
  * - Accessibility: botões 48px+, feedback claro
  */
 
-import { AnnouncementBar } from "@/domain/entities/AnnouncementBar";
-import DIContainer from "@/infrastructure/di/container";
+import { AnnouncementBar, AnnouncementBarProps } from "@/domain/entities/AnnouncementBar";
 import { Copy, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { FeedbackMessage } from "./FeedbackMessage";
 import { AnnouncementBarForm, AnnouncementBarFormSubmitData } from "./AnnouncementBarForm";
 import { GlassCard } from "@/components/ui";
+
+/**
+ * Reidrata uma AnnouncementBar serializada via JSON.
+ * O entity classes serializam como `{ props: {...} }` (private readonly props).
+ * Datas chegam como strings ISO — reconstrói para Date.
+ */
+function rehydrateAnnouncementBar(raw: unknown): AnnouncementBar {
+    const data = raw as { props?: Partial<AnnouncementBarProps> } & Partial<AnnouncementBarProps>;
+    const src = (data?.props ?? data) as Partial<AnnouncementBarProps>;
+    const props: AnnouncementBarProps = {
+        id: String(src.id ?? ""),
+        message: String(src.message ?? ""),
+        linkUrl: (src.linkUrl as string | null) ?? null,
+        linkLabel: (src.linkLabel as string | null) ?? null,
+        bgColor: String(src.bgColor ?? "#1a1a1a"),
+        textColor: String(src.textColor ?? "#ffffff"),
+        isActive: Boolean(src.isActive),
+        priority: Number(src.priority ?? 0),
+        startsAt: src.startsAt ? new Date(src.startsAt as unknown as string) : null,
+        endsAt: src.endsAt ? new Date(src.endsAt as unknown as string) : null,
+        isClosable: Boolean(src.isClosable),
+        createdAt: src.createdAt ? new Date(src.createdAt as unknown as string) : new Date(0),
+        updatedAt: src.updatedAt ? new Date(src.updatedAt as unknown as string) : new Date(0),
+    };
+    return AnnouncementBar.create(props);
+}
 
 /** Determina o status visual de uma barra */
 function getBarStatus(bar: AnnouncementBar): { label: string; color: string } {
@@ -66,8 +91,13 @@ export function AnnouncementBarTab() {
     const loadBars = useCallback(async () => {
         setIsLoading(true);
         try {
-            const useCase = DIContainer.getAnnouncementBarsUseCase();
-            const data = await useCase.execute();
+            const res = await fetch("/api/content/announcement-bars");
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const json = (await res.json()) as { items: unknown[] };
+            const data = (json.items ?? []).map(rehydrateAnnouncementBar);
             setBars(data);
         } catch (err) {
             console.error("Erro ao carregar barras de aviso:", err);
@@ -84,8 +114,15 @@ export function AnnouncementBarTab() {
     // Toggle rápido
     const handleToggle = async (bar: AnnouncementBar) => {
         try {
-            const useCase = DIContainer.getToggleAnnouncementBarUseCase();
-            await useCase.execute(bar.id, !bar.isActive);
+            const res = await fetch(`/api/content/announcement-bars/${encodeURIComponent(bar.id)}/toggle`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isActive: !bar.isActive }),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             showFeedback(!bar.isActive ? "Barra ativada." : "Barra desativada.", "success");
             await loadBars();
         } catch (err) {
@@ -97,12 +134,26 @@ export function AnnouncementBarTab() {
     // Criar ou editar
     const handleFormSubmit = async (data: AnnouncementBarFormSubmitData) => {
         if (editBar) {
-            const useCase = DIContainer.getUpdateAnnouncementBarUseCase();
-            await useCase.execute(editBar.id, data);
+            const res = await fetch(`/api/content/announcement-bars/${encodeURIComponent(editBar.id)}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             showFeedback("Barra atualizada com sucesso!", "success");
         } else {
-            const useCase = DIContainer.getCreateAnnouncementBarUseCase();
-            await useCase.execute(data);
+            const res = await fetch("/api/content/announcement-bars", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             showFeedback("Barra criada com sucesso!", "success");
         }
         setShowForm(false);
@@ -113,19 +164,26 @@ export function AnnouncementBarTab() {
     // Duplicar
     const handleDuplicate = async (bar: AnnouncementBar) => {
         try {
-            const useCase = DIContainer.getCreateAnnouncementBarUseCase();
-            await useCase.execute({
-                message:   bar.message,
-                linkUrl:   bar.linkUrl,
-                linkLabel: bar.linkLabel,
-                bgColor:   bar.bgColor,
-                textColor: bar.textColor,
-                priority:  bar.priority,
-                isActive:  false, // cópia inativa por padrão
-                isClosable: bar.isClosable,
-                startsAt:  bar.startsAt,
-                endsAt:    bar.endsAt,
+            const res = await fetch("/api/content/announcement-bars", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message:   bar.message,
+                    linkUrl:   bar.linkUrl,
+                    linkLabel: bar.linkLabel,
+                    bgColor:   bar.bgColor,
+                    textColor: bar.textColor,
+                    priority:  bar.priority,
+                    isActive:  false, // cópia inativa por padrão
+                    isClosable: bar.isClosable,
+                    startsAt:  bar.startsAt,
+                    endsAt:    bar.endsAt,
+                }),
             });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             showFeedback("Barra duplicada (inativa).", "success");
             await loadBars();
         } catch (err) {
@@ -138,8 +196,13 @@ export function AnnouncementBarTab() {
     const handleDeleteConfirm = async () => {
         if (!confirmDelete.bar) return;
         try {
-            const useCase = DIContainer.getDeleteAnnouncementBarUseCase();
-            await useCase.execute(confirmDelete.bar.id);
+            const res = await fetch(`/api/content/announcement-bars/${encodeURIComponent(confirmDelete.bar.id)}`, {
+                method: "DELETE",
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             showFeedback("Barra deletada.", "success");
             await loadBars();
         } catch (err) {

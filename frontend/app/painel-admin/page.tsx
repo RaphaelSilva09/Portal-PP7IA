@@ -33,7 +33,7 @@ import {
 } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
-import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
+import { ContentItem, ContentItemProps, ContentType } from "@/domain/entities/ContentItem";
 import { portalContentClass } from "@/lib/layout";
 import DIContainer from "@/infrastructure/di/container";
 import {
@@ -87,6 +87,51 @@ const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
     { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
 ];
+
+/**
+ * Reidrata um ContentItem serializado vindo da API.
+ * Entidades de domínio serializam como `{ props: {...} }` por usarem `private readonly props`.
+ * Datas chegam como strings ISO — reconstrói para Date.
+ */
+function rehydrateContentItem(raw: unknown): ContentItem {
+    const data = raw as { props?: Partial<ContentItemProps> } & Partial<ContentItemProps>;
+    const src = (data?.props ?? data) as Partial<ContentItemProps>;
+    const props: ContentItemProps = {
+        id: Number(src.id ?? 0),
+        createdAt: src.createdAt ? new Date(src.createdAt as unknown as string) : new Date(0),
+        title: String(src.title ?? ""),
+        htmlPath: (src.htmlPath as string | null) ?? null,
+        pdfPath: (src.pdfPath as string | null) ?? null,
+        readTime: Number(src.readTime ?? 0),
+        index: src.index as number | undefined,
+        ebookId: (src.ebookId as number | null | undefined) ?? null,
+        partOrder: (src.partOrder as number | null | undefined) ?? null,
+        tema: (src.tema as string | null | undefined) ?? null,
+        subtitle: (src.subtitle as string | null | undefined) ?? null,
+        description: (src.description as string | null | undefined) ?? null,
+        badgeText: (src.badgeText as string | null | undefined) ?? null,
+        coverImagePath: (src.coverImagePath as string | null | undefined) ?? null,
+        coverPdfPath: (src.coverPdfPath as string | null | undefined) ?? null,
+        ebookOrder: (src.ebookOrder as number | null | undefined) ?? null,
+    };
+    return ContentItem.create(props);
+}
+
+/**
+ * Extrai uma lista achatada de itens a partir do payload do endpoint
+ * `/api/content/[type]`, lidando com as diferentes formas de retorno:
+ * - especial-semana: `{ items: [...] }`
+ * - mini-livro: `{ all: [...], latest, older }`
+ * - biblioteca/newsletter/radar_oportunidades/estudar: `{ latest, older }`
+ */
+function flattenContentPayload(payload: Record<string, unknown>): unknown[] {
+    if (Array.isArray(payload.items)) return payload.items as unknown[];
+    if (Array.isArray(payload.all)) return payload.all as unknown[];
+    const out: unknown[] = [];
+    if (payload.latest) out.push(payload.latest);
+    if (Array.isArray(payload.older)) out.push(...(payload.older as unknown[]));
+    return out;
+}
 
 interface FeedbackState {
     show: boolean;
@@ -145,11 +190,26 @@ export default function PainelAdminPage() {
     const loadItems = useCallback(async () => {
         if (mainSection !== "conteudo") return;
         if (contentTab === "livro") return; // singleton gerenciado pelo AdminBook
+        if (contentTab === "ebook") {
+            // Aba ebook é alimentada via useEbook() / allEbooks; não há rota /api/content/ebook
+            // no formato lista usada aqui. Mantém items vazio para evitar 400.
+            // TODO Phase 5d: rotear via /api/admin/content/* quando essa rota existir.
+            setItems([]);
+            setLastUpdated(null);
+            return;
+        }
 
         setIsLoading(true);
         try {
-            const repo = DIContainer.getContentRepository();
-            const [data, lu] = await Promise.all([repo.getAll(contentTab as ContentType), repo.getLastUpdated(contentTab as ContentType)]);
+            const res = await fetch(`/api/content/${encodeURIComponent(contentTab)}`);
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const payload = (await res.json()) as Record<string, unknown>;
+            const rawItems = flattenContentPayload(payload);
+            const data = rawItems.map(rehydrateContentItem);
+            const lu = payload.lastUpdated ? new Date(payload.lastUpdated as string) : null;
             setItems(data);
             setLastUpdated(lu);
         } catch (error) {
@@ -201,6 +261,7 @@ export default function PainelAdminPage() {
             onConfirm: async () => {
                 setConfirmDialog({ ...confirmDialog, show: false });
                 try {
+                    // TODO Phase 5d: route through /api/admin/content/* once that route lands.
                     const useCase = DIContainer.getDeleteContentWithFilesUseCase();
                     await useCase.execute(contentTab as ContentType, item.id);
                     await loadItems();
@@ -226,6 +287,7 @@ export default function PainelAdminPage() {
         try {
             if (editItem) {
                 // Atualizar via use case (com suporte a upload de arquivos)
+                // TODO Phase 5d: route through /api/admin/content/* once that route lands.
                 const useCase = DIContainer.getUpdateContentWithFilesUseCase();
                 await useCase.execute({
                     type: contentTab as ContentType,
@@ -243,6 +305,7 @@ export default function PainelAdminPage() {
                 });
             } else {
                 // Criar com upload
+                // TODO Phase 5d: route through /api/admin/content/* once that route lands.
                 const useCase = DIContainer.getCreateContentWithUploadUseCase();
                 await useCase.execute({
                     type: contentTab as ContentType,
@@ -277,6 +340,7 @@ export default function PainelAdminPage() {
 
     const handleReorder = async (reorderedItems: ContentItem[]) => {
         try {
+            // TODO Phase 5d: route through /api/admin/content/* once that route lands.
             const repo = DIContainer.getContentRepository();
             await repo.reorderItems(contentTab as ContentType, reorderedItems.map(i => i.id));
             setItems(reorderedItems);
@@ -297,6 +361,7 @@ export default function PainelAdminPage() {
         try {
             if (editItem) {
                 // Editar ebook via use case
+                // TODO Phase 5d: route through /api/admin/content/* once that route lands.
                 const useCase = DIContainer.getUpdateContentWithFilesUseCase();
                 await useCase.execute({
                     type: "ebook",
@@ -318,6 +383,7 @@ export default function PainelAdminPage() {
                 });
             } else {
                 // Criar ebook com upload
+                // TODO Phase 5d: route through /api/admin/content/* once that route lands.
                 const useCase = DIContainer.getCreateContentWithUploadUseCase();
                 await useCase.execute({
                     type: "ebook",

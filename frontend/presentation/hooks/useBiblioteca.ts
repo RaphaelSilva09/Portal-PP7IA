@@ -8,7 +8,7 @@
  * Princípios aplicados:
  * - Facade Pattern: Simplifica interface para componentes
  * - SRP: Responsável apenas por gerenciar estado da biblioteca
- * - Clean Architecture: Camada de apresentação depende de casos de uso
+ * - Clean Architecture: Camada de apresentação consome HTTP API
  * - React Query: Cache automático, retry e cancelamento na desmontagem
  */
 
@@ -17,8 +17,7 @@
 import { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BibliotecaItem, BIBLIOTECA_TEMAS } from "../../domain/entities/BibliotecaItem";
-import type { BibliotecaTema } from "../../domain/entities/BibliotecaItem";
-import DIContainer from "../../infrastructure/di/container";
+import type { BibliotecaItemProps, BibliotecaTema } from "../../domain/entities/BibliotecaItem";
 
 interface UseBibliotecaResult {
     latest: BibliotecaItem | null;
@@ -35,6 +34,19 @@ interface UseBibliotecaResult {
     refresh: () => void;
 }
 
+/**
+ * O backend serializa instâncias da entidade como `{ props: {...} }` (campo
+ * privado da classe vira chave pública após JSON.stringify). Aqui rehidratamos
+ * para uma instância real, convertendo strings ISO de volta para Date.
+ */
+function rehydrateItem(raw: unknown): BibliotecaItem {
+    const props = (raw as { props?: BibliotecaItemProps })?.props ?? (raw as BibliotecaItemProps);
+    return BibliotecaItem.create({
+        ...props,
+        createdAt: props.createdAt ? new Date(props.createdAt) : new Date(0),
+    });
+}
+
 export function useBiblioteca(): UseBibliotecaResult {
     const queryClient = useQueryClient();
     const [activeTema, setActiveTema] = useState<BibliotecaTema | null>(BIBLIOTECA_TEMAS[0].slug);
@@ -42,13 +54,18 @@ export function useBiblioteca(): UseBibliotecaResult {
     const { data, isLoading, error } = useQuery({
         queryKey: ["biblioteca"],
         queryFn: async () => {
-            const useCase = DIContainer.getBibliotecaUseCase();
-            const repo = DIContainer.getContentRepository();
-            const [result, lastUpdated] = await Promise.all([
-                useCase.execute(),
-                repo.getLastUpdated("biblioteca"),
-            ]);
-            return { ...result, lastUpdated };
+            const res = await fetch("/api/content/biblioteca");
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json = (await res.json()) as {
+                latest: unknown;
+                older: unknown[];
+                lastUpdated: string | null;
+            };
+            return {
+                latest: json.latest ? rehydrateItem(json.latest) : null,
+                older: (json.older ?? []).map(rehydrateItem),
+                lastUpdated: json.lastUpdated ? new Date(json.lastUpdated) : null,
+            };
         },
     });
 
