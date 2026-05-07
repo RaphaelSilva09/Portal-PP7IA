@@ -28,7 +28,7 @@ interface UseAuthResult {
     getCurrentUser: () => Promise<void>;
     updateEmail: (newEmail: string) => Promise<void>;
     updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-    updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
+    updatePreferences: (acceptEmail: boolean) => Promise<void>;
     deleteAccount: () => Promise<void>;
     clearError: () => void;
 }
@@ -39,7 +39,6 @@ interface SignUpParams {
     nome: string;
     celular: string;
     acceptEmailUpdates: boolean;
-    acceptWhatsAppUpdates: boolean;
 }
 
 interface SignInParams {
@@ -199,7 +198,7 @@ export function useAuth(): UseAuthResult {
      * Atualiza preferências de notificação
      */
     const updatePreferences = useCallback(
-        async (acceptEmail: boolean, acceptWhatsApp: boolean) => {
+        async (acceptEmail: boolean) => {
             setIsLoading(true);
             setError(null);
 
@@ -207,7 +206,6 @@ export function useAuth(): UseAuthResult {
                 const repository = DIContainer.getAuthRepository();
                 await repository.updatePreferences({
                     acceptEmailUpdates: acceptEmail,
-                    acceptWhatsAppUpdates: acceptWhatsApp,
                 });
                 // Atualiza o usuário local
                 await getCurrentUser();

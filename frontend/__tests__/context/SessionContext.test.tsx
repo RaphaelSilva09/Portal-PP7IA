@@ -58,7 +58,6 @@ const mockUser = User.create({
     nome: 'Test User',
     celular: '11999999999',
     acceptEmailUpdates: true,
-    acceptWhatsAppUpdates: false,
     createdAt: new Date(),
     role: 'user',
 });
@@ -117,8 +116,7 @@ function EmailConfirmationConsumer() {
                             nome: 'T',
                             celular: '11999999999',
                             acceptEmailUpdates: false,
-                            acceptWhatsAppUpdates: false,
-                        });
+                                                });
                     } catch {}
                 }}
             >
@@ -145,8 +143,7 @@ function SignUpButton() {
                             nome: 'New User',
                             celular: '11999999999',
                             acceptEmailUpdates: true,
-                            acceptWhatsAppUpdates: false,
-                        });
+                                                });
                     } catch {}
                 }}
             >

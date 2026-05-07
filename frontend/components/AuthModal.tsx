@@ -59,7 +59,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     });
     const [errors, setErrors] = useState<FormErrors>({});
     const [acceptEmailUpdates, setAcceptEmailUpdates] = useState(false);
-    const [acceptWhatsAppUpdates, setAcceptWhatsAppUpdates] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Hook de autenticação (Clean Architecture)
@@ -89,7 +88,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
             setErrors({});
             setShowPassword(false);
             setAcceptEmailUpdates(false);
-            setAcceptWhatsAppUpdates(false);
             clearError();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,8 +111,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                 newErrors.celular = "Celular inválido";
             }
 
-            if (!acceptEmailUpdates && !acceptWhatsAppUpdates) {
-                newErrors.consent = "Aceite pelo menos uma forma de receber atualizações";
+            if (!acceptEmailUpdates) {
+                newErrors.consent = "Aceite receber atualizações por e-mail para continuar";
             }
         }
 
@@ -180,7 +178,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                     nome: formData.nome,
                     celular: formData.celular,
                     acceptEmailUpdates,
-                    acceptWhatsAppUpdates,
                 });
 
                 if (result.emailConfirmationRequired) {
@@ -394,7 +391,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                             onClick={() => {
                                                 const newValue = !acceptEmailUpdates;
                                                 setAcceptEmailUpdates(newValue);
-                                                if (errors.consent && (newValue || acceptWhatsAppUpdates)) {
+                                                if (errors.consent && newValue) {
                                                     setErrors(prev => ({ ...prev, consent: undefined }));
                                                 }
                                             }}
@@ -408,28 +405,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                             </div>
                                             <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors leading-4">
                                                 Aceito receber atualizações e novidades por e-mail
-                                            </span>
-                                        </label>
-
-                                        <label
-                                            className="flex items-center gap-2 cursor-pointer group"
-                                            onClick={() => {
-                                                const newValue = !acceptWhatsAppUpdates;
-                                                setAcceptWhatsAppUpdates(newValue);
-                                                if (errors.consent && (newValue || acceptEmailUpdates)) {
-                                                    setErrors(prev => ({ ...prev, consent: undefined }));
-                                                }
-                                            }}
-                                        >
-                                            <div
-                                                className={`w-4 h-4 min-w-[1rem] min-h-[1rem] rounded border border-text-secondary flex items-center justify-center cursor-pointer transition-colors group-hover:border-text-primary ${
-                                                    acceptWhatsAppUpdates ? "bg-text-secondary" : "bg-transparent"
-                                                }`}
-                                            >
-                                                {acceptWhatsAppUpdates && <Check className="w-3 h-3 text-bg-primary" />}
-                                            </div>
-                                            <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors leading-4">
-                                                Aceito receber atualizações e novidades via WhatsApp
                                             </span>
                                         </label>
                                     </div>

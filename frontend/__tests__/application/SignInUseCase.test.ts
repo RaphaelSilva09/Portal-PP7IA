@@ -10,7 +10,6 @@ const mockUser = User.create({
     nome: 'Test User',
     celular: '11999999999',
     acceptEmailUpdates: true,
-    acceptWhatsAppUpdates: false,
     createdAt: new Date(),
     role: 'user',
 });

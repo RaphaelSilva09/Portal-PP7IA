@@ -7,7 +7,6 @@ const validProps: UserProps = {
     nome: 'Test User',
     celular: '11999999999',
     acceptEmailUpdates: true,
-    acceptWhatsAppUpdates: false,
     createdAt: new Date('2024-01-01'),
     role: 'user',
 };
@@ -22,7 +21,6 @@ describe('User', () => {
             expect(user.nome).toBe('Test User');
             expect(user.celular).toBe('11999999999');
             expect(user.acceptEmailUpdates).toBe(true);
-            expect(user.acceptWhatsAppUpdates).toBe(false);
             expect(user.role).toBe('user');
         });
 
@@ -56,10 +54,10 @@ describe('User', () => {
             expect(user.celular).toBe('(11) 99999-9999');
         });
 
-        it('ambas preferências false → throw sobre comunicação', () => {
+        it('acceptEmailUpdates false → throw sobre e-mail obrigatório', () => {
             expect(() =>
-                User.create({ ...validProps, acceptEmailUpdates: false, acceptWhatsAppUpdates: false })
-            ).toThrow(/pelo menos uma forma de comunicação/);
+                User.create({ ...validProps, acceptEmailUpdates: false })
+            ).toThrow(/aceitar receber atualizações por e-mail/i);
         });
     });
 

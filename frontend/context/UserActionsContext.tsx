@@ -18,7 +18,7 @@ interface UserActionsContextType {
     error: string | null;
     updateEmail: (newEmail: string) => Promise<void>;
     updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-    updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
+    updatePreferences: (acceptEmail: boolean) => Promise<void>;
     updateProfile: (nome: string, email: string, celular: string) => Promise<void>;
     deleteAccount: () => Promise<void>;
     sendPasswordReset: (email: string) => Promise<void>;
@@ -86,7 +86,7 @@ export function UserActionsProvider({ children }: UserActionsProviderProps) {
     /**
      * Atualiza preferências de comunicação do usuário
      */
-    const updatePreferences = useCallback(async (acceptEmail: boolean, acceptWhatsApp: boolean) => {
+    const updatePreferences = useCallback(async (acceptEmail: boolean) => {
         setIsLoading(true);
         setError(null);
 
@@ -94,7 +94,6 @@ export function UserActionsProvider({ children }: UserActionsProviderProps) {
             const repository = DIContainer.getAuthRepository();
             await repository.updatePreferences({
                 acceptEmailUpdates: acceptEmail,
-                acceptWhatsAppUpdates: acceptWhatsApp,
             });
         } catch (err) {
             const errorMessage = err instanceof AuthError ? err.message : "Erro ao atualizar preferências.";

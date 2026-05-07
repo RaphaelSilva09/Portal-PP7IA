@@ -19,7 +19,6 @@ export interface SignUpInput {
     nome: string;
     celular: string;
     acceptEmailUpdates: boolean;
-    acceptWhatsAppUpdates: boolean;
 }
 
 export interface SignUpOutput {
@@ -54,7 +53,6 @@ export class SignUpUseCase {
             nome: input.nome.trim(),
             celular: input.celular,
             acceptEmailUpdates: input.acceptEmailUpdates,
-            acceptWhatsAppUpdates: input.acceptWhatsAppUpdates,
         });
 
         return {
@@ -73,8 +71,8 @@ export class SignUpUseCase {
             throw new Error("Todos os campos obrigatórios devem ser preenchidos");
         }
 
-        if (!input.acceptEmailUpdates && !input.acceptWhatsAppUpdates) {
-            throw new Error("Aceite pelo menos uma forma de receber atualizações");
+        if (!input.acceptEmailUpdates) {
+            throw new Error("Aceite receber atualizações por e-mail para continuar");
         }
     }
 }

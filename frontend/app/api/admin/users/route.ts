@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         // Caso contrário: paginação alfabética padrão
         let query = supabase
             .from("users")
-            .select("id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates", {
+            .select("id, email, nome, celular, created_at, accept_email_updates", {
                 count: "exact",
             });
 
@@ -144,7 +144,6 @@ export async function GET(request: NextRequest) {
             createdAt: row.created_at,
             lastSignInAt: lastSignInMap.get(row.id) ?? null,
             acceptEmailUpdates: row.accept_email_updates,
-            acceptWhatsappUpdates: row.accept_whatsapp_updates,
             emailVerified: emailVerifiedMap.get(row.id) ?? false,
         }));
 

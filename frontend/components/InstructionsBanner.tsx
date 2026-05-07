@@ -17,8 +17,8 @@ export default function InstructionsBanner() {
                                 <span className="text-brand-blue font-medium">Como se inscrever:</span> Clique em{" "}
                                 <span className="text-brand-blue font-medium">"Quero Fazer Parte"</span> ou{" "}
                                 <span className="text-brand-blue font-medium">"Entrar"</span> no topo da página.
-                                Preencha nome, e-mail, celular e crie uma senha. Escolha como quer receber atualizações
-                                (e-mail e/ou WhatsApp). Após o cadastro, confirme seu e-mail clicando no link enviado
+                                Preencha nome, e-mail, celular e crie uma senha. Você receberá atualizações por e-mail
+                                após o cadastro. Confirme seu e-mail clicando no link enviado
                                 (verifique a pasta de spam).
                             </p>
                         </div>

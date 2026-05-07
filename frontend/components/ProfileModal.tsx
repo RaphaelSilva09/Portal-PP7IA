@@ -31,8 +31,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [acceptEmailUpdates, setAcceptEmailUpdates] = useState(true);
-    const [acceptWhatsAppUpdates, setAcceptWhatsAppUpdates] = useState(true);
 
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
@@ -47,8 +45,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     useEffect(() => {
         if (isOpen && user) {
             setNewEmail(user.email);
-            setAcceptEmailUpdates(user.acceptEmailUpdates);
-            setAcceptWhatsAppUpdates(user.acceptWhatsAppUpdates);
         }
     }, [isOpen, user]);
 
@@ -127,13 +123,8 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         setErrors({});
         setSuccessMessage(null);
 
-        if (!acceptEmailUpdates && !acceptWhatsAppUpdates) {
-            setErrors({ email: "Selecione pelo menos uma forma de receber notificações" });
-            return;
-        }
-
         try {
-            await updatePreferences(acceptEmailUpdates, acceptWhatsAppUpdates);
+            await updatePreferences(true);
             setSuccessMessage("Preferências atualizadas com sucesso!");
         } catch {
             // Error handled by useAuth
@@ -387,42 +378,26 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                             <form onSubmit={handleUpdatePreferences} className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-text-primary mb-3">
-                                        Como deseja receber notificações?
+                                        Canal de notificações
                                     </label>
                                     <div className="space-y-3">
-                                        <label className="flex items-center gap-3 p-3 bg-white/5 border border-border-glass rounded-xl cursor-pointer hover:bg-white/[0.07] transition-all">
+                                        <label className="flex items-center gap-3 p-3 bg-white/5 border border-border-glass rounded-xl opacity-75 cursor-not-allowed">
                                             <input
                                                 type="checkbox"
-                                                checked={acceptEmailUpdates}
-                                                onChange={e => setAcceptEmailUpdates(e.target.checked)}
-                                                className="w-5 h-5 rounded border-border-glass bg-white/5 text-brand-blue focus:ring-2 focus:ring-brand-blue focus:ring-offset-0"
+                                                checked={true}
+                                                disabled
+                                                className="w-5 h-5 rounded border-border-glass bg-white/5 text-brand-blue focus:ring-2 focus:ring-brand-blue focus:ring-offset-0 cursor-not-allowed"
                                             />
                                             <div className="flex-1">
-                                                <p className="text-sm font-medium text-white">Email</p>
+                                                <p className="text-sm font-medium text-white">E-mail</p>
                                                 <p className="text-xs text-text-secondary">
-                                                    Receber atualizações por email
-                                                </p>
-                                            </div>
-                                        </label>
-
-                                        <label className="flex items-center gap-3 p-3 bg-white/5 border border-border-glass rounded-xl cursor-pointer hover:bg-white/[0.07] transition-all">
-                                            <input
-                                                type="checkbox"
-                                                checked={acceptWhatsAppUpdates}
-                                                onChange={e => setAcceptWhatsAppUpdates(e.target.checked)}
-                                                className="w-5 h-5 rounded border-border-glass bg-white/5 text-brand-blue focus:ring-2 focus:ring-brand-blue focus:ring-offset-0"
-                                            />
-                                            <div className="flex-1">
-                                                <p className="text-sm font-medium text-white">WhatsApp</p>
-                                                <p className="text-xs text-text-secondary">
-                                                    Receber atualizações no WhatsApp
+                                                    Receber atualizações por e-mail
                                                 </p>
                                             </div>
                                         </label>
                                     </div>
-                                    {errors.email && <p className="text-xs text-red-500 mt-2">{errors.email}</p>}
                                     <p className="text-xs text-text-secondary mt-2">
-                                        * Pelo menos uma opção deve estar selecionada
+                                        ⓘ E-mail é o único canal disponível
                                     </p>
                                 </div>
 

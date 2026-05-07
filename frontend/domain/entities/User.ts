@@ -16,7 +16,6 @@ export interface UserProps {
     nome: string;
     celular: string;
     acceptEmailUpdates: boolean;
-    acceptWhatsAppUpdates: boolean;
     createdAt: Date;
     role: string; // "user" | "admin"
 }
@@ -51,8 +50,8 @@ export class User {
             throw new Error("Celular inválido");
         }
 
-        if (!this.props.acceptEmailUpdates && !this.props.acceptWhatsAppUpdates) {
-            throw new Error("Usuário deve aceitar pelo menos uma forma de comunicação");
+        if (!this.props.acceptEmailUpdates) {
+            throw new Error("Usuário deve aceitar receber atualizações por e-mail");
         }
     }
 
@@ -84,10 +83,6 @@ export class User {
 
     get acceptEmailUpdates(): boolean {
         return this.props.acceptEmailUpdates;
-    }
-
-    get acceptWhatsAppUpdates(): boolean {
-        return this.props.acceptWhatsAppUpdates;
     }
 
     get createdAt(): Date {

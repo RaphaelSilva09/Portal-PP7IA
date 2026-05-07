@@ -49,7 +49,7 @@ test.describe("Auth entrypoints", () => {
         await expect(page.getByText("Email é obrigatório")).toBeVisible();
         await expect(page.getByText("Celular é obrigatório")).toBeVisible();
         await expect(page.getByText("Senha é obrigatória")).toBeVisible();
-        await expect(page.getByText("Aceite pelo menos uma forma de receber atualizações")).toBeVisible();
+        await expect(page.getByText("Aceite receber atualizações por e-mail para continuar")).toBeVisible();
     });
 
     test("link de esqueci a senha fecha auth modal e abre o modal dedicado", async ({ page }) => {

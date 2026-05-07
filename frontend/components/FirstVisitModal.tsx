@@ -117,7 +117,7 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
                                 Receba nossa curadoria semanal
                             </h2>
                             <p className="text-text-secondary text-base sm:text-lg">
-                                Conhecimento e IA acessível direto no seu email e WhatsApp.
+                                Conhecimento e IA acessível direto no seu e-mail.
                             </p>
                         </div>
 

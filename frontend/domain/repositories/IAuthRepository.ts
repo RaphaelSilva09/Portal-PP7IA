@@ -18,7 +18,6 @@ export interface SignUpParams {
     nome: string;
     celular: string;
     acceptEmailUpdates: boolean;
-    acceptWhatsAppUpdates: boolean;
 }
 
 export interface SignInParams {
@@ -37,7 +36,6 @@ export interface UpdatePasswordParams {
 
 export interface UpdatePreferencesParams {
     acceptEmailUpdates: boolean;
-    acceptWhatsAppUpdates: boolean;
 }
 
 export interface UpdateProfileParams {

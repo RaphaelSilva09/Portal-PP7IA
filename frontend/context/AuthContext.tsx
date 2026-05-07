@@ -24,7 +24,6 @@ interface SignUpParams {
     nome: string;
     celular: string;
     acceptEmailUpdates: boolean;
-    acceptWhatsAppUpdates: boolean;
 }
 
 interface SignInParams {
@@ -43,7 +42,7 @@ interface AuthContextType {
     getCurrentUser: () => Promise<void>;
     updateEmail: (newEmail: string) => Promise<void>;
     updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-    updatePreferences: (acceptEmail: boolean, acceptWhatsApp: boolean) => Promise<void>;
+    updatePreferences: (acceptEmail: boolean) => Promise<void>;
     updateProfile: (nome: string, email: string, celular: string) => Promise<void>;
     deleteAccount: () => Promise<void>;
     sendPasswordReset: (email: string) => Promise<void>;

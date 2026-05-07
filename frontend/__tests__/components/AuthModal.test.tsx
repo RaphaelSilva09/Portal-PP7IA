@@ -105,7 +105,6 @@ describe('AuthModal', () => {
                     nome: 'Test User',
                     email: 'test@example.com',
                     acceptEmailUpdates: true,
-                    acceptWhatsAppUpdates: false,
                 }),
             );
             expect(screen.getByText(/verifique seu email para confirmar sua conta/i)).toBeTruthy();
@@ -125,7 +124,7 @@ describe('AuthModal', () => {
         await user.type(screen.getByLabelText('Senha'), '123456');
         await user.click(screen.getByRole('button', { name: 'Cadastrar' }));
 
-        expect(screen.getByText(/aceite pelo menos uma forma de receber atualizações/i)).toBeTruthy();
+        expect(screen.getByText(/aceite receber atualizações por e-mail para continuar/i)).toBeTruthy();
         expect(mockAuthState.signUp).not.toHaveBeenCalled();
     });
 

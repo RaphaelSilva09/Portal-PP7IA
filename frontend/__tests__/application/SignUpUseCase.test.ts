@@ -9,7 +9,6 @@ const mockUser = User.create({
     nome: 'Test User',
     celular: '11999999999',
     acceptEmailUpdates: true,
-    acceptWhatsAppUpdates: false,
     createdAt: new Date(),
     role: 'user',
 });
@@ -26,7 +25,6 @@ const validInput: SignUpInput = {
     nome: 'Test User',
     celular: '11999999999',
     acceptEmailUpdates: true,
-    acceptWhatsAppUpdates: false,
 };
 
 describe('SignUpUseCase', () => {
@@ -59,10 +57,10 @@ describe('SignUpUseCase', () => {
         ).rejects.toThrow(/campos obrigatórios/);
     });
 
-    it('ambas preferências false → throw "Aceite pelo menos uma forma"', async () => {
+    it('acceptEmailUpdates false → throw sobre aceitar e-mail', async () => {
         await expect(
-            useCase.execute({ ...validInput, acceptEmailUpdates: false, acceptWhatsAppUpdates: false })
-        ).rejects.toThrow(/Aceite pelo menos uma forma/);
+            useCase.execute({ ...validInput, acceptEmailUpdates: false })
+        ).rejects.toThrow(/Aceite receber atualizações por e-mail/);
         expect(mockRepo.signUp).not.toHaveBeenCalled();
     });
 

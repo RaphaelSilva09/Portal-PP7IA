@@ -19,7 +19,6 @@ export interface UserListItem {
     createdAt: Date;
     lastSignInAt: Date | null;
     acceptEmailUpdates: boolean;
-    acceptWhatsappUpdates: boolean;
     emailVerified: boolean;
 }
 

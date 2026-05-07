@@ -34,7 +34,6 @@ const validUserRow = {
     nome: 'Test User',
     celular: '11999999999',
     accept_email_updates: true,
-    accept_whatsapp_updates: false,
     created_at: '2024-01-01T00:00:00Z',
 };
 
@@ -123,7 +122,6 @@ describe('SupabaseAuthRepository', () => {
                     nome: 'User',
                     celular: '11999999999',
                     acceptEmailUpdates: true,
-                    acceptWhatsAppUpdates: false,
                 })
             ).rejects.toBeInstanceOf(UserAlreadyExistsError);
         });
@@ -144,7 +142,6 @@ describe('SupabaseAuthRepository', () => {
                     nome: 'User',
                     celular: '11999999999',
                     acceptEmailUpdates: true,
-                    acceptWhatsAppUpdates: false,
                 })
             ).rejects.toBeInstanceOf(UserAlreadyExistsError);
         });
@@ -165,7 +162,6 @@ describe('SupabaseAuthRepository', () => {
                     nome: 'User',
                     celular: '11999999999',
                     acceptEmailUpdates: true,
-                    acceptWhatsAppUpdates: false,
                 })
             ).rejects.toBeInstanceOf(UserAlreadyExistsError);
         });
@@ -190,7 +186,6 @@ describe('SupabaseAuthRepository', () => {
                 nome: 'User',
                 celular: '11999999999',
                 acceptEmailUpdates: true,
-                acceptWhatsAppUpdates: false,
             });
 
             expect(result.emailConfirmationRequired).toBe(true);
@@ -223,7 +218,6 @@ describe('SupabaseAuthRepository', () => {
                 nome: 'User',
                 celular: '11999999999',
                 acceptEmailUpdates: true,
-                acceptWhatsAppUpdates: false,
             });
 
             expect(result.emailConfirmationRequired).toBe(true);

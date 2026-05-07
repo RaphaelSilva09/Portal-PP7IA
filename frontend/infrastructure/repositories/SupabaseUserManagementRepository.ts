@@ -74,7 +74,6 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
                         createdAt: string;
                         lastSignInAt: string | null;
                         acceptEmailUpdates: boolean;
-                        acceptWhatsappUpdates: boolean;
                         emailVerified: boolean;
                     }) => ({
                         ...row,
@@ -96,7 +95,7 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
         try {
             const { data, error } = await this.supabase
                 .from("users")
-                .select("id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates")
+                .select("id, email, nome, celular, created_at, accept_email_updates")
                 .eq("id", userId)
                 .single();
 
@@ -113,7 +112,6 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
                 createdAt: new Date(data.created_at),
                 lastSignInAt: null,
                 acceptEmailUpdates: data.accept_email_updates,
-                acceptWhatsappUpdates: data.accept_whatsapp_updates,
                 emailVerified: false,
             };
         } catch (err) {
@@ -242,7 +240,6 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
                     createdAt: string;
                     lastSignInAt: string | null;
                     acceptEmailUpdates: boolean;
-                    acceptWhatsappUpdates: boolean;
                     emailVerified: boolean;
                 }) => ({
                     ...row,

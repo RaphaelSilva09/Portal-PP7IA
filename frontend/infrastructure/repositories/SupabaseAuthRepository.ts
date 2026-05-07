@@ -54,7 +54,6 @@ export class SupabaseAuthRepository implements IAuthRepository {
                         nome: params.nome,
                         celular: params.celular,
                         accept_email_updates: params.acceptEmailUpdates,
-                        accept_whatsapp_updates: params.acceptWhatsAppUpdates,
                     },
                     ...(emailRedirectTo ? { emailRedirectTo } : {}),
                 },
@@ -95,7 +94,6 @@ export class SupabaseAuthRepository implements IAuthRepository {
                     nome: params.nome,
                     celular: params.celular,
                     acceptEmailUpdates: params.acceptEmailUpdates,
-                    acceptWhatsAppUpdates: params.acceptWhatsAppUpdates,
                     createdAt: new Date(),
                     role: "user",
                 });
@@ -128,7 +126,6 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 nome: userData.nome,
                 celular: userData.celular,
                 acceptEmailUpdates: userData.accept_email_updates,
-                acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
                 createdAt: new Date(userData.created_at),
                 role: "user",
             });
@@ -183,7 +180,6 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 nome: userData.nome,
                 celular: userData.celular,
                 acceptEmailUpdates: userData.accept_email_updates,
-                acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
                 createdAt: new Date(userData.created_at),
                 role: "user",
             });
@@ -244,7 +240,6 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 nome: userData.nome,
                 celular: userData.celular,
                 acceptEmailUpdates: userData.accept_email_updates,
-                acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
                 createdAt: new Date(userData.created_at),
                 role,
             });
@@ -282,7 +277,6 @@ export class SupabaseAuthRepository implements IAuthRepository {
                         nome: userData.nome,
                         celular: userData.celular,
                         acceptEmailUpdates: userData.accept_email_updates,
-                        acceptWhatsAppUpdates: userData.accept_whatsapp_updates,
                         createdAt: new Date(userData.created_at),
                         role,
                     });
@@ -483,7 +477,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
     /**
      * Atualiza preferências de notificação
      */
-    async updatePreferences(params: { acceptEmailUpdates: boolean; acceptWhatsAppUpdates: boolean }): Promise<void> {
+    async updatePreferences(params: { acceptEmailUpdates: boolean }): Promise<void> {
         try {
             const {
                 data: { user },
@@ -496,7 +490,6 @@ export class SupabaseAuthRepository implements IAuthRepository {
                 .from("users")
                 .update({
                     accept_email_updates: params.acceptEmailUpdates,
-                    accept_whatsapp_updates: params.acceptWhatsAppUpdates,
                 })
                 .eq("id", user.id);
 

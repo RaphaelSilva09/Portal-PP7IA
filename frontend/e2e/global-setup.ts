@@ -52,7 +52,6 @@ async function ensureAuthUserExists(supabaseUrl: string, serviceRoleKey: string)
                 nome: "Usuário Teste",
                 celular: "11999999999",
                 accept_email_updates: true,
-                accept_whatsapp_updates: false,
             },
         }),
     });
@@ -146,7 +145,6 @@ export default async function globalSetup() {
             nome: "Usuário Teste",
             celular: "11999999999",
             accept_email_updates: true,
-            accept_whatsapp_updates: false,
         }),
     });
 
