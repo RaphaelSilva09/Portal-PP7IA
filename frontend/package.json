@@ -18,7 +18,8 @@
     "test:e2e:ios:safari": "PLAYWRIGHT_ENABLE_WEBKIT=true playwright test --project=ios-safari",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
-    "db:migrate": "tsx db/migrate.ts"
+    "db:migrate": "tsx db/migrate.ts",
+    "storage:migrate": "tsx scripts/migrate-storage.ts"
   },
   "pnpm": {
     "overrides": {
