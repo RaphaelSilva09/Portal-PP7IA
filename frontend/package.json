@@ -17,7 +17,8 @@
     "test:e2e:ios": "playwright test --project=ios-touch",
     "test:e2e:ios:safari": "PLAYWRIGHT_ENABLE_WEBKIT=true playwright test --project=ios-safari",
     "test:e2e:headed": "playwright test --headed",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "db:migrate": "tsx db/migrate.ts"
   },
   "pnpm": {
     "overrides": {
@@ -88,6 +89,7 @@
     "jsdom": "^26.1.0",
     "supabase": "^2.89.0",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.0"
