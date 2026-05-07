@@ -73,8 +73,22 @@ const nextConfig: NextConfig = {
                 dns: false,
                 net: false,
                 tls: false,
-                "pg-native": false,
                 child_process: false,
+                "pg-native": false,
+                pg: false,
+                "pg-connection-string": false,
+                "pg-pool": false,
+                "pg-cloudflare": false,
+                bcrypt: false,
+                "@node-rs/argon2": false,
+                "node:fs": false,
+                "node:dns": false,
+                "node:net": false,
+                "node:tls": false,
+                "node:crypto": false,
+                "node:path": false,
+                "node:os": false,
+                "node:stream": false,
             };
         }
         // Grab the existing rule that handles SVG imports
