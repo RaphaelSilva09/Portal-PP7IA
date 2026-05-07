@@ -35,7 +35,6 @@ import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentItemProps, ContentType } from "@/domain/entities/ContentItem";
 import { portalContentClass } from "@/lib/layout";
-import DIContainer from "@/infrastructure/di/container";
 import {
     ArrowLeft,
     Bell,
@@ -53,7 +52,6 @@ import {
     Star,
     Users,
 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useEbook } from "@/presentation/hooks/useEbook";
@@ -66,16 +64,6 @@ type ContentTab = ContentType | "livro";
 
 // Tabs de conteúdo (sub-navegação)
 const SORTABLE_TYPES = new Set<ContentTab>(["newsletter", "mini-livro", "biblioteca", "especial-semana", "radar_oportunidades", "estudar"]);
-
-/** Mapeamento do ContentType para a query key usada pelo hook público correspondente */
-const CONTENT_QUERY_KEY: Partial<Record<ContentType, string>> = {
-    newsletter: "newsletters",
-    "mini-livro": "mini-livros",
-    biblioteca: "biblioteca",
-    "especial-semana": "especial-semana",
-    radar_oportunidades: "radar-oportunidades",
-    estudar: "estudar",
-};
 
 const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
     { type: "biblioteca", label: "Biblioteca", icon: Library },
@@ -149,7 +137,6 @@ interface ConfirmState {
 export default function PainelAdminPage() {
     const router = useRouter();
     const { user, isLoading: authLoading } = useAuth();
-    const queryClient = useQueryClient();
 
     // Navegação principal
     const [mainSection, setMainSection] = useState<MainSection>("inicio");
@@ -261,9 +248,8 @@ export default function PainelAdminPage() {
             onConfirm: async () => {
                 setConfirmDialog({ ...confirmDialog, show: false });
                 try {
-                    // TODO Phase 5d: route through /api/admin/content/* once that route lands.
-                    const useCase = DIContainer.getDeleteContentWithFilesUseCase();
-                    await useCase.execute(contentTab as ContentType, item.id);
+                    // TODO Phase 5d: server-side admin write route + multipart upload.
+                    throw new Error("Excluir conteúdo: roteamento via /api/admin/content/* será adicionado na Phase 5d");
                     await loadItems();
                     setFeedback({
                         show: true,
@@ -286,42 +272,13 @@ export default function PainelAdminPage() {
         setIsSubmitting(true);
         try {
             if (editItem) {
-                // Atualizar via use case (com suporte a upload de arquivos)
-                // TODO Phase 5d: route through /api/admin/content/* once that route lands.
-                const useCase = DIContainer.getUpdateContentWithFilesUseCase();
-                await useCase.execute({
-                    type: contentTab as ContentType,
-                    id: editItem.id,
-                    title: data.title,
-                    readTime: data.readTime,
-                    htmlFile: data.htmlFile,
-                    pdfFile: data.pdfFile,
-                    tema: data.tema,
-                });
-                setFeedback({
-                    show: true,
-                    message: "Material atualizado com sucesso!",
-                    type: "success",
-                });
+                // TODO Phase 5d: server-side admin write route + multipart upload.
+                void data;
+                throw new Error("Editar conteúdo: roteamento via /api/admin/content/* será adicionado na Phase 5d");
             } else {
-                // Criar com upload
-                // TODO Phase 5d: route through /api/admin/content/* once that route lands.
-                const useCase = DIContainer.getCreateContentWithUploadUseCase();
-                await useCase.execute({
-                    type: contentTab as ContentType,
-                    title: data.title,
-                    readTime: data.readTime,
-                    htmlFile: data.htmlFile,
-                    pdfFile: data.pdfFile,
-                    tema: data.tema,
-                    ebookId: data.ebookId,
-                    partOrder: contentTab === "mini-livro" ? selectedEbookIndex + 1 : undefined,
-                });
-                setFeedback({
-                    show: true,
-                    message: "Material criado com sucesso!",
-                    type: "success",
-                });
+                // TODO Phase 5d: server-side admin write route + multipart upload.
+                void data;
+                throw new Error("Criar conteúdo: roteamento via /api/admin/content/* será adicionado na Phase 5d");
             }
             setShowForm(false);
             setEditItem(null);
@@ -340,16 +297,9 @@ export default function PainelAdminPage() {
 
     const handleReorder = async (reorderedItems: ContentItem[]) => {
         try {
-            // TODO Phase 5d: route through /api/admin/content/* once that route lands.
-            const repo = DIContainer.getContentRepository();
-            await repo.reorderItems(contentTab as ContentType, reorderedItems.map(i => i.id));
-            setItems(reorderedItems);
-            // Invalida o cache do React Query para que a página pública reflita a nova ordem imediatamente
-            const queryKey = CONTENT_QUERY_KEY[contentTab as ContentType];
-            if (queryKey) {
-                queryClient.invalidateQueries({ queryKey: [queryKey] });
-            }
-            setFeedback({ show: true, message: "Ordem atualizada com sucesso!", type: "success" });
+            // TODO Phase 5d: server-side admin write route + multipart upload.
+            void reorderedItems;
+            throw new Error("Reordenar conteúdo: roteamento via /api/admin/content/* será adicionado na Phase 5d");
         } catch (error) {
             console.error("Erro ao reordenar:", error);
             setFeedback({ show: true, message: "Erro ao salvar nova ordem. Tente novamente.", type: "error" });
@@ -360,49 +310,13 @@ export default function PainelAdminPage() {
         setIsSubmitting(true);
         try {
             if (editItem) {
-                // Editar ebook via use case
-                // TODO Phase 5d: route through /api/admin/content/* once that route lands.
-                const useCase = DIContainer.getUpdateContentWithFilesUseCase();
-                await useCase.execute({
-                    type: "ebook",
-                    id: editItem.id,
-                    title: data.title,
-                    readTime: data.readTime,
-                    subtitle: data.subtitle,
-                    description: data.description,
-                    badgeText: data.badgeText,
-                    htmlFile: data.introHtmlFile,
-                    pdfFile: data.introPdfFile,
-                    coverImageFile: data.coverImageFile,
-                    coverPdfFile: data.coverPdfFile,
-                });
-                setFeedback({
-                    show: true,
-                    message: "E-book atualizado com sucesso!",
-                    type: "success",
-                });
+                // TODO Phase 5d: server-side admin write route + multipart upload.
+                void data;
+                throw new Error("Editar e-book: roteamento via /api/admin/content/* será adicionado na Phase 5d");
             } else {
-                // Criar ebook com upload
-                // TODO Phase 5d: route through /api/admin/content/* once that route lands.
-                const useCase = DIContainer.getCreateContentWithUploadUseCase();
-                await useCase.execute({
-                    type: "ebook",
-                    title: data.title,
-                    readTime: data.readTime,
-                    subtitle: data.subtitle,
-                    description: data.description,
-                    badgeText: data.badgeText,
-                    order: data.order,
-                    htmlFile: data.introHtmlFile,
-                    pdfFile: data.introPdfFile,
-                    coverImageFile: data.coverImageFile,
-                    coverPdfFile: data.coverPdfFile,
-                });
-                setFeedback({
-                    show: true,
-                    message: "E-book criado com sucesso!",
-                    type: "success",
-                });
+                // TODO Phase 5d: server-side admin write route + multipart upload.
+                void data;
+                throw new Error("Criar e-book: roteamento via /api/admin/content/* será adicionado na Phase 5d");
             }
             setShowForm(false);
             setEditItem(null);
