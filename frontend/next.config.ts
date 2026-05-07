@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
     // while we continue using webpack for SVG handling
     turbopack: {},
 
+    // Mark Node-only deps as external so Next leaves them as require() at runtime
+    // instead of bundling. Required because `pg` (and friends) can't run in the
+    // browser. Hooks still importing DIContainer client-side will break at runtime
+    // until the API-route refactor lands — see Phase 5c.
+    serverExternalPackages: ["pg", "bcrypt", "@node-rs/argon2"],
+
     // Headers de segurança - sem Permissions-Policy para evitar warnings de features experimentais
     async headers() {
         return [
@@ -53,6 +59,23 @@ const nextConfig: NextConfig = {
         // preservando o __dirname correto.
         if (isServer) {
             config.externals = [...(Array.isArray(config.externals) ? config.externals : [config.externals]), 'jsdom'];
+        }
+
+        // pg + native deps reach into Node built-ins (fs, dns, net, tls). Stub them out
+        // when targeting the browser bundle. lib/db is server-only; if it's reached
+        // from a "use client" file, the call will throw at runtime — Phase 5c moves
+        // those reads behind /api/* routes.
+        if (!isServer) {
+            config.resolve = config.resolve ?? {};
+            config.resolve.fallback = {
+                ...(config.resolve.fallback ?? {}),
+                fs: false,
+                dns: false,
+                net: false,
+                tls: false,
+                "pg-native": false,
+                child_process: false,
+            };
         }
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find((rule: any) => rule.test?.test?.(".svg"));
