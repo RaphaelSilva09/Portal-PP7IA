@@ -194,7 +194,7 @@ class DIContainer {
      */
     static getUserManagementRepository(): SupabaseUserManagementRepository {
         if (!this.userManagementRepositoryInstance) {
-            this.userManagementRepositoryInstance = new SupabaseUserManagementRepository(supabase);
+            this.userManagementRepositoryInstance = new SupabaseUserManagementRepository();
         }
         return this.userManagementRepositoryInstance;
     }

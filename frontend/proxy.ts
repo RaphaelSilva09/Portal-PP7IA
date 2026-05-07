@@ -1,27 +1,16 @@
 /**
- * Proxy de Autenticação e Autorização
+ * Auth + authorization proxy (Next.js middleware).
  *
- * Intercepta rotas protegidas antes de renderizar.
- * - /painel-admin: requer autenticação + admin
- * - /user: requer autenticação
- * - /: landing page (redireciona logados para /home)
- * - /home: homepage autenticada (redireciona anônimos para /)
+ * - /painel-admin: authenticated + role='admin'
+ * - /user:         authenticated
+ * - /:             redirects authenticated users to /home
+ * - /home:         authenticated; anonymous → /
  *
- * Redirects:
- * - Não autenticado -> /?authModal=login (abre modal de login)
- * - Autenticado não-admin em /painel-admin -> /home
- * - Logado em / -> /home
- * - Anônimo em /home -> /
- *
- * Princípios aplicados:
- * - Defense in Depth: Primeira camada de segurança (proxy)
- * - Fail Secure: Redireciona para home/login se não autorizado
- * - Performance: Evita renderização desnecessária
+ * Backend: better-auth session cookie. Reads via auth.api.getSession.
  */
 
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getSupabaseClientKey, getSupabaseUrl } from "@/infrastructure/config/supabase-env";
+import { auth } from "@/lib/auth";
 
 const ADMIN_ROUTES = "/painel-admin";
 const AUTH_ROUTES = "/user";
@@ -37,14 +26,6 @@ function redirectToHome(request: NextRequest): NextResponse {
     return NextResponse.redirect(new URL(HOME_ROUTE, request.url));
 }
 
-function copyResponseCookies(source: NextResponse, target: NextResponse): NextResponse {
-    source.cookies.getAll().forEach(cookie => {
-        target.cookies.set(cookie);
-    });
-
-    return target;
-}
-
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
@@ -57,78 +38,32 @@ export async function proxy(request: NextRequest) {
         return NextResponse.next();
     }
 
-    let supabaseResponse = NextResponse.next({
-        request,
-    });
+    const session = await auth.api.getSession({ headers: request.headers });
+    const user = session?.user ?? null;
 
-    const supabase = createServerClient(
-        getSupabaseUrl(),
-        getSupabaseClientKey(),
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll();
-                },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        supabaseResponse.cookies.set(name, value, options),
-                    );
-                },
-            },
-        },
-    );
-
-    // 1. Verifica usuário autenticado com validação server-side.
-    // Em SSR, getUser() é mais confiável que getSession() para proteger rotas.
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user && (isAuthRoute || isAdminRoute)) {
-        const hasCookie = request.cookies.getAll().some(c => c.name.includes('supabase'));
-        console.log('[Auth:proxy] user null on protected route', {
-            pathname,
-            hasCookie,
-            userAgent: request.headers.get('user-agent'),
-        });
-    }
-
-    // Landing page: logado vai para /home, anônimo renderiza normalmente
     if (isRootRoute) {
-        if (user) {
-            return copyResponseCookies(supabaseResponse, NextResponse.redirect(new URL(HOME_ROUTE, request.url)));
-        }
-
-        return supabaseResponse;
+        return user ? NextResponse.redirect(new URL(HOME_ROUTE, request.url)) : NextResponse.next();
     }
 
-    // Homepage autenticada: anônimo volta para /
     if (isHomeRoute) {
-        if (!user) {
-            return copyResponseCookies(supabaseResponse, NextResponse.redirect(new URL("/", request.url)));
-        }
-
-        return supabaseResponse;
+        return user ? NextResponse.next() : NextResponse.redirect(new URL("/", request.url));
     }
 
-    // 2. Rotas protegidas: requer autenticação
     if (!user) {
-        return copyResponseCookies(supabaseResponse, redirectToLogin(request));
+        return redirectToLogin(request);
     }
 
-    // 3. Para rotas de usuário, autenticação é suficiente
     if (isAuthRoute) {
-        return supabaseResponse;
+        return NextResponse.next();
     }
 
-    // 4. Para rotas admin, verifica role no JWT (app_metadata)
-    const isAdmin = user.app_metadata?.role === "admin";
-
-    if (!isAdmin) {
-        return copyResponseCookies(supabaseResponse, redirectToHome(request));
+    // Admin route — role lives on the better-auth user object as a custom field.
+    const role = (user as { role?: string }).role;
+    if (role !== "admin") {
+        return redirectToHome(request);
     }
 
-    return supabaseResponse;
+    return NextResponse.next();
 }
 
 export const config = {

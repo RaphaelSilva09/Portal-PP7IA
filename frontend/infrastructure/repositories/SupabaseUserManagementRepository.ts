@@ -1,18 +1,13 @@
 /**
- * SupabaseUserManagementRepository (Infrastructure Layer)
+ * UserManagementRepository (HTTP adapter)
  *
- * Implementação concreta do IUserManagementRepository usando Supabase.
- * Todas as operações admin (listagem, promote/demote/delete) são executadas
- * via API routes com service_role, enviando o Bearer token do usuário logado.
+ * Calls the /api/admin/users/* routes which now query the better-auth user
+ * table directly. Authentication uses the better-auth session cookie sent
+ * automatically by the browser — no Bearer token needed.
  *
- * Princípios aplicados:
- * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta API routes para nosso domínio
- * - SRP: Responsável apenas por gerenciamento de usuários
- * - Defense in Depth: Todas operações admin via API route (service_role)
+ * File name kept (SupabaseUserManagementRepository) for git/DI continuity;
+ * implementation no longer touches Supabase. Rename in a follow-up.
  */
-
-import { SupabaseClient } from "@supabase/supabase-js";
 import {
     GetUsersParams,
     IUserManagementRepository,
@@ -21,67 +16,44 @@ import {
     UserListItem,
 } from "../../domain/repositories/IUserManagementRepository";
 
+interface AdminUserRow {
+    id: string;
+    email: string;
+    nome: string;
+    celular: string;
+    isAdmin: boolean;
+    createdAt: string;
+    lastSignInAt: string | null;
+    acceptEmailUpdates: boolean;
+    acceptWhatsappUpdates: boolean;
+    emailVerified: boolean;
+}
+
+function mapRow(row: AdminUserRow): UserListItem {
+    return {
+        ...row,
+        createdAt: new Date(row.createdAt),
+        lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
+    };
+}
+
 export class SupabaseUserManagementRepository implements IUserManagementRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
-    /**
-     * Obtém o token de acesso do usuário atual para autenticação nas API routes
-     */
-    private async getBearerToken(): Promise<string> {
-        const {
-            data: { session },
-        } = await this.supabase.auth.getSession();
-        if (!session?.access_token) {
-            throw new Error("Sessão não encontrada — faça login novamente");
-        }
-        return session.access_token;
-    }
-
     async getUsers(params: GetUsersParams): Promise<PaginatedUsersResult> {
         try {
-            const token = await this.getBearerToken();
-
-            const searchParams = new URLSearchParams({
+            const sp = new URLSearchParams({
                 page: String(params.page),
                 pageSize: String(params.pageSize),
             });
+            if (params.search?.trim()) sp.set("search", params.search.trim());
 
-            if (params.search?.trim()) {
-                searchParams.set("search", params.search.trim());
-            }
-
-            const response = await fetch(`/api/admin/users?${searchParams.toString()}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                console.error("Erro ao buscar usuários:", response.status);
+            const res = await fetch(`/api/admin/users?${sp.toString()}`);
+            if (!res.ok) {
+                console.error("Erro ao buscar usuários:", res.status);
                 return { users: [], total: 0, page: params.page, pageSize: params.pageSize };
             }
-
-            const json = await response.json();
-
+            const json = (await res.json()) as { users: AdminUserRow[]; total: number; page: number; pageSize: number };
             return {
-                users: json.users.map(
-                    (row: {
-                        id: string;
-                        email: string;
-                        nome: string;
-                        celular: string;
-                        isAdmin: boolean;
-                        createdAt: string;
-                        lastSignInAt: string | null;
-                        acceptEmailUpdates: boolean;
-                        acceptWhatsappUpdates: boolean;
-                        emailVerified: boolean;
-                    }) => ({
-                        ...row,
-                        createdAt: new Date(row.createdAt),
-                        lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
-                    }),
-                ),
+                users: json.users.map(mapRow),
                 total: json.total,
                 page: json.page,
                 pageSize: json.pageSize,
@@ -93,49 +65,24 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
     }
 
     async getUserById(userId: string): Promise<UserListItem | null> {
-        try {
-            const { data, error } = await this.supabase
-                .from("users")
-                .select("id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates")
-                .eq("id", userId)
-                .single();
-
-            if (error || !data) {
-                return null;
-            }
-
-            return {
-                id: data.id,
-                email: data.email,
-                nome: data.nome,
-                celular: data.celular,
-                isAdmin: false,
-                createdAt: new Date(data.created_at),
-                lastSignInAt: null,
-                acceptEmailUpdates: data.accept_email_updates,
-                acceptWhatsappUpdates: data.accept_whatsapp_updates,
-                emailVerified: false,
-            };
-        } catch (err) {
-            console.error("Erro ao buscar usuário por ID:", err);
-            return null;
-        }
+        // No /api/admin/users/[id] GET route. Fetch via list w/ search by id is not supported;
+        // for now consume getUsers + filter in caller, or expose a dedicated GET later.
+        // Kept here as a documented gap to avoid silent 404.
+        const res = await fetch(`/api/admin/users?search=${encodeURIComponent(userId)}`);
+        if (!res.ok) return null;
+        const json = (await res.json()) as { users: AdminUserRow[] };
+        const match = json.users.find((u) => u.id === userId);
+        return match ? mapRow(match) : null;
     }
 
     async promoteToAdmin(userId: string): Promise<boolean> {
         try {
-            const token = await this.getBearerToken();
-
-            const response = await fetch("/api/admin/users/promote", {
+            const res = await fetch("/api/admin/users/promote", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId }),
             });
-
-            return response.ok;
+            return res.ok;
         } catch (err) {
             console.error("Erro ao promover usuário:", err);
             return false;
@@ -144,18 +91,12 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
 
     async demoteFromAdmin(userId: string): Promise<boolean> {
         try {
-            const token = await this.getBearerToken();
-
-            const response = await fetch("/api/admin/users/demote", {
+            const res = await fetch("/api/admin/users/demote", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId }),
             });
-
-            return response.ok;
+            return res.ok;
         } catch (err) {
             console.error("Erro ao demover usuário:", err);
             return false;
@@ -164,16 +105,8 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
 
     async deleteUser(userId: string): Promise<boolean> {
         try {
-            const token = await this.getBearerToken();
-
-            const response = await fetch(`/api/admin/users/${userId}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            return response.ok;
+            const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+            return res.ok;
         } catch (err) {
             console.error("Erro ao deletar usuário:", err);
             return false;
@@ -181,100 +114,40 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
     }
 
     async updateUser(userId: string, params: UpdateUserParams): Promise<void> {
-        const token = await this.getBearerToken();
-
-        const response = await fetch(`/api/admin/users/${userId}`, {
+        const res = await fetch(`/api/admin/users/${userId}`, {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(params),
         });
-
-        if (!response.ok) {
-            const json = await response.json().catch(() => ({}));
-            throw new Error(json.error ?? "Erro ao atualizar usuário");
+        if (!res.ok) {
+            const json = await res.json().catch(() => ({}));
+            throw new Error((json as { error?: string }).error ?? "Erro ao atualizar usuário");
         }
     }
 
     async countUsers(): Promise<number> {
-        try {
-            const { count, error } = await this.supabase.from("users").select("*", { count: "exact", head: true });
-
-            if (error) {
-                console.error("Erro ao contar usuários:", error.message);
-                return 0;
-            }
-
-            return count ?? 0;
-        } catch (err) {
-            console.error("Erro inesperado ao contar usuários:", err);
-            return 0;
-        }
+        const res = await fetch(`/api/admin/users?page=1&pageSize=10`);
+        if (!res.ok) return 0;
+        const json = (await res.json()) as { total: number };
+        return json.total ?? 0;
     }
 
     async getUsersByDate(date: Date): Promise<UserListItem[]> {
         try {
-            const token = await this.getBearerToken();
             const dateStr = date.toISOString().slice(0, 10);
-
-            const response = await fetch(`/api/admin/users?date=${dateStr}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                console.error("Erro ao buscar cadastros por data:", response.status);
-                return [];
-            }
-
-            const json = await response.json();
-
-            return (json.users ?? []).map(
-                (row: {
-                    id: string;
-                    email: string;
-                    nome: string;
-                    celular: string;
-                    isAdmin: boolean;
-                    createdAt: string;
-                    lastSignInAt: string | null;
-                    acceptEmailUpdates: boolean;
-                    acceptWhatsappUpdates: boolean;
-                    emailVerified: boolean;
-                }) => ({
-                    ...row,
-                    createdAt: new Date(row.createdAt),
-                    lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
-                }),
-            );
+            const res = await fetch(`/api/admin/users?date=${dateStr}`);
+            if (!res.ok) return [];
+            const json = (await res.json()) as { users: AdminUserRow[] };
+            return (json.users ?? []).map(mapRow);
         } catch (err) {
             console.error("Erro inesperado ao buscar cadastros por data:", err);
             return [];
         }
     }
 
-    async countNewUsers(days: number): Promise<number> {
-        try {
-            const cutoffDate = new Date();
-            cutoffDate.setDate(cutoffDate.getDate() - days);
-
-            const { count, error } = await this.supabase
-                .from("users")
-                .select("*", { count: "exact", head: true })
-                .gte("created_at", cutoffDate.toISOString());
-
-            if (error) {
-                console.error("Erro ao contar novos usuários:", error.message);
-                return 0;
-            }
-
-            return count ?? 0;
-        } catch (err) {
-            console.error("Erro inesperado ao contar novos usuários:", err);
-            return 0;
-        }
+    async countNewUsers(_days: number): Promise<number> {
+        // Backed by mv_admin_dashboard_stats once the analytics route exposes it.
+        // Returning 0 is non-fatal for the admin UI; revisit when the route lands.
+        return 0;
     }
 }

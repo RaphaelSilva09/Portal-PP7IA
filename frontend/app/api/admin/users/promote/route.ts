@@ -1,103 +1,31 @@
-/**
- * Admin Users API Route (Edge Function)
- *
- * Gerencia operações de usuários que requerem service_role:
- * - POST /api/admin/users/promote - Promove usuário a admin
- * - POST /api/admin/users/demote - Remove privilégios admin
- * - DELETE /api/admin/users/[id] - Deleta usuário
- *
- * Segurança:
- * - Valida que requisição vem de admin autenticado
- * - Usa service_role key para operações em auth.users
- * - Defense in Depth: Middleware + RLS + API validation
- *
- * Princípios aplicados:
- * - Least Privilege: Operações privilegiadas isoladas
- * - Fail Secure: Retorna 403/401 em caso de não autorizado
- * - SRP: Cada endpoint tem uma responsabilidade
- */
-
-import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { headers as nextHeaders } from "next/headers";
+import { auth } from "@/lib/auth";
+import { pool } from "@/lib/db";
 
-// Cliente Supabase com service_role para operações admin
-const getServiceRoleClient = () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-    if (!supabaseUrl || !serviceRoleKey) {
-        throw new Error("Variáveis de ambiente Supabase não configuradas");
-    }
-
-    return createClient(supabaseUrl, serviceRoleKey, {
-        auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-        },
-    });
-};
-
-/**
- * Verifica se o usuário atual é admin via JWT
- */
-async function verifyAdminFromRequest(request: NextRequest): Promise<boolean> {
-    try {
-        const authHeader = request.headers.get("authorization");
-        if (!authHeader) return false;
-
-        const token = authHeader.replace("Bearer ", "");
-        const supabase = getServiceRoleClient();
-
-        const {
-            data: { user },
-            error,
-        } = await supabase.auth.getUser(token);
-
-        if (error || !user) return false;
-
-        const role = user.app_metadata?.role;
-        return role === "admin";
-    } catch (error) {
-        console.error("Erro ao verificar admin:", error);
-        return false;
-    }
+async function isAdmin(): Promise<boolean> {
+    const session = await auth.api.getSession({ headers: await nextHeaders() });
+    return (session?.user as { role?: string } | undefined)?.role === "admin";
 }
 
-/**
- * POST /api/admin/users/promote
- * Promove um usuário a admin
- */
 export async function POST(request: NextRequest) {
-    try {
-        // 1. Verificar se requisição vem de admin
-        const isAdmin = await verifyAdminFromRequest(request);
-        if (!isAdmin) {
-            return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
-        }
-
-        // 2. Obter userId do body
-        const body = await request.json();
-        const { userId } = body;
-
-        if (!userId) {
-            return NextResponse.json({ error: "userId é obrigatório" }, { status: 400 });
-        }
-
-        // 3. Atualizar app_metadata do usuário (adicionar role: admin)
-        const supabase = getServiceRoleClient();
-
-        const { data, error } = await supabase.auth.admin.updateUserById(userId, {
-            app_metadata: { role: "admin" },
-        });
-
-        if (error) {
-            console.error("Erro ao promover usuário:", error);
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-
-        return NextResponse.json({ success: true, user: data.user });
-    } catch (error) {
-        console.error("Erro ao processar requisição:", error);
-        return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+    if (!(await isAdmin())) {
+        return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
+
+    const { userId } = (await request.json().catch(() => ({}))) as { userId?: string };
+    if (!userId) {
+        return NextResponse.json({ error: "userId é obrigatório" }, { status: 400 });
+    }
+
+    const { rows } = await pool.query<{ id: string; role: string | null }>(
+        `UPDATE "user" SET role = 'admin', "updatedAt" = NOW() WHERE id = $1 RETURNING id, role`,
+        [userId],
+    );
+
+    if (rows.length === 0) {
+        return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, user: rows[0] });
 }
