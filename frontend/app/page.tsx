@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import IASParceiras from "@/components/IASParceiras";
 import Navbar from "@/components/Header";
 import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
+import LiderarCita from "@/components/LiderarCita";
 import ChatBubble from "@/components/chat/ChatBubble";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
             <BentoGrid />
             <IASParceiras />
             <HomeRecomendacoesPaulo />
+            <LiderarCita />
             <Footer />
             {process.env.NEXT_PUBLIC_CHAT_ENABLED !== "false" && <ChatBubble />}
         </main>
