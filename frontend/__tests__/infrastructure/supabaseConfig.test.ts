@@ -25,7 +25,20 @@ describe('supabase config storage hardening', () => {
     beforeEach(() => {
         vi.resetModules();
         vi.clearAllMocks();
-        localStorage.clear();
+        vi.unstubAllGlobals();
+
+        // The test runner injects --localstorage-file which replaces jsdom's
+        // localStorage with a file-backed implementation lacking .clear().
+        // Provide a fresh in-memory stub for each test instead.
+        const store: Record<string, string> = {};
+        vi.stubGlobal('localStorage', {
+            getItem: (key: string) => store[key] ?? null,
+            setItem: (key: string, value: string) => { store[key] = value; },
+            removeItem: (key: string) => { delete store[key]; },
+            clear: () => { for (const k in store) delete store[k]; },
+            get length() { return Object.keys(store).length; },
+            key: (index: number) => Object.keys(store)[index] ?? null,
+        });
 
         process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
         process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = 'publishable-key';
