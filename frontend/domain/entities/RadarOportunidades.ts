@@ -11,6 +11,8 @@
  * - Immutability: Dados protegidos via getters
  */
 
+import { publicFileUrl } from "@/lib/files";
+
 export interface RadarOportunidadesProps {
     id: number;
     createdAt: Date;
@@ -51,7 +53,7 @@ export class RadarOportunidades {
     }
 
     get pdfPath(): string | null {
-        return this.props.pdfPath?.trim() || null;
+        return publicFileUrl(this.props.pdfPath);
     }
 
     get readTime(): number {

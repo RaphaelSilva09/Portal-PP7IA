@@ -11,6 +11,8 @@
  * - Immutability: Dados protegidos via getters
  */
 
+import { publicFileUrl } from "@/lib/files";
+
 export type ContentType =
     | "newsletter"
     | "mini-livro"
@@ -65,11 +67,11 @@ export class ContentItem {
     }
 
     get htmlPath(): string | null {
-        return this.props.htmlPath?.trim() || null;
+        return publicFileUrl(this.props.htmlPath);
     }
 
     get pdfPath(): string | null {
-        return this.props.pdfPath?.trim() || null;
+        return publicFileUrl(this.props.pdfPath);
     }
 
     get readTime(): number {
@@ -113,11 +115,11 @@ export class ContentItem {
     }
 
     get coverImagePath(): string | null {
-        return this.props.coverImagePath?.trim() || null;
+        return publicFileUrl(this.props.coverImagePath);
     }
 
     get coverPdfPath(): string | null {
-        return this.props.coverPdfPath?.trim() || null;
+        return publicFileUrl(this.props.coverPdfPath);
     }
 
     get ebookOrder(): number | null {
