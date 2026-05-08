@@ -27,14 +27,32 @@ const ADMIN_ROUTES = "/painel-admin";
 const AUTH_ROUTES = "/user";
 const HOME_ROUTE = "/home";
 
+function resolveBaseUrl(request: NextRequest): string {
+    const candidates = [
+        process.env.NEXT_PUBLIC_SITE_URL?.trim(),
+        process.env.NEXT_PUBLIC_APP_URL?.trim(),
+    ];
+
+    for (const candidate of candidates) {
+        if (!candidate) continue;
+        try {
+            return new URL(candidate).origin;
+        } catch {
+            continue;
+        }
+    }
+
+    return new URL(request.url).origin;
+}
+
 function redirectToLogin(request: NextRequest): NextResponse {
-    const loginUrl = new URL("/", request.url);
+    const loginUrl = new URL("/", resolveBaseUrl(request));
     loginUrl.searchParams.set("authModal", "login");
     return NextResponse.redirect(loginUrl);
 }
 
 function redirectToHome(request: NextRequest): NextResponse {
-    return NextResponse.redirect(new URL(HOME_ROUTE, request.url));
+    return NextResponse.redirect(new URL(HOME_ROUTE, resolveBaseUrl(request)));
 }
 
 function copyResponseCookies(source: NextResponse, target: NextResponse): NextResponse {
@@ -96,7 +114,10 @@ export async function proxy(request: NextRequest) {
     // Landing page: logado vai para /home, anônimo renderiza normalmente
     if (isRootRoute) {
         if (user) {
-            return copyResponseCookies(supabaseResponse, NextResponse.redirect(new URL(HOME_ROUTE, request.url)));
+            return copyResponseCookies(
+                supabaseResponse,
+                NextResponse.redirect(new URL(HOME_ROUTE, resolveBaseUrl(request)))
+            );
         }
 
         return supabaseResponse;
@@ -105,7 +126,10 @@ export async function proxy(request: NextRequest) {
     // Homepage autenticada: anônimo volta para /
     if (isHomeRoute) {
         if (!user) {
-            return copyResponseCookies(supabaseResponse, NextResponse.redirect(new URL("/", request.url)));
+            return copyResponseCookies(
+                supabaseResponse,
+                NextResponse.redirect(new URL("/", resolveBaseUrl(request)))
+            );
         }
 
         return supabaseResponse;
