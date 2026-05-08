@@ -5,7 +5,52 @@ import { AuthError } from "@/domain/errors/AuthError";
 import type { SignInParams, SignUpParams } from "@/domain/repositories/IAuthRepository";
 import DIContainer from "@/infrastructure/di/container";
 import { authClient } from "@/lib/auth-client";
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
+
+/**
+ * iOS Safari session-recovery handlers.
+ *
+ * Ported from the Supabase-era SessionContext (commit 2aad548). Two browser
+ * events trigger a manual revalidation against the server:
+ *
+ *   - `visibilitychange` (tab returns to foreground): mobile Safari throttles
+ *     timers in background and may serve a stale view of the session. After
+ *     a long background, the cookie can be expired/revoked server-side while
+ *     the in-memory hook state still shows a logged-in user.
+ *
+ *   - `pageshow` with `event.persisted === true` (bfcache restore via Back
+ *     button on iOS Safari + Chrome iOS): React state is preserved verbatim
+ *     from before the navigation, so a since-expired session shows as logged
+ *     in until the next user action.
+ *
+ * Both handlers call `authClient.getSession()` (single HTTP round-trip to
+ * `/api/auth/get-session`) and clear local state if the server says no
+ * session but our state still has a user.
+ *
+ * NOT PORTED from the Supabase version:
+ *   - The `INITIAL_SESSION` cascade (1s/3s/8s revalidation timers). That
+ *     workaround targeted iOS ITP throttling Supabase's IndexedDB token
+ *     read on first load. better-auth uses an HTTP-only cookie checked
+ *     server-side via a single fetch, so the cascade solves a problem that
+ *     no longer exists.
+ *   - The signIn/signOut 8s safety timer that force-resolved `isLoading`.
+ *     `authClient.useSession()` exposes `isPending` directly from the fetch
+ *     state — there's no event-listener race window to guard against.
+ *
+ * Verifying on a real iPhone (Safari 17+, iOS 17+):
+ *   1. Log in. Switch to another app. Wait > 30 min. Return to the tab. UI
+ *      should still show logged-in (or revalidate to logged-out if the
+ *      server cookie expired during that window).
+ *   2. Log in. Tap a link to an external site. Tap the Back button to
+ *      return. UI must reflect server truth, not stale React state.
+ *   3. Log in via desktop, expire/revoke the session server-side, then
+ *      bring the iOS tab to the foreground. Within ~3s the local user
+ *      state must clear.
+ *
+ * Failure symptom: profile menu visible while server session is dead. If
+ * that happens, the handlers below stopped firing — check that the events
+ * are still attached (some PWA wrappers swallow them).
+ */
 
 interface SessionContextType {
     user: User | null;
@@ -34,9 +79,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
     const sessionData = session.data;
     const isPending = session.isPending;
 
+    const userRef = useRef<User | null>(null);
+
     useEffect(() => {
         if (!sessionData?.user) {
             setUser(null);
+            userRef.current = null;
             return;
         }
         try {
@@ -54,10 +102,45 @@ export function SessionProvider({ children }: SessionProviderProps) {
                 role: ((u.role as string | null) ?? "user") || "user",
             });
             setUser(mapped);
+            userRef.current = mapped;
         } catch {
             setUser(null);
+            userRef.current = null;
         }
     }, [sessionData]);
+
+    useEffect(() => {
+        const revalidateAgainstServer = async () => {
+            if (userRef.current === null) return;
+            try {
+                const { data } = await authClient.getSession();
+                if (!data?.session && userRef.current !== null) {
+                    setUser(null);
+                    userRef.current = null;
+                }
+            } catch {
+                // Network/offline — keep current state; next event will retry.
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState !== "visible") return;
+            void revalidateAgainstServer();
+        };
+
+        const handlePageShow = (event: PageTransitionEvent) => {
+            if (!event.persisted) return;
+            void revalidateAgainstServer();
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        window.addEventListener("pageshow", handlePageShow);
+
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            window.removeEventListener("pageshow", handlePageShow);
+        };
+    }, []);
 
     const clearError = useCallback(() => setError(null), []);
 

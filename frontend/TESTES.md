@@ -3,8 +3,6 @@
 > **89 testes · 13 arquivos · 0 falhas**
 > Stack: [Vitest 3.x](https://vitest.dev) · [@testing-library/react 16.x](https://testing-library.com) · jsdom
 
----
-
 ## Sumário
 
 | Camada | Arquivos | Testes |

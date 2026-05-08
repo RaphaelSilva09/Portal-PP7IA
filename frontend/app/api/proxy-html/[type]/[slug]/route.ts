@@ -19,6 +19,8 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
+import { extractStoragePathFromSourcePath } from "@/constants/miniLivroSections";
+import DIContainer from "@/infrastructure/di/container";
 
 const STORAGE_ROOT = process.env.STORAGE_ROOT ?? "./data";
 
@@ -29,11 +31,14 @@ const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
     "mini-livro": { bucket: "materiais", folder: "mini-livros/mini" },
     biblioteca: { bucket: "materiais", folder: "biblioteca" },
     "especial-semana": { bucket: "materiais", folder: "especial-da-semana" },
+    editorial: { bucket: "materiais", folder: "editoriais" },
     radar_oportunidades: { bucket: "materiais", folder: "radar-de-oportunidades" },
     estudar: { bucket: "materiais", folder: "estudar" },
+    "home-recomendacoes": { bucket: "materiais", folder: "home/recomendacoes" },
     // ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
     ebook: { bucket: "materiais", folder: "mini-livros/ebook" },
     book: { bucket: "materiais", folder: "mini-livros/livro" },
+    "mini-livro-section": { bucket: "materiais", folder: "mini-livros/sections" },
 };
 
 // Tipos válidos de conteúdo
@@ -67,8 +72,31 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         }
 
         const config = STORAGE_CONFIG[type];
-        // Ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
-        const fileName = type === "ebook" ? `${slug}/introducao_${slug}.html` : `${slug}.html`;
+
+        // Resolve filename. mini-livro-section needs a DB lookup because the
+        // file path is stored on the section row (admin uploads with a UUID).
+        let fileName: string;
+        if (type === "mini-livro-section") {
+            const sectionId = Number(slug);
+            if (!Number.isInteger(sectionId) || sectionId <= 0) {
+                return NextResponse.json({ error: "Slug inválido" }, { status: 400 });
+            }
+            const section = await DIContainer.getMiniLivroSectionRepository().getById(sectionId);
+            const objectPath = extractStoragePathFromSourcePath(section?.sourceHtmlPath ?? null);
+            if (!objectPath) {
+                return NextResponse.json({ error: "Arquivo não encontrado" }, { status: 404 });
+            }
+            // objectPath comes back as `{folder}/{filename}` — trim folder to keep
+            // the join below pointed at the right disk location.
+            fileName = objectPath.startsWith(`${config.folder}/`)
+                ? objectPath.slice(config.folder.length + 1)
+                : objectPath;
+        } else if (type === "ebook") {
+            // Ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
+            fileName = `${slug}/introducao_${slug}.html`;
+        } else {
+            fileName = `${slug}.html`;
+        }
 
         // Read directly from Railway Volume (mounted at STORAGE_ROOT)
         // Path on disk: STORAGE_ROOT/{bucket}/{folder}/{filename}

@@ -1,0 +1,37 @@
+export const MINI_LIVRO_SECTION_VIEW_TYPE = "mini-livro-section" as const;
+
+export const MINI_LIVRO_SECTION_STORAGE_BUCKET = "materiais";
+export const MINI_LIVRO_SECTION_STORAGE_FOLDER = "mini-livros/sections";
+export const MINI_LIVRO_SECTION_SOURCE_PREFIX = `/${MINI_LIVRO_SECTION_STORAGE_BUCKET}/${MINI_LIVRO_SECTION_STORAGE_FOLDER}`;
+
+export function getMiniLivroSectionStoragePath(kind: "introducao" | "encerramento", id?: number): string {
+    if (!id) {
+        throw new Error(`${kind === "introducao" ? "Introdução" : "Encerramento"} requer um ID para montar o caminho do HTML.`);
+    }
+
+    if (kind === "introducao") {
+        return `${MINI_LIVRO_SECTION_STORAGE_FOLDER}/introducao/${id}.html`;
+    }
+
+    return `${MINI_LIVRO_SECTION_STORAGE_FOLDER}/encerramento/${id}.html`;
+}
+
+export function getMiniLivroSectionSourcePath(kind: "introducao" | "encerramento", id?: number): string {
+    return `/${MINI_LIVRO_SECTION_STORAGE_BUCKET}/${getMiniLivroSectionStoragePath(kind, id)}`;
+}
+
+export function extractStoragePathFromSourcePath(sourcePath: string | null): string | null {
+    const normalizedPath = sourcePath?.trim();
+
+    if (!normalizedPath) {
+        return null;
+    }
+
+    const prefix = `/${MINI_LIVRO_SECTION_STORAGE_BUCKET}/`;
+
+    if (!normalizedPath.startsWith(prefix)) {
+        return null;
+    }
+
+    return normalizedPath.slice(prefix.length);
+}

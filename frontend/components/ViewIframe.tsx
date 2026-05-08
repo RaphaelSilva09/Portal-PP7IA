@@ -194,7 +194,7 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
             cancelScheduledSync();
             initialSyncTimeoutIds.forEach(timeoutId => window.clearTimeout(timeoutId));
         };
-    }, [src]);
+    }, [src, onBackgroundColorChange]);
 
     return (
         <iframe

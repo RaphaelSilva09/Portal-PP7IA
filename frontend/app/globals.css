@@ -614,6 +614,43 @@ body {
     border-bottom: 1px solid var(--border-glass);
 }
 
+/* ============================================
+   Announcement Bar
+   ============================================ */
+.announcement-swap {
+    animation: announcement-swap 0.7s var(--ease-smooth);
+}
+
+.announcement-bar {
+    transition: background-color 0.7s var(--ease-smooth), color 0.7s var(--ease-smooth);
+}
+
+.announcement-tick {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    animation: announcement-tick 5s linear infinite;
+}
+
+@keyframes announcement-swap {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes announcement-tick {
+    0%,
+    100% {
+        opacity: 0;
+    }
+}
+
 .glass-card {
     background: var(--surface-glass);
     backdrop-filter: blur(10px);
@@ -831,6 +868,53 @@ body {
 :focus-visible {
     outline: 2px solid var(--brand-blue);
     outline-offset: 2px;
+}
+
+.chat-input-textarea:focus,
+.chat-input-textarea:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.light .chat-status-chip {
+    color: #000000 !important;
+}
+
+.dark .chat-status-chip {
+    color: #86efac !important;
+}
+
+.light .chat-error-message {
+    color: #334155 !important;
+}
+
+.dark .chat-error-message {
+    color: #fef3c7 !important;
+}
+
+.chat-loading-line {
+    position: relative;
+    overflow: hidden;
+    background: rgba(22, 35, 56, 0.08);
+}
+
+.chat-loading-line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.85) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+    opacity: 0.7;
+}
+
+.dark .chat-loading-line {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.dark .chat-loading-line::after {
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.18) 50%, transparent 100%);
+    opacity: 1;
 }
 
 /* ============================================

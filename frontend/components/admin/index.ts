@@ -5,11 +5,14 @@
  */
 
 export { AdminBook } from "./AdminBook";
+export { AdminMiniLivroSections } from "./AdminMiniLivroSections";
 export { AnnouncementBarForm } from "./AnnouncementBarForm";
 export type { AnnouncementBarFormSubmitData } from "./AnnouncementBarForm";
 export { AnnouncementBarPreview } from "./AnnouncementBarPreview";
 export { AnnouncementBarTab } from "./AnnouncementBarTab";
 export { AdminEditorial } from "./AdminEditorial";
+export { AdminHomeBlockDescriptions } from "./AdminHomeBlockDescriptions";
+export { AdminHomeRecomendacoesPaulo } from "./AdminHomeRecomendacoesPaulo";
 export { AdminPortalNews } from "./AdminPortalNews";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { ContentForm } from "./ContentForm";
@@ -23,4 +26,3 @@ export { UserCard } from "./UserCard";
 export { UserEditModal } from "./UserEditModal";
 export { UserManager } from "./UserManager";
 export { ReindexButton } from "./ReindexButton";
-
