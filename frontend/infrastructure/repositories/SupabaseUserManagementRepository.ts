@@ -214,10 +214,19 @@ export class SupabaseUserManagementRepository implements IUserManagementReposito
         }
     }
 
+    private toBrtDateString(date: Date): string {
+        return new Intl.DateTimeFormat("en-CA", {
+            timeZone: "America/Sao_Paulo",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        }).format(date);
+    }
+
     async getUsersByDate(date: Date): Promise<UserListItem[]> {
         try {
             const token = await this.getBearerToken();
-            const dateStr = date.toISOString().slice(0, 10);
+            const dateStr = this.toBrtDateString(date);
 
             const response = await fetch(`/api/admin/users?date=${dateStr}`, {
                 headers: {

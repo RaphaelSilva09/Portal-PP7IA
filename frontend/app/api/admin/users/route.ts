@@ -21,60 +21,67 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { getSupabaseClientKey, getSupabaseUrl } from "@/infrastructure/config/supabase-env";
 
-const getServiceRoleClient = () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-    if (!supabaseUrl || !serviceRoleKey) {
-        throw new Error("Variáveis de ambiente Supabase não configuradas");
-    }
-
-    return createClient(supabaseUrl, serviceRoleKey, {
+function getAnonClient() {
+    return createClient(getSupabaseUrl(), getSupabaseClientKey(), {
         auth: {
             autoRefreshToken: false,
             persistSession: false,
         },
     });
-};
+}
+
+function getServiceRoleClient() {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!serviceRoleKey) {
+        throw new Error("SUPABASE_SERVICE_ROLE_KEY não configurada");
+    }
+
+    return createClient(getSupabaseUrl(), serviceRoleKey, {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+        },
+    });
+}
 
 async function verifyAdminFromRequest(request: NextRequest): Promise<boolean> {
     const authHeader = request.headers.get("authorization");
-    if (!authHeader) {
-        console.warn("[admin-auth] missing Authorization header");
-        return false;
-    }
+    if (!authHeader) return false;
 
     const token = authHeader.replace("Bearer ", "");
 
-    let supabase: ReturnType<typeof getServiceRoleClient>;
-    try {
-        supabase = getServiceRoleClient();
-    } catch (err) {
-        console.error("[admin-auth] env missing — SUPABASE_SERVICE_ROLE_KEY ou NEXT_PUBLIC_SUPABASE_URL não configurado", err);
-        return false;
-    }
+    const supabase = getAnonClient();
 
     const {
         data: { user },
         error,
     } = await supabase.auth.getUser(token);
 
-    if (error || !user) {
-        console.warn("[admin-auth] token inválido ou usuário não encontrado", { error: error?.message });
-        return false;
-    }
+    if (error || !user) return false;
 
-    const role = user.app_metadata?.role;
-    if (role !== "admin") {
-        console.warn("[admin-auth] usuário sem role admin", { role, userId: user.id });
-        return false;
-    }
-
-    return true;
+    return user.app_metadata?.role === "admin";
 }
 
 const VALID_PAGE_SIZES = [10, 25, 50];
+
+function getClientWithJwt(request: NextRequest) {
+    const token = request.headers.get("authorization")?.replace("Bearer ", "") ?? "";
+
+    return createClient(getSupabaseUrl(), getSupabaseClientKey(), {
+        global: {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        },
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+        },
+    });
+}
 
 export async function GET(request: NextRequest) {
     try {
@@ -93,33 +100,32 @@ export async function GET(request: NextRequest) {
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        const supabase = getServiceRoleClient();
+        const db = getClientWithJwt(request);
 
         // 1. Buscar IDs dos admins via auth.admin.listUsers (service_role)
-        // Fazemos isso para calcular isAdmin corretamente com dados reais
-        const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-        const adminIds = new Set((authData?.users ?? []).filter(u => u.app_metadata?.role === "admin").map(u => u.id));
-        // Mapa de userId -> last_sign_in_at para exibir no painel admin
-        const lastSignInMap = new Map<string, string | null>(
-            (authData?.users ?? []).map(u => [u.id, u.last_sign_in_at ?? null]),
-        );
-        // Mapa de userId -> emailVerified (email_confirmed_at presente)
-        const emailVerifiedMap = new Map<string, boolean>(
-            (authData?.users ?? []).map(u => [u.id, !!u.email_confirmed_at]),
-        );
+        // Se a service_role não estiver configurada, admins não serão detectados
+        let adminIds = new Set<string>();
+        let lastSignInMap = new Map<string, string | null>();
+        let emailVerifiedMap = new Map<string, boolean>();
+
+        try {
+            const sv = getServiceRoleClient();
+            const { data: authData } = await sv.auth.admin.listUsers({ perPage: 1000 });
+            adminIds = new Set((authData?.users ?? []).filter(u => u.app_metadata?.role === "admin").map(u => u.id));
+            lastSignInMap = new Map((authData?.users ?? []).map(u => [u.id, u.last_sign_in_at ?? null]));
+            emailVerifiedMap = new Map((authData?.users ?? []).map(u => [u.id, !!u.email_confirmed_at]));
+        } catch (err) {
+            console.warn("[admin] service_role não disponível — ignorando metadados de auth.users", err);
+        }
 
         // 2. Buscar usuários de public.users
-        // Se dateFilter presente: filtra pelo dia completo (UTC) e ordena do mais recente ao mais antigo
-        // Caso contrário: paginação alfabética padrão
-        let query = supabase
+        let query = db
             .from("users")
             .select("id, email, nome, celular, created_at, accept_email_updates", {
                 count: "exact",
             });
 
         if (dateFilter && /^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-            // BRT = UTC-3, fixo desde 2019 (sem horário de verão)
-            // Meia-noite BRT = 03:00 UTC; o dia BRT termina 24h depois
             const BRT_OFFSET_HOURS = 3;
             const [y, m, d] = dateFilter.split("-").map(Number);
             const startUTC = new Date(Date.UTC(y, m - 1, d, BRT_OFFSET_HOURS, 0, 0, 0));
@@ -134,8 +140,6 @@ export async function GET(request: NextRequest) {
                 .order("email", { ascending: true })
                 .range(from, to);
 
-            // Busca server-side por nome ou email
-            // Remove caracteres especiais do PostgREST para evitar injeção de operadores
             if (search) {
                 const safeSearch = search.replace(/[.,();%]/g, "");
                 query = query.or(`nome.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`);

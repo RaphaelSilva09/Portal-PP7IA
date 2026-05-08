@@ -15,23 +15,31 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { getSupabaseClientKey, getSupabaseUrl } from "@/infrastructure/config/supabase-env";
 
-// Cliente Supabase com service_role para operações admin
-const getServiceRoleClient = () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-    if (!supabaseUrl || !serviceRoleKey) {
-        throw new Error("Variáveis de ambiente Supabase não configuradas");
-    }
-
-    return createClient(supabaseUrl, serviceRoleKey, {
+function getAnonClient() {
+    return createClient(getSupabaseUrl(), getSupabaseClientKey(), {
         auth: {
             autoRefreshToken: false,
             persistSession: false,
         },
     });
-};
+}
+
+function getServiceRoleClient() {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!serviceRoleKey) {
+        throw new Error("SUPABASE_SERVICE_ROLE_KEY não configurada");
+    }
+
+    return createClient(getSupabaseUrl(), serviceRoleKey, {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+        },
+    });
+}
 
 /**
  * Verifica se o usuário atual é admin via JWT
@@ -42,7 +50,7 @@ async function verifyAdminFromRequest(request: NextRequest): Promise<boolean> {
         if (!authHeader) return false;
 
         const token = authHeader.replace("Bearer ", "");
-        const supabase = getServiceRoleClient();
+        const supabase = getAnonClient();
 
         const {
             data: { user },
