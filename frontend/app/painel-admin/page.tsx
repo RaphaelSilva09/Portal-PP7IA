@@ -254,8 +254,14 @@ export default function PainelAdminPage() {
             onConfirm: async () => {
                 setConfirmDialog({ ...confirmDialog, show: false });
                 try {
-                    // TODO Phase 5d: server-side admin write route + multipart upload.
-                    throw new Error("Excluir conteúdo: roteamento via /api/admin/content/* será adicionado na Phase 5d");
+                    const res = await fetch(
+                        `/api/admin/content/${encodeURIComponent(contentTab)}/${item.id}`,
+                        { method: "DELETE" },
+                    );
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.error ?? `HTTP ${res.status}`);
+                    }
                     await loadItems();
                     setFeedback({
                         show: true,
@@ -277,23 +283,36 @@ export default function PainelAdminPage() {
     const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; ebookId?: number | null }) => {
         setIsSubmitting(true);
         try {
-            if (editItem) {
-                // TODO Phase 5d: server-side admin write route + multipart upload.
-                void data;
-                throw new Error("Editar conteúdo: roteamento via /api/admin/content/* será adicionado na Phase 5d");
-            } else {
-                // TODO Phase 5d: server-side admin write route + multipart upload.
-                void data;
-                throw new Error("Criar conteúdo: roteamento via /api/admin/content/* será adicionado na Phase 5d");
+            const form = new FormData();
+            form.append("title", data.title);
+            if (data.readTime !== undefined) form.append("readTime", String(data.readTime));
+            if (data.tema) form.append("tema", data.tema);
+            if (data.ebookId != null) form.append("ebookId", String(data.ebookId));
+            if (data.htmlFile) form.append("htmlFile", data.htmlFile);
+            if (data.pdfFile) form.append("pdfFile", data.pdfFile);
+
+            const url = editItem
+                ? `/api/admin/content/${encodeURIComponent(contentTab)}/${editItem.id}`
+                : `/api/admin/content/${encodeURIComponent(contentTab)}`;
+            const method = editItem ? "PUT" : "POST";
+            const res = await fetch(url, { method, body: form });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
             setShowForm(false);
             setEditItem(null);
             await loadItems();
+            setFeedback({
+                show: true,
+                message: editItem ? "Material atualizado com sucesso!" : "Material criado com sucesso!",
+                type: "success",
+            });
         } catch (error) {
             console.error("Erro ao salvar:", error);
             setFeedback({
                 show: true,
-                message: "Erro ao salvar material. Tente novamente.",
+                message: error instanceof Error ? error.message : "Erro ao salvar material. Tente novamente.",
                 type: "error",
             });
         } finally {
@@ -303,9 +322,20 @@ export default function PainelAdminPage() {
 
     const handleReorder = async (reorderedItems: ContentItem[]) => {
         try {
-            // TODO Phase 5d: server-side admin write route + multipart upload.
-            void reorderedItems;
-            throw new Error("Reordenar conteúdo: roteamento via /api/admin/content/* será adicionado na Phase 5d");
+            const orderedIds = reorderedItems.map(item => item.id);
+            const res = await fetch(
+                `/api/admin/content/${encodeURIComponent(contentTab)}/reorder`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ orderedIds }),
+                },
+            );
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            await loadItems();
         } catch (error) {
             console.error("Erro ao reordenar:", error);
             setFeedback({ show: true, message: "Erro ao salvar nova ordem. Tente novamente.", type: "error" });
@@ -315,23 +345,40 @@ export default function PainelAdminPage() {
     const handleEbookSubmit = async (data: EbookFormData) => {
         setIsSubmitting(true);
         try {
-            if (editItem) {
-                // TODO Phase 5d: server-side admin write route + multipart upload.
-                void data;
-                throw new Error("Editar e-book: roteamento via /api/admin/content/* será adicionado na Phase 5d");
-            } else {
-                // TODO Phase 5d: server-side admin write route + multipart upload.
-                void data;
-                throw new Error("Criar e-book: roteamento via /api/admin/content/* será adicionado na Phase 5d");
+            const form = new FormData();
+            form.append("title", data.title);
+            if (data.order !== undefined) form.append("order", String(data.order));
+            if (data.subtitle) form.append("subtitle", data.subtitle);
+            if (data.description) form.append("description", data.description);
+            if (data.badgeText) form.append("badgeText", data.badgeText);
+            if (data.readTime !== undefined) form.append("readTime", String(data.readTime));
+            if (data.introHtmlFile) form.append("htmlFile", data.introHtmlFile);
+            if (data.introPdfFile) form.append("pdfFile", data.introPdfFile);
+            if (data.coverImageFile) form.append("coverImageFile", data.coverImageFile);
+            if (data.coverPdfFile) form.append("coverPdfFile", data.coverPdfFile);
+
+            const url = editItem
+                ? `/api/admin/content/ebook/${editItem.id}`
+                : `/api/admin/content/ebook`;
+            const method = editItem ? "PUT" : "POST";
+            const res = await fetch(url, { method, body: form });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
             setShowForm(false);
             setEditItem(null);
             await loadItems();
+            setFeedback({
+                show: true,
+                message: editItem ? "E-book atualizado com sucesso!" : "E-book criado com sucesso!",
+                type: "success",
+            });
         } catch (error) {
             console.error("Erro ao salvar e-book:", error);
             setFeedback({
                 show: true,
-                message: "Erro ao salvar e-book. Tente novamente.",
+                message: error instanceof Error ? error.message : "Erro ao salvar e-book. Tente novamente.",
                 type: "error",
             });
         } finally {
