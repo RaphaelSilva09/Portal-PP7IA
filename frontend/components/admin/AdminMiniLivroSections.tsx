@@ -1,21 +1,5 @@
 "use client";
 
-/**
- * TODO Phase 0b (feat/removeSupabase): this admin component still calls
- * supabase directly (table CRUD on `mini_livro_sections` + storage uploads
- * to bucket `materiais`). Rewrite to use admin API routes once the
- * following exist:
- *   - GET    /api/admin/mini-livro-sections                — list
- *   - POST   /api/admin/mini-livro-sections                — create
- *   - PATCH  /api/admin/mini-livro-sections/[id]           — update fields
- *   - DELETE /api/admin/mini-livro-sections/[id]           — delete + HTML
- *   - POST   /api/admin/mini-livro-sections/[id]/upload    — multipart HTML
- *   - POST   /api/admin/mini-livro-sections/reorder        — bulk index update
- *   - GET    /api/admin/mini-livro-section-meta            — list meta
- *   - PUT    /api/admin/mini-livro-section-meta            — upsert meta
- * Until then, the component remains functional via the legacy supabase client.
- */
-
 import { useQueryClient } from "@tanstack/react-query";
 import {
     DndContext,
@@ -35,18 +19,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GlassCard, GradientButton } from "@/components/ui";
-import {
-    MINI_LIVRO_SECTION_STORAGE_BUCKET,
-    extractStoragePathFromSourcePath,
-    getMiniLivroSectionSourcePath,
-    getMiniLivroSectionStoragePath,
-} from "@/constants/miniLivroSections";
+import { extractStoragePathFromSourcePath } from "@/constants/miniLivroSections";
 import {
     MiniLivroSection,
     type MiniLivroSectionKind,
     type MiniLivroSectionProps,
 } from "@/domain/entities/MiniLivroSection";
-import { supabase } from "@/infrastructure/config/supabase";
 import {
     AlertCircle,
     BookOpen,
@@ -287,13 +265,14 @@ export function AdminMiniLivroSections() {
         setIsLoading(true);
 
         try {
-            const { data, error } = await supabase.from("mini_livro_sections").select("*");
-
-            if (error) {
-                throw error;
+            const sectionsRes = await fetch("/api/admin/mini-livro-sections");
+            if (!sectionsRes.ok) {
+                const err = await sectionsRes.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${sectionsRes.status}`);
             }
+            const data = (await sectionsRes.json()) as unknown[];
 
-            const allSections = (data ?? [])
+            const allSections = data
                 .filter((row): row is MiniLivroSectionRow => isMiniLivroSectionRow(row))
                 .map(row => mapRowToSection(row))
                 .sort(compareSections);
@@ -301,9 +280,13 @@ export function AdminMiniLivroSections() {
             setIntroducoes(allSections.filter(item => item.kind === "introducao"));
             setEncerramentos(allSections.filter(item => item.kind === "encerramento"));
 
-            const { data: metaRows } = await supabase.from("mini_livro_section_meta").select("kind, title, description");
-
-            if (metaRows) {
+            const metaRes = await fetch("/api/admin/mini-livro-section-meta");
+            if (metaRes.ok) {
+                const metaRows = (await metaRes.json()) as Array<{
+                    kind: string;
+                    title: string | null;
+                    description: string | null;
+                }>;
                 for (const row of metaRows) {
                     if (row.kind === "introducao") {
                         setIntroducaoMeta({ title: row.title ?? "", description: row.description ?? "" });
@@ -363,12 +346,14 @@ export function AdminMiniLivroSections() {
         }
 
         try {
-            const { error } = await supabase
-                .from("mini_livro_section_meta")
-                .upsert({ kind, title: title.trim(), description: description.trim() }, { onConflict: "kind" });
-
-            if (error) {
-                throw error;
+            const res = await fetch("/api/admin/mini-livro-section-meta", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ kind, title: title.trim(), description: description.trim() }),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
 
             setFeedback({ show: true, message: `Metadados da ${kind === "introducao" ? "introdução" : "seção de encerramento"} salvos com sucesso!`, type: "success" });
@@ -385,18 +370,14 @@ export function AdminMiniLivroSections() {
     }, []);
 
     const persistSectionOrder = useCallback(async (orderedIds: number[]) => {
-        await Promise.all(
-            orderedIds.map((id, index) => supabase.from("mini_livro_sections").update({ index: index + 1 }).eq("id", id)),
-        );
-    }, []);
-
-    const handleUpload = useCallback(async (storagePath: string, file: File) => {
-        const { error } = await supabase.storage
-            .from(MINI_LIVRO_SECTION_STORAGE_BUCKET)
-            .upload(storagePath, file, { cacheControl: "3600", upsert: true });
-
-        if (error) {
-            throw error;
+        const res = await fetch("/api/admin/mini-livro-sections/reorder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderedIds }),
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error ?? `HTTP ${res.status}`);
         }
     }, []);
 
@@ -404,22 +385,12 @@ export function AdminMiniLivroSections() {
         setDeletingId(section.id);
 
         try {
-            const storagePath = extractStoragePathFromSourcePath(section.sourceHtmlPath);
-
-            if (storagePath) {
-                const { error: storageError } = await supabase.storage
-                    .from(MINI_LIVRO_SECTION_STORAGE_BUCKET)
-                    .remove([storagePath]);
-
-                if (storageError) {
-                    throw storageError;
-                }
-            }
-
-            const { error } = await supabase.from("mini_livro_sections").delete().eq("id", section.id);
-
-            if (error) {
-                throw error;
+            const res = await fetch(`/api/admin/mini-livro-sections/${section.id}`, {
+                method: "DELETE",
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
 
             if (section.kind === "encerramento") {
@@ -471,49 +442,35 @@ export function AdminMiniLivroSections() {
 
         try {
             const title = introducaoForm.title.trim();
-            const description = introducaoForm.description.trim() || null;
+            const description = introducaoForm.description.trim();
+
+            const form = new FormData();
+            form.append("title", title);
+            form.append("description", description);
 
             if (editingIntroducao) {
-                const updatePayload: Record<string, unknown> = { title, description };
-
                 if (introducaoForm.htmlFile) {
-                    await handleUpload(
-                        getMiniLivroSectionStoragePath("introducao", editingIntroducao.id),
-                        introducaoForm.htmlFile,
-                    );
-                    updatePayload.html_path = getMiniLivroSectionSourcePath("introducao", editingIntroducao.id);
+                    form.append("file", introducaoForm.htmlFile);
                 }
-
-                const { error } = await supabase.from("mini_livro_sections").update(updatePayload).eq("id", editingIntroducao.id);
-
-                if (error) {
-                    throw error;
+                const res = await fetch(`/api/admin/mini-livro-sections/${editingIntroducao.id}`, {
+                    method: "PATCH",
+                    body: form,
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error ?? `HTTP ${res.status}`);
                 }
             } else {
-                const nextIndex = introducoes.length + 1;
-                const { data, error } = await supabase
-                    .from("mini_livro_sections")
-                    .insert({ kind: "introducao", title, description, index: nextIndex })
-                    .select()
-                    .single();
-
-                if (error || !data || !isMiniLivroSectionRow(data)) {
-                    throw error || new Error("Falha ao criar bloco de introdução.");
-                }
-
-                try {
-                    await handleUpload(getMiniLivroSectionStoragePath("introducao", data.id), introducaoForm.htmlFile!);
-                    const { error: updateError } = await supabase
-                        .from("mini_livro_sections")
-                        .update({ html_path: getMiniLivroSectionSourcePath("introducao", data.id) })
-                        .eq("id", data.id);
-
-                    if (updateError) {
-                        throw updateError;
-                    }
-                } catch (uploadError) {
-                    await supabase.from("mini_livro_sections").delete().eq("id", data.id);
-                    throw uploadError;
+                form.append("kind", "introducao");
+                form.append("index", String(introducoes.length + 1));
+                form.append("file", introducaoForm.htmlFile!);
+                const res = await fetch("/api/admin/mini-livro-sections", {
+                    method: "POST",
+                    body: form,
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error ?? `HTTP ${res.status}`);
                 }
             }
 
@@ -549,49 +506,35 @@ export function AdminMiniLivroSections() {
 
         try {
             const title = encerramentoForm.title.trim();
-            const description = encerramentoForm.description.trim() || null;
+            const description = encerramentoForm.description.trim();
+
+            const form = new FormData();
+            form.append("title", title);
+            form.append("description", description);
 
             if (editingEncerramento) {
-                const updatePayload: Record<string, unknown> = { title, description };
-
                 if (encerramentoForm.htmlFile) {
-                    await handleUpload(
-                        getMiniLivroSectionStoragePath("encerramento", editingEncerramento.id),
-                        encerramentoForm.htmlFile,
-                    );
-                    updatePayload.html_path = getMiniLivroSectionSourcePath("encerramento", editingEncerramento.id);
+                    form.append("file", encerramentoForm.htmlFile);
                 }
-
-                const { error } = await supabase.from("mini_livro_sections").update(updatePayload).eq("id", editingEncerramento.id);
-
-                if (error) {
-                    throw error;
+                const res = await fetch(`/api/admin/mini-livro-sections/${editingEncerramento.id}`, {
+                    method: "PATCH",
+                    body: form,
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error ?? `HTTP ${res.status}`);
                 }
             } else {
-                const nextIndex = encerramentos.length + 1;
-                const { data, error } = await supabase
-                    .from("mini_livro_sections")
-                    .insert({ kind: "encerramento", title, description, index: nextIndex })
-                    .select()
-                    .single();
-
-                if (error || !data || !isMiniLivroSectionRow(data)) {
-                    throw error || new Error("Falha ao criar bloco de encerramento.");
-                }
-
-                try {
-                    await handleUpload(getMiniLivroSectionStoragePath("encerramento", data.id), encerramentoForm.htmlFile!);
-                    const { error: updateError } = await supabase
-                        .from("mini_livro_sections")
-                        .update({ html_path: getMiniLivroSectionSourcePath("encerramento", data.id) })
-                        .eq("id", data.id);
-
-                    if (updateError) {
-                        throw updateError;
-                    }
-                } catch (uploadError) {
-                    await supabase.from("mini_livro_sections").delete().eq("id", data.id);
-                    throw uploadError;
+                form.append("kind", "encerramento");
+                form.append("index", String(encerramentos.length + 1));
+                form.append("file", encerramentoForm.htmlFile!);
+                const res = await fetch("/api/admin/mini-livro-sections", {
+                    method: "POST",
+                    body: form,
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error ?? `HTTP ${res.status}`);
                 }
             }
 
