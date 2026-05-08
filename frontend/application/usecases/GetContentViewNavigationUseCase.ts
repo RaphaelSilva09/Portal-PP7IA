@@ -164,7 +164,7 @@ function getBookJourneyPartOrder(candidate: NavigationCandidate): number {
     }
 
     if (candidate.viewType === "mini-livro-section") {
-        return candidate.sectionKind === "introducao" ? 1 : UNORDERED_PART_POSITION;
+        return candidate.sectionKind === "prefacio" ? 1 : UNORDERED_PART_POSITION;
     }
 
     return (candidate.partOrder ?? candidate.order ?? UNORDERED_PART_POSITION) + 1;
@@ -176,7 +176,7 @@ function getBookJourneyKindOrder(candidate: NavigationCandidate): number {
     }
 
     if (candidate.viewType === "mini-livro-section") {
-        return candidate.sectionKind === "introducao" ? 0 : 2;
+        return candidate.sectionKind === "prefacio" ? 0 : 2;
     }
 
     if (candidate.viewType === "ebook") {

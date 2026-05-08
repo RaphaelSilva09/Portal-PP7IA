@@ -1,6 +1,6 @@
 import { MINI_LIVRO_SECTION_VIEW_TYPE } from "@/constants/miniLivroSections";
 
-export type MiniLivroSectionKind = "introducao" | "encerramento";
+export type MiniLivroSectionKind = "prefacio" | "encerramento";
 
 export interface MiniLivroSectionProps {
     id: number;
@@ -64,8 +64,8 @@ export class MiniLivroSection {
         return Boolean(this.sourceHtmlPath);
     }
 
-    get isIntroducao(): boolean {
-        return this.kind === "introducao";
+    get isPrefacio(): boolean {
+        return this.kind === "prefacio";
     }
 
     get isEncerramento(): boolean {

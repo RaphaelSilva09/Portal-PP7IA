@@ -614,43 +614,6 @@ body {
     border-bottom: 1px solid var(--border-glass);
 }
 
-/* ============================================
-   Announcement Bar
-   ============================================ */
-.announcement-swap {
-    animation: announcement-swap 0.7s var(--ease-smooth);
-}
-
-.announcement-bar {
-    transition: background-color 0.7s var(--ease-smooth), color 0.7s var(--ease-smooth);
-}
-
-.announcement-tick {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-    animation: announcement-tick 5s linear infinite;
-}
-
-@keyframes announcement-swap {
-    0% {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes announcement-tick {
-    0%,
-    100% {
-        opacity: 0;
-    }
-}
-
 .glass-card {
     background: var(--surface-glass);
     backdrop-filter: blur(10px);

@@ -8,10 +8,10 @@ const IAS = ["Claude", "ChatGPT", "Gemini", "Adapta", "Perplexity", "Grok", "Man
 
 export default function IASParceiras() {
     return (
-        <section id="ias-parceiras" style={{ scrollMarginTop: "100px" }}>
+        <section id="ias-parceiras" className="py-8" style={{ scrollMarginTop: "100px" }}>
             <div className={portalContentClass}>
                 <div className="w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent"></div>
-                <div className=" mt-8 w-full">
+                <div className="mb-8 mt-8 w-full">
                 {/* ============================================
                 AS 7 IAS PARCEIRAS — card unificado
                 ============================================ */}
@@ -61,17 +61,17 @@ export default function IASParceiras() {
                                 </span>
                             ))}
                         </div>
-
-                        <div className="mt-4 flex justify-center">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-cyan-700/40 bg-cyan-700/10 px-4 py-2 text-sm font-semibold text-cyan-900">
-                                Abrir 7 IAs
-                                <ArrowUpRight className="w-4 h-4 text-cyan-900" />
-                            </span>
-                        </div>
                     </div>
                     {/* Accent Line */}
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-cyan-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 </Link>
+                </div>
+            
+                {/* Citação */}
+                <div className="mb-8 flex justify-center">
+                    <span className="bg-card/85 px-4 py-2 rounded-full text-sm font-semibold text-text-secondary text-center border border-border">
+                        &ldquo;Liderar é servir. Formar pessoas. Deixar legado.&rdquo;
+                    </span>
                 </div>
             </div>
         </section>

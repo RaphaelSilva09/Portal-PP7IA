@@ -108,10 +108,10 @@ function makeMiniLivroSection(overrides: Partial<MiniLivroSectionProps> = {}) {
         id: 1,
         createdAt: new Date("2026-01-01T00:00:00.000Z"),
         updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-        kind: "introducao",
-        title: "Introdução",
+        kind: "prefacio",
+        title: "Prefácio",
         description: "Texto inicial",
-        htmlPath: "/materiais/mini-livros/sections/introducao/1.html",
+        htmlPath: "/materiais/mini-livros/sections/prefacio.html",
         index: 1,
         ...overrides,
     });
@@ -187,13 +187,13 @@ describe("GetContentViewNavigationUseCase", () => {
         expect(result.next?.title).toBe("Parte 1 - A");
     });
 
-    it("liga o livro à introdução quando ela existe", async () => {
+    it("liga o livro ao prefácio quando ele existe", async () => {
         dependencies.bookRepository.getActiveBook.mockResolvedValue(makeBook());
         dependencies.ebookRepository.getAll.mockResolvedValue([
             makeEbook({ id: 1, title: "Parte I", introHtmlPath: "/materiais/mini-livros/ebook/parte-i/introducao_parte-i.html", order: 1 }),
         ]);
         dependencies.miniLivroSectionRepository.getAll.mockResolvedValue([
-            makeMiniLivroSection({ id: 11, kind: "introducao", title: "Antes de começar", htmlPath: "/materiais/mini-livros/sections/introducao/11.html", index: 1 }),
+            makeMiniLivroSection({ id: 11, kind: "prefacio", title: "Antes de começar", htmlPath: "/materiais/mini-livros/sections/prefacio.html", index: 1 }),
         ]);
 
         const result = await useCase.execute({ type: "book", slug: "introducao-livro" });
@@ -202,12 +202,12 @@ describe("GetContentViewNavigationUseCase", () => {
         expect(result.next?.href).toBe("/view/mini-livro-section/11");
     });
 
-    it("leva da introdução para a primeira parte", async () => {
+    it("leva do prefácio para a primeira parte", async () => {
         dependencies.ebookRepository.getAll.mockResolvedValue([
             makeEbook({ id: 1, title: "Parte I", introHtmlPath: "/materiais/mini-livros/ebook/parte-i/introducao_parte-i.html", order: 1 }),
         ]);
         dependencies.miniLivroSectionRepository.getAll.mockResolvedValue([
-            makeMiniLivroSection({ id: 11, kind: "introducao", title: "Antes de começar", htmlPath: "/materiais/mini-livros/sections/introducao/11.html", index: 1 }),
+            makeMiniLivroSection({ id: 11, kind: "prefacio", title: "Antes de começar", htmlPath: "/materiais/mini-livros/sections/prefacio.html", index: 1 }),
         ]);
 
         const result = await useCase.execute({ type: "mini-livro-section", slug: "11" });

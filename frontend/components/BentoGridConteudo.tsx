@@ -8,7 +8,6 @@ import { useEstudar } from "../presentation/hooks/useEstudar";
 import { useMiniLivros } from "../presentation/hooks/useMiniLivros";
 import { useNewsletters } from "../presentation/hooks/useNewsletters";
 import { useRadarOportunidades } from "../presentation/hooks/useRadarOportunidades";
-import { useHomeBlockDescriptions } from "../presentation/hooks/useHomeBlockDescriptions";
 
 type LatestTitleItem = {
     createdAt: Date;
@@ -86,7 +85,6 @@ export default function BentoGrid() {
     const miniLivros = useMiniLivros();
     const biblioteca = useBiblioteca();
     const estudar = useEstudar();
-    const { descriptions } = useHomeBlockDescriptions();
 
     const newsletterTitles = getLatestTitles([newsletters.latest, ...newsletters.older]);
     const especialTitles = getLatestTitles([especial.latest, ...especial.older]);
@@ -134,18 +132,12 @@ export default function BentoGrid() {
                             />
 
                             <div className="max-w-5xl flex-1">
-                                {descriptions.newsletter.split("\n").filter(Boolean).map((line, index) => (
-                                    <p
-                                        key={`newsletter-desc-${index}`}
-                                        className={
-                                            index === 0
-                                                ? "mb-0.5 text-sm font-medium tracking-tight text-text-secondary"
-                                                : "text-sm leading-relaxed tracking-tight text-text-secondary"
-                                        }
-                                    >
-                                        {line}
-                                    </p>
-                                ))}
+                                <p className="mb-0.5 text-sm font-medium tracking-tight text-text-secondary">
+                                    Publicacao semanal com 7 itens
+                                </p>
+                                <p className="text-sm leading-relaxed tracking-tight text-text-secondary">
+                                    Noticias de IA e startups. O que realmente importa.
+                                </p>
                                 <LatestTitles titles={newsletterTitles} />
                             </div>
 
@@ -172,18 +164,12 @@ export default function BentoGrid() {
                             />
 
                             <div className="flex-1">
-                                {descriptions["especial-semana"].split("\n").filter(Boolean).map((line, index) => (
-                                    <p
-                                        key={`especial-desc-${index}`}
-                                        className={
-                                            index === 0
-                                                ? "mb-0.5 text-sm font-medium tracking-tight text-text-secondary"
-                                                : "text-sm tracking-tight text-text-secondary"
-                                        }
-                                    >
-                                        {line}
-                                    </p>
-                                ))}
+                                <p className="mb-0.5 text-sm font-medium tracking-tight text-text-secondary">
+                                    Reportagem curada da semana
+                                </p>
+                                <p className="text-sm tracking-tight text-text-secondary">
+                                    Analises e destaques editoriais.
+                                </p>
                                 <LatestTitles titles={especialTitles} />
                             </div>
 
@@ -210,18 +196,12 @@ export default function BentoGrid() {
                             />
 
                             <div className="flex-1">
-                                {descriptions.radar.split("\n").filter(Boolean).map((line, index) => (
-                                    <p
-                                        key={`radar-desc-${index}`}
-                                        className={
-                                            index === 0
-                                                ? "mb-0.5 text-sm font-medium tracking-tight text-text-secondary"
-                                                : "text-sm tracking-tight text-text-secondary"
-                                        }
-                                    >
-                                        {line}
-                                    </p>
-                                ))}
+                                <p className="mb-0.5 text-sm font-medium tracking-tight text-text-secondary">
+                                    7 itens mensais
+                                </p>
+                                <p className="text-sm tracking-tight text-text-secondary">
+                                    Ferramentas, startups e tendencias.
+                                </p>
                                 <LatestTitles titles={radarTitles} />
                             </div>
 
@@ -248,18 +228,12 @@ export default function BentoGrid() {
                             />
 
                             <div className="flex-1">
-                                {descriptions["mini-livros"].split("\n").filter(Boolean).map((line, index) => (
-                                    <p
-                                        key={`mini-livros-desc-${index}`}
-                                        className={
-                                            index === 0
-                                                ? "mb-0.5 text-sm font-medium tracking-tight text-text-secondary"
-                                                : "text-sm tracking-tight text-text-secondary"
-                                        }
-                                    >
-                                        {line}
-                                    </p>
-                                ))}
+                                <p className="mb-0.5 text-sm font-medium tracking-tight text-text-secondary">
+                                    1 Livro, 3 Ebooks, 21 Mini-livros
+                                </p>
+                                <p className="text-sm tracking-tight text-text-secondary">
+                                    Leitura de 7 a 21 minutos.
+                                </p>
                                 <LatestTitles titles={miniLivrosTitles} />
                             </div>
 
@@ -286,18 +260,12 @@ export default function BentoGrid() {
                             />
 
                             <div className="flex-1">
-                                {descriptions.biblioteca.split("\n").filter(Boolean).map((line, index) => (
-                                    <p
-                                        key={`biblioteca-desc-${index}`}
-                                        className={
-                                            index === 0
-                                                ? "mb-0.5 text-sm font-medium tracking-tight text-text-secondary"
-                                                : "text-sm tracking-tight text-text-secondary"
-                                        }
-                                    >
-                                        {line}
-                                    </p>
-                                ))}
+                                <p className="mb-0.5 text-sm font-medium tracking-tight text-text-secondary">
+                                    7 categorias com 7 itens cada
+                                </p>
+                                <p className="text-sm tracking-tight text-text-secondary">
+                                    Prompts, ferramentas, guias e dicas.
+                                </p>
                                 <LatestTitles titles={bibliotecaTitles} />
                             </div>
 
@@ -324,18 +292,12 @@ export default function BentoGrid() {
                             />
 
                             <div className="flex-1">
-                                {descriptions.estudar.split("\n").filter(Boolean).map((line, index) => (
-                                    <p
-                                        key={`estudar-desc-${index}`}
-                                        className={
-                                            index === 0
-                                                ? "mb-0.5 text-sm font-medium tracking-tight text-text-secondary"
-                                                : "text-sm tracking-tight text-text-secondary"
-                                        }
-                                    >
-                                        {line}
-                                    </p>
-                                ))}
+                                <p className="mb-0.5 text-sm font-medium tracking-tight text-text-secondary">
+                                    Guias, tutoriais e aulas
+                                </p>
+                                <p className="text-sm tracking-tight text-text-secondary">
+                                    IA, tech, saude, startups, financas.
+                                </p>
                                 <LatestTitles titles={estudarTitles} />
                             </div>
 
@@ -365,18 +327,12 @@ export default function BentoGrid() {
                             </div>
 
                             <div className="flex-1">
-                                {descriptions.ensinar.split("\n").filter(Boolean).map((line, index) => (
-                                    <p
-                                        key={`ensinar-desc-${index}`}
-                                        className={
-                                            index === 0
-                                                ? "mb-0.5 text-sm font-medium tracking-tight text-text-secondary"
-                                                : "text-sm tracking-tight text-text-secondary"
-                                        }
-                                    >
-                                        {line}
-                                    </p>
-                                ))}
+                                <p className="mb-0.5 text-sm font-medium tracking-tight text-text-secondary">
+                                    A ser implementado
+                                </p>
+                                <p className="text-sm tracking-tight text-text-secondary">
+                                    Estamos construindo este bloco com cuidado para lançar em breve.
+                                </p>
                             </div>
 
                             <div className="absolute bottom-0 left-0 right-0 h-2 bg-linear-to-r from-pink-500 to-rose-500 opacity-90 transition-opacity duration-300 group-hover:opacity-100" />

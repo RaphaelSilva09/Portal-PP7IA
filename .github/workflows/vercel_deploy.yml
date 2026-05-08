@@ -1,0 +1,45 @@
+name: Deploy to Vercel
+on:
+    push:
+    pull_request:
+        types:
+            - closed
+jobs:
+    deploy:
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            - name: Determine branch and deploy hook
+              id: branch
+              run: |
+                  if [[ "${{ github.event_name }}" == "push" ]]; then
+                    BRANCH="${{ github.ref_name }}"
+                  else
+                    BRANCH="${{ github.event.pull_request.base.ref }}"
+                  fi
+                  echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+                  if [[ "$BRANCH" == "main" ]]; then
+                    echo "hook_secret=main_hook" >> $GITHUB_OUTPUT
+                  else
+                    echo "hook_secret=develop_hook" >> $GITHUB_OUTPUT
+                  fi
+              shell: bash
+            - name: Trigger Vercel deploy
+              env:
+                  MAIN_HOOK: ${{ secrets.main_hook }}
+                  DEVELOP_HOOK: ${{ secrets.develop_hook }}
+              run: |
+                  BRANCH_NAME="${{ steps.branch.outputs.branch }}"
+                  if [[ "$BRANCH_NAME" == "main" ]]; then
+                    DEPLOY_HOOK="$MAIN_HOOK"
+                  else
+                    DEPLOY_HOOK="$DEVELOP_HOOK"
+                  fi
+                  echo "Triggering Vercel deployment for branch: $BRANCH_NAME"
+                  curl --fail --max-time 30 -X POST "$DEPLOY_HOOK"
+              shell: bash
+            - name: Log successful trigger
+              run: echo "Vercel deploy hook triggered successfully!"
