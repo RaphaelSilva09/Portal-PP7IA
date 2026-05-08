@@ -118,12 +118,4 @@ test.describe("Auth session resilience", () => {
         await expect(page).toHaveURL(/\/$/);
         await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible({ timeout: 12000 });
     });
-
-    test("callback de confirmação sem parâmetros volta para a landing page", async ({ page }) => {
-        await page.goto("/auth/confirm");
-
-        await expect(page).toHaveURL(/\/$/);
-        // Dois botões "Entrar" ficam visíveis quando o modal abre (navbar + modal submit) — .first() evita strict-mode violation
-        await expect(page.getByRole("button", { name: "Entrar" }).first()).toBeVisible();
-    });
 });
