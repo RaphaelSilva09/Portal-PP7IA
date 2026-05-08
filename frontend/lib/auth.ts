@@ -77,7 +77,7 @@ export const auth = betterAuth({
     emailOTP({
       otpLength: 8,
       expiresIn: 60 * 10,
-      sendVerificationOnSignUp: false,
+      sendVerificationOnSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
         const tpl =
           type === "forget-password"
