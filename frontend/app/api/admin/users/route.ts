@@ -39,25 +39,39 @@ const getServiceRoleClient = () => {
 };
 
 async function verifyAdminFromRequest(request: NextRequest): Promise<boolean> {
-    try {
-        const authHeader = request.headers.get("authorization");
-        if (!authHeader) return false;
-
-        const token = authHeader.replace("Bearer ", "");
-        const supabase = getServiceRoleClient();
-
-        const {
-            data: { user },
-            error,
-        } = await supabase.auth.getUser(token);
-
-        if (error || !user) return false;
-
-        const role = user.app_metadata?.role;
-        return role === "admin";
-    } catch {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader) {
+        console.warn("[admin-auth] missing Authorization header");
         return false;
     }
+
+    const token = authHeader.replace("Bearer ", "");
+
+    let supabase: ReturnType<typeof getServiceRoleClient>;
+    try {
+        supabase = getServiceRoleClient();
+    } catch (err) {
+        console.error("[admin-auth] env missing — SUPABASE_SERVICE_ROLE_KEY ou NEXT_PUBLIC_SUPABASE_URL não configurado", err);
+        return false;
+    }
+
+    const {
+        data: { user },
+        error,
+    } = await supabase.auth.getUser(token);
+
+    if (error || !user) {
+        console.warn("[admin-auth] token inválido ou usuário não encontrado", { error: error?.message });
+        return false;
+    }
+
+    const role = user.app_metadata?.role;
+    if (role !== "admin") {
+        console.warn("[admin-auth] usuário sem role admin", { role, userId: user.id });
+        return false;
+    }
+
+    return true;
 }
 
 const VALID_PAGE_SIZES = [10, 25, 50];
@@ -99,7 +113,7 @@ export async function GET(request: NextRequest) {
         // Caso contrário: paginação alfabética padrão
         let query = supabase
             .from("users")
-            .select("id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates", {
+            .select("id, email, nome, celular, created_at, accept_email_updates", {
                 count: "exact",
             });
 
@@ -144,7 +158,6 @@ export async function GET(request: NextRequest) {
             createdAt: row.created_at,
             lastSignInAt: lastSignInMap.get(row.id) ?? null,
             acceptEmailUpdates: row.accept_email_updates,
-            acceptWhatsappUpdates: row.accept_whatsapp_updates,
             emailVerified: emailVerifiedMap.get(row.id) ?? false,
         }));
 
