@@ -14,7 +14,6 @@
 import { ConfirmDialog, FeedbackMessage } from "@/components/admin";
 import { GlassCard } from "@/components/ui";
 import { CATEGORY_DEFAULT_COLORS, PortalNewsCategory } from "@/domain/entities/PortalNewsItem";
-import { supabase } from "@/infrastructure/config/supabase";
 import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -504,12 +503,12 @@ export function AdminPortalNews() {
     const loadRows = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data, error } = await supabase
-                .from("portal_news")
-                .select("*")
-                .order("display_order", { ascending: true });
-
-            if (error) throw error;
+            const res = await fetch("/api/admin/portal-news");
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const data = (await res.json()) as PortalNewsRow[];
             setRows(data ?? []);
         } catch (err) {
             console.error("Erro ao carregar novidades:", err);
@@ -582,15 +581,20 @@ export function AdminPortalNews() {
                 link_item_id: form.linkItemId,
             };
 
-            if (editRow) {
-                const { error } = await supabase.from("portal_news").update(payload).eq("id", editRow.id);
-                if (error) throw error;
-                showFeedback("Novidade atualizada com sucesso!", "success");
-            } else {
-                const { error } = await supabase.from("portal_news").insert(payload);
-                if (error) throw error;
-                showFeedback("Novidade criada com sucesso!", "success");
+            const url = editRow
+                ? `/api/admin/portal-news/${editRow.id}`
+                : `/api/admin/portal-news`;
+            const method = editRow ? "PATCH" : "POST";
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
+            showFeedback(editRow ? "Novidade atualizada com sucesso!" : "Novidade criada com sucesso!", "success");
             handleCloseModal();
             await loadRows();
         } catch (err) {
@@ -604,11 +608,15 @@ export function AdminPortalNews() {
     // —— Toggle ativo ——
     const handleToggleActive = async (row: PortalNewsRow) => {
         try {
-            const { error } = await supabase
-                .from("portal_news")
-                .update({ is_active: !row.is_active })
-                .eq("id", row.id);
-            if (error) throw error;
+            const res = await fetch(`/api/admin/portal-news/${row.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ is_active: !row.is_active }),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             showFeedback(
                 !row.is_active ? "Novidade ativada." : "Novidade desativada.",
                 "success",
@@ -623,11 +631,15 @@ export function AdminPortalNews() {
     // —— Update display_order inline ——
     const handleOrderChange = async (row: PortalNewsRow, newOrder: number) => {
         try {
-            const { error } = await supabase
-                .from("portal_news")
-                .update({ display_order: newOrder })
-                .eq("id", row.id);
-            if (error) throw error;
+            const res = await fetch(`/api/admin/portal-news/${row.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ display_order: newOrder }),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             await loadRows();
         } catch (err) {
             console.error("Erro ao reordenar:", err);
@@ -639,8 +651,13 @@ export function AdminPortalNews() {
     const handleDeleteConfirm = async () => {
         if (!confirmDelete.row) return;
         try {
-            const { error } = await supabase.from("portal_news").delete().eq("id", confirmDelete.row.id);
-            if (error) throw error;
+            const res = await fetch(`/api/admin/portal-news/${confirmDelete.row.id}`, {
+                method: "DELETE",
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
             showFeedback("Novidade deletada.", "success");
             await loadRows();
         } catch (err) {

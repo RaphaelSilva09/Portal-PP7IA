@@ -1,29 +1,14 @@
 "use client";
 
-/**
- * TODO Phase 0b (feat/removeSupabase): this admin component still calls
- * supabase directly (table upsert on `home_recomendacoes_paulo` + storage
- * upload/remove on bucket `materiais`). Rewrite once the following exist:
- *   - GET    /api/admin/home-recomendacoes-paulo            — read row
- *   - PUT    /api/admin/home-recomendacoes-paulo            — upsert row
- *   - POST   /api/admin/home-recomendacoes-paulo/upload     — multipart HTML
- *   - DELETE /api/admin/home-recomendacoes-paulo/file       — remove HTML
- * Until then, the component remains functional via the legacy supabase client.
- */
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { GlassCard, GradientButton } from "@/components/ui";
 import { FeedbackMessage } from "./FeedbackMessage";
 import { ConfirmDialog } from "./ConfirmDialog";
-import { supabase } from "@/infrastructure/config/supabase";
 import {
     RECOMENDACOES_PAULO_DEFAULT_DESCRIPTION,
     RECOMENDACOES_PAULO_DEFAULT_TITLE,
     RECOMENDACOES_PAULO_SLUG,
-    RECOMENDACOES_PAULO_STORAGE_BUCKET,
-    RECOMENDACOES_PAULO_STORAGE_FOLDER,
-    getRecomendacoesPauloSourcePath,
     getRecomendacoesPauloStoragePath,
     getRecomendacoesPauloViewPath,
 } from "@/constants/recomendacoesPaulo";
@@ -67,29 +52,20 @@ export function AdminHomeRecomendacoesPaulo() {
     const loadData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [{ data, error }, storageResult] = await Promise.all([
-                supabase
-                    .from("home_recomendacoes_paulo")
-                    .select("slug, title, description, html_path")
-                    .eq("slug", RECOMENDACOES_PAULO_SLUG)
-                    .maybeSingle(),
-                supabase.storage.from(RECOMENDACOES_PAULO_STORAGE_BUCKET).list(RECOMENDACOES_PAULO_STORAGE_FOLDER, {
-                    limit: 100,
-                }),
-            ]);
-
-            if (error) throw error;
-            if (storageResult.error) throw storageResult.error;
-
-            const row = data as RecomendacoesRow | null;
+            const res = await fetch("/api/admin/home-recomendacoes-paulo");
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const payload = (await res.json()) as { row: RecomendacoesRow | null; available: boolean };
+            const row = payload.row;
             setFormValues({
                 title: row?.title?.trim() || RECOMENDACOES_PAULO_DEFAULT_TITLE,
                 description: row?.description?.trim() || RECOMENDACOES_PAULO_DEFAULT_DESCRIPTION,
             });
 
-            const availableFiles = new Set((storageResult.data ?? []).map(item => item.name));
             const expectedFileName = `${RECOMENDACOES_PAULO_SLUG}.html`;
-            setExistingFileName(availableFiles.has(expectedFileName) ? expectedFileName : null);
+            setExistingFileName(payload.available ? expectedFileName : null);
         } catch (err) {
             console.error("Erro ao carregar recomendacoes do Paulo:", err);
             showFeedback("Erro ao carregar dados. Tente novamente.", "error");
@@ -116,27 +92,21 @@ export function AdminHomeRecomendacoesPaulo() {
 
         setIsSaving(true);
         try {
+            const form = new FormData();
+            form.append("title", formValues.title.trim());
+            form.append("description", formValues.description.trim());
             if (selectedFile) {
-                const { error: uploadError } = await supabase.storage
-                    .from(RECOMENDACOES_PAULO_STORAGE_BUCKET)
-                    .upload(getRecomendacoesPauloStoragePath(), selectedFile, { cacheControl: "3600", upsert: true });
-
-                if (uploadError) throw uploadError;
+                form.append("file", selectedFile);
             }
 
-            const { error } = await supabase
-                .from("home_recomendacoes_paulo")
-                .upsert(
-                    {
-                        slug: RECOMENDACOES_PAULO_SLUG,
-                        title: formValues.title.trim(),
-                        description: formValues.description.trim(),
-                        html_path: getRecomendacoesPauloSourcePath(),
-                    },
-                    { onConflict: "slug" },
-                );
-
-            if (error) throw error;
+            const res = await fetch("/api/admin/home-recomendacoes-paulo", {
+                method: "PUT",
+                body: form,
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
 
             setSelectedFile(null);
             await loadData();
@@ -144,7 +114,10 @@ export function AdminHomeRecomendacoesPaulo() {
             showFeedback("Recomendacoes atualizadas com sucesso!", "success");
         } catch (err) {
             console.error("Erro ao salvar recomendacoes:", err);
-            showFeedback("Erro ao salvar. Tente novamente.", "error");
+            showFeedback(
+                err instanceof Error ? err.message : "Erro ao salvar. Tente novamente.",
+                "error",
+            );
         } finally {
             setIsSaving(false);
         }
@@ -153,18 +126,23 @@ export function AdminHomeRecomendacoesPaulo() {
     const handleDeleteExisting = async () => {
         setIsDeleting(true);
         try {
-            const { error } = await supabase.storage
-                .from(RECOMENDACOES_PAULO_STORAGE_BUCKET)
-                .remove([getRecomendacoesPauloStoragePath()]);
-
-            if (error) throw error;
+            const res = await fetch("/api/admin/home-recomendacoes-paulo/file", {
+                method: "DELETE",
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
 
             await loadData();
             await queryClient.invalidateQueries({ queryKey: ["home-recomendacoes-paulo"] });
             showFeedback("HTML removido com sucesso.", "success");
         } catch (err) {
             console.error("Erro ao deletar HTML:", err);
-            showFeedback("Erro ao deletar HTML. Tente novamente.", "error");
+            showFeedback(
+                err instanceof Error ? err.message : "Erro ao deletar HTML. Tente novamente.",
+                "error",
+            );
         } finally {
             setIsDeleting(false);
             setPendingDelete(false);
