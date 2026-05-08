@@ -59,7 +59,7 @@ import { SupabaseMiniLivroSectionRepository } from "../repositories/SupabaseMini
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
 import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNewsRepository";
 import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
-import { SupabaseStorageRepository } from "../repositories/SupabaseStorageRepository";
+import { FilesystemStorageRepository } from "../repositories/FilesystemStorageRepository";
 import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserManagementRepository";
 
 /**
@@ -79,7 +79,7 @@ class DIContainer {
     private static ebookRepositoryInstance: SupabaseEbookRepository | null = null;
     private static adminRepositoryInstance: SupabaseAdminRepository | null = null;
     private static contentRepositoryInstance: SupabaseContentRepository | null = null;
-    private static storageRepositoryInstance: SupabaseStorageRepository | null = null;
+    private static storageRepositoryInstance: FilesystemStorageRepository | null = null;
     private static userManagementRepositoryInstance: SupabaseUserManagementRepository | null = null;
     private static analyticsRepositoryInstance: SupabaseAnalyticsRepository | null = null;
     private static portalNewsRepositoryInstance: SupabasePortalNewsRepository | null = null;
@@ -240,9 +240,9 @@ class DIContainer {
      * Obtém instância do repositório de storage
      * Singleton Pattern
      */
-    static getStorageRepository(): SupabaseStorageRepository {
+    static getStorageRepository(): FilesystemStorageRepository {
         if (!this.storageRepositoryInstance) {
-            this.storageRepositoryInstance = new SupabaseStorageRepository();
+            this.storageRepositoryInstance = new FilesystemStorageRepository();
         }
         return this.storageRepositoryInstance;
     }
