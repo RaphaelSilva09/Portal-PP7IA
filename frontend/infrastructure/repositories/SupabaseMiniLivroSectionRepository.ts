@@ -45,7 +45,7 @@ function compareMiniLivroSections(left: MiniLivroSection, right: MiniLivroSectio
 }
 
 function getKindOrder(kind: MiniLivroSectionKind): number {
-    return kind === "prefacio" ? 0 : 1;
+    return kind === "introducao" ? 0 : 1;
 }
 
 export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepository {
@@ -84,8 +84,8 @@ export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepo
         }
     }
 
-    async getPrefacio(): Promise<MiniLivroSection | null> {
-        const items = await this.getByKind("prefacio");
+    async getIntroducao(): Promise<MiniLivroSection | null> {
+        const items = await this.getByKind("introducao");
         return items[0] ?? null;
     }
 
@@ -121,7 +121,7 @@ export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepo
         return (
             typeof candidate.id === "number"
             && typeof candidate.title === "string"
-            && (candidate.kind === "prefacio" || candidate.kind === "encerramento")
+            && (candidate.kind === "introducao" || candidate.kind === "encerramento")
         );
     }
 

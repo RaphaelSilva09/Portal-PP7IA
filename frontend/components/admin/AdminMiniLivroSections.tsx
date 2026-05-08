@@ -68,9 +68,10 @@ interface SectionFormState {
     htmlFile: File | null;
 }
 
-interface SortableEncerramentoRowProps {
+interface SortableSectionRowProps {
     item: MiniLivroSection;
     position: number;
+    label: string;
     isDraggingDisabled: boolean;
     isDeleting: boolean;
     isEditing: boolean;
@@ -85,7 +86,7 @@ const EMPTY_FORM: SectionFormState = {
 };
 
 function getKindOrder(kind: MiniLivroSectionKind): number {
-    return kind === "prefacio" ? 0 : 1;
+    return kind === "introducao" ? 0 : 1;
 }
 
 function compareSections(left: MiniLivroSection, right: MiniLivroSection): number {
@@ -143,7 +144,7 @@ function isMiniLivroSectionRow(row: unknown): row is MiniLivroSectionRow {
     return (
         typeof candidate.id === "number"
         && typeof candidate.title === "string"
-        && (candidate.kind === "prefacio" || candidate.kind === "encerramento")
+        && (candidate.kind === "introducao" || candidate.kind === "encerramento")
     );
 }
 
@@ -158,15 +159,16 @@ function getExistingFileName(section: MiniLivroSection | null): string | null {
     return parts[parts.length - 1] ?? null;
 }
 
-function SortableEncerramentoRow({
+function SortableSectionRow({
     item,
     position,
+    label,
     isDraggingDisabled,
     isDeleting,
     isEditing,
     onEdit,
     onDelete,
-}: SortableEncerramentoRowProps) {
+}: SortableSectionRowProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
 
     return (
@@ -190,7 +192,7 @@ function SortableEncerramentoRow({
                     <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="rounded-full bg-[var(--surface-glass)] px-3 py-1 text-xs font-semibold text-[var(--text-secondary)]">
-                                Bloco #{String(position).padStart(2, "0")}
+                                {label} #{String(position).padStart(2, "0")}
                             </span>
                             {item.htmlAvailable ? (
                                 <span className="inline-flex items-center gap-1 text-xs text-[var(--brand-green)]">
@@ -237,23 +239,28 @@ function SortableEncerramentoRow({
 
 export function AdminMiniLivroSections() {
     const queryClient = useQueryClient();
-    const [activeTab, setActiveTab] = useState<MiniLivroSectionKind>("prefacio");
+    const [activeTab, setActiveTab] = useState<MiniLivroSectionKind>("introducao");
     const [isLoading, setIsLoading] = useState(true);
-    const [isSavingPrefacio, setIsSavingPrefacio] = useState(false);
+    const [isSavingIntroducao, setIsSavingIntroducao] = useState(false);
     const [isSavingEncerramento, setIsSavingEncerramento] = useState(false);
     const [isReordering, setIsReordering] = useState(false);
     const [deletingId, setDeletingId] = useState<number | null>(null);
-    const [prefacio, setPrefacio] = useState<MiniLivroSection | null>(null);
+    const [introducoes, setIntroducoes] = useState<MiniLivroSection[]>([]);
     const [encerramentos, setEncerramentos] = useState<MiniLivroSection[]>([]);
-    const [prefacioForm, setPrefacioForm] = useState<SectionFormState>(EMPTY_FORM);
+    const [introducaoForm, setIntroducaoForm] = useState<SectionFormState>(EMPTY_FORM);
     const [encerramentoForm, setEncerramentoForm] = useState<SectionFormState>(EMPTY_FORM);
     const [editingEncerramento, setEditingEncerramento] = useState<MiniLivroSection | null>(null);
+    const [editingIntroducao, setEditingIntroducao] = useState<MiniLivroSection | null>(null);
     const [pendingDelete, setPendingDelete] = useState<MiniLivroSection | null>(null);
     const [feedback, setFeedback] = useState<{ show: boolean; message: string; type: "success" | "error" | "warning" }>({
         show: false,
         message: "",
         type: "success",
     });
+    const [introducaoMeta, setIntroducaoMeta] = useState({ title: "", description: "" });
+    const [encerramentoMeta, setEncerramentoMeta] = useState({ title: "", description: "" });
+    const [isSavingIntroducaoMeta, setIsSavingIntroducaoMeta] = useState(false);
+    const [isSavingEncerramentoMeta, setIsSavingEncerramentoMeta] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -275,8 +282,20 @@ export function AdminMiniLivroSections() {
                 .map(row => mapRowToSection(row))
                 .sort(compareSections);
 
-            setPrefacio(allSections.find(item => item.kind === "prefacio") ?? null);
+            setIntroducoes(allSections.filter(item => item.kind === "introducao"));
             setEncerramentos(allSections.filter(item => item.kind === "encerramento"));
+
+            const { data: metaRows } = await supabase.from("mini_livro_section_meta").select("kind, title, description");
+
+            if (metaRows) {
+                for (const row of metaRows) {
+                    if (row.kind === "introducao") {
+                        setIntroducaoMeta({ title: row.title ?? "", description: row.description ?? "" });
+                    } else if (row.kind === "encerramento") {
+                        setEncerramentoMeta({ title: row.title ?? "", description: row.description ?? "" });
+                    }
+                }
+            }
         } catch (error) {
             console.error("Erro ao carregar seções extras dos mini-livros:", error);
             setFeedback({ show: true, message: "Erro ao carregar seções extras dos mini-livros.", type: "error" });
@@ -290,12 +309,17 @@ export function AdminMiniLivroSections() {
     }, [loadSections]);
 
     useEffect(() => {
-        setPrefacioForm({
-            title: prefacio?.title ?? "",
-            description: prefacio?.description ?? "",
+        if (!editingIntroducao) {
+            setIntroducaoForm(EMPTY_FORM);
+            return;
+        }
+
+        setIntroducaoForm({
+            title: editingIntroducao.title,
+            description: editingIntroducao.description ?? "",
             htmlFile: null,
         });
-    }, [prefacio]);
+    }, [editingIntroducao]);
 
     useEffect(() => {
         if (!editingEncerramento) {
@@ -312,9 +336,39 @@ export function AdminMiniLivroSections() {
 
     const invalidatePublicData = useCallback(async () => {
         await queryClient.invalidateQueries({ queryKey: ["mini-livro-sections"] });
+        await queryClient.invalidateQueries({ queryKey: ["mini-livro-section-meta"] });
     }, [queryClient]);
 
-    const persistEncerramentoOrder = useCallback(async (orderedIds: number[]) => {
+    const handleSaveMeta = useCallback(async (kind: "introducao" | "encerramento", title: string, description: string) => {
+        if (kind === "introducao") {
+            setIsSavingIntroducaoMeta(true);
+        } else {
+            setIsSavingEncerramentoMeta(true);
+        }
+
+        try {
+            const { error } = await supabase
+                .from("mini_livro_section_meta")
+                .upsert({ kind, title: title.trim(), description: description.trim() }, { onConflict: "kind" });
+
+            if (error) {
+                throw error;
+            }
+
+            setFeedback({ show: true, message: `Metadados da ${kind === "introducao" ? "introdução" : "seção de encerramento"} salvos com sucesso!`, type: "success" });
+        } catch (error) {
+            console.error(`Erro ao salvar metadados da ${kind}:`, error);
+            setFeedback({ show: true, message: "Erro ao salvar metadados da seção.", type: "error" });
+        } finally {
+            if (kind === "introducao") {
+                setIsSavingIntroducaoMeta(false);
+            } else {
+                setIsSavingEncerramentoMeta(false);
+            }
+        }
+    }, []);
+
+    const persistSectionOrder = useCallback(async (orderedIds: number[]) => {
         await Promise.all(
             orderedIds.map((id, index) => supabase.from("mini_livro_sections").update({ index: index + 1 }).eq("id", id)),
         );
@@ -354,11 +408,20 @@ export function AdminMiniLivroSections() {
 
             if (section.kind === "encerramento") {
                 const remainingIds = encerramentos.filter(item => item.id !== section.id).map(item => item.id);
-                await persistEncerramentoOrder(remainingIds);
+                await persistSectionOrder(remainingIds);
+            }
+
+            if (section.kind === "introducao") {
+                const remainingIds = introducoes.filter(item => item.id !== section.id).map(item => item.id);
+                await persistSectionOrder(remainingIds);
             }
 
             if (editingEncerramento?.id === section.id) {
                 setEditingEncerramento(null);
+            }
+
+            if (editingIntroducao?.id === section.id) {
+                setEditingIntroducao(null);
             }
 
             await loadSections();
@@ -370,59 +433,63 @@ export function AdminMiniLivroSections() {
         } finally {
             setDeletingId(null);
         }
-    }, [editingEncerramento?.id, encerramentos, invalidatePublicData, loadSections, persistEncerramentoOrder]);
+    }, [editingEncerramento?.id, editingIntroducao?.id, encerramentos, introducoes, invalidatePublicData, loadSections, persistSectionOrder]);
 
-    const handleSavePrefacio = async () => {
-        if (!prefacioForm.title.trim()) {
-            setFeedback({ show: true, message: "Informe o título do prefácio.", type: "warning" });
+    const handleSaveIntroducao = async () => {
+        if (!introducaoForm.title.trim()) {
+            setFeedback({ show: true, message: "Informe o título do bloco de introdução.", type: "warning" });
             return;
         }
 
-        if (!prefacio && !prefacioForm.htmlFile) {
-            setFeedback({ show: true, message: "Envie o arquivo HTML do prefácio.", type: "warning" });
+        if (!editingIntroducao && !introducaoForm.htmlFile) {
+            setFeedback({ show: true, message: "Envie o arquivo HTML da introdução.", type: "warning" });
             return;
         }
 
-        if (prefacio && !prefacio.htmlAvailable && !prefacioForm.htmlFile) {
-            setFeedback({ show: true, message: "Envie o arquivo HTML do prefácio.", type: "warning" });
+        if (editingIntroducao && !editingIntroducao.htmlAvailable && !introducaoForm.htmlFile) {
+            setFeedback({ show: true, message: "Envie o arquivo HTML da introdução.", type: "warning" });
             return;
         }
 
-        setIsSavingPrefacio(true);
+        setIsSavingIntroducao(true);
 
         try {
-            const title = prefacioForm.title.trim();
-            const description = prefacioForm.description.trim() || null;
+            const title = introducaoForm.title.trim();
+            const description = introducaoForm.description.trim() || null;
 
-            if (prefacio) {
+            if (editingIntroducao) {
                 const updatePayload: Record<string, unknown> = { title, description };
 
-                if (prefacioForm.htmlFile) {
-                    await handleUpload(getMiniLivroSectionStoragePath("prefacio"), prefacioForm.htmlFile);
-                    updatePayload.html_path = getMiniLivroSectionSourcePath("prefacio");
+                if (introducaoForm.htmlFile) {
+                    await handleUpload(
+                        getMiniLivroSectionStoragePath("introducao", editingIntroducao.id),
+                        introducaoForm.htmlFile,
+                    );
+                    updatePayload.html_path = getMiniLivroSectionSourcePath("introducao", editingIntroducao.id);
                 }
 
-                const { error } = await supabase.from("mini_livro_sections").update(updatePayload).eq("id", prefacio.id);
+                const { error } = await supabase.from("mini_livro_sections").update(updatePayload).eq("id", editingIntroducao.id);
 
                 if (error) {
                     throw error;
                 }
             } else {
+                const nextIndex = introducoes.length + 1;
                 const { data, error } = await supabase
                     .from("mini_livro_sections")
-                    .insert({ kind: "prefacio", title, description, index: 1 })
+                    .insert({ kind: "introducao", title, description, index: nextIndex })
                     .select()
                     .single();
 
                 if (error || !data || !isMiniLivroSectionRow(data)) {
-                    throw error || new Error("Falha ao criar registro do prefácio.");
+                    throw error || new Error("Falha ao criar bloco de introdução.");
                 }
 
                 try {
-                    await handleUpload(getMiniLivroSectionStoragePath("prefacio"), prefacioForm.htmlFile!);
+                    await handleUpload(getMiniLivroSectionStoragePath("introducao", data.id), introducaoForm.htmlFile!);
                     const { error: updateError } = await supabase
                         .from("mini_livro_sections")
-                        .update({ html_path: getMiniLivroSectionSourcePath("prefacio") })
+                        .update({ html_path: getMiniLivroSectionSourcePath("introducao", data.id) })
                         .eq("id", data.id);
 
                     if (updateError) {
@@ -434,14 +501,15 @@ export function AdminMiniLivroSections() {
                 }
             }
 
+            setEditingIntroducao(null);
             await loadSections();
             await invalidatePublicData();
-            setFeedback({ show: true, message: "Prefácio salvo com sucesso!", type: "success" });
+            setFeedback({ show: true, message: "Bloco de introdução salvo com sucesso!", type: "success" });
         } catch (error) {
-            console.error("Erro ao salvar prefácio:", error);
-            setFeedback({ show: true, message: "Erro ao salvar prefácio. Tente novamente.", type: "error" });
+            console.error("Erro ao salvar bloco de introdução:", error);
+            setFeedback({ show: true, message: "Erro ao salvar bloco de introdução. Tente novamente.", type: "error" });
         } finally {
-            setIsSavingPrefacio(false);
+            setIsSavingIntroducao(false);
         }
     };
 
@@ -523,7 +591,7 @@ export function AdminMiniLivroSections() {
         }
     };
 
-    const handleDragEnd = async (event: DragEndEvent) => {
+    const handleEncerramentoDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
 
         if (!over || active.id === over.id) {
@@ -538,7 +606,7 @@ export function AdminMiniLivroSections() {
         setIsReordering(true);
 
         try {
-            await persistEncerramentoOrder(reordered.map(item => item.id));
+            await persistSectionOrder(reordered.map(item => item.id));
             await invalidatePublicData();
             setFeedback({ show: true, message: "Ordem do encerramento atualizada com sucesso!", type: "success" });
         } catch (error) {
@@ -550,7 +618,34 @@ export function AdminMiniLivroSections() {
         }
     };
 
-    const prefacioExistingFile = useMemo(() => getExistingFileName(prefacio), [prefacio]);
+    const handleIntroducaoDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (!over || active.id === over.id) {
+            return;
+        }
+
+        const oldIndex = introducoes.findIndex(item => item.id === active.id);
+        const newIndex = introducoes.findIndex(item => item.id === over.id);
+        const reordered = arrayMove(introducoes, oldIndex, newIndex);
+
+        setIntroducoes(reordered);
+        setIsReordering(true);
+
+        try {
+            await persistSectionOrder(reordered.map(item => item.id));
+            await invalidatePublicData();
+            setFeedback({ show: true, message: "Ordem da introdução atualizada com sucesso!", type: "success" });
+        } catch (error) {
+            console.error("Erro ao reordenar introdução:", error);
+            setFeedback({ show: true, message: "Erro ao salvar a nova ordem da introdução.", type: "error" });
+            await loadSections();
+        } finally {
+            setIsReordering(false);
+        }
+    };
+
+    const editingIntroducaoExistingFile = useMemo(() => getExistingFileName(editingIntroducao), [editingIntroducao]);
     const editingEncerramentoExistingFile = useMemo(() => getExistingFileName(editingEncerramento), [editingEncerramento]);
 
     return (
@@ -559,7 +654,7 @@ export function AdminMiniLivroSections() {
                 <div>
                     <h2 className="text-2xl font-bold text-[var(--text-primary)]">Seções dos Mini-livros</h2>
                     <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)] max-w-3xl">
-                        Gerencie o prefácio único e os blocos de encerramento exibidos na página pública de mini-livros e no fluxo de leitura da rota <code>/view</code>.
+                        Gerencie os blocos de introdução e os blocos de encerramento exibidos na página pública de mini-livros e no fluxo de leitura da rota <code>/view</code>.
                     </p>
                 </div>
             </div>
@@ -568,10 +663,10 @@ export function AdminMiniLivroSections() {
                 <div className="flex flex-wrap gap-3">
                     <button
                         type="button"
-                        onClick={() => setActiveTab("prefacio")}
-                        className={`rounded-lg px-5 py-3 text-base font-medium transition-all ${activeTab === "prefacio" ? "bg-[var(--brand-purple)] text-white shadow-md" : "text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)]"}`}
+                        onClick={() => setActiveTab("introducao")}
+                        className={`rounded-lg px-5 py-3 text-base font-medium transition-all ${activeTab === "introducao" ? "bg-[var(--brand-purple)] text-white shadow-md" : "text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)]"}`}
                     >
-                        Prefácio
+                        Introdução
                     </button>
                     <button
                         type="button"
@@ -590,115 +685,260 @@ export function AdminMiniLivroSections() {
                         Carregando seções extras...
                     </div>
                 </GlassCard>
-            ) : activeTab === "prefacio" ? (
-                <GlassCard variant="elevated" padding="lg">
-                    <div className="space-y-6">
-                        <div className="space-y-2">
-                            <h3 className="text-xl font-semibold text-[var(--text-primary)]">Prefácio global</h3>
-                            <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-                                Este bloco aparece antes das abas das 3 partes e entra no fluxo de leitura entre o livro principal e a Parte I.
-                            </p>
-                        </div>
-
-                        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-                            <div className="space-y-5">
+            ) : activeTab === "introducao" ? (
+                <div className="space-y-6">
+                    <GlassCard variant="elevated" padding="lg">
+                        <div className="space-y-5">
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-semibold text-[var(--text-primary)]">Título e descrição da seção</h3>
+                                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                    Estes campos aparecem como cabeçalho da seção de introdução na página pública.
+                                </p>
+                            </div>
+                            <div className="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label className={LABEL_CLASS}>Título</label>
+                                    <label className={LABEL_CLASS}>Título da seção</label>
                                     <input
                                         type="text"
-                                        value={prefacioForm.title}
-                                        onChange={event => setPrefacioForm(current => ({ ...current, title: event.target.value }))}
+                                        value={introducaoMeta.title}
+                                        onChange={event => setIntroducaoMeta(current => ({ ...current, title: event.target.value }))}
                                         className={INPUT_CLASS}
-                                        placeholder="Ex.: Antes de começar"
+                                        placeholder="Introdução"
                                     />
                                 </div>
+                                <div className="flex items-end">
+                                    <GradientButton
+                                        variant="cta"
+                                        icon={Upload}
+                                        onClick={() => handleSaveMeta("introducao", introducaoMeta.title, introducaoMeta.description)}
+                                        loading={isSavingIntroducaoMeta}
+                                        loadingText="Salvando..."
+                                    >
+                                        Salvar Metadados
+                                    </GradientButton>
+                                </div>
+                            </div>
+                            <div>
+                                <label className={LABEL_CLASS}>Descrição da seção</label>
+                                <textarea
+                                    value={introducaoMeta.description}
+                                    onChange={event => setIntroducaoMeta(current => ({ ...current, description: event.target.value }))}
+                                    className={TEXTAREA_CLASS}
+                                    placeholder="Antes de mergulhar nos capítulos, confira estes conteúdos introdutórios."
+                                />
+                            </div>
+                        </div>
+                    </GlassCard>
 
-                                <div>
-                                    <label className={LABEL_CLASS}>Descrição</label>
-                                    <textarea
-                                        value={prefacioForm.description}
-                                        onChange={event => setPrefacioForm(current => ({ ...current, description: event.target.value }))}
-                                        className={TEXTAREA_CLASS}
-                                        placeholder="Texto curto exibido no bloco público do prefácio."
-                                    />
+                    <GlassCard variant="elevated" padding="lg">
+                        <div className="space-y-6">
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                                <div className="space-y-2">
+                                    <h3 className="text-xl font-semibold text-[var(--text-primary)]">Blocos de introdução</h3>
+                                    <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                        Esses blocos aparecem antes das abas das 3 partes e entram no fluxo de leitura entre o livro principal e a Parte I.
+                                    </p>
                                 </div>
 
-                                <div>
-                                    <label className={LABEL_CLASS}>Arquivo HTML</label>
-                                    <div className="relative">
+                                <GradientButton
+                                    variant="cta"
+                                    icon={Plus}
+                                    onClick={() => {
+                                        setEditingIntroducao(null);
+                                        setIntroducaoForm(EMPTY_FORM);
+                                    }}
+                                >
+                                    Novo Bloco
+                                </GradientButton>
+                            </div>
+
+                            {isReordering && (
+                                <div className="rounded-xl border border-[var(--brand-blue)]/20 bg-[var(--brand-blue)]/8 px-4 py-3 text-sm text-[var(--brand-blue)]">
+                                    Salvando nova ordem da introdução...
+                                </div>
+                            )}
+
+                            {introducoes.length === 0 ? (
+                                <div className="rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/30 px-6 py-10 text-center text-[var(--text-secondary)]">
+                                    Nenhum bloco de introdução cadastrado ainda.
+                                </div>
+                            ) : (
+                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleIntroducaoDragEnd}>
+                                    <SortableContext items={introducoes.map(item => item.id)} strategy={verticalListSortingStrategy}>
+                                        <div className="space-y-4">
+                                            {introducoes.map((item, index) => (
+                                                <SortableSectionRow
+                                                    key={item.id}
+                                                    item={item}
+                                                    position={index + 1}
+                                                    label="Introdução"
+                                                    isDraggingDisabled={isReordering}
+                                                    isDeleting={deletingId === item.id}
+                                                    isEditing={editingIntroducao?.id === item.id}
+                                                    onEdit={setEditingIntroducao}
+                                                    onDelete={setPendingDelete}
+                                                />
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            )}
+                        </div>
+                    </GlassCard>
+
+                    <GlassCard variant="elevated" padding="lg">
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-semibold text-[var(--text-primary)]">
+                                    {editingIntroducao ? `Editar: ${editingIntroducao.title}` : "Novo bloco de introdução"}
+                                </h3>
+                                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                    Cada bloco aceita um título, uma descrição e um arquivo <code>.html</code>. A ordem final é definida pela lista acima.
+                                </p>
+                            </div>
+
+                            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+                                <div className="space-y-5">
+                                    <div>
+                                        <label className={LABEL_CLASS}>Título</label>
                                         <input
-                                            id="prefacio-html-upload"
-                                            type="file"
-                                            accept=".html"
-                                            className="hidden"
-                                            onChange={event => setPrefacioForm(current => ({ ...current, htmlFile: event.target.files?.[0] ?? null }))}
+                                            type="text"
+                                            value={introducaoForm.title}
+                                            onChange={event => setIntroducaoForm(current => ({ ...current, title: event.target.value }))}
+                                            className={INPUT_CLASS}
+                                            placeholder="Ex.: Antes de começar"
                                         />
-                                        <label
-                                            htmlFor="prefacio-html-upload"
-                                            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--border-glass)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-secondary)] transition-colors hover:border-[var(--brand-blue)]/50"
+                                    </div>
+
+                                    <div>
+                                        <label className={LABEL_CLASS}>Descrição</label>
+                                        <textarea
+                                            value={introducaoForm.description}
+                                            onChange={event => setIntroducaoForm(current => ({ ...current, description: event.target.value }))}
+                                            className={TEXTAREA_CLASS}
+                                            placeholder="Texto exibido no bloco público da introdução."
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className={LABEL_CLASS}>Arquivo HTML</label>
+                                        <div className="relative">
+                                            <input
+                                                id="introducao-html-upload"
+                                                type="file"
+                                                accept=".html"
+                                                className="hidden"
+                                                onChange={event => setIntroducaoForm(current => ({ ...current, htmlFile: event.target.files?.[0] ?? null }))}
+                                            />
+                                            <label
+                                                htmlFor="introducao-html-upload"
+                                                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--border-glass)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-secondary)] transition-colors hover:border-[var(--brand-blue)]/50"
+                                            >
+                                                <Upload className="h-5 w-5 shrink-0" />
+                                                <span className="truncate">
+                                                    {introducaoForm.htmlFile ? introducaoForm.htmlFile.name : editingIntroducaoExistingFile ? "Escolher novo HTML (substitui o atual)" : "Selecionar arquivo HTML"}
+                                                </span>
+                                            </label>
+                                            {introducaoForm.htmlFile && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIntroducaoForm(current => ({ ...current, htmlFile: null }))}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] transition-colors hover:text-red-400"
+                                                    aria-label="Remover HTML selecionado"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/40 p-5">
+                                    <div className="flex items-center gap-2 text-[var(--text-primary)]">
+                                        <FileText className="h-5 w-5 text-[var(--brand-blue)]" />
+                                        <h4 className="text-lg font-semibold">Status atual</h4>
+                                    </div>
+
+                                    <div className="space-y-3 text-sm text-[var(--text-secondary)]">
+                                        <p>
+                                            HTML atual: {editingIntroducaoExistingFile ? <span className="text-[var(--brand-green)]">{editingIntroducaoExistingFile}</span> : "nenhum enviado"}
+                                        </p>
+                                        <p>
+                                            URL de leitura: <code>{editingIntroducao ? `/view/mini-livro-section/${editingIntroducao.id}` : "/view/mini-livro-section/{id}"}</code>
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-3 pt-2">
+                                        <GradientButton
+                                            variant="cta"
+                                            icon={Upload}
+                                            onClick={handleSaveIntroducao}
+                                            loading={isSavingIntroducao}
+                                            loadingText="Salvando..."
                                         >
-                                            <Upload className="h-5 w-5 shrink-0" />
-                                            <span className="truncate">
-                                                {prefacioForm.htmlFile ? prefacioForm.htmlFile.name : prefacioExistingFile ? "Escolher novo HTML (substitui o atual)" : "Selecionar arquivo HTML"}
-                                            </span>
-                                        </label>
-                                        {prefacioForm.htmlFile && (
+                                            {editingIntroducao ? "Salvar Alterações" : "Criar Bloco"}
+                                        </GradientButton>
+
+                                        {editingIntroducao && (
                                             <button
                                                 type="button"
-                                                onClick={() => setPrefacioForm(current => ({ ...current, htmlFile: null }))}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] transition-colors hover:text-red-400"
-                                                aria-label="Remover HTML selecionado"
+                                                onClick={() => setEditingIntroducao(null)}
+                                                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-[var(--border-glass)] bg-[var(--surface-glass)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-glass)]/70"
                                             >
-                                                <X className="h-4 w-4" />
+                                                Cancelar edição
                                             </button>
                                         )}
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="space-y-4 rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/40 p-5">
-                                <div className="flex items-center gap-2 text-[var(--text-primary)]">
-                                    <BookOpen className="h-5 w-5 text-[var(--brand-blue)]" />
-                                    <h4 className="text-lg font-semibold">Status atual</h4>
+                        </div>
+                    </GlassCard>
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    <GlassCard variant="elevated" padding="lg">
+                        <div className="space-y-5">
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-semibold text-[var(--text-primary)]">Título e descrição da seção</h3>
+                                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                    Estes campos aparecem como cabeçalho da seção de encerramento na página pública.
+                                </p>
+                            </div>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label className={LABEL_CLASS}>Título da seção</label>
+                                    <input
+                                        type="text"
+                                        value={encerramentoMeta.title}
+                                        onChange={event => setEncerramentoMeta(current => ({ ...current, title: event.target.value }))}
+                                        className={INPUT_CLASS}
+                                        placeholder="Encerramento"
+                                    />
                                 </div>
-
-                                <div className="space-y-3 text-sm text-[var(--text-secondary)]">
-                                    <p>Leitura pública: <code>/view/mini-livro-section/{prefacio?.id ?? "{id}"}</code></p>
-                                    <p>Arquivo no storage: <code>{getMiniLivroSectionStoragePath("prefacio")}</code></p>
-                                    <p>
-                                        HTML atual: {prefacioExistingFile ? <span className="text-[var(--brand-green)]">{prefacioExistingFile}</span> : "nenhum enviado"}
-                                    </p>
-                                </div>
-
-                                <div className="flex flex-wrap gap-3 pt-2">
+                                <div className="flex items-end">
                                     <GradientButton
                                         variant="cta"
                                         icon={Upload}
-                                        onClick={handleSavePrefacio}
-                                        loading={isSavingPrefacio}
+                                        onClick={() => handleSaveMeta("encerramento", encerramentoMeta.title, encerramentoMeta.description)}
+                                        loading={isSavingEncerramentoMeta}
                                         loadingText="Salvando..."
                                     >
-                                        Salvar Prefácio
+                                        Salvar Metadados
                                     </GradientButton>
-
-                                    {prefacio && (
-                                        <button
-                                            type="button"
-                                            onClick={() => setPendingDelete(prefacio)}
-                                            disabled={deletingId === prefacio.id}
-                                            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-300 transition-colors hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            {deletingId === prefacio.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                                            Excluir Prefácio
-                                        </button>
-                                    )}
                                 </div>
                             </div>
+                            <div>
+                                <label className={LABEL_CLASS}>Descrição da seção</label>
+                                <textarea
+                                    value={encerramentoMeta.description}
+                                    onChange={event => setEncerramentoMeta(current => ({ ...current, description: event.target.value }))}
+                                    className={TEXTAREA_CLASS}
+                                    placeholder="Depois do último capítulo, seguem os blocos finais desta jornada."
+                                />
+                            </div>
                         </div>
-                    </div>
-                </GlassCard>
-            ) : (
-                <div className="space-y-6">
+                    </GlassCard>
+
                     <GlassCard variant="elevated" padding="lg">
                         <div className="space-y-6">
                             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -732,14 +972,15 @@ export function AdminMiniLivroSections() {
                                     Nenhum bloco de encerramento cadastrado ainda.
                                 </div>
                             ) : (
-                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleEncerramentoDragEnd}>
                                     <SortableContext items={encerramentos.map(item => item.id)} strategy={verticalListSortingStrategy}>
                                         <div className="space-y-4">
                                             {encerramentos.map((item, index) => (
-                                                <SortableEncerramentoRow
+                                                <SortableSectionRow
                                                     key={item.id}
                                                     item={item}
                                                     position={index + 1}
+                                                    label="Encerramento"
                                                     isDraggingDisabled={isReordering}
                                                     isDeleting={deletingId === item.id}
                                                     isEditing={editingEncerramento?.id === item.id}

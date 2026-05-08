@@ -19,6 +19,8 @@ import type { EbookFormData } from "@/components/admin";
 import {
     AdminBook,
     AdminEditorial,
+    AdminHomeBlockDescriptions,
+    AdminHomeRecomendacoesPaulo,
     AdminMiniLivroSections,
     AdminPortalNews,
     AnnouncementBarTab,
@@ -44,6 +46,7 @@ import {
     BookOpen,
     BookText,
     FileText,
+    Home as HomeIcon,
     GraduationCap,
     Home,
     Library,
@@ -61,7 +64,7 @@ import { useEbook } from "@/presentation/hooks/useEbook";
 import ThemeToggle from "@/components/ThemeToggle";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes";
 
 type ContentTab = ContentType | "livro" | "mini-livro-sections";
 
@@ -391,6 +394,28 @@ export default function PainelAdminPage() {
                             Início
                         </button>
                         <button
+                            onClick={() => handleMainSectionChange("home")}
+                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
+                                mainSection === "home"
+                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
+                            }`}
+                        >
+                            <HomeIcon className="w-6 h-6" />
+                            Home
+                        </button>
+                        <button
+                            onClick={() => handleMainSectionChange("recomendacoes")}
+                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
+                                mainSection === "recomendacoes"
+                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
+                            }`}
+                        >
+                            <BookOpen className="w-6 h-6" />
+                            Recomendacoes
+                        </button>
+                        <button
                             onClick={() => handleMainSectionChange("conteudo")}
                             className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
                                 mainSection === "conteudo"
@@ -458,6 +483,10 @@ export default function PainelAdminPage() {
                         <Dashboard />
                     </>
                 )}
+
+                {mainSection === "home" && <AdminHomeBlockDescriptions />}
+
+                {mainSection === "recomendacoes" && <AdminHomeRecomendacoesPaulo />}
 
                 {mainSection === "conteudo" && (
                     <div className="space-y-6">
