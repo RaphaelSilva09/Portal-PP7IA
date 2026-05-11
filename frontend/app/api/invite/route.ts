@@ -89,8 +89,8 @@ export async function POST(request: Request) {
           <tr>
             <td style="color:#acacac; font-size:15px; line-height:1.6;">
               <p>
-                Ao clicar, você será redirecionado para nossa página onde poderá
-                se cadastrar e definir suas duas preferências de recebimento.
+                Ao clicar, você será direcionado para nossa página onde poderá
+                criar sua conta e definir suas preferências de recebimento.
               </p>
               <p style="margin-top:28px; color:#dadada;">
                 Seja bem-vindo(a)!<br>

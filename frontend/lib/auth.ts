@@ -60,7 +60,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     expiresIn: 60 * 60, // 1h
     async sendVerificationEmail({ user, url }) {
-      const tpl = renderEmailVerificationLinkEmail({ url, name: user.name ?? null });
+      const tpl = renderEmailVerificationLinkEmail({ url });
       console.log("[Verify link send]", { to: user.email, subject: tpl.subject });
       const { error } = await resend.emails.send({
         from: EMAIL_FROM,
