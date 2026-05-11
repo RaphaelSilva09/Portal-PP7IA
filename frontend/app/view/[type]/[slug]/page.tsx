@@ -16,6 +16,7 @@ const typeConfig: Record<string, { folder: string; title: string }> = {
     "especial-semana": { folder: "especial-semana", title: "Especial da Semana" },
     radar_oportunidades: { folder: "radar-de-oportunidades", title: "Radar de Oportunidades" },
     estudar: { folder: "estudar", title: "Estudar" },
+    "home-recomendacoes": { folder: "home/recomendacoes", title: "Recomendacoes do Paulo" },
     ebook: { folder: "mini-livros/intros", title: "E-book" },
     book: { folder: "mini-livros/livro", title: "Livro" },
     "mini-livro-section": { folder: "mini-livros/sections", title: "Seção de Mini-livro" },

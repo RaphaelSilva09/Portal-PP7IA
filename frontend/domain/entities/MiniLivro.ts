@@ -96,7 +96,7 @@ export class MiniLivro {
      * Retorna número formatado com padding (ex: "001")
      */
     get formattedNumber(): string {
-        return this.props.index.toString().padStart(3, "0");
+        return this.props.index.toString().padStart(2, "0");
     }
 
     /**

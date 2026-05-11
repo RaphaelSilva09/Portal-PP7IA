@@ -6,7 +6,7 @@ import type { MiniLivroSection } from "@/domain/entities/MiniLivroSection";
 import DIContainer from "@/infrastructure/di/container";
 
 interface UseMiniLivroSectionsResult {
-    prefacio: MiniLivroSection | null;
+    introducoes: MiniLivroSection[];
     encerramentos: MiniLivroSection[];
     all: MiniLivroSection[];
     isLoading: boolean;
@@ -27,7 +27,7 @@ export function useMiniLivroSections(): UseMiniLivroSectionsResult {
     }, [queryClient]);
 
     return {
-        prefacio: data?.prefacio ?? null,
+        introducoes: data?.introducoes ?? [],
         encerramentos: data?.encerramentos ?? [],
         all: data?.all ?? [],
         isLoading,
