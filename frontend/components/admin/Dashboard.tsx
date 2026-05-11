@@ -14,7 +14,6 @@
 "use client";
 
 import { GlassCard } from "@/components/ui";
-import DIContainer from "@/infrastructure/di/container";
 import { BookOpen, Clock, Sparkles, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { TodayRegistrations } from "./TodayRegistrations";
@@ -41,8 +40,12 @@ export function Dashboard() {
 
     const loadStats = async () => {
         try {
-            const useCase = DIContainer.getDashboardStatsUseCase();
-            const data = await useCase.execute();
+            const res = await fetch("/api/admin/stats");
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const data = await res.json();
 
             setStats({
                 totalUsers: data.users.totalUsers,

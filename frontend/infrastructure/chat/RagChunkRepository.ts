@@ -1,7 +1,5 @@
-// frontend/infrastructure/chat/RagChunkRepository.ts
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "@/lib/db";
 import type { EmbeddedChunk, RetrievedChunk } from "@/domain/chat/Chunk";
-import { getServiceRoleClient } from "./serviceRoleClient";
 
 interface SearchOptions {
     sourceType: string;
@@ -14,79 +12,110 @@ interface ReplaceOptions {
     chunks: EmbeddedChunk[];
 }
 
+interface ChunkRow {
+    source_type: string;
+    source_id: string;
+    chunk_index: number;
+    content: string;
+    metadata: Record<string, unknown>;
+    similarity?: number;
+}
+
+function toVectorLiteral(v: number[]): string {
+    return `[${v.join(",")}]`;
+}
+
 export class RagChunkRepository {
-    constructor(private readonly supabase: SupabaseClient = getServiceRoleClient()) {}
-
-    /** Atomically replace all chunks for a source_type. */
+    /** Atomically replace all chunks for a source_type. Single transaction. */
     async replaceAllForSource({ sourceType, chunks }: ReplaceOptions): Promise<number> {
-        // Edge case: empty corpus still wipes existing chunks for this source.
-        if (chunks.length === 0) {
-            const { error } = await this.supabase
-                .from("rag_chunks")
-                .delete()
-                .eq("source_type", sourceType);
-            if (error) throw new Error(`replaceAllForSource: delete failed: ${error.message}`);
-            return 0;
+        const client = await pool.connect();
+        try {
+            await client.query("BEGIN");
+            await client.query(`DELETE FROM public.rag_chunks WHERE source_type = $1`, [sourceType]);
+
+            if (chunks.length === 0) {
+                await client.query("COMMIT");
+                return 0;
+            }
+
+            // Bulk insert via UNNEST for one round-trip
+            const insertSql = `
+                INSERT INTO public.rag_chunks
+                    (source_type, source_id, chunk_index, content, embedding, metadata)
+                SELECT * FROM UNNEST(
+                    $1::text[],
+                    $2::text[],
+                    $3::int[],
+                    $4::text[],
+                    $5::vector[],
+                    $6::jsonb[]
+                )
+            `;
+            const params = [
+                chunks.map(c => c.source_type),
+                chunks.map(c => c.source_id),
+                chunks.map(c => c.chunk_index),
+                chunks.map(c => c.content),
+                chunks.map(c => toVectorLiteral(c.embedding)),
+                chunks.map(c => JSON.stringify(c.metadata)),
+            ];
+            await client.query(insertSql, params);
+            await client.query("COMMIT");
+            return chunks.length;
+        } catch (err) {
+            await client.query("ROLLBACK");
+            throw err instanceof Error ? err : new Error(String(err));
+        } finally {
+            client.release();
         }
-
-        const payload = chunks.map(c => ({
-            source_type: c.source_type,
-            source_id: c.source_id,
-            chunk_index: c.chunk_index,
-            content: c.content,
-            // pgvector accepts string '[a,b,c,...]' literal — JSON-serialize the array
-            embedding: `[${c.embedding.join(",")}]`,
-            metadata: c.metadata,
-        }));
-
-        const { data, error } = await this.supabase.rpc("replace_rag_chunks", {
-            p_source_type: sourceType,
-            p_chunks: payload,
-        });
-        if (error) throw new Error(`replaceAllForSource: ${error.message}`);
-        return typeof data === "number" ? data : 0;
     }
 
-    /** Fetch all chunks for a given source by slug. Used for "what's in mini-livro N" queries. */
+    /** Fetch all chunks for a given source by slug (hybrid retrieval hit). */
     async findBySlug(sourceType: string, slug: string): Promise<RetrievedChunk[]> {
-        const { data, error } = await this.supabase
-            .from("rag_chunks")
-            .select("source_type, source_id, chunk_index, content, metadata")
-            .eq("source_type", sourceType)
-            .eq("metadata->>slug", slug)
-            .order("chunk_index", { ascending: true });
-        if (error) throw new Error(`findBySlug: ${error.message}`);
-        return (data ?? []).map(r => ({
-            source_type: r.source_type,
-            source_id: r.source_id,
-            chunk_index: r.chunk_index,
-            content: r.content,
-            metadata: r.metadata as RetrievedChunk["metadata"],
-            similarity: 1.0, // hybrid hit — treat as max relevance
-        }));
-    }
-
-    async searchSimilar({ sourceType, queryEmbedding, topK }: SearchOptions): Promise<RetrievedChunk[]> {
-        const { data, error } = await this.supabase.rpc("match_rag_chunks", {
-            p_source_type: sourceType,
-            p_query_embedding: queryEmbedding,
-            p_top_k: topK,
-        });
-        if (error) throw new Error(`searchSimilar: ${error.message}`);
-        return (data ?? []).map((r: {
-            source_type: string;
-            source_id: string;
-            chunk_index: number;
-            content: string;
-            metadata: Record<string, unknown>;
-            similarity: number;
-        }) => ({
+        const { rows } = await pool.query<ChunkRow>(
+            `
+            SELECT source_type, source_id, chunk_index, content, metadata
+            FROM public.rag_chunks
+            WHERE source_type = $1
+              AND metadata->>'slug' = $2
+            ORDER BY chunk_index ASC
+            `,
+            [sourceType, slug],
+        );
+        return rows.map(r => ({
             source_type: r.source_type,
             source_id: r.source_id,
             chunk_index: r.chunk_index,
             content: r.content,
             metadata: r.metadata as unknown as RetrievedChunk["metadata"],
-            similarity: r.similarity,
+            similarity: 1.0,
+        }));
+    }
+
+    async searchSimilar({ sourceType, queryEmbedding, topK }: SearchOptions): Promise<RetrievedChunk[]> {
+        const { rows } = await pool.query<ChunkRow>(
+            `
+            SELECT
+                source_type,
+                source_id,
+                chunk_index,
+                content,
+                metadata,
+                1 - (embedding <=> $2::vector) AS similarity
+            FROM public.rag_chunks
+            WHERE source_type = $1
+            ORDER BY embedding <=> $2::vector
+            LIMIT $3
+            `,
+            [sourceType, toVectorLiteral(queryEmbedding), topK],
+        );
+        return rows.map(r => ({
+            source_type: r.source_type,
+            source_id: r.source_id,
+            chunk_index: r.chunk_index,
+            content: r.content,
+            metadata: r.metadata as unknown as RetrievedChunk["metadata"],
+            similarity: r.similarity ?? 0,
         }));
     }
 }

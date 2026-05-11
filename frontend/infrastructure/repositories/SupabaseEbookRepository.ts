@@ -1,15 +1,15 @@
 /**
  * SupabaseEbookRepository (Infrastructure Layer)
  *
- * Implementação concreta do IEbookRepository usando Supabase.
+ * Implementação concreta do IEbookRepository usando Postgres direto via `pg` Pool.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta a API do Supabase para nosso domínio
+ * - Adapter Pattern: Adapta Postgres para nosso domínio
  * - Graceful Degradation: Retorna dados vazios em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import { Ebook, EbookProps } from "../../domain/entities/Ebook";
 import { IEbookRepository } from "../../domain/repositories/IEbookRepository";
 
@@ -29,18 +29,13 @@ interface SupabaseEbookRow {
 }
 
 export class SupabaseEbookRepository implements IEbookRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     async getAll(): Promise<Ebook[]> {
         try {
-            const { data, error } = await this.supabase.from("ebooks").select("*");
+            const { rows } = await pool.query(
+                `SELECT * FROM ebooks`,
+            );
 
-            if (error || !data) {
-                console.error("Erro ao buscar ebooks:", error?.message);
-                return [];
-            }
-
-            return data
+            return (rows as unknown[])
                 .filter((row): row is SupabaseEbookRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row))
                 .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -52,9 +47,13 @@ export class SupabaseEbookRepository implements IEbookRepository {
 
     async getById(id: number): Promise<Ebook | null> {
         try {
-            const { data, error } = await this.supabase.from("ebooks").select("*").eq("id", id).single();
+            const { rows } = await pool.query(
+                `SELECT * FROM ebooks WHERE id = $1 LIMIT 1`,
+                [id],
+            );
 
-            if (error || !data || !this.isValidRow(data)) return null;
+            const data: unknown = rows[0] ?? null;
+            if (!data || !this.isValidRow(data)) return null;
             return this.mapToEntity(data);
         } catch {
             return null;
@@ -63,14 +62,12 @@ export class SupabaseEbookRepository implements IEbookRepository {
 
     async getLatest(): Promise<Ebook | null> {
         try {
-            const { data, error } = await this.supabase
-                .from("ebooks")
-                .select("*")
-                .order("id", { ascending: false })
-                .limit(1)
-                .single();
+            const { rows } = await pool.query(
+                `SELECT * FROM ebooks ORDER BY id DESC LIMIT 1`,
+            );
 
-            if (error || !data || !this.isValidRow(data)) return null;
+            const data: unknown = rows[0] ?? null;
+            if (!data || !this.isValidRow(data)) return null;
             return this.mapToEntity(data);
         } catch {
             return null;

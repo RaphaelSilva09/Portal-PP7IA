@@ -36,9 +36,8 @@ import {
 } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
-import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
+import { ContentItem, ContentItemProps, ContentType } from "@/domain/entities/ContentItem";
 import { portalContentClass } from "@/lib/layout";
-import DIContainer from "@/infrastructure/di/container";
 import {
     ArrowLeft,
     Bell,
@@ -57,7 +56,6 @@ import {
     Star,
     Users,
 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useEbook } from "@/presentation/hooks/useEbook";
@@ -71,16 +69,6 @@ type ContentTab = ContentType | "livro" | "mini-livro-sections";
 // Tabs de conteúdo (sub-navegação)
 const SORTABLE_TYPES = new Set<ContentTab>(["newsletter", "mini-livro", "biblioteca", "especial-semana", "radar_oportunidades", "estudar"]);
 
-/** Mapeamento do ContentType para a query key usada pelo hook público correspondente */
-const CONTENT_QUERY_KEY: Partial<Record<ContentType, string>> = {
-    newsletter: "newsletters",
-    "mini-livro": "mini-livros",
-    biblioteca: "biblioteca",
-    "especial-semana": "especial-semana",
-    radar_oportunidades: "radar-oportunidades",
-    estudar: "estudar",
-};
-
 const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
     { type: "biblioteca", label: "Biblioteca", icon: Library },
     { type: "ebook", label: "E-books", icon: BookMarked },
@@ -92,6 +80,51 @@ const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
     { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
 ];
+
+/**
+ * Reidrata um ContentItem serializado vindo da API.
+ * Entidades de domínio serializam como `{ props: {...} }` por usarem `private readonly props`.
+ * Datas chegam como strings ISO — reconstrói para Date.
+ */
+function rehydrateContentItem(raw: unknown): ContentItem {
+    const data = raw as { props?: Partial<ContentItemProps> } & Partial<ContentItemProps>;
+    const src = (data?.props ?? data) as Partial<ContentItemProps>;
+    const props: ContentItemProps = {
+        id: Number(src.id ?? 0),
+        createdAt: src.createdAt ? new Date(src.createdAt as unknown as string) : new Date(0),
+        title: String(src.title ?? ""),
+        htmlPath: (src.htmlPath as string | null) ?? null,
+        pdfPath: (src.pdfPath as string | null) ?? null,
+        readTime: Number(src.readTime ?? 0),
+        index: src.index as number | undefined,
+        ebookId: (src.ebookId as number | null | undefined) ?? null,
+        partOrder: (src.partOrder as number | null | undefined) ?? null,
+        tema: (src.tema as string | null | undefined) ?? null,
+        subtitle: (src.subtitle as string | null | undefined) ?? null,
+        description: (src.description as string | null | undefined) ?? null,
+        badgeText: (src.badgeText as string | null | undefined) ?? null,
+        coverImagePath: (src.coverImagePath as string | null | undefined) ?? null,
+        coverPdfPath: (src.coverPdfPath as string | null | undefined) ?? null,
+        ebookOrder: (src.ebookOrder as number | null | undefined) ?? null,
+    };
+    return ContentItem.create(props);
+}
+
+/**
+ * Extrai uma lista achatada de itens a partir do payload do endpoint
+ * `/api/content/[type]`, lidando com as diferentes formas de retorno:
+ * - especial-semana: `{ items: [...] }`
+ * - mini-livro: `{ all: [...], latest, older }`
+ * - biblioteca/newsletter/radar_oportunidades/estudar: `{ latest, older }`
+ */
+function flattenContentPayload(payload: Record<string, unknown>): unknown[] {
+    if (Array.isArray(payload.items)) return payload.items as unknown[];
+    if (Array.isArray(payload.all)) return payload.all as unknown[];
+    const out: unknown[] = [];
+    if (payload.latest) out.push(payload.latest);
+    if (Array.isArray(payload.older)) out.push(...(payload.older as unknown[]));
+    return out;
+}
 
 interface FeedbackState {
     show: boolean;
@@ -109,7 +142,6 @@ interface ConfirmState {
 export default function PainelAdminPage() {
     const router = useRouter();
     const { user, isLoading: authLoading } = useAuth();
-    const queryClient = useQueryClient();
 
     // Navegação principal
     const [mainSection, setMainSection] = useState<MainSection>("inicio");
@@ -150,12 +182,27 @@ export default function PainelAdminPage() {
     const loadItems = useCallback(async () => {
         if (mainSection !== "conteudo") return;
         if (contentTab === "livro") return; // singleton gerenciado pelo AdminBook
+        if (contentTab === "ebook") {
+            // Aba ebook é alimentada via useEbook() / allEbooks; não há rota /api/content/ebook
+            // no formato lista usada aqui. Mantém items vazio para evitar 400.
+            // TODO Phase 5d: rotear via /api/admin/content/* quando essa rota existir.
+            setItems([]);
+            setLastUpdated(null);
+            return;
+        }
         if (contentTab === "mini-livro-sections") return; // CRUD dedicado
 
         setIsLoading(true);
         try {
-            const repo = DIContainer.getContentRepository();
-            const [data, lu] = await Promise.all([repo.getAll(contentTab as ContentType), repo.getLastUpdated(contentTab as ContentType)]);
+            const res = await fetch(`/api/content/${encodeURIComponent(contentTab)}`);
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const payload = (await res.json()) as Record<string, unknown>;
+            const rawItems = flattenContentPayload(payload);
+            const data = rawItems.map(rehydrateContentItem);
+            const lu = payload.lastUpdated ? new Date(payload.lastUpdated as string) : null;
             setItems(data);
             setLastUpdated(lu);
         } catch (error) {
@@ -207,8 +254,14 @@ export default function PainelAdminPage() {
             onConfirm: async () => {
                 setConfirmDialog({ ...confirmDialog, show: false });
                 try {
-                    const useCase = DIContainer.getDeleteContentWithFilesUseCase();
-                    await useCase.execute(contentTab as ContentType, item.id);
+                    const res = await fetch(
+                        `/api/admin/content/${encodeURIComponent(contentTab)}/${item.id}`,
+                        { method: "DELETE" },
+                    );
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.error ?? `HTTP ${res.status}`);
+                    }
                     await loadItems();
                     setFeedback({
                         show: true,
@@ -230,50 +283,36 @@ export default function PainelAdminPage() {
     const handleSubmit = async (data: { title: string; readTime?: number; htmlFile?: File; pdfFile?: File; tema?: string; ebookId?: number | null }) => {
         setIsSubmitting(true);
         try {
-            if (editItem) {
-                // Atualizar via use case (com suporte a upload de arquivos)
-                const useCase = DIContainer.getUpdateContentWithFilesUseCase();
-                await useCase.execute({
-                    type: contentTab as ContentType,
-                    id: editItem.id,
-                    title: data.title,
-                    readTime: data.readTime,
-                    htmlFile: data.htmlFile,
-                    pdfFile: data.pdfFile,
-                    tema: data.tema,
-                });
-                setFeedback({
-                    show: true,
-                    message: "Material atualizado com sucesso!",
-                    type: "success",
-                });
-            } else {
-                // Criar com upload
-                const useCase = DIContainer.getCreateContentWithUploadUseCase();
-                await useCase.execute({
-                    type: contentTab as ContentType,
-                    title: data.title,
-                    readTime: data.readTime,
-                    htmlFile: data.htmlFile,
-                    pdfFile: data.pdfFile,
-                    tema: data.tema,
-                    ebookId: data.ebookId,
-                    partOrder: contentTab === "mini-livro" ? selectedEbookIndex + 1 : undefined,
-                });
-                setFeedback({
-                    show: true,
-                    message: "Material criado com sucesso!",
-                    type: "success",
-                });
+            const form = new FormData();
+            form.append("title", data.title);
+            if (data.readTime !== undefined) form.append("readTime", String(data.readTime));
+            if (data.tema) form.append("tema", data.tema);
+            if (data.ebookId != null) form.append("ebookId", String(data.ebookId));
+            if (data.htmlFile) form.append("htmlFile", data.htmlFile);
+            if (data.pdfFile) form.append("pdfFile", data.pdfFile);
+
+            const url = editItem
+                ? `/api/admin/content/${encodeURIComponent(contentTab)}/${editItem.id}`
+                : `/api/admin/content/${encodeURIComponent(contentTab)}`;
+            const method = editItem ? "PUT" : "POST";
+            const res = await fetch(url, { method, body: form });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
             setShowForm(false);
             setEditItem(null);
             await loadItems();
+            setFeedback({
+                show: true,
+                message: editItem ? "Material atualizado com sucesso!" : "Material criado com sucesso!",
+                type: "success",
+            });
         } catch (error) {
             console.error("Erro ao salvar:", error);
             setFeedback({
                 show: true,
-                message: "Erro ao salvar material. Tente novamente.",
+                message: error instanceof Error ? error.message : "Erro ao salvar material. Tente novamente.",
                 type: "error",
             });
         } finally {
@@ -283,15 +322,20 @@ export default function PainelAdminPage() {
 
     const handleReorder = async (reorderedItems: ContentItem[]) => {
         try {
-            const repo = DIContainer.getContentRepository();
-            await repo.reorderItems(contentTab as ContentType, reorderedItems.map(i => i.id));
-            setItems(reorderedItems);
-            // Invalida o cache do React Query para que a página pública reflita a nova ordem imediatamente
-            const queryKey = CONTENT_QUERY_KEY[contentTab as ContentType];
-            if (queryKey) {
-                queryClient.invalidateQueries({ queryKey: [queryKey] });
+            const orderedIds = reorderedItems.map(item => item.id);
+            const res = await fetch(
+                `/api/admin/content/${encodeURIComponent(contentTab)}/reorder`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ orderedIds }),
+                },
+            );
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
-            setFeedback({ show: true, message: "Ordem atualizada com sucesso!", type: "success" });
+            await loadItems();
         } catch (error) {
             console.error("Erro ao reordenar:", error);
             setFeedback({ show: true, message: "Erro ao salvar nova ordem. Tente novamente.", type: "error" });
@@ -301,57 +345,40 @@ export default function PainelAdminPage() {
     const handleEbookSubmit = async (data: EbookFormData) => {
         setIsSubmitting(true);
         try {
-            if (editItem) {
-                // Editar ebook via use case
-                const useCase = DIContainer.getUpdateContentWithFilesUseCase();
-                await useCase.execute({
-                    type: "ebook",
-                    id: editItem.id,
-                    title: data.title,
-                    readTime: data.readTime,
-                    subtitle: data.subtitle,
-                    description: data.description,
-                    badgeText: data.badgeText,
-                    htmlFile: data.introHtmlFile,
-                    pdfFile: data.introPdfFile,
-                    coverImageFile: data.coverImageFile,
-                    coverPdfFile: data.coverPdfFile,
-                });
-                setFeedback({
-                    show: true,
-                    message: "E-book atualizado com sucesso!",
-                    type: "success",
-                });
-            } else {
-                // Criar ebook com upload
-                const useCase = DIContainer.getCreateContentWithUploadUseCase();
-                await useCase.execute({
-                    type: "ebook",
-                    title: data.title,
-                    readTime: data.readTime,
-                    subtitle: data.subtitle,
-                    description: data.description,
-                    badgeText: data.badgeText,
-                    order: data.order,
-                    htmlFile: data.introHtmlFile,
-                    pdfFile: data.introPdfFile,
-                    coverImageFile: data.coverImageFile,
-                    coverPdfFile: data.coverPdfFile,
-                });
-                setFeedback({
-                    show: true,
-                    message: "E-book criado com sucesso!",
-                    type: "success",
-                });
+            const form = new FormData();
+            form.append("title", data.title);
+            if (data.order !== undefined) form.append("order", String(data.order));
+            if (data.subtitle) form.append("subtitle", data.subtitle);
+            if (data.description) form.append("description", data.description);
+            if (data.badgeText) form.append("badgeText", data.badgeText);
+            if (data.readTime !== undefined) form.append("readTime", String(data.readTime));
+            if (data.introHtmlFile) form.append("htmlFile", data.introHtmlFile);
+            if (data.introPdfFile) form.append("pdfFile", data.introPdfFile);
+            if (data.coverImageFile) form.append("coverImageFile", data.coverImageFile);
+            if (data.coverPdfFile) form.append("coverPdfFile", data.coverPdfFile);
+
+            const url = editItem
+                ? `/api/admin/content/ebook/${editItem.id}`
+                : `/api/admin/content/ebook`;
+            const method = editItem ? "PUT" : "POST";
+            const res = await fetch(url, { method, body: form });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
             setShowForm(false);
             setEditItem(null);
             await loadItems();
+            setFeedback({
+                show: true,
+                message: editItem ? "E-book atualizado com sucesso!" : "E-book criado com sucesso!",
+                type: "success",
+            });
         } catch (error) {
             console.error("Erro ao salvar e-book:", error);
             setFeedback({
                 show: true,
-                message: "Erro ao salvar e-book. Tente novamente.",
+                message: error instanceof Error ? error.message : "Erro ao salvar e-book. Tente novamente.",
                 type: "error",
             });
         } finally {

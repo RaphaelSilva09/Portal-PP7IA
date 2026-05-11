@@ -2,13 +2,9 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase, supabaseAnon } from "@/infrastructure/config/supabase";
 import {
     RECOMENDACOES_PAULO_DEFAULT_DESCRIPTION,
     RECOMENDACOES_PAULO_DEFAULT_TITLE,
-    RECOMENDACOES_PAULO_SLUG,
-    RECOMENDACOES_PAULO_STORAGE_BUCKET,
-    RECOMENDACOES_PAULO_STORAGE_FOLDER,
     getRecomendacoesPauloSourcePath,
 } from "@/constants/recomendacoesPaulo";
 
@@ -42,32 +38,12 @@ export function useHomeRecomendacoesPaulo(): UseHomeRecomendacoesPauloResult {
     const { data, isLoading } = useQuery({
         queryKey: ["home-recomendacoes-paulo"],
         queryFn: async () => {
-            const [rowResult, storageResult] = await Promise.all([
-                supabaseAnon
-                    .from("home_recomendacoes_paulo")
-                    .select("slug, title, description, html_path")
-                    .eq("slug", RECOMENDACOES_PAULO_SLUG)
-                    .maybeSingle(),
-                supabase.storage
-                    .from(RECOMENDACOES_PAULO_STORAGE_BUCKET)
-                    .list(RECOMENDACOES_PAULO_STORAGE_FOLDER, { limit: 50 }),
-            ]);
-
-            if (rowResult.error) {
-                console.error("Erro ao carregar recomendacoes do Paulo:", rowResult.error.message);
+            const res = await fetch("/api/content/home-recomendacoes-paulo");
+            if (!res.ok) {
+                console.error("Erro ao carregar recomendacoes do Paulo:", res.status);
+                return { row: null, available: false };
             }
-
-            if (storageResult.error) {
-                console.error("Erro ao listar HTMLs de recomendacoes:", storageResult.error.message);
-            }
-
-            const fileSet = new Set((storageResult.data ?? []).map(item => item.name));
-            const available = fileSet.has(`${RECOMENDACOES_PAULO_SLUG}.html`);
-
-            return {
-                row: rowResult.data as RecomendacoesPauloRow | null,
-                available,
-            };
+            return (await res.json()) as { row: RecomendacoesPauloRow | null; available: boolean };
         },
         staleTime: 5 * 60 * 1000,
     });

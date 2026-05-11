@@ -1,38 +1,20 @@
-// frontend/infrastructure/auth/getUser.ts
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { headers as nextHeaders } from "next/headers";
+import { auth } from "@/lib/auth";
 
 export interface CurrentUser {
     id: string;
     email: string | null;
-    role: string | null;       // app_metadata.role
+    role: string | null;
 }
 
 export async function getUser(): Promise<CurrentUser | null> {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey =
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !anonKey) {
-        throw new Error("Supabase env vars missing for getUser()");
-    }
+    const session = await auth.api.getSession({ headers: await nextHeaders() });
+    if (!session?.user) return null;
 
-    const cookieStore = await cookies();
-    const supabase = createServerClient(url, anonKey, {
-        cookies: {
-            getAll: () => cookieStore.getAll(),
-            setAll: () => {
-                /* no-op in route handlers — middleware handles refresh */
-            },
-        },
-    });
-
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) return null;
-
+    const u = session.user as { id: string; email: string | null; role?: string | null };
     return {
-        id: data.user.id,
-        email: data.user.email ?? null,
-        role: (data.user.app_metadata?.role as string | undefined) ?? null,
+        id: u.id,
+        email: u.email ?? null,
+        role: u.role ?? null,
     };
 }

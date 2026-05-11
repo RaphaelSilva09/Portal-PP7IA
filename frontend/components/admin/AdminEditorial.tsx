@@ -9,7 +9,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
     EDITORIAL_ITEMS,
-    EDITORIAL_STORAGE_BUCKET,
     EDITORIAL_STORAGE_FOLDER,
     getEditorialFileName,
     getEditorialStoragePath,
@@ -17,7 +16,6 @@ import {
     type EditorialSlug,
 } from "@/constants/editorials";
 import { GlassCard, GradientButton } from "@/components/ui";
-import { supabase } from "@/infrastructure/config/supabase";
 import { AlertCircle, FileText, Loader2, Trash2, Upload, X } from "lucide-react";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { FeedbackMessage } from "./FeedbackMessage";
@@ -144,13 +142,13 @@ export function AdminEditorial() {
     const loadFiles = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data, error } = await supabase.storage
-                .from(EDITORIAL_STORAGE_BUCKET)
-                .list(EDITORIAL_STORAGE_FOLDER, { limit: 100 });
-
-            if (error) throw error;
-
-            const availableFiles = new Set((data ?? []).map(item => item.name));
+            const res = await fetch("/api/admin/editorials");
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const payload = (await res.json()) as { files?: string[] };
+            const availableFiles = new Set(payload.files ?? []);
             setExistingFiles({
                 "primeiros-usuarios": availableFiles.has(getEditorialFileName("primeiros-usuarios"))
                     ? getEditorialFileName("primeiros-usuarios")
@@ -190,14 +188,18 @@ export function AdminEditorial() {
                 const file = selectedFiles[item.slug];
                 if (!file) continue;
 
-                const { error } = await supabase.storage
-                    .from(EDITORIAL_STORAGE_BUCKET)
-                    .upload(getEditorialStoragePath(item.slug), file, {
-                        cacheControl: "3600",
-                        upsert: true,
-                    });
+                const formData = new FormData();
+                formData.append("slug", item.slug);
+                formData.append("file", file);
 
-                if (error) throw error;
+                const res = await fetch("/api/admin/editorials/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error ?? `HTTP ${res.status}`);
+                }
             }
 
             setSelectedFiles({
@@ -218,11 +220,13 @@ export function AdminEditorial() {
     const handleDeleteExisting = async (slug: EditorialSlug) => {
         setDeletingSlug(slug);
         try {
-            const { error } = await supabase.storage
-                .from(EDITORIAL_STORAGE_BUCKET)
-                .remove([getEditorialStoragePath(slug)]);
-
-            if (error) throw error;
+            const res = await fetch(`/api/admin/editorials/${encodeURIComponent(slug)}`, {
+                method: "DELETE",
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
 
             await loadFiles();
             await queryClient.invalidateQueries({ queryKey: ["editoriais"] });

@@ -1,22 +1,22 @@
 /**
  * SupabaseMiniLivroRepository (Infrastructure Layer)
  *
- * Implementação concreta do IMiniLivroRepository usando Supabase.
+ * Implementação concreta do IMiniLivroRepository usando Postgres direto via `pg` Pool.
  * Inclui tratamento de erros resiliente - nunca quebra a aplicação.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta a API do Supabase para nosso domínio
- * - SRP: Responsável apenas pela comunicação com Supabase
+ * - Adapter Pattern: Adapta Postgres para nosso domínio
+ * - SRP: Responsável apenas pela comunicação com o banco
  * - Graceful Degradation: Retorna dados vazios em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import { MiniLivro, MiniLivroProps } from "../../domain/entities/MiniLivro";
 import { IMiniLivroRepository } from "../../domain/repositories/IMiniLivroRepository";
 
 /**
- * Interface que representa a estrutura da tabela no Supabase
+ * Interface que representa a estrutura da tabela no banco
  */
 interface SupabaseMiniLivroRow {
     id: number;
@@ -31,29 +31,24 @@ interface SupabaseMiniLivroRow {
 }
 
 /**
- * Adapter Pattern: Adapta Supabase para nossa interface de domínio
+ * Adapter Pattern: Adapta Postgres para nossa interface de domínio
  */
 export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     /**
      * Obtém todos os mini-livros ordenados por data (mais recentes primeiro)
      * Retorna array vazio em caso de erro (graceful degradation)
      */
     async getAll(): Promise<MiniLivro[]> {
         try {
-            const { data, error } = await this.supabase.from("mini_livros").select("*");
+            const { rows } = await pool.query(
+                `SELECT * FROM mini_livros`,
+            );
 
-            if (error) {
-                console.error("Erro ao buscar mini-livros:", error.message);
+            if (!rows || rows.length === 0) {
                 return [];
             }
 
-            if (!data || data.length === 0) {
-                return [];
-            }
-
-            const items = data
+            const items = (rows as unknown[])
                 .filter((row): row is SupabaseMiniLivroRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
             return this.sortByIndex(items);
@@ -81,9 +76,13 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
      */
     async getById(id: number): Promise<MiniLivro | null> {
         try {
-            const { data, error } = await this.supabase.from("mini_livros").select("*").eq("id", id).single();
+            const { rows } = await pool.query(
+                `SELECT * FROM mini_livros WHERE id = $1 LIMIT 1`,
+                [id],
+            );
 
-            if (error || !data) {
+            const data: unknown = rows[0] ?? null;
+            if (!data) {
                 return null;
             }
 
@@ -108,7 +107,7 @@ export class SupabaseMiniLivroRepository implements IMiniLivroRepository {
     }
 
     /**
-     * Mapeia dados do Supabase para entidade de domínio
+     * Mapeia dados do banco para entidade de domínio
      * Adapter Pattern: Traduz formato externo para domínio
      */
     private mapToEntity(row: SupabaseMiniLivroRow): MiniLivro {

@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabaseAnon } from "@/infrastructure/config/supabase";
 import { HOME_BLOCK_DEFAULTS, type HomeBlockSlug } from "@/constants/homeBlocks";
 
 interface HomeBlockRow {
@@ -31,16 +30,12 @@ export function useHomeBlockDescriptions(): UseHomeBlockDescriptionsResult {
     const { data, isLoading } = useQuery({
         queryKey: ["home-block-descriptions"],
         queryFn: async () => {
-            const { data, error } = await supabaseAnon
-                .from("home_block_descriptions")
-                .select("slug, description");
-
-            if (error) {
-                console.error("Erro ao carregar descricoes da home:", error.message);
+            const res = await fetch("/api/content/home-block-descriptions");
+            if (!res.ok) {
+                console.error("Erro ao carregar descricoes da home:", res.status);
                 return null;
             }
-
-            return data as HomeBlockRow[];
+            return (await res.json()) as HomeBlockRow[];
         },
         staleTime: 5 * 60 * 1000,
     });

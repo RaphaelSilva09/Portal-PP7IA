@@ -21,7 +21,6 @@
 
 import { GlassCard } from "@/components/ui";
 import { GetUsersParams, UserListItem } from "@/domain/repositories/IUserManagementRepository";
-import DIContainer from "@/infrastructure/di/container";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
@@ -80,9 +79,26 @@ export function UserManager() {
     const loadUsers = useCallback(async (params: GetUsersParams) => {
         setIsLoading(true);
         try {
-            const useCase = DIContainer.getUsersUseCase();
-            const result = await useCase.execute(params);
-            setUsers(result.users);
+            const qs = new URLSearchParams();
+            if (params.page !== undefined) qs.set("page", String(params.page));
+            if (params.pageSize !== undefined) qs.set("pageSize", String(params.pageSize));
+            if (params.search) qs.set("search", params.search);
+            const res = await fetch(`/api/admin/users?${qs.toString()}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const result = (await res.json()) as {
+                users: Array<Omit<UserListItem, "createdAt" | "lastSignInAt"> & {
+                    createdAt: string;
+                    lastSignInAt: string | null;
+                }>;
+                total: number;
+            };
+            setUsers(
+                result.users.map(u => ({
+                    ...u,
+                    createdAt: new Date(u.createdAt),
+                    lastSignInAt: u.lastSignInAt ? new Date(u.lastSignInAt) : null,
+                })),
+            );
             setTotal(result.total);
         } catch (error) {
             console.error("Erro ao carregar usuários:", error);
@@ -136,8 +152,11 @@ export function UserManager() {
             variant: "danger",
             onConfirm: async () => {
                 try {
-                    const useCase = DIContainer.getDeleteUserAndDataUseCase();
-                    await useCase.execute(user.id);
+                    const res = await fetch(`/api/admin/users/${user.id}`, { method: "DELETE" });
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.error ?? `HTTP ${res.status}`);
+                    }
                     showFeedback("success", "✓ Usuário excluído com sucesso");
                     // Recarrega a página atual (pode voltar página se era o único da última página)
                     const newPage = users.length === 1 && page > 1 ? page - 1 : page;

@@ -1,15 +1,15 @@
 /**
  * SupabaseRadarOportunidadesRepository (Infrastructure Layer)
  *
- * Implementação concreta do IRadarOportunidadesRepository usando Supabase.
+ * Implementação concreta do IRadarOportunidadesRepository usando Postgres direto via `pg` Pool.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta a API do Supabase para nosso domínio
+ * - Adapter Pattern: Adapta Postgres para nosso domínio
  * - Graceful Degradation: Retorna dados vazios em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import { RadarOportunidades, RadarOportunidadesProps } from "../../domain/entities/RadarOportunidades";
 import { IRadarOportunidadesRepository } from "../../domain/repositories/IRadarOportunidadesRepository";
 
@@ -24,18 +24,13 @@ interface SupabaseRadarRow {
 }
 
 export class SupabaseRadarOportunidadesRepository implements IRadarOportunidadesRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     async getAll(): Promise<RadarOportunidades[]> {
         try {
-            const { data, error } = await this.supabase.from("radar_oportunidades").select("*");
+            const { rows } = await pool.query(
+                `SELECT * FROM radar_oportunidades`,
+            );
 
-            if (error || !data) {
-                console.error("Erro ao buscar radar_oportunidades:", error?.message);
-                return [];
-            }
-
-            const items = data
+            const items = (rows as unknown[])
                 .filter((row): row is SupabaseRadarRow => this.isValidRow(row))
                 .map(row => this.mapToEntity(row));
             return this.sortByIndex(items);
@@ -47,9 +42,13 @@ export class SupabaseRadarOportunidadesRepository implements IRadarOportunidades
 
     async getById(id: number): Promise<RadarOportunidades | null> {
         try {
-            const { data, error } = await this.supabase.from("radar_oportunidades").select("*").eq("id", id).single();
+            const { rows } = await pool.query(
+                `SELECT * FROM radar_oportunidades WHERE id = $1 LIMIT 1`,
+                [id],
+            );
 
-            if (error || !data || !this.isValidRow(data)) return null;
+            const data: unknown = rows[0] ?? null;
+            if (!data || !this.isValidRow(data)) return null;
             return this.mapToEntity(data);
         } catch {
             return null;

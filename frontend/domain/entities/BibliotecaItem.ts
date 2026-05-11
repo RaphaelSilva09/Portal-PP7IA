@@ -11,6 +11,8 @@
  * - Immutability: Dados protegidos via getters
  */
 
+import { publicFileUrl } from "@/lib/files";
+
 export type BibliotecaTema =
     | "biblioteca-dos-7"
     | "saude"
@@ -71,7 +73,7 @@ export class BibliotecaItem {
     }
 
     get pdfPath(): string | null {
-        return this.props.pdfPath?.trim() || null;
+        return publicFileUrl(this.props.pdfPath);
     }
 
     get readTime(): number {

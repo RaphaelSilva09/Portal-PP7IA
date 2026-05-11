@@ -11,7 +11,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { GlassCard, GradientButton } from "@/components/ui";
 import { FeedbackMessage } from "./FeedbackMessage";
-import { supabase } from "@/infrastructure/config/supabase";
 import { HOME_BLOCKS, type HomeBlockSlug } from "@/constants/homeBlocks";
 
 interface HomeBlockRow {
@@ -47,17 +46,18 @@ export function AdminHomeBlockDescriptions() {
     const loadDescriptions = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data, error } = await supabase
-                .from("home_block_descriptions")
-                .select("slug, description");
-
-            if (error) throw error;
+            const res = await fetch("/api/admin/home-block-descriptions");
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const data = (await res.json()) as HomeBlockRow[];
 
             const nextValues = {} as Record<HomeBlockSlug, string>;
             HOME_BLOCKS.forEach(block => {
                 nextValues[block.slug] = block.defaultDescription;
             });
-            (data as HomeBlockRow[] | null)?.forEach(row => {
+            data?.forEach(row => {
                 if (row?.slug) {
                     nextValues[row.slug] = row.description ?? "";
                 }
@@ -87,16 +87,20 @@ export function AdminHomeBlockDescriptions() {
 
         setIsSaving(true);
         try {
-            const payload = HOME_BLOCKS.map(block => ({
-                slug: block.slug,
-                description: formValues[block.slug].trim(),
-            }));
-
-            const { error } = await supabase
-                .from("home_block_descriptions")
-                .upsert(payload, { onConflict: "slug" });
-
-            if (error) throw error;
+            for (const block of HOME_BLOCKS) {
+                const res = await fetch("/api/admin/home-block-descriptions", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        slug: block.slug,
+                        description: formValues[block.slug].trim(),
+                    }),
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.error ?? `HTTP ${res.status}`);
+                }
+            }
 
             await queryClient.invalidateQueries({ queryKey: ["home-block-descriptions"] });
             showFeedback("Descricoes atualizadas com sucesso!", "success");
