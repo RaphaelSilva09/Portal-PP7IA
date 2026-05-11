@@ -37,6 +37,7 @@ function mapRow(row: AdminUserRow): UserListItem {
     };
 }
 
+/** @client-only — uses relative fetch() URLs; never call from server routes or Server Components */
 export class SupabaseUserManagementRepository implements IUserManagementRepository {
     async getUsers(params: GetUsersParams): Promise<PaginatedUsersResult> {
         try {
