@@ -1,7 +1,6 @@
 "use client";
 
 import { GlassCard } from "@/components/ui";
-import DIContainer from "@/infrastructure/di/container";
 import { UserListItem } from "@/domain/repositories/IUserManagementRepository";
 import { useEffect, useState } from "react";
 
@@ -15,9 +14,10 @@ export function TodayRegistrations() {
 
     const loadTodayRegistrations = async () => {
         try {
-            const useCase = DIContainer.getTodayRegistrationsUseCase();
-            const data = await useCase.execute();
-            setUsers(data);
+            const res = await fetch("/api/admin/users/today");
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const { users: raw } = (await res.json()) as { users: Array<Omit<UserListItem, "createdAt"> & { createdAt: string }> };
+            setUsers(raw.map(u => ({ ...u, createdAt: new Date(u.createdAt) })));
         } catch (error) {
             console.error("Erro ao carregar cadastros do dia:", error);
         } finally {

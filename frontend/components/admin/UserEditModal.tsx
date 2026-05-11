@@ -13,7 +13,6 @@
 "use client";
 
 import { UserListItem } from "@/domain/repositories/IUserManagementRepository";
-import DIContainer from "@/infrastructure/di/container";
 import { AlertCircle, Check, Loader2, Mail, Phone, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -103,12 +102,19 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
 
         setIsSaving(true);
         try {
-            const repo = DIContainer.getUserManagementRepository();
-            await repo.updateUser(user.id, {
-                nome: nome.trim(),
-                email: email.trim(),
-                celular: celular.replace(/\D/g, ""),
+            const res = await fetch(`/api/admin/users/${user.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    nome: nome.trim(),
+                    email: email.trim(),
+                    celular: celular.replace(/\D/g, ""),
+                }),
             });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
 
             setSuccess(true);
             const updatedUser: UserListItem = {
