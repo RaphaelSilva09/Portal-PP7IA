@@ -79,10 +79,20 @@ export const auth = betterAuth({
       expiresIn: 60 * 10,
       sendVerificationOnSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
-        const tpl =
-          type === "forget-password"
-            ? renderResetPasswordOtpEmail({ otp })
-            : renderEmailVerificationOtpEmail({ otp });
+        let tpl: { subject: string; html: string };
+        switch (type) {
+          case "forget-password":
+            tpl = renderResetPasswordOtpEmail({ otp });
+            break;
+          case "email-verification":
+          case "sign-in":
+            tpl = renderEmailVerificationOtpEmail({ otp });
+            break;
+          default:
+            console.warn("[OTP] unknown type, defaulting to verification:", type);
+            tpl = renderEmailVerificationOtpEmail({ otp });
+        }
+        console.log("[OTP send]", { type, to: email, subject: tpl.subject });
 
         const { error } = await resend.emails.send({
           from: EMAIL_FROM,
