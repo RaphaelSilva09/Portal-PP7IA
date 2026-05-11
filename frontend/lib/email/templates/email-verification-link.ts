@@ -1,12 +1,13 @@
 /**
- * Email verification OTP — 8-digit code sent on signup or email change.
- * Replace HTML w/ your branded version.
+ * Email verification — magic-link variant (used on signup).
+ * User clicks the button → hits better-auth's verify endpoint → marked
+ * verified + auto-signed-in (per autoSignInAfterVerification config).
  */
-export function renderEmailVerificationOtpEmail({
-  otp,
+export function renderEmailVerificationLinkEmail({
+  url,
   name,
 }: {
-  otp: string;
+  url: string;
   name?: string | null;
 }): { subject: string; html: string } {
   const greeting = name ? `Olá, ${name}!` : "Olá!";
@@ -25,16 +26,18 @@ export function renderEmailVerificationOtpEmail({
         <tr><td style="color:#dadada;font-size:16px;line-height:1.6;">
           <p style="margin-top:0;">${greeting}</p>
           <p>Recebemos uma solicitação para confirmar este endereço de e-mail e ativar sua participação na <strong>Comunidade PP7+IAS</strong>.</p>
-          <p>Use o código abaixo para concluir o processo:</p>
+          <p>Para concluir o cadastro, clique no botão abaixo:</p>
         </td></tr>
         <tr><td align="center" style="padding:28px 0;">
-          <div style="background:#3b9eff;color:#111;padding:18px 32px;border-radius:8px;font-size:28px;font-weight:bold;letter-spacing:6px;display:inline-block;font-family:'Courier New',monospace;">
-            ${otp}
-          </div>
+          <a href="${url}" style="background:#3b9eff;color:#111;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-weight:bold;display:inline-block;">
+            CONFIRMAR E-MAIL
+          </a>
         </td></tr>
         <tr><td style="color:#acacac;font-size:14px;line-height:1.6;">
+          <p>Ou copie e cole este link no navegador:</p>
+          <p style="word-break:break-all;color:#3b9eff;">${url}</p>
           <p>Se você não solicitou este cadastro, pode ignorar este e-mail com segurança.</p>
-          <p>Este código expira em 10 minutos por motivos de segurança.</p>
+          <p>Este link expira em 1 hora por motivos de segurança.</p>
           <p style="margin-top:28px;color:#dadada;">Até já!<br><strong>— Equipe PP7+IAS</strong></p>
         </td></tr>
       </table>

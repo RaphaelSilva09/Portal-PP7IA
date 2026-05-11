@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import { hash as argonHash, verify as argonVerify } from "@node-rs/argon2";
 import { resend, EMAIL_FROM } from "./email/resend";
 import { renderResetPasswordOtpEmail } from "./email/templates/reset-password-otp";
-import { renderEmailVerificationOtpEmail } from "./email/templates/email-verification-otp";
+import { renderEmailVerificationLinkEmail } from "./email/templates/email-verification-link";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -55,6 +55,26 @@ export const auth = betterAuth({
     },
   },
 
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    expiresIn: 60 * 60, // 1h
+    async sendVerificationEmail({ user, url }) {
+      const tpl = renderEmailVerificationLinkEmail({ url, name: user.name ?? null });
+      console.log("[Verify link send]", { to: user.email, subject: tpl.subject });
+      const { error } = await resend.emails.send({
+        from: EMAIL_FROM,
+        to: user.email,
+        subject: tpl.subject,
+        html: tpl.html,
+      });
+      if (error) {
+        console.error("[Resend verify link failed]", { email: user.email, error });
+        throw new Error(`Falha ao enviar e-mail: ${error.message ?? error}`);
+      }
+    },
+  },
+
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
@@ -77,21 +97,15 @@ export const auth = betterAuth({
     emailOTP({
       otpLength: 8,
       expiresIn: 60 * 10,
-      sendVerificationOnSignUp: true,
+      // Signup verification handled by top-level emailVerification (magic link).
+      // This plugin only fires for forget-password and any future OTP-based flows.
+      sendVerificationOnSignUp: false,
       async sendVerificationOTP({ email, otp, type }) {
-        let tpl: { subject: string; html: string };
-        switch (type) {
-          case "forget-password":
-            tpl = renderResetPasswordOtpEmail({ otp });
-            break;
-          case "email-verification":
-          case "sign-in":
-            tpl = renderEmailVerificationOtpEmail({ otp });
-            break;
-          default:
-            console.warn("[OTP] unknown type, defaulting to verification:", type);
-            tpl = renderEmailVerificationOtpEmail({ otp });
+        if (type !== "forget-password") {
+          console.warn("[OTP] unexpected type w/ link-based verification:", type);
+          return;
         }
+        const tpl = renderResetPasswordOtpEmail({ otp });
         console.log("[OTP send]", { type, to: email, subject: tpl.subject });
 
         const { error } = await resend.emails.send({
