@@ -1,161 +1,122 @@
 /**
- * Admin Users List API Route (Edge Function)
+ * Admin Users List API Route
  *
- * GET /api/admin/users - Lista usuários com paginação server-side
+ * GET /api/admin/users
+ *  ?page=1&pageSize=25&search=foo&date=YYYY-MM-DD
  *
- * Query params:
- * - page: número da página (default 1)
- * - pageSize: usuários por página (default 25, opções: 10 | 25 | 50)
- * - search: busca por nome ou email (opcional)
- *
- * Segurança:
- * - Valida que requisição vem de admin autenticado via Bearer token
- * - Usa service_role key para listar auth.users (isAdmin real)
- * - Retorna apenas os campos necessários (sem select *)
- *
- * Princípios aplicados:
- * - Least Privilege: Operações privilegiadas isoladas em API route
- * - Fail Secure: Retorna 403/401 em caso de não autorizado
- * - SRP: Responsável apenas por listar usuários paginados
+ * Backed by the better-auth "user" table. Admin gate uses better-auth session cookie.
  */
-
-import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
-
-const getServiceRoleClient = () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-    if (!supabaseUrl || !serviceRoleKey) {
-        throw new Error("Variáveis de ambiente Supabase não configuradas");
-    }
-
-    return createClient(supabaseUrl, serviceRoleKey, {
-        auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-        },
-    });
-};
-
-async function verifyAdminFromRequest(request: NextRequest): Promise<boolean> {
-    try {
-        const authHeader = request.headers.get("authorization");
-        if (!authHeader) return false;
-
-        const token = authHeader.replace("Bearer ", "");
-        const supabase = getServiceRoleClient();
-
-        const {
-            data: { user },
-            error,
-        } = await supabase.auth.getUser(token);
-
-        if (error || !user) return false;
-
-        const role = user.app_metadata?.role;
-        return role === "admin";
-    } catch {
-        return false;
-    }
-}
+import { headers as nextHeaders } from "next/headers";
+import { auth } from "@/lib/auth";
+import { pool } from "@/lib/db";
 
 const VALID_PAGE_SIZES = [10, 25, 50];
 
+async function isAdmin(): Promise<boolean> {
+    const session = await auth.api.getSession({ headers: await nextHeaders() });
+    return (session?.user as { role?: string } | undefined)?.role === "admin";
+}
+
+interface UserRow {
+    id: string;
+    email: string;
+    nome: string | null;
+    celular: string | null;
+    role: string | null;
+    createdAt: Date;
+    emailVerified: boolean;
+    accept_email_updates: boolean | null;
+    accept_whatsapp_updates: boolean | null;
+    last_sign_in_at: Date | null;
+}
+
 export async function GET(request: NextRequest) {
-    try {
-        const isAdmin = await verifyAdminFromRequest(request);
-        if (!isAdmin) {
-            return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
-        }
-
-        const { searchParams } = new URL(request.url);
-        const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
-        const rawPageSize = parseInt(searchParams.get("pageSize") ?? "25", 10);
-        const pageSize = VALID_PAGE_SIZES.includes(rawPageSize) ? rawPageSize : 25;
-        const search = searchParams.get("search")?.trim() ?? "";
-        const dateFilter = searchParams.get("date")?.trim() ?? "";
-
-        const from = (page - 1) * pageSize;
-        const to = from + pageSize - 1;
-
-        const supabase = getServiceRoleClient();
-
-        // 1. Buscar IDs dos admins via auth.admin.listUsers (service_role)
-        // Fazemos isso para calcular isAdmin corretamente com dados reais
-        const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-        const adminIds = new Set((authData?.users ?? []).filter(u => u.app_metadata?.role === "admin").map(u => u.id));
-        // Mapa de userId -> last_sign_in_at para exibir no painel admin
-        const lastSignInMap = new Map<string, string | null>(
-            (authData?.users ?? []).map(u => [u.id, u.last_sign_in_at ?? null]),
-        );
-        // Mapa de userId -> emailVerified (email_confirmed_at presente)
-        const emailVerifiedMap = new Map<string, boolean>(
-            (authData?.users ?? []).map(u => [u.id, !!u.email_confirmed_at]),
-        );
-
-        // 2. Buscar usuários de public.users
-        // Se dateFilter presente: filtra pelo dia completo (UTC) e ordena do mais recente ao mais antigo
-        // Caso contrário: paginação alfabética padrão
-        let query = supabase
-            .from("users")
-            .select("id, email, nome, celular, created_at, accept_email_updates, accept_whatsapp_updates", {
-                count: "exact",
-            });
-
-        if (dateFilter && /^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
-            // BRT = UTC-3, fixo desde 2019 (sem horário de verão)
-            // Meia-noite BRT = 03:00 UTC; o dia BRT termina 24h depois
-            const BRT_OFFSET_HOURS = 3;
-            const [y, m, d] = dateFilter.split("-").map(Number);
-            const startUTC = new Date(Date.UTC(y, m - 1, d, BRT_OFFSET_HOURS, 0, 0, 0));
-            const endUTC = new Date(startUTC.getTime() + 24 * 60 * 60 * 1000 - 1);
-            query = query
-                .gte("created_at", startUTC.toISOString())
-                .lte("created_at", endUTC.toISOString())
-                .order("created_at", { ascending: false });
-        } else {
-            query = query
-                .order("nome", { ascending: true, nullsFirst: false })
-                .order("email", { ascending: true })
-                .range(from, to);
-
-            // Busca server-side por nome ou email
-            // Remove caracteres especiais do PostgREST para evitar injeção de operadores
-            if (search) {
-                const safeSearch = search.replace(/[.,();%]/g, "");
-                query = query.or(`nome.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`);
-            }
-        }
-
-        const { data: usersData, count, error } = await query;
-
-        if (error) {
-            console.error("Erro ao buscar usuários:", error.message);
-            return NextResponse.json({ error: "Erro ao buscar usuários" }, { status: 500 });
-        }
-
-        const users = (usersData ?? []).map(row => ({
-            id: row.id,
-            email: row.email,
-            nome: row.nome,
-            celular: row.celular,
-            isAdmin: adminIds.has(row.id),
-            createdAt: row.created_at,
-            lastSignInAt: lastSignInMap.get(row.id) ?? null,
-            acceptEmailUpdates: row.accept_email_updates,
-            acceptWhatsappUpdates: row.accept_whatsapp_updates,
-            emailVerified: emailVerifiedMap.get(row.id) ?? false,
-        }));
-
-        return NextResponse.json({
-            users,
-            total: count ?? 0,
-            page,
-            pageSize,
-        });
-    } catch (err) {
-        console.error("Erro inesperado na listagem de usuários:", err);
-        return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
+    if (!(await isAdmin())) {
+        return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
+
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+    const rawPageSize = parseInt(searchParams.get("pageSize") ?? "25", 10);
+    const pageSize = VALID_PAGE_SIZES.includes(rawPageSize) ? rawPageSize : 25;
+    const search = searchParams.get("search")?.trim() ?? "";
+    const dateFilter = searchParams.get("date")?.trim() ?? "";
+    const offset = (page - 1) * pageSize;
+
+    const where: string[] = [];
+    const params: unknown[] = [];
+
+    if (dateFilter && /^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
+        // BRT = UTC-3 (Brazil's no-DST timezone). Day window: 03:00 UTC start, 24h.
+        const BRT_OFFSET_HOURS = 3;
+        const [y, m, d] = dateFilter.split("-").map(Number);
+        const startUTC = new Date(Date.UTC(y, m - 1, d, BRT_OFFSET_HOURS, 0, 0, 0));
+        const endUTC = new Date(startUTC.getTime() + 24 * 60 * 60 * 1000 - 1);
+        params.push(startUTC.toISOString(), endUTC.toISOString());
+        where.push(`u."createdAt" >= $${params.length - 1} AND u."createdAt" <= $${params.length}`);
+    } else if (search) {
+        const safe = search.replace(/[.,();%]/g, "");
+        params.push(`%${safe}%`);
+        where.push(`(u.nome ILIKE $${params.length} OR u.email ILIKE $${params.length})`);
+    }
+
+    const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
+    const orderSql =
+        dateFilter && /^\d{4}-\d{2}-\d{2}$/.test(dateFilter)
+            ? `ORDER BY u."createdAt" DESC`
+            : `ORDER BY u.nome NULLS LAST, u.email`;
+
+    const limitSql = dateFilter && /^\d{4}-\d{2}-\d{2}$/.test(dateFilter)
+        ? ""
+        : `LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+
+    if (!limitSql.endsWith("")) {
+        // never reached; placeholder for symmetry
+    }
+
+    const sql = `
+        SELECT
+            u.id,
+            u.email,
+            u.nome,
+            u.celular,
+            u.role,
+            u."createdAt"            AS "createdAt",
+            u."emailVerified"        AS "emailVerified",
+            u.accept_email_updates,
+            u.accept_whatsapp_updates,
+            (SELECT MAX(s."createdAt") FROM session s WHERE s."userId" = u.id) AS last_sign_in_at
+        FROM "user" u
+        ${whereSql}
+        ${orderSql}
+        ${limitSql ? limitSql : ""}
+    `;
+    const sqlParams = limitSql ? [...params, pageSize, offset] : params;
+
+    const [rowsResult, countResult] = await Promise.all([
+        pool.query<UserRow>(sql, sqlParams),
+        pool.query<{ count: string }>(`SELECT count(*)::text AS count FROM "user" u ${whereSql}`, params),
+    ]);
+
+    const users = rowsResult.rows.map((row) => ({
+        id: row.id,
+        email: row.email,
+        nome: row.nome ?? "",
+        celular: row.celular ?? "",
+        isAdmin: row.role === "admin",
+        createdAt: row.createdAt,
+        lastSignInAt: row.last_sign_in_at,
+        acceptEmailUpdates: row.accept_email_updates ?? false,
+        acceptWhatsappUpdates: row.accept_whatsapp_updates ?? false,
+        emailVerified: row.emailVerified,
+    }));
+
+    return NextResponse.json({
+        users,
+        total: parseInt(countResult.rows[0]?.count ?? "0", 10),
+        page,
+        pageSize,
+    });
 }

@@ -1,8 +1,7 @@
-import { Resend } from "resend";
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { getSupabaseClientKey, getSupabaseUrl } from "@/infrastructure/config/supabase-env";
+import { headers as nextHeaders } from "next/headers";
+import { auth } from "@/lib/auth";
+import { resend, EMAIL_FROM } from "@/lib/email/resend";
 
 function resolveBaseUrl(request: Request): string {
     const candidates = [
@@ -23,69 +22,28 @@ function resolveBaseUrl(request: Request): string {
 export async function POST(request: Request) {
     try {
         // 1. Autenticação — qualquer usuário logado pode convidar
-        const cookieStore = await cookies();
-
-        const supabaseAuth = createServerClient(
-            getSupabaseUrl(),
-            getSupabaseClientKey(),
-            {
-                cookies: {
-                    getAll() {
-                        return cookieStore.getAll();
-                    },
-                    setAll() {
-                        // Read-only em contexto de API route
-                    },
-                },
-            }
-        );
-
-        const {
-            data: { user },
-        } = await supabaseAuth.auth.getUser();
-
-        if (!user) {
-            return NextResponse.json(
-                { error: "Autenticação necessária" },
-                { status: 401 }
-            );
+        const session = await auth.api.getSession({ headers: await nextHeaders() });
+        if (!session?.user) {
+            return NextResponse.json({ error: "Autenticação necessária" }, { status: 401 });
         }
 
         // 2. Validação de input
-        const { email } = await request.json();
+        const { email } = (await request.json().catch(() => ({}))) as { email?: unknown };
 
         if (!email || typeof email !== "string") {
-            return NextResponse.json(
-                { error: "Email é obrigatório" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Email é obrigatório" }, { status: 400 });
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return NextResponse.json(
-                { error: "Email inválido" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Email inválido" }, { status: 400 });
         }
 
-        // 3. Verificar configuração do Resend
-        const resendKey = process.env.INVITE_EMAIL_API_KEY;
-        const emailFrom = process.env.EMAIL_FROM;
-
-        if (!resendKey || !emailFrom) {
-            return NextResponse.json(
-                { error: "Configuração do servidor incompleta" },
-                { status: 500 }
-            );
-        }
-
-        // 4. Enviar email com link para a plataforma (sem criar usuário no banco)
+        // 3. Enviar email com link para a plataforma (sem criar usuário no banco)
         const platformUrl = resolveBaseUrl(request);
-        const resend = new Resend(resendKey);
 
         const { error } = await resend.emails.send({
-            from: emailFrom,
+            from: EMAIL_FROM,
             to: email,
             subject: "Você foi convidado para o Portal PP7+IAS",
             html: `
@@ -155,9 +113,6 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true });
     } catch {
-        return NextResponse.json(
-            { error: "Erro interno do servidor" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
     }
 }

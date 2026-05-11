@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/infrastructure/config/supabase";
 
 interface ReindexResult {
     chunks_indexed: number;
@@ -18,20 +17,9 @@ export function ReindexButton() {
     const handleClick = async () => {
         setError(null);
         setResult(null);
-
-        const { data: sessionData } = await supabase.auth.getSession();
-        const token = sessionData.session?.access_token;
-        if (!token) {
-            setError("Sem sessão. Faça login novamente.");
-            return;
-        }
-
         setRunning(true);
         try {
-            const res = await fetch("/api/chat/reindex", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await fetch("/api/chat/reindex", { method: "POST" });
             const json = await res.json();
             if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
             setResult(json as ReindexResult);

@@ -12,6 +12,8 @@
  * - Immutability: Dados protegidos via getters
  */
 
+import { publicFileUrl } from "@/lib/files";
+
 export interface EbookProps {
     id: number;
     createdAt: Date;
@@ -56,11 +58,11 @@ export class Ebook {
     }
 
     get coverImagePath(): string | null {
-        return this.props.coverImagePath?.trim() || null;
+        return publicFileUrl(this.props.coverImagePath);
     }
 
     get coverPdfPath(): string | null {
-        return this.props.coverPdfPath?.trim() || null;
+        return publicFileUrl(this.props.coverPdfPath);
     }
 
     get introHtmlPath(): string | null {
@@ -78,7 +80,7 @@ export class Ebook {
     }
 
     get introPdfPath(): string | null {
-        return this.props.introPdfPath?.trim() || null;
+        return publicFileUrl(this.props.introPdfPath);
     }
 
     get badgeText(): string | null {

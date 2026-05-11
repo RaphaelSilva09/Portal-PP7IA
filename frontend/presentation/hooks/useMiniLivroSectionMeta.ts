@@ -3,7 +3,6 @@
 import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { MiniLivroSectionKind } from "@/domain/entities/MiniLivroSection";
-import { supabaseAnon } from "@/infrastructure/config/supabase";
 
 export interface SectionMeta {
     title: string;
@@ -37,13 +36,15 @@ export function useMiniLivroSectionMeta(): {
     const { data, isLoading, error } = useQuery({
         queryKey: ["mini-livro-section-meta"],
         queryFn: async () => {
-            const { data: rows, error } = await supabaseAnon
-                .from("mini_livro_section_meta")
-                .select("kind, title, description");
-
-            if (error) {
-                throw error;
+            const res = await fetch("/api/content/mini-livro-section-meta");
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
             }
+            const rows = (await res.json()) as Array<{
+                kind: string;
+                title: string | null;
+                description: string | null;
+            }>;
 
             const meta = { ...DEFAULT_META };
 

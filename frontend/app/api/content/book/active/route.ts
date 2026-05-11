@@ -1,0 +1,10 @@
+import { NextResponse } from "next/server";
+import DIContainer from "@/infrastructure/di/container";
+
+export const runtime = "nodejs";
+
+export async function GET() {
+    const uc = DIContainer.getActiveBookUseCase();
+    const book = await uc.execute();
+    return NextResponse.json({ book });
+}

@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
+import { headers as nextHeaders } from "next/headers";
+import { auth } from "@/lib/auth";
 import { MiniLivrosContentSource } from "@/infrastructure/chat/MiniLivrosContentSource";
 import { HtmlChunker } from "@/infrastructure/chat/HtmlChunker";
 import { RagChunkRepository } from "@/infrastructure/chat/RagChunkRepository";
@@ -9,24 +10,15 @@ import type { Chunk, EmbeddedChunk } from "@/domain/chat/Chunk";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-async function verifyAdminFromRequest(request: NextRequest): Promise<boolean> {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader) return false;
-    const token = authHeader.replace("Bearer ", "");
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !key) return false;
-    const supabase = createClient(url, key, {
-        auth: { autoRefreshToken: false, persistSession: false },
-    });
-    const { data, error } = await supabase.auth.getUser(token);
-    if (error || !data.user) return false;
-    return data.user.app_metadata?.role === "admin";
+async function isAdmin(): Promise<boolean> {
+    const session = await auth.api.getSession({ headers: await nextHeaders() });
+    return (session?.user as { role?: string } | undefined)?.role === "admin";
 }
 
-export async function POST(request: NextRequest) {
-    const ok = await verifyAdminFromRequest(request);
-    if (!ok) return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+export async function POST() {
+    if (!(await isAdmin())) {
+        return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+    }
 
     const startedAt = Date.now();
     try {

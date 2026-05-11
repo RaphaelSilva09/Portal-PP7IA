@@ -2,12 +2,12 @@
  * useNewsletters Hook (Presentation Layer)
  *
  * Hook React para gerenciar dados de newsletters.
- * Fornece interface simples para componentes consumirem casos de uso.
+ * Consome o endpoint HTTP `/api/content/newsletter`.
  *
  * Princípios aplicados:
  * - Facade Pattern: Simplifica interface para componentes
  * - SRP: Responsável apenas por gerenciar estado de newsletters
- * - Clean Architecture: Camada de apresentação depende de casos de uso
+ * - Clean Architecture: Camada de apresentação consome HTTP API
  * - React Query: Cache automático, retry e cancelamento na desmontagem
  */
 
@@ -16,7 +16,7 @@
 import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Newsletter } from "../../domain/entities/Newsletter";
-import DIContainer from "../../infrastructure/di/container";
+import type { NewsletterProps } from "../../domain/entities/Newsletter";
 
 interface UseNewslettersResult {
     latest: Newsletter | null;
@@ -27,19 +27,32 @@ interface UseNewslettersResult {
     refresh: () => void;
 }
 
+function rehydrateItem(raw: unknown): Newsletter {
+    const props = (raw as { props?: NewsletterProps })?.props ?? (raw as NewsletterProps);
+    return Newsletter.create({
+        ...props,
+        createdAt: props.createdAt ? new Date(props.createdAt) : new Date(0),
+    });
+}
+
 export function useNewsletters(): UseNewslettersResult {
     const queryClient = useQueryClient();
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["newsletters"],
         queryFn: async () => {
-            const useCase = DIContainer.getNewslettersUseCase();
-            const repo = DIContainer.getContentRepository();
-            const [result, lastUpdated] = await Promise.all([
-                useCase.execute(),
-                repo.getLastUpdated("newsletter"),
-            ]);
-            return { ...result, lastUpdated };
+            const res = await fetch("/api/content/newsletter");
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json = (await res.json()) as {
+                latest: unknown;
+                older: unknown[];
+                lastUpdated: string | null;
+            };
+            return {
+                latest: json.latest ? rehydrateItem(json.latest) : null,
+                older: (json.older ?? []).map(rehydrateItem),
+                lastUpdated: json.lastUpdated ? new Date(json.lastUpdated) : null,
+            };
         },
     });
 

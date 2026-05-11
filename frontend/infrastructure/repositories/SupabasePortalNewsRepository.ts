@@ -1,17 +1,17 @@
 /**
  * SupabasePortalNewsRepository (Infrastructure Layer)
  *
- * Implementação concreta do IPortalNewsRepository usando Supabase.
+ * Implementação concreta do IPortalNewsRepository usando Postgres direto via `pg` Pool.
  * Inclui tratamento de erros resiliente - nunca quebra a aplicação.
  *
  * Princípios aplicados:
  * - DIP: Implementa a interface definida no domínio
- * - Adapter Pattern: Adapta a API do Supabase para nosso domínio
- * - SRP: Responsável apenas pela comunicação com Supabase
+ * - Adapter Pattern: Adapta Postgres para nosso domínio
+ * - SRP: Responsável apenas pela comunicação com o banco
  * - Graceful Degradation: Retorna dados vazios em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import {
     PortalNewsCategory,
     PortalNewsItem,
@@ -20,7 +20,7 @@ import {
 import { IPortalNewsRepository } from "../../domain/repositories/IPortalNewsRepository";
 
 /**
- * Interface que representa a estrutura da tabela no Supabase
+ * Interface que representa a estrutura da tabela no banco
  */
 interface SupabasePortalNewsRow {
     id: string;
@@ -39,35 +39,27 @@ interface SupabasePortalNewsRow {
 }
 
 /**
- * Adapter Pattern: Adapta Supabase para nossa interface de domínio
+ * Adapter Pattern: Adapta Postgres para nossa interface de domínio
  */
 export class SupabasePortalNewsRepository implements IPortalNewsRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     /**
      * Obtém todos os itens ativos ordenados por display_order ASC
      * Retorna array vazio em caso de erro (graceful degradation)
      */
     async getActive(): Promise<PortalNewsItem[]> {
         try {
-            const { data, error } = await this.supabase
-                .from("portal_news")
-                .select("*")
-                .eq("is_active", true)
-                .order("display_order", { ascending: true });
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM portal_news WHERE is_active = $1 ORDER BY display_order ASC`,
+                [true],
+            );
 
-            if (error) {
-                console.error("Erro ao buscar novidades do portal:", error.message);
+            if (!rows || rows.length === 0) {
                 return [];
             }
 
-            if (!data || data.length === 0) {
-                return [];
-            }
-
-            return data
-                .filter((row): row is SupabasePortalNewsRow => this.isValidRow(row))
-                .map(row => this.mapToEntity(row));
+            return rows
+                .filter(row => this.isValidRow(row))
+                .map(row => this.mapToEntity(row as unknown as SupabasePortalNewsRow));
         } catch (err) {
             console.error("Erro inesperado ao buscar novidades do portal:", err);
             return [];
@@ -89,7 +81,7 @@ export class SupabasePortalNewsRepository implements IPortalNewsRepository {
     }
 
     /**
-     * Mapeia dados do Supabase para entidade de domínio
+     * Mapeia dados do banco para entidade de domínio
      * Adapter Pattern: Traduz formato externo para domínio
      */
     private mapToEntity(row: SupabasePortalNewsRow): PortalNewsItem {

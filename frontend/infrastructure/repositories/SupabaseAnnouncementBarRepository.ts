@@ -1,16 +1,15 @@
 /**
  * SupabaseAnnouncementBarRepository (Infrastructure Layer)
  *
- * Implementação concreta de IAnnouncementBarRepository usando Supabase.
- * Leituras via supabaseAnon; escritas via supabase (sessão autenticada).
+ * Implementação concreta de IAnnouncementBarRepository usando Postgres direto via `pg` Pool.
  *
  * Princípios aplicados:
- * - Adapter Pattern: Adapta Supabase para interface de domínio
+ * - Adapter Pattern: Adapta Postgres para interface de domínio
  * - SRP: Responsável apenas pela comunicação com a tabela announcement_bars
  * - Graceful Degradation: getAll() retorna [] em caso de erro
  */
 
-import { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "../../lib/db";
 import { AnnouncementBar, AnnouncementBarProps } from "../../domain/entities/AnnouncementBar";
 import {
     CreateAnnouncementBarInput,
@@ -35,24 +34,13 @@ interface SupabaseAnnouncementBarRow {
 }
 
 export class SupabaseAnnouncementBarRepository implements IAnnouncementBarRepository {
-    constructor(
-        private readonly anonClient: SupabaseClient,
-        private readonly authClient: SupabaseClient,
-    ) {}
-
     async getAll(): Promise<AnnouncementBar[]> {
         try {
-            const { data, error } = await this.anonClient
-                .from("announcement_bars")
-                .select("*")
-                .order("priority", { ascending: false });
+            const { rows } = await pool.query<SupabaseAnnouncementBarRow>(
+                `SELECT * FROM announcement_bars ORDER BY priority DESC`,
+            );
 
-            if (error) {
-                console.error("Erro ao buscar barras de aviso:", error.message);
-                return [];
-            }
-
-            return (data ?? []).map(row => this.mapToEntity(row as SupabaseAnnouncementBarRow));
+            return rows.map(row => this.mapToEntity(row));
         } catch (err) {
             console.error("Erro inesperado ao buscar barras de aviso:", err);
             return [];
@@ -60,25 +48,33 @@ export class SupabaseAnnouncementBarRepository implements IAnnouncementBarReposi
     }
 
     async create(input: CreateAnnouncementBarInput): Promise<AnnouncementBar> {
-        const { data, error } = await this.authClient
-            .from("announcement_bars")
-            .insert({
-                message:    input.message,
-                link_url:   input.linkUrl ?? null,
-                link_label: input.linkLabel ?? null,
-                bg_color:   input.bgColor ?? "#1a1a1a",
-                text_color: input.textColor ?? "#ffffff",
-                is_active:  input.isActive ?? true,
-                priority:   input.priority ?? 0,
-                starts_at:  input.startsAt?.toISOString() ?? null,
-                ends_at:    input.endsAt?.toISOString() ?? null,
-                is_closable: input.isClosable ?? true,
-            })
-            .select()
-            .single();
+        try {
+            const { rows } = await pool.query<SupabaseAnnouncementBarRow>(
+                `INSERT INTO announcement_bars
+                    (message, link_url, link_label, bg_color, text_color, is_active, priority, starts_at, ends_at, is_closable)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                 RETURNING *`,
+                [
+                    input.message,
+                    input.linkUrl ?? null,
+                    input.linkLabel ?? null,
+                    input.bgColor ?? "#1a1a1a",
+                    input.textColor ?? "#ffffff",
+                    input.isActive ?? true,
+                    input.priority ?? 0,
+                    input.startsAt?.toISOString() ?? null,
+                    input.endsAt?.toISOString() ?? null,
+                    input.isClosable ?? true,
+                ],
+            );
 
-        if (error || !data) throw new Error(`Falha ao criar barra de aviso: ${error?.message}`);
-        return this.mapToEntity(data as SupabaseAnnouncementBarRow);
+            const data = rows[0] ?? null;
+            if (!data) throw new Error(`Falha ao criar barra de aviso: nenhum registro retornado`);
+            return this.mapToEntity(data);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            throw new Error(`Falha ao criar barra de aviso: ${message}`);
+        }
     }
 
     async update(id: string, input: UpdateAnnouncementBarInput): Promise<AnnouncementBar> {
@@ -94,33 +90,57 @@ export class SupabaseAnnouncementBarRepository implements IAnnouncementBarReposi
         if (input.startsAt   !== undefined) updateData.starts_at  = input.startsAt?.toISOString() ?? null;
         if (input.endsAt     !== undefined) updateData.ends_at    = input.endsAt?.toISOString() ?? null;
 
-        const { data, error } = await this.authClient
-            .from("announcement_bars")
-            .update(updateData)
-            .eq("id", id)
-            .select()
-            .single();
+        try {
+            const columns = Object.keys(updateData);
+            const values = Object.values(updateData);
 
-        if (error || !data) throw new Error(`Falha ao atualizar barra de aviso: ${error?.message}`);
-        return this.mapToEntity(data as SupabaseAnnouncementBarRow);
+            if (columns.length === 0) {
+                // Nenhum campo para atualizar: buscar o registro atual.
+                const { rows } = await pool.query<SupabaseAnnouncementBarRow>(
+                    `SELECT * FROM announcement_bars WHERE id = $1 LIMIT 1`,
+                    [id],
+                );
+                const data = rows[0] ?? null;
+                if (!data) throw new Error(`Falha ao atualizar barra de aviso: registro não encontrado`);
+                return this.mapToEntity(data);
+            }
+
+            const setClause = columns.map((c, i) => `"${c}" = $${i + 1}`).join(", ");
+            const idPlaceholder = `$${columns.length + 1}`;
+
+            const { rows } = await pool.query<SupabaseAnnouncementBarRow>(
+                `UPDATE announcement_bars SET ${setClause} WHERE id = ${idPlaceholder} RETURNING *`,
+                [...values, id],
+            );
+
+            const data = rows[0] ?? null;
+            if (!data) throw new Error(`Falha ao atualizar barra de aviso: registro não encontrado`);
+            return this.mapToEntity(data);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            throw new Error(`Falha ao atualizar barra de aviso: ${message}`);
+        }
     }
 
     async delete(id: string): Promise<void> {
-        const { error } = await this.authClient
-            .from("announcement_bars")
-            .delete()
-            .eq("id", id);
-
-        if (error) throw new Error(`Falha ao deletar barra de aviso: ${error.message}`);
+        try {
+            await pool.query(`DELETE FROM announcement_bars WHERE id = $1`, [id]);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            throw new Error(`Falha ao deletar barra de aviso: ${message}`);
+        }
     }
 
     async toggle(id: string, isActive: boolean): Promise<void> {
-        const { error } = await this.authClient
-            .from("announcement_bars")
-            .update({ is_active: isActive })
-            .eq("id", id);
-
-        if (error) throw new Error(`Falha ao alternar barra de aviso: ${error.message}`);
+        try {
+            await pool.query(
+                `UPDATE announcement_bars SET is_active = $1 WHERE id = $2`,
+                [isActive, id],
+            );
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            throw new Error(`Falha ao alternar barra de aviso: ${message}`);
+        }
     }
 
     private mapToEntity(row: SupabaseAnnouncementBarRow): AnnouncementBar {

@@ -5,6 +5,8 @@
  * Diferencia-se de Ebook por possuir um status de ativo (isActive) e ser um singleton (apenas um livro ativo).
  */
 
+import { publicFileUrl } from "@/lib/files";
+
 export interface BookProps {
     id: number;
     title: string;
@@ -45,11 +47,11 @@ export class Book {
     }
 
     get coverImagePath(): string | null {
-        return this.props.coverImagePath?.trim() || null;
+        return publicFileUrl(this.props.coverImagePath);
     }
 
     get coverPdfPath(): string | null {
-        return this.props.coverPdfPath?.trim() || null;
+        return publicFileUrl(this.props.coverPdfPath);
     }
 
     get introHtmlPath(): string | null {
@@ -73,7 +75,7 @@ export class Book {
     }
 
     get introPdfPath(): string | null {
-        return this.props.introPdfPath?.trim() || null;
+        return publicFileUrl(this.props.introPdfPath);
     }
 
     get badgeText(): string | null {

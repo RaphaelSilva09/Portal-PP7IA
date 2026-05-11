@@ -6,6 +6,7 @@
  * Abstrai busca de conteúdo com debounce de 300ms e proteção contra
  * race conditions via requestVersion — resultados de requests mais
  * antigas são descartados se uma nova query chegar antes da resposta.
+ * Consome o endpoint HTTP `POST /api/search`.
  *
  * Princípios aplicados:
  * - SRP: Única responsabilidade — gerenciar estado de busca
@@ -14,7 +15,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { SearchFilter, SearchResultItem } from "../../application/usecases/SearchContentUseCase";
-import DIContainer from "../../infrastructure/di/container";
 
 export type { SearchFilter, SearchResultItem };
 
@@ -48,20 +48,28 @@ export function useSearch(query: string, filter: SearchFilter): UseSearchResult 
         }
 
         const version = ++requestVersion.current;
+        const abortController = new AbortController();
         setIsLoading(true);
         setError(null);
 
         const timeoutId = setTimeout(async () => {
             try {
-                const useCase = DIContainer.getSearchContentUseCase();
-                const data = await useCase.execute({ query, filter });
+                const res = await fetch("/api/search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query, filter }),
+                    signal: abortController.signal,
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = (await res.json()) as { results: SearchResultItem[] };
 
                 // Descarta resultado se chegou antes de uma versão mais nova
                 if (version !== requestVersion.current) return;
 
-                setResults(data);
+                setResults(json.results ?? []);
             } catch (err) {
                 if (version !== requestVersion.current) return;
+                if (err instanceof DOMException && err.name === "AbortError") return;
                 setError(err instanceof Error ? err.message : "Erro ao buscar conteúdo.");
                 setResults([]);
             } finally {
@@ -73,6 +81,7 @@ export function useSearch(query: string, filter: SearchFilter): UseSearchResult 
 
         return () => {
             clearTimeout(timeoutId);
+            abortController.abort();
         };
     }, [query, filter]);
 

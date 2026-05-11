@@ -1,8 +1,8 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { pool } from "@/lib/db";
 import { MiniLivroSection, type MiniLivroSectionKind, type MiniLivroSectionProps } from "@/domain/entities/MiniLivroSection";
 import type { IMiniLivroSectionRepository } from "@/domain/repositories/IMiniLivroSectionRepository";
 
-interface SupabaseMiniLivroSectionRow {
+interface MiniLivroSectionRow {
     id: number;
     created_at: string;
     updated_at: string;
@@ -49,20 +49,15 @@ function getKindOrder(kind: MiniLivroSectionKind): number {
 }
 
 export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepository {
-    constructor(private readonly supabase: SupabaseClient) {}
-
     async getAll(): Promise<MiniLivroSection[]> {
         try {
-            const { data, error } = await this.supabase.from("mini_livro_sections").select("*");
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM mini_livro_sections`,
+            );
 
-            if (error || !data) {
-                console.error("Erro ao buscar seções extras dos mini-livros:", error?.message);
-                return [];
-            }
-
-            return data
-                .filter((row): row is SupabaseMiniLivroSectionRow => this.isValidRow(row))
-                .map(row => this.mapToEntity(row))
+            return rows
+                .filter(row => this.isValidRow(row))
+                .map(row => this.mapToEntity(row as unknown as MiniLivroSectionRow))
                 .sort(compareMiniLivroSections);
         } catch (error) {
             console.error("Erro inesperado ao buscar seções extras dos mini-livros:", error);
@@ -72,13 +67,17 @@ export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepo
 
     async getById(id: number): Promise<MiniLivroSection | null> {
         try {
-            const { data, error } = await this.supabase.from("mini_livro_sections").select("*").eq("id", id).single();
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM mini_livro_sections WHERE id = $1 LIMIT 1`,
+                [id],
+            );
 
-            if (error || !data || !this.isValidRow(data)) {
+            const data = rows[0] ?? null;
+            if (!data || !this.isValidRow(data)) {
                 return null;
             }
 
-            return this.mapToEntity(data);
+            return this.mapToEntity(data as unknown as MiniLivroSectionRow);
         } catch {
             return null;
         }
@@ -95,16 +94,14 @@ export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepo
 
     async getByKind(kind: MiniLivroSectionKind): Promise<MiniLivroSection[]> {
         try {
-            const { data, error } = await this.supabase.from("mini_livro_sections").select("*").eq("kind", kind);
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM mini_livro_sections WHERE kind = $1`,
+                [kind],
+            );
 
-            if (error || !data) {
-                console.error(`Erro ao buscar seções do tipo ${kind}:`, error?.message);
-                return [];
-            }
-
-            return data
-                .filter((row): row is SupabaseMiniLivroSectionRow => this.isValidRow(row))
-                .map(row => this.mapToEntity(row))
+            return rows
+                .filter(row => this.isValidRow(row))
+                .map(row => this.mapToEntity(row as unknown as MiniLivroSectionRow))
                 .sort(compareMiniLivroSections);
         } catch (error) {
             console.error(`Erro inesperado ao buscar seções do tipo ${kind}:`, error);
@@ -112,7 +109,7 @@ export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepo
         }
     }
 
-    private isValidRow(row: unknown): row is SupabaseMiniLivroSectionRow {
+    private isValidRow(row: unknown): row is MiniLivroSectionRow {
         if (!row || typeof row !== "object") {
             return false;
         }
@@ -125,7 +122,7 @@ export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepo
         );
     }
 
-    private mapToEntity(row: SupabaseMiniLivroSectionRow): MiniLivroSection {
+    private mapToEntity(row: MiniLivroSectionRow): MiniLivroSection {
         const props: MiniLivroSectionProps = {
             id: row.id,
             createdAt: new Date(row.created_at),

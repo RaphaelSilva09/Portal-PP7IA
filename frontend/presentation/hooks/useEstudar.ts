@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Estudar } from "../../domain/entities/Estudar";
-import DIContainer from "../../infrastructure/di/container";
+import type { EstudarProps } from "../../domain/entities/Estudar";
 
 interface UseEstudarResult {
     latest: Estudar | null;
@@ -14,19 +14,32 @@ interface UseEstudarResult {
     reload: () => void;
 }
 
+function rehydrateItem(raw: unknown): Estudar {
+    const props = (raw as { props?: EstudarProps })?.props ?? (raw as EstudarProps);
+    return Estudar.create({
+        ...props,
+        createdAt: props.createdAt ? new Date(props.createdAt) : new Date(0),
+    });
+}
+
 export function useEstudar(): UseEstudarResult {
     const queryClient = useQueryClient();
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["estudar"],
         queryFn: async () => {
-            const useCase = DIContainer.getEstudarUseCase();
-            const repo = DIContainer.getContentRepository();
-            const [result, lastUpdated] = await Promise.all([
-                useCase.execute(),
-                repo.getLastUpdated("estudar"),
-            ]);
-            return { ...result, lastUpdated };
+            const res = await fetch("/api/content/estudar");
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json = (await res.json()) as {
+                latest: unknown;
+                older: unknown[];
+                lastUpdated: string | null;
+            };
+            return {
+                latest: json.latest ? rehydrateItem(json.latest) : null,
+                older: (json.older ?? []).map(rehydrateItem),
+                lastUpdated: json.lastUpdated ? new Date(json.lastUpdated) : null,
+            };
         },
     });
 

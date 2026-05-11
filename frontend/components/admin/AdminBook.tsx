@@ -9,12 +9,8 @@
 
 import { FeedbackMessage } from "@/components/admin";
 import { GlassCard, GradientButton } from "@/components/ui";
-import { supabase } from "@/infrastructure/config/supabase";
 import { AlertCircle, Loader2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-
-const STORAGE_BUCKET = "materiais";
-const STORAGE_FOLDER = "mini-livros/livro";
 
 interface BookRow {
     id: number;
@@ -89,16 +85,6 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange }: Fi
     );
 }
 
-// —— Upload helper ——
-async function uploadFile(file: File, path: string): Promise<string> {
-    const { error } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(path, file, { upsert: true });
-    if (error) throw error;
-    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-    return data.publicUrl;
-}
-
 // —— Componente principal ——
 export function AdminBook() {
     const [book, setBook] = useState<BookRow | null>(null);
@@ -124,9 +110,12 @@ export function AdminBook() {
     const loadBook = useCallback(async () => {
         setIsLoading(true);
         try {
-            const { data, error } = await supabase.from("book").select("*").limit(1);
-            if (error) throw error;
-            const row = data?.[0] ?? null;
+            const res = await fetch("/api/admin/book");
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            const row = (await res.json()) as BookRow | null;
             if (row) {
                 setBook(row);
                 setTitle(row.title ?? "");
@@ -150,46 +139,22 @@ export function AdminBook() {
         if (!title.trim()) return;
         setIsSaving(true);
         try {
-            const updates: Partial<BookRow> = {
-                title: title.trim(),
-                subtitle: subtitle.trim() || null,
-                description: description.trim() || null,
-                badge_text: badgeText.trim() || null,
-                is_active: isActive,
-            };
+            const form = new FormData();
+            form.append("title", title.trim());
+            form.append("subtitle", subtitle.trim());
+            form.append("description", description.trim());
+            form.append("badgeText", badgeText.trim());
+            form.append("isActive", isActive ? "true" : "false");
+            if (coverImageFile) form.append("coverImageFile", coverImageFile);
+            if (coverPdfFile) form.append("coverPdfFile", coverPdfFile);
+            if (introPdfFile) form.append("introPdfFile", introPdfFile);
+            if (introHtmlFile) form.append("introHtmlFile", introHtmlFile);
 
-            // Faz uploads apenas se novos arquivos foram selecionados
-            if (coverImageFile) {
-                updates.cover_image_path = await uploadFile(
-                    coverImageFile,
-                    `${STORAGE_FOLDER}/capa.${coverImageFile.name.split(".").pop()}`,
-                );
+            const res = await fetch("/api/admin/book", { method: "PUT", body: form });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
             }
-            if (coverPdfFile) {
-                updates.cover_pdf_path = await uploadFile(
-                    coverPdfFile,
-                    `${STORAGE_FOLDER}/capa.pdf`,
-                );
-            }
-            if (introPdfFile) {
-                updates.intro_pdf_path = await uploadFile(
-                    introPdfFile,
-                    `${STORAGE_FOLDER}/introducao-enquanto-e-tempo.pdf`,
-                );
-            }
-            if (introHtmlFile) {
-                updates.intro_html_path = await uploadFile(
-                    introHtmlFile,
-                    `${STORAGE_FOLDER}/introducao-enquanto-e-tempo.html`,
-                );
-            }
-
-            const { error } = await supabase
-                .from("book")
-                .update(updates)
-                .eq("id", book?.id ?? 1);
-
-            if (error) throw error;
 
             setFeedback({ show: true, message: "Livro atualizado com sucesso!", type: "success" });
             // Limpa seleção de arquivos e recarrega

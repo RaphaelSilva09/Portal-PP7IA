@@ -8,13 +8,10 @@
 
 import {
     EDITORIAL_ITEMS,
-    EDITORIAL_STORAGE_BUCKET,
-    EDITORIAL_STORAGE_FOLDER,
     getEditorialFileName,
     getEditorialViewPath,
     type EditorialSlug,
 } from "@/constants/editorials";
-import { supabase } from "@/infrastructure/config/supabase";
 import { useQuery } from "@tanstack/react-query";
 
 export interface EditorialLink {
@@ -37,15 +34,10 @@ export function useEditorial(): UseEditorialResult {
     const { data, isLoading, error } = useQuery({
         queryKey: ["editoriais"],
         queryFn: async () => {
-            const { data, error } = await supabase.storage
-                .from(EDITORIAL_STORAGE_BUCKET)
-                .list(EDITORIAL_STORAGE_FOLDER, { limit: 100 });
-
-            if (error) {
-                throw error;
-            }
-
-            const availableFiles = new Set((data ?? []).map(item => item.name));
+            const res = await fetch("/api/content/editorials");
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const payload = (await res.json()) as { files?: string[] };
+            const availableFiles = new Set(payload.files ?? []);
 
             return EDITORIAL_ITEMS.map(item => ({
                 ...item,

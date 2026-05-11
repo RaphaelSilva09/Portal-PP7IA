@@ -43,11 +43,10 @@ import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
 import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
 import { VerifyPasswordResetOTPUseCase } from "../../application/usecases/VerifyPasswordResetOTPUseCase";
-import { supabase, supabaseAnon } from "../config/supabase";
 import { SupabaseAnnouncementBarRepository } from "../repositories/SupabaseAnnouncementBarRepository";
 import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
 import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
-import { SupabaseAuthRepository } from "../repositories/SupabaseAuthRepository";
+import { BetterAuthRepository } from "../repositories/BetterAuthRepository";
 import { SupabaseBibliotecaRepository } from "../repositories/SupabaseBibliotecaRepository";
 import { SupabaseBookRepository } from "../repositories/SupabaseBookRepository";
 import { SupabaseContentRepository } from "../repositories/SupabaseContentRepository";
@@ -60,7 +59,7 @@ import { SupabaseMiniLivroSectionRepository } from "../repositories/SupabaseMini
 import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
 import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNewsRepository";
 import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
-import { SupabaseStorageRepository } from "../repositories/SupabaseStorageRepository";
+import { FilesystemStorageRepository } from "../repositories/FilesystemStorageRepository";
 import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserManagementRepository";
 
 /**
@@ -68,7 +67,7 @@ import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserMa
  * Lazy Initialization: Cria instâncias apenas quando necessário
  */
 class DIContainer {
-    private static authRepositoryInstance: SupabaseAuthRepository | null = null;
+    private static authRepositoryInstance: BetterAuthRepository | null = null;
     private static newsletterRepositoryInstance: SupabaseNewsletterRepository | null = null;
     private static miniLivroRepositoryInstance: SupabaseMiniLivroRepository | null = null;
     private static miniLivroSectionRepositoryInstance: SupabaseMiniLivroSectionRepository | null = null;
@@ -80,7 +79,7 @@ class DIContainer {
     private static ebookRepositoryInstance: SupabaseEbookRepository | null = null;
     private static adminRepositoryInstance: SupabaseAdminRepository | null = null;
     private static contentRepositoryInstance: SupabaseContentRepository | null = null;
-    private static storageRepositoryInstance: SupabaseStorageRepository | null = null;
+    private static storageRepositoryInstance: FilesystemStorageRepository | null = null;
     private static userManagementRepositoryInstance: SupabaseUserManagementRepository | null = null;
     private static analyticsRepositoryInstance: SupabaseAnalyticsRepository | null = null;
     private static portalNewsRepositoryInstance: SupabasePortalNewsRepository | null = null;
@@ -91,9 +90,9 @@ class DIContainer {
      * Obtém instância do repositório de autenticação
      * Singleton Pattern
      */
-    static getAuthRepository(): SupabaseAuthRepository {
+    static getAuthRepository(): BetterAuthRepository {
         if (!this.authRepositoryInstance) {
-            this.authRepositoryInstance = new SupabaseAuthRepository(supabase);
+            this.authRepositoryInstance = new BetterAuthRepository();
         }
         return this.authRepositoryInstance;
     }
@@ -104,7 +103,7 @@ class DIContainer {
      */
     static getNewsletterRepository(): SupabaseNewsletterRepository {
         if (!this.newsletterRepositoryInstance) {
-            this.newsletterRepositoryInstance = new SupabaseNewsletterRepository(supabaseAnon);
+            this.newsletterRepositoryInstance = new SupabaseNewsletterRepository();
         }
         return this.newsletterRepositoryInstance;
     }
@@ -115,14 +114,14 @@ class DIContainer {
      */
     static getMiniLivroRepository(): SupabaseMiniLivroRepository {
         if (!this.miniLivroRepositoryInstance) {
-            this.miniLivroRepositoryInstance = new SupabaseMiniLivroRepository(supabaseAnon);
+            this.miniLivroRepositoryInstance = new SupabaseMiniLivroRepository();
         }
         return this.miniLivroRepositoryInstance;
     }
 
     static getMiniLivroSectionRepository(): SupabaseMiniLivroSectionRepository {
         if (!this.miniLivroSectionRepositoryInstance) {
-            this.miniLivroSectionRepositoryInstance = new SupabaseMiniLivroSectionRepository(supabaseAnon);
+            this.miniLivroSectionRepositoryInstance = new SupabaseMiniLivroSectionRepository();
         }
         return this.miniLivroSectionRepositoryInstance;
     }
@@ -133,7 +132,7 @@ class DIContainer {
      */
     static getBibliotecaRepository(): SupabaseBibliotecaRepository {
         if (!this.bibliotecaRepositoryInstance) {
-            this.bibliotecaRepositoryInstance = new SupabaseBibliotecaRepository(supabaseAnon);
+            this.bibliotecaRepositoryInstance = new SupabaseBibliotecaRepository();
         }
         return this.bibliotecaRepositoryInstance;
     }
@@ -144,7 +143,7 @@ class DIContainer {
      */
     static getEspecialSemanaRepository(): SupabaseEspecialSemanaRepository {
         if (!this.especialSemanaRepositoryInstance) {
-            this.especialSemanaRepositoryInstance = new SupabaseEspecialSemanaRepository(supabaseAnon);
+            this.especialSemanaRepositoryInstance = new SupabaseEspecialSemanaRepository();
         }
         return this.especialSemanaRepositoryInstance;
     }
@@ -155,7 +154,7 @@ class DIContainer {
      */
     static getRadarOportunidadesRepository(): SupabaseRadarOportunidadesRepository {
         if (!this.radarOportunidadesRepositoryInstance) {
-            this.radarOportunidadesRepositoryInstance = new SupabaseRadarOportunidadesRepository(supabaseAnon);
+            this.radarOportunidadesRepositoryInstance = new SupabaseRadarOportunidadesRepository();
         }
         return this.radarOportunidadesRepositoryInstance;
     }
@@ -166,7 +165,7 @@ class DIContainer {
      */
     static getEstudarRepository(): SupabaseEstudarRepository {
         if (!this.estudarRepositoryInstance) {
-            this.estudarRepositoryInstance = new SupabaseEstudarRepository(supabaseAnon);
+            this.estudarRepositoryInstance = new SupabaseEstudarRepository();
         }
         return this.estudarRepositoryInstance;
     }
@@ -177,7 +176,7 @@ class DIContainer {
      */
     static getBookRepository(): SupabaseBookRepository {
         if (!this.bookRepositoryInstance) {
-            this.bookRepositoryInstance = new SupabaseBookRepository(supabaseAnon);
+            this.bookRepositoryInstance = new SupabaseBookRepository();
         }
         return this.bookRepositoryInstance;
     }
@@ -188,7 +187,7 @@ class DIContainer {
      */
     static getEbookRepository(): SupabaseEbookRepository {
         if (!this.ebookRepositoryInstance) {
-            this.ebookRepositoryInstance = new SupabaseEbookRepository(supabaseAnon);
+            this.ebookRepositoryInstance = new SupabaseEbookRepository();
         }
         return this.ebookRepositoryInstance;
     }
@@ -199,7 +198,7 @@ class DIContainer {
      */
     static getUserManagementRepository(): SupabaseUserManagementRepository {
         if (!this.userManagementRepositoryInstance) {
-            this.userManagementRepositoryInstance = new SupabaseUserManagementRepository(supabase);
+            this.userManagementRepositoryInstance = new SupabaseUserManagementRepository();
         }
         return this.userManagementRepositoryInstance;
     }
@@ -210,7 +209,7 @@ class DIContainer {
      */
     static getAnalyticsRepository(): SupabaseAnalyticsRepository {
         if (!this.analyticsRepositoryInstance) {
-            this.analyticsRepositoryInstance = new SupabaseAnalyticsRepository(supabase);
+            this.analyticsRepositoryInstance = new SupabaseAnalyticsRepository();
         }
         return this.analyticsRepositoryInstance;
     }
@@ -241,9 +240,9 @@ class DIContainer {
      * Obtém instância do repositório de storage
      * Singleton Pattern
      */
-    static getStorageRepository(): SupabaseStorageRepository {
+    static getStorageRepository(): FilesystemStorageRepository {
         if (!this.storageRepositoryInstance) {
-            this.storageRepositoryInstance = new SupabaseStorageRepository();
+            this.storageRepositoryInstance = new FilesystemStorageRepository();
         }
         return this.storageRepositoryInstance;
     }
@@ -285,9 +284,10 @@ class DIContainer {
         return new GetActiveBookUseCase(this.getBookRepository());
     }
 
+
     static getPortalNewsRepository(): SupabasePortalNewsRepository {
         if (!this.portalNewsRepositoryInstance) {
-            this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository(supabaseAnon);
+            this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository();
         }
         return this.portalNewsRepositoryInstance;
     }
@@ -302,7 +302,7 @@ class DIContainer {
      */
     static getHomeDatesRepository(): SupabaseHomeDatesRepository {
         if (!this.homeDatesRepositoryInstance) {
-            this.homeDatesRepositoryInstance = new SupabaseHomeDatesRepository(supabaseAnon);
+            this.homeDatesRepositoryInstance = new SupabaseHomeDatesRepository();
         }
         return this.homeDatesRepositoryInstance;
     }
@@ -313,7 +313,7 @@ class DIContainer {
      */
     static getAnnouncementBarRepository(): SupabaseAnnouncementBarRepository {
         if (!this.announcementBarRepositoryInstance) {
-            this.announcementBarRepositoryInstance = new SupabaseAnnouncementBarRepository(supabaseAnon, supabase);
+            this.announcementBarRepositoryInstance = new SupabaseAnnouncementBarRepository();
         }
         return this.announcementBarRepositoryInstance;
     }
