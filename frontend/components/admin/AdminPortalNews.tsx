@@ -535,15 +535,36 @@ export function AdminPortalNews() {
         }
         const config = LINK_TYPE_CONFIG[form.linkType];
         if (!config) return;
+        // LINK_TYPE_CONFIG uses hyphen (radar-oportunidades); /api/content
+        // expects underscore (radar_oportunidades) — translate.
+        const apiType = form.linkType === "radar-oportunidades"
+            ? "radar_oportunidades"
+            : form.linkType;
         setIsLoadingLinkItems(true);
-        supabase
-            .from(config.table)
-            .select("id, title")
-            .order("id", { ascending: false })
-            .then(({ data }) => {
-                setLinkItems((data ?? []) as Array<{ id: number; title: string }>);
-                setIsLoadingLinkItems(false);
-            });
+        fetch(`/api/content/${encodeURIComponent(apiType)}`)
+            .then(async res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const payload = (await res.json()) as unknown;
+                const raw = Array.isArray(payload)
+                    ? payload
+                    : Array.isArray((payload as { items?: unknown[] })?.items)
+                        ? (payload as { items: unknown[] }).items
+                        : [];
+                const items = raw
+                    .map(entry => {
+                        const e = entry as { props?: { id?: number; title?: string }; id?: number; title?: string };
+                        const src = e.props ?? e;
+                        return { id: Number(src.id ?? 0), title: String(src.title ?? "") };
+                    })
+                    .filter(it => it.id > 0 && it.title)
+                    .sort((a, b) => b.id - a.id);
+                setLinkItems(items);
+            })
+            .catch(err => {
+                console.error("Erro ao carregar itens para link:", err);
+                setLinkItems([]);
+            })
+            .finally(() => setIsLoadingLinkItems(false));
     }, [form.linkType, showModal]);
 
     const handleOpenCreate = () => {
