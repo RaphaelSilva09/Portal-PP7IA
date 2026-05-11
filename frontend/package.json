@@ -31,7 +31,6 @@
       "bcrypt",
       "esbuild",
       "sharp",
-      "supabase",
       "unrs-resolver"
     ]
   },
