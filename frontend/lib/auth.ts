@@ -19,6 +19,13 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
 
+  trustedOrigins: [
+    "https://pp7ias-portal.com.br",
+    "https://www.pp7ias-portal.com.br",
+    "https://develop.pp7ias-portal.com.br",
+    ...(process.env.NODE_ENV === "production" ? [] : ["http://localhost:3000"]),
+  ],
+
   user: {
     additionalFields: {
       nome: { type: "string", required: false },
