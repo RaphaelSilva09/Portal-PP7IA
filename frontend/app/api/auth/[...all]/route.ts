@@ -1,3 +1,4 @@
+// Better-auth handler with explicit CORS for trusted origins.
 import { auth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
