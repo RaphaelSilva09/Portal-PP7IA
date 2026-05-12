@@ -4,6 +4,9 @@ import type { auth } from "./auth";
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  sessionOptions: {
+    refetchOnWindowFocus: false,
+  },
   plugins: [
     emailOTPClient(),
     inferAdditionalFields<typeof auth>(),

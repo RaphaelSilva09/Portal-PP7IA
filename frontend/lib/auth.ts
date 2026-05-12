@@ -91,7 +91,15 @@ export const auth = betterAuth({
   rateLimit: {
     enabled: true,
     window: 60,
-    max: 10,
+    max: 60,
+    customRules: {
+      "/get-session": { window: 60, max: 240 },
+      "/sign-in/email": { window: 60, max: 10 },
+      "/sign-up/email": { window: 60, max: 10 },
+      "/forget-password": { window: 60, max: 5 },
+      "/reset-password": { window: 60, max: 10 },
+      "/email-otp/send-verification-otp": { window: 60, max: 5 },
+    },
   },
 
   advanced: {
