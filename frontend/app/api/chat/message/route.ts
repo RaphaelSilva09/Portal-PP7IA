@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
         async start(controller) {
             let retried = false;
-            let markersOk = true;
+            let markersOk = false;
             try {
                 const result = await answerWithMarkers(provider, {
                     system: prompt.system,
@@ -186,6 +186,7 @@ export async function POST(request: NextRequest) {
                 console.log(JSON.stringify({
                     event: "chat.message", user_id: user.id, ms: Date.now() - startedAt,
                     top_k: relevant.length,
+                    chunks_used: usedChunks.length,
                     min_sim: relevant[relevant.length - 1].similarity,
                     status: "ok", retried, markers_ok: markersOk,
                 }));
