@@ -1,6 +1,7 @@
 "use client";
 
 import { Citations } from "./Citations";
+import { MessageContent } from "./MessageContent";
 import type { Citation } from "@/domain/chat/RagAnswer";
 
 interface Props {
@@ -59,7 +60,7 @@ export function MessageBubble({ role, content, citations, streaming }: Props) {
                         isAssistantStreaming && !hasContent ? "translate-y-1 opacity-0" : "translate-y-0 opacity-100",
                     ].join(" ")}
                 >
-                    {content}
+                    <MessageContent content={content} citations={citations} />
                     {isAssistantStreaming && hasContent && <span className="ml-1 inline-block h-[14px] w-[7px] align-text-bottom animate-pulse bg-brand-blue dark:bg-blue-400" />}
                 </div>
             </div>
