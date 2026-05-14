@@ -38,15 +38,15 @@ export function buildContext(
 }
 
 export interface PromptInputs {
-    messages: Message[];
+    messages: Message[];           // includes the latest user message at the end
     chunks: RetrievedChunk[];
-    chunkToCitationIdx: number[];
+    chunkToCitationIdx: number[];  // 1-based citation index for each chunk; length must equal chunks.length
 }
 
 export interface BuiltPrompt {
     system: string;
     context: string;
-    history: Message[];
+    history: Message[];           // truncated to MAX_HISTORY messages, excluding the latest
     question: string;
 }
 
