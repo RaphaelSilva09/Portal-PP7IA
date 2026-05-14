@@ -2,19 +2,10 @@
 
 import Link from "next/link";
 import type { Citation } from "@/domain/chat/RagAnswer";
+import { hrefForCitation } from "@/lib/chat/citationLink";
 
 interface Props {
     citations: Citation[];
-}
-
-function anchorize(text: string): string {
-    return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "")
-        .replace(/[^a-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-");
 }
 
 export function Citations({ citations }: Props) {
@@ -28,13 +19,10 @@ export function Citations({ citations }: Props) {
             <ul className="mt-2.5 space-y-2">
                 {citations.map((c, i) => {
                     const heading = c.heading_path.join(" — ") || c.title;
-                    const lastHeading = c.heading_path[c.heading_path.length - 1];
-                    const href = lastHeading
-                        ? `/view/mini-livro/${c.slug}#${anchorize(lastHeading)}`
-                        : `/view/mini-livro/${c.slug}`;
                     return (
                         <li key={`${c.slug}-${i}`} className="rounded-xl border border-border/70 bg-background/60 px-3 py-2 dark:bg-background/40">
-                            <Link href={href} className="inline-flex text-brand-blue transition-colors duration-200 hover:text-brand-purple hover:underline">
+                            <Link href={hrefForCitation(c)} className="inline-flex text-brand-blue transition-colors duration-200 hover:text-brand-purple hover:underline">
+                                <span className="mr-1 font-semibold">[{i + 1}]</span>
                                 {heading}
                             </Link>
                         </li>
