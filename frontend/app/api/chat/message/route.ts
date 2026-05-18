@@ -7,6 +7,7 @@ import { RagChunkRepository } from "@/infrastructure/chat/RagChunkRepository";
 import { getEmbeddingProvider, getLLMProvider } from "@/infrastructure/chat/providers";
 import { encodeSseEvent, sseResponse } from "@/lib/chat/sse";
 import { buildPrompt } from "@/lib/chat/promptBuilder";
+import { answerWithMarkers } from "@/lib/chat/answerWithMarkers";
 import { citationFromMetadata } from "@/domain/chat/RagAnswer";
 import type { Message } from "@/domain/chat/Message";
 import type { SseEvent } from "@/domain/chat/RagAnswer";
@@ -118,41 +119,63 @@ export async function POST(request: NextRequest) {
         return sseResponse(stream);
     }
 
-    // 5. Build prompt
-    const prompt = buildPrompt({ messages: body.messages, chunks: relevant });
+    // 5. Dedupe citations: one per (slug, chapter). Keep highest similarity per group.
+    // "Chapter" = first 2 levels of heading_path (book → chapter). Cap at 8.
+    const CITATION_CAP = 8;
+    type Cit = ReturnType<typeof citationFromMetadata>;
+    const chapterKeyOf = (c: typeof relevant[number]) =>
+        `${c.metadata.slug}|${(c.metadata.heading_path ?? []).slice(0, 2).join("|")}`;
 
-    // 6. Stream
+    const bestPerKey = new Map<string, Cit>();
+    for (const c of relevant) {
+        const key = chapterKeyOf(c);
+        const cit = citationFromMetadata(c.metadata, c.similarity);
+        const existing = bestPerKey.get(key);
+        if (!existing || cit.similarity > existing.similarity) {
+            bestPerKey.set(key, { ...cit, heading_path: cit.heading_path.slice(0, 2) });
+        }
+    }
+    const orderedKeys = Array.from(bestPerKey.entries())
+        .sort((a, b) => b[1].similarity - a[1].similarity)
+        .slice(0, CITATION_CAP)
+        .map(([k]) => k);
+    const citations = orderedKeys.map(k => bestPerKey.get(k)!);
+    const keyToCitationIdx = new Map(orderedKeys.map((k, i) => [k, i + 1]));
+    // Chunks whose chapter dropped past CITATION_CAP map to 0 (won't appear in context).
+    const chunkToCitationIdx = relevant.map(c => keyToCitationIdx.get(chapterKeyOf(c)) ?? 0);
+    const usedChunks = relevant.filter((_, i) => chunkToCitationIdx[i] > 0);
+    const usedIdx = chunkToCitationIdx.filter(n => n > 0);
+
+    // 6. Build prompt
+    const prompt = buildPrompt({
+        messages: body.messages,
+        chunks: usedChunks,
+        chunkToCitationIdx: usedIdx,
+    });
+
+    // 7. Generate (with 1-retry on missing [N] markers)
     const provider = getLLMProvider();
     const startedAt = Date.now();
 
-    // Dedupe citations: one per (slug, chapter). Keep highest similarity per group.
-    // "Chapter" = first 2 levels of heading_path (book → chapter). Cap at 8.
-    const CITATION_CAP = 8;
-    const citationByChapter = new Map<string, ReturnType<typeof citationFromMetadata>>();
-    for (const c of relevant) {
-        const chapterKey = `${c.metadata.slug}|${(c.metadata.heading_path ?? []).slice(0, 2).join("|")}`;
-        const cit = citationFromMetadata(c.metadata, c.similarity);
-        const existing = citationByChapter.get(chapterKey);
-        if (!existing || cit.similarity > existing.similarity) {
-            // Trim heading_path to 2 levels for display (book + chapter, drop sub-section noise)
-            citationByChapter.set(chapterKey, { ...cit, heading_path: cit.heading_path.slice(0, 2) });
-        }
-    }
-    const citations = Array.from(citationByChapter.values())
-        .sort((a, b) => b.similarity - a.similarity)
-        .slice(0, CITATION_CAP);
-
     const stream = new ReadableStream({
         async start(controller) {
+            let retried = false;
+            let markersOk = false;
             try {
-                for await (const token of provider.streamGenerate({
+                const result = await answerWithMarkers(provider, {
                     system: prompt.system,
                     context: prompt.context,
                     history: prompt.history,
                     question: prompt.question,
-                })) {
-                    controller.enqueue(encodeSseEvent({ type: "token", content: token }));
+                }, citations.length);
+                retried = result.retried;
+                markersOk = result.markersOk;
+                if (retried) {
+                    console.log(JSON.stringify({
+                        event: "chat.retry", reason: "missing_markers", user_id: user.id,
+                    }));
                 }
+                controller.enqueue(encodeSseEvent({ type: "token", content: result.answer }));
                 controller.enqueue(encodeSseEvent({ type: "done", citations }));
             } catch (err) {
                 const message = err instanceof Error ? err.message : "Erro desconhecido.";
@@ -163,8 +186,9 @@ export async function POST(request: NextRequest) {
                 console.log(JSON.stringify({
                     event: "chat.message", user_id: user.id, ms: Date.now() - startedAt,
                     top_k: relevant.length,
+                    chunks_used: usedChunks.length,
                     min_sim: relevant[relevant.length - 1].similarity,
-                    status: "ok",
+                    status: "ok", retried, markers_ok: markersOk,
                 }));
             }
         },

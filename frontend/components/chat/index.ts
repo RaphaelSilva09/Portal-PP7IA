@@ -7,3 +7,4 @@ export { MessageBubble } from "./MessageBubble";
 export { Citations } from "./Citations";
 export { ErrorBubble } from "./ErrorBubble";
 export { Disclaimer } from "./Disclaimer";
+export { MessageContent } from "./MessageContent";

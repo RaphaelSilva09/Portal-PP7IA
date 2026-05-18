@@ -16,18 +16,31 @@ ESTILO de resposta:
 REGRAS de exatidão (quando precisar citar títulos):
 - Use os títulos completos que aparecem no formato "Capítulo I A Ilusão da Competência" no corpo dos trechos.
 - IGNORE listas curtas de navegação truncadas (ex: "A Ilusão da", "Os 4 Pilares") — são menus visuais.
-- Não invente seções que não estão nos trechos.`;
+- Não invente seções que não estão nos trechos.
 
-export function buildContext(chunks: RetrievedChunk[]): string {
+REGRAS de citação:
+- Toda afirmação factual deve ser seguida por marcador [N] referindo a "Fonte N" do contexto.
+- Múltiplas fontes para a mesma afirmação: [1][2] (não [1, 2]).
+- Use apenas N existentes em "Fonte 1..M" do contexto. Não invente.
+- Não emita [Fonte N], apenas [N].`;
+
+export function buildContext(
+    chunks: RetrievedChunk[],
+    chunkToCitationIdx: number[],
+): string {
+    if (chunks.length !== chunkToCitationIdx.length) {
+        throw new Error("buildContext: chunkToCitationIdx length must match chunks length");
+    }
     return chunks.map((c, i) => {
         const heading = c.metadata.heading_path.join(" — ");
-        return `[Trecho ${i + 1} — ${heading || "Sem título"}]\n${c.content}`;
+        return `[Fonte ${chunkToCitationIdx[i]} — ${heading || "Sem título"}]\n${c.content}`;
     }).join("\n---\n");
 }
 
 export interface PromptInputs {
     messages: Message[];           // includes the latest user message at the end
     chunks: RetrievedChunk[];
+    chunkToCitationIdx: number[];  // 1-based citation index for each chunk; length must equal chunks.length
 }
 
 export interface BuiltPrompt {
@@ -45,7 +58,7 @@ export function buildPrompt(input: PromptInputs): BuiltPrompt {
     const history = messages.slice(0, -1).slice(-MAX_HISTORY);
     return {
         system: SYSTEM_PROMPT,
-        context: buildContext(input.chunks),
+        context: buildContext(input.chunks, input.chunkToCitationIdx),
         history,
         question: last.content,
     };
