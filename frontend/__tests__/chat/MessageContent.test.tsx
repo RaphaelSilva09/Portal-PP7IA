@@ -4,8 +4,8 @@ import { MessageContent } from "@/components/chat/MessageContent";
 import type { Citation } from "@/domain/chat/RagAnswer";
 
 const cites: Citation[] = [
-    { slug: "001", title: "ML 1", heading_path: ["Enquanto é Tempo", "Cap I"], similarity: 0.9 },
-    { slug: "002", title: "ML 2", heading_path: ["Enquanto é Tempo", "Cap II"], similarity: 0.8 },
+    { source_type: "mini_livro", slug: "001", title: "ML 1", heading_path: ["Enquanto é Tempo", "Cap I"], similarity: 0.9 },
+    { source_type: "mini_livro", slug: "002", title: "ML 2", heading_path: ["Enquanto é Tempo", "Cap II"], similarity: 0.8 },
 ];
 
 describe("MessageContent", () => {
