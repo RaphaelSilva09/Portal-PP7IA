@@ -39,10 +39,16 @@ const EXTRACTION_PROMPT = (title: string, text: string) => `
 Dado o seguinte conteúdo intitulado "${title}", extraia as informações abaixo.
 Responda EXATAMENTE neste formato, sem texto adicional:
 
-Pessoas mencionadas: [nomes separados por vírgula, ou "Nenhuma"]
+Pessoas mencionadas: [nomes completos separados por vírgula, ou "Nenhuma"]
 Número de pessoas: [número inteiro]
 Empresas / organizações: [nomes separados por vírgula, ou "Nenhuma"]
 Referências citadas: [livros, artigos ou estudos separados por vírgula, ou "Nenhuma"]
+
+REGRAS:
+- Inclua TODA pessoa citada, referenciada ou cujo caso é narrado no conteúdo.
+- NÃO inclua o autor/narrador do próprio documento (Paulo Periquito / PP) — apenas pessoas mencionadas dentro do texto.
+- Inclua nomes mesmo que apareçam uma só vez.
+- Se o nome não for explicitado (ex: "meu primeiro chefe"), não invente — omita.
 
 Conteúdo:
 ${text.slice(0, 12000)}
