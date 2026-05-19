@@ -39,7 +39,7 @@ REGRAS de citação:
 - Múltiplas fontes para a mesma afirmação: [1][2] (não [1, 2]).
 - Use apenas N existentes em "Fonte 1..M" do contexto. Não invente.
 - Não emita [Fonte N], apenas [N].
-- O bloco [Contexto adicional] é conhecimento de fundo — use a informação livremente mas não cite com [N].`;
+- O bloco [Contexto adicional] é conhecimento de fundo — use a informação livremente mas não cite com [N] e NUNCA reproduza o texto "[Contexto adicional]" na resposta.`;
 
 export function buildContext(
     chunks: RetrievedChunk[],

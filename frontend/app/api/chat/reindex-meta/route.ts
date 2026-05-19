@@ -39,13 +39,19 @@ const EXTRACTION_PROMPT = (title: string, text: string) => `
 Dado o seguinte conteúdo intitulado "${title}", extraia as informações abaixo.
 Responda EXATAMENTE neste formato, sem texto adicional:
 
-Pessoas mencionadas: [nomes separados por vírgula, ou "Nenhuma"]
+Pessoas mencionadas: [nomes completos separados por vírgula, ou "Nenhuma"]
 Número de pessoas: [número inteiro]
 Empresas / organizações: [nomes separados por vírgula, ou "Nenhuma"]
 Referências citadas: [livros, artigos ou estudos separados por vírgula, ou "Nenhuma"]
 
+REGRAS:
+- Inclua TODA pessoa citada, referenciada ou cujo caso é narrado no conteúdo.
+- NÃO inclua o autor/narrador do próprio documento (Paulo Periquito / PP) — apenas pessoas mencionadas dentro do texto.
+- Inclua nomes mesmo que apareçam uma só vez.
+- Se o nome não for explicitado (ex: "meu primeiro chefe"), não invente — omita.
+
 Conteúdo:
-${text.slice(0, 6000)}
+${text.slice(0, 12000)}
 `.trim();
 
 async function streamToString(llm: LLMProvider, input: Parameters<LLMProvider["streamGenerate"]>[0]): Promise<string> {
@@ -94,9 +100,14 @@ export async function POST(request: NextRequest) {
         const items = await source.fetchAll();
 
         // Phase 1: LLM extraction (sequential — rate-limited by Gemini)
+        // Use already-indexed chunk text (HtmlChunker output) rather than re-stripping raw HTML,
+        // which would waste the first 6000 chars on navigation boilerplate.
         const extractions: { item: typeof items[number]; text: string }[] = [];
         for (const item of items) {
-            const plainText = item.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+            const existingChunks = await repo.findBySlug(sourceType, item.slug);
+            const plainText = existingChunks.length > 0
+                ? existingChunks.map(c => c.content).join("\n\n")
+                : item.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
             const extracted = await streamToString(llm, {
                 system: "Você é um extrator de entidades. Siga o formato exato solicitado.",
                 context: "",
