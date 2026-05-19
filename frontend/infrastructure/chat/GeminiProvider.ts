@@ -2,7 +2,15 @@
 import { GoogleGenerativeAI, type Content } from "@google/generative-ai";
 import type { LLMProvider, LLMStreamInput } from "@/domain/chat/LLMProvider";
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+const DEFAULT_MODEL = process.env.GEMINI_LLM_MODEL ?? "gemini-2.5-flash";
+const MAX_RETRIES = 3;
+
+function isRetryable(err: unknown): boolean {
+    const msg = err instanceof Error ? err.message : String(err);
+    return msg.includes("503") || msg.includes("Service Unavailable") || msg.includes("overloaded");
+}
+
+async function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 
 export class GeminiProvider implements LLMProvider {
     private client: GoogleGenerativeAI;
@@ -41,10 +49,21 @@ export class GeminiProvider implements LLMProvider {
 
         contents.push({ role: "user", parts: [{ text: input.question }] });
 
-        const result = await model.generateContentStream({ contents });
-        for await (const chunk of result.stream) {
-            const text = chunk.text();
-            if (text) yield text;
+        let lastErr: unknown;
+        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            if (attempt > 0) await sleep(2000 * attempt);
+            try {
+                const result = await model.generateContentStream({ contents });
+                for await (const chunk of result.stream) {
+                    const text = chunk.text();
+                    if (text) yield text;
+                }
+                return;
+            } catch (err) {
+                lastErr = err;
+                if (!isRetryable(err) || attempt === MAX_RETRIES - 1) throw err;
+            }
         }
+        throw lastErr;
     }
 }
