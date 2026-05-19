@@ -12,7 +12,7 @@ export interface ChunkMetadata {
 }
 
 export interface Chunk {
-    source_type: string;      // 'mini_livro'
+    source_type: string;      // e.g. 'mini_livro', 'newsletter', 'meta_summary'
     source_id: string;
     chunk_index: number;
     content: string;
