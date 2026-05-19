@@ -52,7 +52,7 @@ export function buildContext(
     const cited = chunks.map((c, i) => {
         const label = sourceLabel(c);
         const heading = c.metadata.heading_path.join(" — ");
-        const subLabel = heading || c.metadata.title || "Sem título";
+        const subLabel = heading || c.metadata.parent_title || c.metadata.title || "Sem título";
         return `[Fonte ${chunkToCitationIdx[i]} — ${label}: ${subLabel}]\n${c.content}`;
     }).join("\n---\n");
 

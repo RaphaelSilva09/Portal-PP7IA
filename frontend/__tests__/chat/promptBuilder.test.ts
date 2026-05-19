@@ -65,6 +65,27 @@ describe("buildContext", () => {
     it("throws when chunkToCitationIdx length mismatches chunks", () => {
         expect(() => buildContext([chunk], [1, 2])).toThrow("buildContext");
     });
+
+    it("promotes meta_summary label to parent_source_type when available", () => {
+        const metaChunk: RetrievedChunk = {
+            ...chunk,
+            source_type: "meta_summary",
+            metadata: { ...chunk.metadata, heading_path: [], parent_source_type: "newsletter", parent_title: "Newsletter 10" },
+        };
+        const ctx = buildContext([metaChunk], [1]);
+        expect(ctx).toContain("[Fonte 1 — Newsletter: Newsletter 10]");
+        expect(ctx).not.toContain("Resumo");
+    });
+
+    it("labels meta_summary as Resumo when parent_source_type is absent", () => {
+        const metaNoParent: RetrievedChunk = {
+            ...chunk,
+            source_type: "meta_summary",
+            metadata: { ...chunk.metadata, heading_path: [] },
+        };
+        const ctx = buildContext([metaNoParent], [1]);
+        expect(ctx).toContain("[Fonte 1 — Resumo: Intro]");
+    });
 });
 
 describe("buildPrompt", () => {
