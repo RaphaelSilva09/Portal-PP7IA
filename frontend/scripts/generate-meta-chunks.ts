@@ -158,9 +158,13 @@ async function extractForSource(
         globalText += token;
     }
     const globalEmbedding = await embedder.embed(globalText);
+    const globalSourceId = GLOBAL_SOURCE_IDS[source.sourceType];
+    if (!globalSourceId) {
+        throw new Error(`No GLOBAL_SOURCE_IDS entry for source type: ${source.sourceType} — add it before running`);
+    }
     const globalChunk: EmbeddedChunk = {
         source_type: "meta_global",
-        source_id: GLOBAL_SOURCE_IDS[source.sourceType] ?? "00000000-0000-4000-8000-000000000000",
+        source_id: globalSourceId,
         chunk_index: 0,
         content: globalText,
         metadata: {
@@ -193,10 +197,19 @@ async function main() {
     const allSummaryChunks: EmbeddedChunk[] = [];
     const allGlobalChunks: EmbeddedChunk[] = [];
 
+    let failed = false;
     for (const source of ALL_SOURCES) {
-        const result = await extractForSource(source, llm, embedder);
-        allSummaryChunks.push(...result.summaryChunks);
-        allGlobalChunks.push(result.globalChunk);
+        try {
+            const result = await extractForSource(source, llm, embedder);
+            allSummaryChunks.push(...result.summaryChunks);
+            allGlobalChunks.push(result.globalChunk);
+        } catch (err) {
+            console.error(`[${source.sourceType}] Extraction failed:`, err);
+            failed = true;
+        }
+    }
+    if (failed) {
+        console.error("\nExtraction completed with errors. Storing partial results.");
     }
 
     console.log(`\nStoring ${allSummaryChunks.length} meta_summary chunks...`);
@@ -205,6 +218,10 @@ async function main() {
     console.log(`Storing ${allGlobalChunks.length} meta_global chunks...`);
     await chunkRepo.replaceAllForSource({ sourceType: "meta_global", chunks: allGlobalChunks });
 
+    if (failed) {
+        console.error("Meta-chunk generation completed with errors.");
+        process.exit(1);
+    }
     console.log("\nMeta-chunk generation complete.");
     process.exit(0);
 }

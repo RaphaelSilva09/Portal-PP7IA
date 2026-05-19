@@ -110,10 +110,20 @@ async function main() {
     const embedder = new GeminiEmbeddingProvider(geminiKey, process.env.GEMINI_EMBEDDING_MODEL);
     const chunkRepo = new RagChunkRepository();
 
+    let failed = false;
     for (const source of sources) {
-        await ingestSource(source, chunker, embedder, chunkRepo);
+        try {
+            await ingestSource(source, chunker, embedder, chunkRepo);
+        } catch (err) {
+            console.error(`[${source.sourceType}] Ingest failed:`, err);
+            failed = true;
+        }
     }
 
+    if (failed) {
+        console.error("\nIngest completed with errors. Some sources may not have been updated.");
+        process.exit(1);
+    }
     console.log("\nIngest complete.");
     process.exit(0);
 }
