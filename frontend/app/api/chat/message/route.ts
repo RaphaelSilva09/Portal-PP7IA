@@ -75,6 +75,8 @@ export async function POST(request: NextRequest) {
         }));
     }
 
+    const startedAt = Date.now();
+
     // 3. Embed query
     const embedder = getEmbeddingProvider();
     const queryEmbedding = await embedder.embed(lastUser.content);
@@ -110,7 +112,6 @@ export async function POST(request: NextRequest) {
         .filter(c => c.similarity >= RAG_MIN_SIMILARITY);
 
     if (citableCandidates.length === 0) {
-        const startedAt = Date.now();
         const stream = new ReadableStream({
             start(controller) {
                 controller.enqueue(encodeSseEvent({ type: "token", content: NO_MATCH_TEXT }));
@@ -172,7 +173,6 @@ export async function POST(request: NextRequest) {
 
     // 8. Generate with 1-retry on missing [N] markers
     const provider = getLLMProvider();
-    const startedAt = Date.now();
 
     const stream = new ReadableStream({
         async start(controller) {
