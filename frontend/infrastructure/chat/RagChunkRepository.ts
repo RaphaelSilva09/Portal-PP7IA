@@ -70,6 +70,52 @@ export class RagChunkRepository {
         }
     }
 
+    /**
+     * Replace meta chunks for one parent source type.
+     * Deletes meta_summary WHERE parent_source_type = X and meta_global WHERE slug = global_X,
+     * then inserts the new chunks. Safe to call per-source without wiping other sources.
+     */
+    async replaceMetaForParentSource(parentSourceType: string, chunks: EmbeddedChunk[]): Promise<number> {
+        const client = await pool.connect();
+        try {
+            await client.query("BEGIN");
+            await client.query(
+                `DELETE FROM public.rag_chunks
+                 WHERE (source_type = 'meta_summary' AND metadata->>'parent_source_type' = $1)
+                    OR (source_type = 'meta_global'  AND metadata->>'slug' = $2)`,
+                [parentSourceType, `global_${parentSourceType}`],
+            );
+
+            if (chunks.length === 0) {
+                await client.query("COMMIT");
+                return 0;
+            }
+
+            const insertSql = `
+                INSERT INTO public.rag_chunks
+                    (source_type, source_id, chunk_index, content, embedding, metadata)
+                SELECT * FROM UNNEST(
+                    $1::text[], $2::text[], $3::int[], $4::text[], $5::vector[], $6::jsonb[]
+                )
+            `;
+            await client.query(insertSql, [
+                chunks.map(c => c.source_type),
+                chunks.map(c => c.source_id),
+                chunks.map(c => c.chunk_index),
+                chunks.map(c => c.content),
+                chunks.map(c => toVectorLiteral(c.embedding)),
+                chunks.map(c => JSON.stringify(c.metadata)),
+            ]);
+            await client.query("COMMIT");
+            return chunks.length;
+        } catch (err) {
+            await client.query("ROLLBACK");
+            throw err instanceof Error ? err : new Error(String(err));
+        } finally {
+            client.release();
+        }
+    }
+
     /** Fetch all chunks for a given source by slug (hybrid retrieval hit). */
     async findBySlug(sourceType: string, slug: string): Promise<RetrievedChunk[]> {
         const { rows } = await pool.query<ChunkRow>(
