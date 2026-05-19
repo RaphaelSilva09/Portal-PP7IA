@@ -25,6 +25,12 @@ export function safeJoin(relPath: string): string {
  */
 export function toSourceId(numericId: number | string): string {
     const n = Number(numericId);
+    if (!Number.isFinite(n) || n < 0 || !Number.isInteger(n)) {
+        throw new Error(`toSourceId: invalid numeric id: ${numericId}`);
+    }
+    if (n > 0xffffffffffff) {
+        throw new Error(`toSourceId: id ${numericId} exceeds 48-bit uuid node field`);
+    }
     const hex = n.toString(16).padStart(12, "0");
     return `00000000-0000-4000-8000-${hex}`;
 }
