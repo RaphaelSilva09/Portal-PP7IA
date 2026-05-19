@@ -20,7 +20,10 @@ export class EstudarContentSource implements ContentSource {
         for (const row of rows) {
             if (!row.html_path) continue;
             const slug = deriveSlug(row.html_path);
-            if (!slug) continue;
+            if (!slug) {
+                console.warn(`EstudarContentSource: cannot derive slug from html_path: ${row.html_path}`);
+                continue;
+            }
             let html: string;
             try {
                 html = await fs.readFile(safeJoin(row.html_path), "utf8");
