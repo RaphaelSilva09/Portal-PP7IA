@@ -293,6 +293,11 @@ export function UserManager() {
                 title={confirmDialog.title}
                 message={confirmDialog.message}
                 variant={confirmDialog.variant}
+                requireCheckboxLabel={
+                    confirmDialog.variant === "danger"
+                        ? "Compreendo que deletar um usuário é uma ação não reversível e, caso queira recadastrar, o usuário deverá repetir o fluxo de cadastro pela página"
+                        : undefined
+                }
                 onConfirm={confirmDialog.onConfirm}
                 onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
             />
