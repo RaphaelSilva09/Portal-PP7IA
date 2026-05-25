@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export interface ConfirmDialogProps {
     isOpen: boolean;
@@ -10,6 +10,7 @@ export interface ConfirmDialogProps {
     confirmLabel?: string;
     cancelLabel?: string;
     variant?: "danger" | "warning";
+    requireCheckboxLabel?: string;
     onConfirm: () => void;
     onCancel: () => void;
 }
@@ -21,9 +22,16 @@ export function ConfirmDialog({
     confirmLabel = "Confirmar",
     cancelLabel = "Cancelar",
     variant = "danger",
+    requireCheckboxLabel,
     onConfirm,
     onCancel,
 }: ConfirmDialogProps) {
+    const [isChecked, setIsChecked] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen) setIsChecked(false);
+    }, [isOpen]);
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -41,6 +49,13 @@ export function ConfirmDialog({
     }, [isOpen, onCancel]);
 
     if (!isOpen) return null;
+
+    const confirmDisabled = !!requireCheckboxLabel && !isChecked;
+
+    const variantStyles = {
+        danger: "bg-red-500 hover:bg-red-600",
+        warning: "bg-orange-500 hover:bg-orange-600",
+    };
 
     return (
         <div
@@ -75,6 +90,19 @@ export function ConfirmDialog({
                 {/* Message */}
                 <div className="px-6 py-5">
                     <p className="text-sm leading-relaxed text-muted-foreground">{message}</p>
+                    {requireCheckboxLabel && (
+                        <label className="mt-4 flex cursor-pointer items-start gap-3">
+                            <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={e => setIsChecked(e.target.checked)}
+                                className="mt-0.5 size-4 shrink-0 accent-red-500"
+                            />
+                            <span className="text-sm leading-relaxed text-muted-foreground">
+                                {requireCheckboxLabel}
+                            </span>
+                        </label>
+                    )}
                 </div>
 
                 {/* Actions */}
@@ -87,9 +115,8 @@ export function ConfirmDialog({
                     </button>
                     <button
                         onClick={() => { onConfirm(); onCancel(); }}
-                        className={`flex-1 rounded-full py-3 text-sm font-medium text-white transition-colors ${
-                            variant === "danger" ? "bg-red-500 hover:bg-red-600" : "bg-orange-500 hover:bg-orange-600"
-                        }`}
+                        disabled={confirmDisabled}
+                        className={`flex-1 rounded-full py-3 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${variantStyles[variant]}`}
                     >
                         {confirmLabel}
                     </button>

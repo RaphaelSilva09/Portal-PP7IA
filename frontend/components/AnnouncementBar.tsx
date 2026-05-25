@@ -82,13 +82,6 @@ export default function AnnouncementBar({ bars }: AnnouncementBarProps) {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
         >
-            {showNav && (
-                <span
-                    className="announcement-tick"
-                    aria-hidden="true"
-                    onAnimationIteration={goNext}
-                />
-            )}
             {/* Centro: mensagem + link + navegação */}
             <div
                 key={bar.id}
