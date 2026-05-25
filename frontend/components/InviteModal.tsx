@@ -1,21 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, Check, Loader2, Mail, Plus, Trash2, UserPlus, X } from "lucide-react";
+import { AlertCircle, Check, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { isValidEmail } from "../lib/validators";
 import Portal from "./Portal";
-
-/**
- * InviteModal Component
- *
- * Modal com interface "planilha" para convidar múltiplas pessoas por email.
- * Cada linha representa um convite. O usuário pode adicionar ou remover linhas.
- *
- * Princípios aplicados:
- * - SRP: Focado exclusivamente no fluxo de convites
- * - Clean Code: Nomes reveladores de intenção, funções pequenas
- */
 
 interface InviteModalProps {
     isOpen: boolean;
@@ -30,11 +19,7 @@ interface InviteRow {
 }
 
 function createRow(): InviteRow {
-    return {
-        id: crypto.randomUUID(),
-        email: "",
-        status: "idle",
-    };
+    return { id: crypto.randomUUID(), email: "", status: "idle" };
 }
 
 export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
@@ -48,12 +33,10 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
     const allDone = hasSent && rows.every(r => r.status === "success" || r.status === "error" || !r.email.trim());
 
     const handleEmailChange = (id: string, value: string) => {
-        setRows(prev => prev.map(r => (r.id === id ? { ...r, email: value, status: "idle", errorMessage: undefined } : r)));
+        setRows(prev => prev.map(r => r.id === id ? { ...r, email: value, status: "idle", errorMessage: undefined } : r));
     };
 
-    const addRow = () => {
-        setRows(prev => [...prev, createRow()]);
-    };
+    const addRow = () => setRows(prev => [...prev, createRow()]);
 
     const removeRow = (id: string) => {
         if (rows.length <= 1) return;
@@ -70,35 +53,25 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
     const handleSend = async () => {
         setIsSending(true);
         setHasSent(true);
-
-        const rowsToSend = rows.filter(r => isValidEmail(r.email) && r.status === "idle");
-
-        for (const row of rowsToSend) {
-            setRows(prev => prev.map(r => (r.id === row.id ? { ...r, status: "sending" } : r)));
-
+        const toSend = rows.filter(r => isValidEmail(r.email) && r.status === "idle");
+        for (const row of toSend) {
+            setRows(prev => prev.map(r => r.id === row.id ? { ...r, status: "sending" } : r));
             try {
-                const response = await fetch("/api/invite", {
+                const res = await fetch("/api/invite", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email: row.email.trim().toLowerCase() }),
                 });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    setRows(prev => prev.map(r => (r.id === row.id ? { ...r, status: "success" } : r)));
+                const data = await res.json();
+                if (res.ok) {
+                    setRows(prev => prev.map(r => r.id === row.id ? { ...r, status: "success" } : r));
                 } else {
-                    setRows(prev =>
-                        prev.map(r => (r.id === row.id ? { ...r, status: "error", errorMessage: data.error || "Erro ao enviar" } : r)),
-                    );
+                    setRows(prev => prev.map(r => r.id === row.id ? { ...r, status: "error", errorMessage: data.error || "Erro ao enviar" } : r));
                 }
             } catch {
-                setRows(prev =>
-                    prev.map(r => (r.id === row.id ? { ...r, status: "error", errorMessage: "Erro de conexão" } : r)),
-                );
+                setRows(prev => prev.map(r => r.id === row.id ? { ...r, status: "error", errorMessage: "Erro de conexão" } : r));
             }
         }
-
         setIsSending(false);
     };
 
@@ -106,51 +79,52 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
 
     return (
         <Portal>
-            <div className="fixed inset-0 z-9999 flex items-center justify-center p-3 sm:p-4" onClick={handleClose}>
+            <div
+                className="fixed inset-0 z-[9999] flex items-end justify-center p-0 sm:items-center sm:p-4"
+                onClick={handleClose}
+            >
                 {/* Backdrop */}
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" />
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
                 {/* Modal */}
                 <div
-                    className="relative w-full max-w-lg max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col bg-bg-primary/95 backdrop-blur-xl border border-border-glass rounded-3xl shadow-2xl overflow-hidden animate-scale-in"
+                    className="relative flex w-full max-h-[92dvh] flex-col overflow-hidden rounded-t-3xl border border-border bg-background shadow-2xl sm:max-h-[calc(100vh-2rem)] sm:max-w-md sm:rounded-3xl"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between p-4 pb-0">
-                        <div className="flex items-center gap-2">
-                            <UserPlus className="w-5 h-5 text-blue-500" />
-                            <h2 className="text-xl font-bold text-white">Convidar para o Portal</h2>
+                    <div className="flex items-start justify-between px-6 pb-0 pt-6">
+                        <div>
+                            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                                PP7+IAS
+                            </p>
+                            <h2 className="mt-1 font-serif text-2xl tracking-tight text-ink">
+                                Convidar para o Portal.
+                            </h2>
+                            <p className="mt-1.5 text-sm text-muted-foreground">
+                                Quem mais deveria ter acesso à curadoria?
+                            </p>
                         </div>
                         <button
                             onClick={handleClose}
-                            className="p-1.5 text-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
-                            aria-label="Fechar modal"
+                            className="ml-4 mt-0.5 shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+                            aria-label="Fechar"
                         >
-                            <X className="w-4 h-4" />
+                            <X className="size-5" />
                         </button>
                     </div>
 
-                    {/* Subtitle */}
-                    <p className="px-4 pt-1.5 pb-3 text-xs text-text-secondary">
-                        Envie convites para que outras pessoas façam parte do PP7+IAS Portal. Cada pessoa receberá um
-                        email com o link para se cadastrar.
-                    </p>
+                    {/* Divider */}
+                    <div className="mx-6 mt-5 h-px bg-border" />
 
-                    {/* Scrollable content */}
-                    <div className="flex-1 overflow-y-auto min-h-0 px-4 pb-4 space-y-3">
-                        {/* Rows */}
+                    {/* Scrollable body */}
+                    <div className="flex-1 overflow-y-auto px-6 pb-6 pt-5 space-y-3">
+
+                        {/* Email rows */}
                         <div className="space-y-2">
-                            {rows.map((row, index) => (
+                            {rows.map(row => (
                                 <div key={row.id} className="flex items-center gap-2">
-                                    {/* Row number */}
-                                    <span className="w-5 text-xs text-text-secondary/60 text-right shrink-0">
-                                        {index + 1}
-                                    </span>
-
-                                    {/* Email input or status */}
                                     {row.status === "idle" || row.status === "sending" ? (
                                         <div className="relative flex-1">
-                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                             <input
                                                 type="email"
                                                 value={row.email}
@@ -158,58 +132,57 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
                                                 placeholder="email@exemplo.com"
                                                 disabled={row.status === "sending" || isSending}
                                                 autoComplete="off"
-                                                className="w-full pl-10 pr-3 py-2 bg-white/5 border border-border-glass rounded-xl text-white text-sm placeholder:text-text-secondary/50 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200 disabled:opacity-50"
+                                                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-foreground/30 transition-colors disabled:opacity-50"
                                             />
                                             {row.status === "sending" && (
-                                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 animate-spin" />
+                                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 size-4 animate-spin text-muted-foreground" />
                                             )}
                                         </div>
                                     ) : row.status === "success" ? (
-                                        <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/20 rounded-xl">
-                                            <Check className="w-4 h-4 text-green-400 shrink-0" />
-                                            <span className="text-sm text-green-300 truncate">{row.email}</span>
-                                            <span className="text-xs text-green-400/70 shrink-0">Convite enviado!</span>
+                                        <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-accent px-4 py-3">
+                                            <Check className="size-4 shrink-0 text-green-500" />
+                                            <span className="flex-1 truncate text-sm text-foreground">{row.email}</span>
+                                            <span className="shrink-0 text-xs text-muted-foreground">Enviado</span>
                                         </div>
                                     ) : (
-                                        <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-xl">
-                                            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-                                            <span className="text-sm text-red-300 truncate">{row.email}</span>
-                                            <span className="text-xs text-red-400/70 shrink-0">
-                                                {row.errorMessage}
-                                            </span>
+                                        <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-accent px-4 py-3">
+                                            <AlertCircle className="size-4 shrink-0 text-red-500" />
+                                            <span className="flex-1 truncate text-sm text-foreground">{row.email}</span>
+                                            <span className="shrink-0 text-xs text-red-500">{row.errorMessage}</span>
                                         </div>
                                     )}
 
-                                    {/* Remove button */}
                                     <button
                                         onClick={() => removeRow(row.id)}
                                         disabled={rows.length <= 1 || isSending || row.status === "success"}
-                                        className="p-1.5 text-text-secondary/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 disabled:opacity-0 disabled:pointer-events-none shrink-0"
-                                        aria-label="Remover linha"
+                                        className="shrink-0 text-muted-foreground/40 transition-colors hover:text-red-400 disabled:pointer-events-none disabled:opacity-0"
+                                        aria-label="Remover"
                                     >
-                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <Trash2 className="size-4" />
                                     </button>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Add row button */}
-                        <button
-                            onClick={addRow}
-                            disabled={isSending}
-                            className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
-                        >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>Adicionar mais uma pessoa</span>
-                        </button>
+                        {/* Add row */}
+                        {!hasSent && (
+                            <button
+                                onClick={addRow}
+                                disabled={isSending}
+                                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+                            >
+                                <Plus className="size-3.5" />
+                                Adicionar outra pessoa
+                            </button>
+                        )}
 
                         {/* Volume notice */}
-                        <div className="p-3 bg-white/[0.03] border border-border-glass rounded-xl">
-                            <p className="text-xs text-text-secondary/70 leading-relaxed">
+                        <div className="rounded-xl border border-border bg-card p-4">
+                            <p className="text-xs leading-relaxed text-muted-foreground">
                                 Precisa convidar muitas pessoas de uma vez? Entre em contato pelo email{" "}
                                 <a
                                     href="mailto:paulof@pp7ias-portal.com.br"
-                                    className="text-blue-400 hover:underline"
+                                    className="text-foreground underline underline-offset-2 hover:text-ink transition-colors"
                                 >
                                     paulof@pp7ias-portal.com.br
                                 </a>{" "}
@@ -218,7 +191,7 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
                                     href="https://wa.me/5511914892836"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-blue-400 hover:underline"
+                                    className="text-foreground underline underline-offset-2 hover:text-ink transition-colors"
                                 >
                                     +55 11 91489-2836
                                 </a>{" "}
@@ -226,11 +199,11 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
                             </p>
                         </div>
 
-                        {/* Submit / Close button */}
+                        {/* CTA */}
                         {allDone ? (
                             <button
                                 onClick={handleClose}
-                                className="w-full px-5 py-2.5 bg-white/10 hover:bg-white/15 text-white font-semibold text-sm rounded-xl transition-all duration-200"
+                                className="w-full rounded-full border border-border py-3 text-sm font-medium text-foreground transition-colors hover:border-foreground/30"
                             >
                                 Fechar
                             </button>
@@ -238,18 +211,12 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
                             <button
                                 onClick={handleSend}
                                 disabled={isSending || validEmailCount === 0}
-                                className="w-full px-5 py-2.5 flex items-center justify-center gap-2 bg-linear-to-r from-blue-600 to-purple-700 shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] text-white font-semibold text-sm rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSending ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        <span>Enviando...</span>
-                                    </>
+                                    <><Loader2 className="size-4 animate-spin" />Enviando…</>
                                 ) : (
-                                    <span>
-                                        Enviar Convite{validEmailCount !== 1 ? "s" : ""}
-                                        {validEmailCount > 0 ? ` (${validEmailCount})` : ""}
-                                    </span>
+                                    <>Enviar convite{validEmailCount !== 1 ? "s" : ""}{validEmailCount > 0 ? ` (${validEmailCount})` : ""}</>
                                 )}
                             </button>
                         )}

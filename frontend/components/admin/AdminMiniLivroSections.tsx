@@ -18,7 +18,7 @@ import {
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GlassCard, GradientButton } from "@/components/ui";
+
 import { extractStoragePathFromSourcePath } from "@/constants/miniLivroSections";
 import {
     MiniLivroSection,
@@ -41,12 +41,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { FeedbackMessage } from "./FeedbackMessage";
 
-const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
-const INPUT_CLASS = "w-full rounded-lg border border-[var(--border-glass)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--brand-blue)]";
+const LABEL_CLASS = "block text-sm font-medium text-muted-foreground mb-2";
+const INPUT_CLASS = "w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-foreground/30";
 const TEXTAREA_CLASS = `${INPUT_CLASS} min-h-[128px] resize-y`;
 
 interface MiniLivroSectionRow {
-    id: number;
+    id: number | string; // pg returns BIGINT as string at runtime
     created_at: string;
     updated_at: string;
     kind: MiniLivroSectionKind;
@@ -116,7 +116,7 @@ function compareSections(left: MiniLivroSection, right: MiniLivroSection): numbe
 
 function mapRowToSection(row: MiniLivroSectionRow): MiniLivroSection {
     const props: MiniLivroSectionProps = {
-        id: row.id,
+        id: Number(row.id),
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
         kind: row.kind,
@@ -135,8 +135,9 @@ function isMiniLivroSectionRow(row: unknown): row is MiniLivroSectionRow {
     }
 
     const candidate = row as Record<string, unknown>;
+    const idOk = (typeof candidate.id === "number" || typeof candidate.id === "string") && !isNaN(Number(candidate.id));
     return (
-        typeof candidate.id === "number"
+        idOk
         && typeof candidate.title === "string"
         && (candidate.kind === "introducao" || candidate.kind === "encerramento")
     );
@@ -169,7 +170,7 @@ function SortableSectionRow({
         <div
             ref={setNodeRef}
             style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.55 : 1 }}
-            className={`rounded-2xl border p-4 transition-colors ${isEditing ? "border-[var(--brand-purple)] bg-[var(--brand-purple)]/8" : "border-[var(--border-glass)] bg-[var(--bg-secondary)]/40"}`}
+            className={`rounded-2xl border p-4 transition-colors ${isEditing ? "border-purple-500/50 bg-purple-500/5" : "border-border bg-card/40"}`}
         >
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="flex gap-4">
@@ -177,7 +178,7 @@ function SortableSectionRow({
                         {...attributes}
                         {...listeners}
                         disabled={isDraggingDisabled}
-                        className="mt-1 rounded-lg p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="mt-1 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                         aria-label="Reordenar bloco"
                     >
                         <GripVertical className="h-5 w-5" />
@@ -185,24 +186,24 @@ function SortableSectionRow({
 
                     <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full bg-[var(--surface-glass)] px-3 py-1 text-xs font-semibold text-[var(--text-secondary)]">
+                            <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-muted-foreground">
                                 {label} #{String(position).padStart(2, "0")}
                             </span>
                             {item.htmlAvailable ? (
-                                <span className="inline-flex items-center gap-1 text-xs text-[var(--brand-green)]">
+                                <span className="inline-flex items-center gap-1 text-xs text-green-500">
                                     <FileText className="h-4 w-4" />
                                     HTML enviado
                                 </span>
                             ) : (
-                                <span className="inline-flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+                                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                                     <AlertCircle className="h-4 w-4" />
                                     Sem HTML
                                 </span>
                             )}
                         </div>
-                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">{item.title}</h3>
+                        <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
                         {item.description && (
-                            <p className="text-sm leading-relaxed text-[var(--text-secondary)]">{item.description}</p>
+                            <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
                         )}
                     </div>
                 </div>
@@ -211,7 +212,7 @@ function SortableSectionRow({
                     <button
                         type="button"
                         onClick={() => onEdit(item)}
-                        className="rounded-lg p-2 text-[var(--brand-blue)] transition-colors hover:bg-[var(--brand-blue)]/15"
+                        className="rounded-lg p-2 text-foreground transition-colors hover:bg-foreground/15"
                         aria-label={`Editar ${item.title}`}
                     >
                         <Pencil className="h-4 w-4" />
@@ -611,46 +612,46 @@ export function AdminMiniLivroSections() {
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-[var(--text-primary)]">Seções dos Mini-livros</h2>
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)] max-w-3xl">
+                    <h2 className="font-serif text-2xl tracking-tight text-ink">Seções dos Mini-livros</h2>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground max-w-3xl">
                         Gerencie os blocos de introdução e os blocos de encerramento exibidos na página pública de mini-livros e no fluxo de leitura da rota <code>/view</code>.
                     </p>
                 </div>
             </div>
 
-            <GlassCard variant="bordered" padding="md">
+            <div className="rounded-2xl border border-border bg-card p-4">
                 <div className="flex flex-wrap gap-3">
                     <button
                         type="button"
                         onClick={() => setActiveTab("introducao")}
-                        className={`rounded-lg px-5 py-3 text-base font-medium transition-all ${activeTab === "introducao" ? "bg-[var(--brand-purple)] text-white shadow-md" : "text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)]"}`}
+                        className={`rounded-lg px-5 py-3 text-base font-medium transition-all ${activeTab === "introducao" ? "bg-purple-500 text-white shadow-md" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                     >
                         Introdução
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveTab("encerramento")}
-                        className={`rounded-lg px-5 py-3 text-base font-medium transition-all ${activeTab === "encerramento" ? "bg-[var(--brand-purple)] text-white shadow-md" : "text-[var(--text-secondary)] hover:bg-[var(--surface-glass)] hover:text-[var(--text-primary)]"}`}
+                        className={`rounded-lg px-5 py-3 text-base font-medium transition-all ${activeTab === "encerramento" ? "bg-purple-500 text-white shadow-md" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                     >
                         Encerramento
                     </button>
                 </div>
-            </GlassCard>
+            </div>
 
             {isLoading ? (
-                <GlassCard variant="bordered" padding="lg">
-                    <div className="flex items-center justify-center py-16 text-[var(--text-secondary)]">
+                <div className="rounded-2xl border border-border bg-card p-6">
+                    <div className="flex items-center justify-center py-16 text-muted-foreground">
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         Carregando seções extras...
                     </div>
-                </GlassCard>
+                </div>
             ) : activeTab === "introducao" ? (
                 <div className="space-y-6">
-                    <GlassCard variant="elevated" padding="lg">
+                    <div className="rounded-2xl border border-border bg-card p-6">
                         <div className="space-y-5">
                             <div className="space-y-2">
-                                <h3 className="text-lg font-semibold text-[var(--text-primary)]">Título e descrição da seção</h3>
-                                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                <h3 className="text-lg font-semibold text-foreground">Título e descrição da seção</h3>
+                                <p className="text-sm leading-relaxed text-muted-foreground">
                                     Estes campos aparecem como cabeçalho da seção de introdução na página pública.
                                 </p>
                             </div>
@@ -666,15 +667,13 @@ export function AdminMiniLivroSections() {
                                     />
                                 </div>
                                 <div className="flex items-end">
-                                    <GradientButton
-                                        variant="cta"
-                                        icon={Upload}
+                                    <button
+                                        type="button"
                                         onClick={() => handleSaveMeta("introducao", introducaoMeta.title, introducaoMeta.description)}
-                                        loading={isSavingIntroducaoMeta}
-                                        loadingText="Salvando..."
+                                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        Salvar Metadados
-                                    </GradientButton>
+                                        {isSavingIntroducaoMeta ? "Salvando…" : "Salvar Metadados"}
+                                    </button>
                                 </div>
                             </div>
                             <div>
@@ -687,38 +686,38 @@ export function AdminMiniLivroSections() {
                                 />
                             </div>
                         </div>
-                    </GlassCard>
+                    </div>
 
-                    <GlassCard variant="elevated" padding="lg">
+                    <div className="rounded-2xl border border-border bg-card p-6">
                         <div className="space-y-6">
                             <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div className="space-y-2">
-                                    <h3 className="text-xl font-semibold text-[var(--text-primary)]">Blocos de introdução</h3>
-                                    <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                    <h3 className="text-xl font-semibold text-foreground">Blocos de introdução</h3>
+                                    <p className="text-sm leading-relaxed text-muted-foreground">
                                         Esses blocos aparecem antes das abas das 3 partes e entram no fluxo de leitura entre o livro principal e a Parte I.
                                     </p>
                                 </div>
 
-                                <GradientButton
-                                    variant="cta"
-                                    icon={Plus}
+                                <button
+                                    type="button"
                                     onClick={() => {
                                         setEditingIntroducao(null);
                                         setIntroducaoForm(EMPTY_FORM);
                                     }}
+                                    className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Novo Bloco
-                                </GradientButton>
+                                </button>
                             </div>
 
                             {isReordering && (
-                                <div className="rounded-xl border border-[var(--brand-blue)]/20 bg-[var(--brand-blue)]/8 px-4 py-3 text-sm text-[var(--brand-blue)]">
+                                <div className="rounded-xl border border-border bg-accent px-4 py-3 text-sm text-foreground">
                                     Salvando nova ordem da introdução...
                                 </div>
                             )}
 
                             {introducoes.length === 0 ? (
-                                <div className="rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/30 px-6 py-10 text-center text-[var(--text-secondary)]">
+                                <div className="rounded-2xl border border-border bg-card/30 px-6 py-10 text-center text-muted-foreground">
                                     Nenhum bloco de introdução cadastrado ainda.
                                 </div>
                             ) : (
@@ -743,15 +742,15 @@ export function AdminMiniLivroSections() {
                                 </DndContext>
                             )}
                         </div>
-                    </GlassCard>
+                    </div>
 
-                    <GlassCard variant="elevated" padding="lg">
+                    <div className="rounded-2xl border border-border bg-card p-6">
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <h3 className="text-xl font-semibold text-[var(--text-primary)]">
+                                <h3 className="text-xl font-semibold text-foreground">
                                     {editingIntroducao ? `Editar: ${editingIntroducao.title}` : "Novo bloco de introdução"}
                                 </h3>
-                                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                <p className="text-sm leading-relaxed text-muted-foreground">
                                     Cada bloco aceita um título, uma descrição e um arquivo <code>.html</code>. A ordem final é definida pela lista acima.
                                 </p>
                             </div>
@@ -791,7 +790,7 @@ export function AdminMiniLivroSections() {
                                             />
                                             <label
                                                 htmlFor="introducao-html-upload"
-                                                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--border-glass)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-secondary)] transition-colors hover:border-[var(--brand-blue)]/50"
+                                                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-background px-4 py-3 text-muted-foreground transition-colors hover:border-foreground/30/50"
                                             >
                                                 <Upload className="h-5 w-5 shrink-0" />
                                                 <span className="truncate">
@@ -802,7 +801,7 @@ export function AdminMiniLivroSections() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setIntroducaoForm(current => ({ ...current, htmlFile: null }))}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] transition-colors hover:text-red-400"
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-red-400"
                                                     aria-label="Remover HTML selecionado"
                                                 >
                                                     <X className="h-4 w-4" />
@@ -812,15 +811,15 @@ export function AdminMiniLivroSections() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/40 p-5">
-                                    <div className="flex items-center gap-2 text-[var(--text-primary)]">
-                                        <FileText className="h-5 w-5 text-[var(--brand-blue)]" />
+                                <div className="space-y-4 rounded-2xl border border-border bg-card/40 p-5">
+                                    <div className="flex items-center gap-2 text-foreground">
+                                        <FileText className="h-5 w-5 text-foreground" />
                                         <h4 className="text-lg font-semibold">Status atual</h4>
                                     </div>
 
-                                    <div className="space-y-3 text-sm text-[var(--text-secondary)]">
+                                    <div className="space-y-3 text-sm text-muted-foreground">
                                         <p>
-                                            HTML atual: {editingIntroducaoExistingFile ? <span className="text-[var(--brand-green)]">{editingIntroducaoExistingFile}</span> : "nenhum enviado"}
+                                            HTML atual: {editingIntroducaoExistingFile ? <span className="text-green-500">{editingIntroducaoExistingFile}</span> : "nenhum enviado"}
                                         </p>
                                         <p>
                                             URL de leitura: <code>{editingIntroducao ? `/view/mini-livro-section/${editingIntroducao.id}` : "/view/mini-livro-section/{id}"}</code>
@@ -828,21 +827,19 @@ export function AdminMiniLivroSections() {
                                     </div>
 
                                     <div className="flex flex-wrap gap-3 pt-2">
-                                        <GradientButton
-                                            variant="cta"
-                                            icon={Upload}
+                                        <button
+                                            type="button"
                                             onClick={handleSaveIntroducao}
-                                            loading={isSavingIntroducao}
-                                            loadingText="Salvando..."
+                                            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            {editingIntroducao ? "Salvar Alterações" : "Criar Bloco"}
-                                        </GradientButton>
+                                            {isSavingIntroducao ? "Salvando…" : (editingIntroducao ? "Salvar Alterações" : "Criar Bloco")}
+                                        </button>
 
                                         {editingIntroducao && (
                                             <button
                                                 type="button"
                                                 onClick={() => setEditingIntroducao(null)}
-                                                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-[var(--border-glass)] bg-[var(--surface-glass)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-glass)]/70"
+                                                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-border bg-accent px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent/70"
                                             >
                                                 Cancelar edição
                                             </button>
@@ -851,15 +848,15 @@ export function AdminMiniLivroSections() {
                                 </div>
                             </div>
                         </div>
-                    </GlassCard>
+                    </div>
                 </div>
             ) : (
                 <div className="space-y-6">
-                    <GlassCard variant="elevated" padding="lg">
+                    <div className="rounded-2xl border border-border bg-card p-6">
                         <div className="space-y-5">
                             <div className="space-y-2">
-                                <h3 className="text-lg font-semibold text-[var(--text-primary)]">Título e descrição da seção</h3>
-                                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                <h3 className="text-lg font-semibold text-foreground">Título e descrição da seção</h3>
+                                <p className="text-sm leading-relaxed text-muted-foreground">
                                     Estes campos aparecem como cabeçalho da seção de encerramento na página pública.
                                 </p>
                             </div>
@@ -875,15 +872,13 @@ export function AdminMiniLivroSections() {
                                     />
                                 </div>
                                 <div className="flex items-end">
-                                    <GradientButton
-                                        variant="cta"
-                                        icon={Upload}
+                                    <button
+                                        type="button"
                                         onClick={() => handleSaveMeta("encerramento", encerramentoMeta.title, encerramentoMeta.description)}
-                                        loading={isSavingEncerramentoMeta}
-                                        loadingText="Salvando..."
+                                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        Salvar Metadados
-                                    </GradientButton>
+                                        {isSavingEncerramentoMeta ? "Salvando…" : "Salvar Metadados"}
+                                    </button>
                                 </div>
                             </div>
                             <div>
@@ -896,38 +891,38 @@ export function AdminMiniLivroSections() {
                                 />
                             </div>
                         </div>
-                    </GlassCard>
+                    </div>
 
-                    <GlassCard variant="elevated" padding="lg">
+                    <div className="rounded-2xl border border-border bg-card p-6">
                         <div className="space-y-6">
                             <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div className="space-y-2">
-                                    <h3 className="text-xl font-semibold text-[var(--text-primary)]">Blocos de encerramento</h3>
-                                    <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                    <h3 className="text-xl font-semibold text-foreground">Blocos de encerramento</h3>
+                                    <p className="text-sm leading-relaxed text-muted-foreground">
                                         Esses blocos aparecem somente após o último capítulo da Parte III e podem ser reordenados livremente.
                                     </p>
                                 </div>
 
-                                <GradientButton
-                                    variant="cta"
-                                    icon={Plus}
+                                <button
+                                    type="button"
                                     onClick={() => {
                                         setEditingEncerramento(null);
                                         setEncerramentoForm(EMPTY_FORM);
                                     }}
+                                    className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Novo Bloco
-                                </GradientButton>
+                                </button>
                             </div>
 
                             {isReordering && (
-                                <div className="rounded-xl border border-[var(--brand-blue)]/20 bg-[var(--brand-blue)]/8 px-4 py-3 text-sm text-[var(--brand-blue)]">
+                                <div className="rounded-xl border border-border bg-accent px-4 py-3 text-sm text-foreground">
                                     Salvando nova ordem do encerramento...
                                 </div>
                             )}
 
                             {encerramentos.length === 0 ? (
-                                <div className="rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/30 px-6 py-10 text-center text-[var(--text-secondary)]">
+                                <div className="rounded-2xl border border-border bg-card/30 px-6 py-10 text-center text-muted-foreground">
                                     Nenhum bloco de encerramento cadastrado ainda.
                                 </div>
                             ) : (
@@ -952,15 +947,15 @@ export function AdminMiniLivroSections() {
                                 </DndContext>
                             )}
                         </div>
-                    </GlassCard>
+                    </div>
 
-                    <GlassCard variant="elevated" padding="lg">
+                    <div className="rounded-2xl border border-border bg-card p-6">
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <h3 className="text-xl font-semibold text-[var(--text-primary)]">
+                                <h3 className="text-xl font-semibold text-foreground">
                                     {editingEncerramento ? `Editar: ${editingEncerramento.title}` : "Novo bloco de encerramento"}
                                 </h3>
-                                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                <p className="text-sm leading-relaxed text-muted-foreground">
                                     Cada bloco aceita um título, uma descrição e um arquivo <code>.html</code>. A ordem final é definida pela lista acima.
                                 </p>
                             </div>
@@ -1000,7 +995,7 @@ export function AdminMiniLivroSections() {
                                             />
                                             <label
                                                 htmlFor="encerramento-html-upload"
-                                                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--border-glass)] bg-[var(--bg-primary)] px-4 py-3 text-[var(--text-secondary)] transition-colors hover:border-[var(--brand-blue)]/50"
+                                                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-background px-4 py-3 text-muted-foreground transition-colors hover:border-foreground/30/50"
                                             >
                                                 <Upload className="h-5 w-5 shrink-0" />
                                                 <span className="truncate">
@@ -1011,7 +1006,7 @@ export function AdminMiniLivroSections() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setEncerramentoForm(current => ({ ...current, htmlFile: null }))}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] transition-colors hover:text-red-400"
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-red-400"
                                                     aria-label="Remover HTML selecionado"
                                                 >
                                                     <X className="h-4 w-4" />
@@ -1021,15 +1016,15 @@ export function AdminMiniLivroSections() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/40 p-5">
-                                    <div className="flex items-center gap-2 text-[var(--text-primary)]">
-                                        <FileText className="h-5 w-5 text-[var(--brand-blue)]" />
+                                <div className="space-y-4 rounded-2xl border border-border bg-card/40 p-5">
+                                    <div className="flex items-center gap-2 text-foreground">
+                                        <FileText className="h-5 w-5 text-foreground" />
                                         <h4 className="text-lg font-semibold">Status atual</h4>
                                     </div>
 
-                                    <div className="space-y-3 text-sm text-[var(--text-secondary)]">
+                                    <div className="space-y-3 text-sm text-muted-foreground">
                                         <p>
-                                            HTML atual: {editingEncerramentoExistingFile ? <span className="text-[var(--brand-green)]">{editingEncerramentoExistingFile}</span> : "nenhum enviado"}
+                                            HTML atual: {editingEncerramentoExistingFile ? <span className="text-green-500">{editingEncerramentoExistingFile}</span> : "nenhum enviado"}
                                         </p>
                                         <p>
                                             URL de leitura: <code>{editingEncerramento ? `/view/mini-livro-section/${editingEncerramento.id}` : "/view/mini-livro-section/{id}"}</code>
@@ -1037,21 +1032,19 @@ export function AdminMiniLivroSections() {
                                     </div>
 
                                     <div className="flex flex-wrap gap-3 pt-2">
-                                        <GradientButton
-                                            variant="cta"
-                                            icon={Upload}
+                                        <button
+                                            type="button"
                                             onClick={handleSaveEncerramento}
-                                            loading={isSavingEncerramento}
-                                            loadingText="Salvando..."
+                                            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            {editingEncerramento ? "Salvar Alterações" : "Criar Bloco"}
-                                        </GradientButton>
+                                            {isSavingEncerramento ? "Salvando…" : (editingEncerramento ? "Salvar Alterações" : "Criar Bloco")}
+                                        </button>
 
                                         {editingEncerramento && (
                                             <button
                                                 type="button"
                                                 onClick={() => setEditingEncerramento(null)}
-                                                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-[var(--border-glass)] bg-[var(--surface-glass)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-glass)]/70"
+                                                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-border bg-accent px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent/70"
                                             >
                                                 Cancelar edição
                                             </button>
@@ -1060,7 +1053,7 @@ export function AdminMiniLivroSections() {
                                 </div>
                             </div>
                         </div>
-                    </GlassCard>
+                    </div>
                 </div>
             )}
 

@@ -26,3 +26,5 @@ export { UserCard } from "./UserCard";
 export { UserEditModal } from "./UserEditModal";
 export { UserManager } from "./UserManager";
 export { ReindexButton } from "./ReindexButton";
+export { default as AdminHomepageConfig } from "./AdminHomepageConfig";
+export { default as AdminExplorarConfig } from "./AdminExplorarConfig";

@@ -61,6 +61,15 @@ import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNews
 import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
 import { FilesystemStorageRepository } from "../repositories/FilesystemStorageRepository";
 import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserManagementRepository";
+import { SupabaseHomepageConfigRepository } from "../repositories/SupabaseHomepageConfigRepository";
+import { GetHomepageConfigUseCase } from "../../application/usecases/GetHomepageConfigUseCase";
+import { UpdateHomepageConfigUseCase } from "../../application/usecases/UpdateHomepageConfigUseCase";
+import { BlockColorsRepository } from "../repositories/BlockColorsRepository";
+import { GetBlockColorsUseCase } from "../../application/usecases/GetBlockColorsUseCase";
+import { UpdateBlockColorsUseCase } from "../../application/usecases/UpdateBlockColorsUseCase";
+import { ExplorarConfigRepository } from "../repositories/ExplorarConfigRepository";
+import { GetExplorarConfigUseCase } from "../../application/usecases/GetExplorarConfigUseCase";
+import { UpdateExplorarConfigUseCase } from "../../application/usecases/UpdateExplorarConfigUseCase";
 
 /**
  * Container de Dependências
@@ -85,6 +94,9 @@ class DIContainer {
     private static portalNewsRepositoryInstance: SupabasePortalNewsRepository | null = null;
     private static homeDatesRepositoryInstance: SupabaseHomeDatesRepository | null = null;
     private static announcementBarRepositoryInstance: SupabaseAnnouncementBarRepository | null = null;
+    private static homepageConfigRepositoryInstance: SupabaseHomepageConfigRepository | null = null;
+    private static blockColorsRepositoryInstance: BlockColorsRepository | null = null;
+    private static explorarConfigRepositoryInstance: ExplorarConfigRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -383,6 +395,36 @@ class DIContainer {
         return new GetDashboardStatsUseCase(this.getAnalyticsRepository());
     }
 
+    static getHomepageConfigRepository(): SupabaseHomepageConfigRepository {
+        if (!this.homepageConfigRepositoryInstance) {
+            this.homepageConfigRepositoryInstance = new SupabaseHomepageConfigRepository();
+        }
+        return this.homepageConfigRepositoryInstance;
+    }
+
+    static getHomepageConfigUseCase(): GetHomepageConfigUseCase {
+        return new GetHomepageConfigUseCase(this.getHomepageConfigRepository());
+    }
+
+    static getUpdateHomepageConfigUseCase(): UpdateHomepageConfigUseCase {
+        return new UpdateHomepageConfigUseCase(this.getHomepageConfigRepository());
+    }
+
+    static getBlockColorsRepository(): BlockColorsRepository {
+        if (!this.blockColorsRepositoryInstance) {
+            this.blockColorsRepositoryInstance = new BlockColorsRepository();
+        }
+        return this.blockColorsRepositoryInstance;
+    }
+
+    static getBlockColorsUseCase(): GetBlockColorsUseCase {
+        return new GetBlockColorsUseCase(this.getBlockColorsRepository());
+    }
+
+    static getUpdateBlockColorsUseCase(): UpdateBlockColorsUseCase {
+        return new UpdateBlockColorsUseCase(this.getBlockColorsRepository());
+    }
+
     static getCurrentUserUseCase(): GetCurrentUserUseCase {
         return new GetCurrentUserUseCase(this.getAuthRepository());
     }
@@ -443,6 +485,21 @@ class DIContainer {
             this.getRadarOportunidadesRepository(),
             this.getEstudarRepository(),
         );
+    }
+
+    static getExplorarConfigRepository(): ExplorarConfigRepository {
+        if (!this.explorarConfigRepositoryInstance) {
+            this.explorarConfigRepositoryInstance = new ExplorarConfigRepository();
+        }
+        return this.explorarConfigRepositoryInstance;
+    }
+
+    static getExplorarConfigUseCase(): GetExplorarConfigUseCase {
+        return new GetExplorarConfigUseCase(this.getExplorarConfigRepository());
+    }
+
+    static getUpdateExplorarConfigUseCase(): UpdateExplorarConfigUseCase {
+        return new UpdateExplorarConfigUseCase(this.getExplorarConfigRepository());
     }
 
     /**

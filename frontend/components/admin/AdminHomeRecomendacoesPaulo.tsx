@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { GlassCard, GradientButton } from "@/components/ui";
+
 import { FeedbackMessage } from "./FeedbackMessage";
 import { ConfirmDialog } from "./ConfirmDialog";
 import {
@@ -21,9 +21,9 @@ interface RecomendacoesRow {
     html_path: string | null;
 }
 
-const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
+const LABEL_CLASS = "block text-sm font-medium text-muted-foreground mb-2";
 const INPUT_CLASS =
-    "w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50";
+    "w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20";
 
 export function AdminHomeRecomendacoesPaulo() {
     const queryClient = useQueryClient();
@@ -152,15 +152,20 @@ export function AdminHomeRecomendacoesPaulo() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">Recomendacoes do Paulo</h2>
-                <GradientButton onClick={handleSave} disabled={isLoading || isSaving || !hasChanges} loading={isSaving} loadingText="Salvando...">
-                    Salvar recomendacoes
-                </GradientButton>
+                <h2 className="font-serif text-2xl tracking-tight text-ink">Recomendacoes do Paulo</h2>
+                    <button
+        type="button"
+        onClick={handleSave}
+        disabled={isLoading || isSaving || !hasChanges}
+        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+        {isSaving ? "Salvando…" : "Salvar"}
+    </button>
             </div>
 
-            <GlassCard variant="elevated" padding="lg">
+            <div className="rounded-2xl border border-border bg-card p-6">
                 {isLoading ? (
-                    <div className="flex items-center justify-center py-12 text-[var(--text-secondary)] text-lg">
+                    <div className="flex items-center justify-center py-12 text-muted-foreground text-lg">
                         <Loader2 className="w-5 h-5 animate-spin mr-2" />
                         Carregando...
                     </div>
@@ -183,28 +188,28 @@ export function AdminHomeRecomendacoesPaulo() {
                                 onChange={event => setFormValues(prev => ({ ...prev, description: event.target.value }))}
                                 placeholder={RECOMENDACOES_PAULO_DEFAULT_DESCRIPTION}
                             />
-                            <p className="text-xs text-[var(--text-secondary)]">Use quebra de linha para separar as frases.</p>
+                            <p className="text-xs text-muted-foreground">Use quebra de linha para separar as frases.</p>
                         </div>
 
-                        <div className="rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/40 p-5 space-y-4">
+                        <div className="rounded-2xl border border-border bg-card/40 p-5 space-y-4">
                             <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-[var(--text-primary)]">
-                                    <FileText className="w-5 h-5 text-[var(--brand-blue)]" />
+                                <div className="flex items-center gap-2 text-foreground">
+                                    <FileText className="w-5 h-5 text-foreground" />
                                     <h3 className="text-lg font-semibold">Arquivo HTML</h3>
                                 </div>
-                                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+                                <p className="text-sm leading-relaxed text-muted-foreground">
                                     Este HTML aparece na home e abre em uma nova pagina ao clicar.
                                 </p>
                             </div>
 
-                            <div className="text-xs text-[var(--text-secondary)] space-y-1">
+                            <div className="text-xs text-muted-foreground space-y-1">
                                 <p>Destino no storage: <code>{getRecomendacoesPauloStoragePath()}</code></p>
                                 <p>Leitura publica: <code>{getRecomendacoesPauloViewPath()}</code></p>
                             </div>
 
                             {existingFileName ? (
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-sm text-[var(--brand-green)]">
+                                    <div className="flex items-center gap-2 text-sm text-green-500">
                                         <AlertCircle className="w-4 h-4 shrink-0" />
                                         <span className="truncate">Arquivo atual: {existingFileName}</span>
                                     </div>
@@ -219,7 +224,7 @@ export function AdminHomeRecomendacoesPaulo() {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="text-sm text-[var(--text-secondary)]">Nenhum HTML enviado ainda.</div>
+                                <div className="text-sm text-muted-foreground">Nenhum HTML enviado ainda.</div>
                             )}
 
                             <div>
@@ -234,7 +239,7 @@ export function AdminHomeRecomendacoesPaulo() {
                                     />
                                     <label
                                         htmlFor="recomendacoes-paulo-html"
-                                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border-glass)] rounded-lg text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-blue)]/50 transition-colors"
+                                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-background border-2 border-dashed border-border rounded-lg text-muted-foreground cursor-pointer hover:border-foreground/30 transition-colors"
                                     >
                                         <Upload className="w-5 h-5 shrink-0" />
                                         <span className="truncate">
@@ -249,7 +254,7 @@ export function AdminHomeRecomendacoesPaulo() {
                                         <button
                                             type="button"
                                             onClick={() => setSelectedFile(null)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-red-400 transition-colors"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-red-400 transition-colors"
                                             aria-label="Remover arquivo"
                                         >
                                             <X className="w-4 h-4" />
@@ -260,7 +265,7 @@ export function AdminHomeRecomendacoesPaulo() {
                         </div>
                     </div>
                 )}
-            </GlassCard>
+            </div>
 
             <FeedbackMessage
                 isVisible={feedback.show}

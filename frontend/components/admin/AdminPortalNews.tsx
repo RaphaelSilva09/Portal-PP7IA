@@ -12,7 +12,7 @@
  */
 
 import { ConfirmDialog, FeedbackMessage } from "@/components/admin";
-import { GlassCard } from "@/components/ui";
+
 import { CATEGORY_DEFAULT_COLORS, PortalNewsCategory } from "@/domain/entities/PortalNewsItem";
 import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -114,14 +114,14 @@ interface ItemModalProps {
 }
 
 // Classes reutilizáveis — mantém padrão visual do formulário de Conteúdos
-const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
+const LABEL_CLASS = "block text-sm font-medium text-muted-foreground mb-2";
 const INPUT_CLASS =
-    "w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50";
+    "w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20";
 
 function SectionDivider({ label }: { label: string }) {
     return (
         <div className="flex items-center gap-3 pt-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]/70 whitespace-nowrap">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/70 whitespace-nowrap">
                 {label}
             </span>
             <div className="flex-1 h-px bg-[var(--border-subtle)]" />
@@ -148,12 +148,12 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
         : "—";
 
     return (
-        <GlassCard variant="elevated" padding="lg">
+        <div className="rounded-2xl border border-border bg-card p-6">
             <div className="mb-6">
-                <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+                <h2 className="text-xl font-semibold text-foreground">
                     {isEdit ? "Editar Novidade" : "Nova Novidade"}
                 </h2>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                     {isEdit ? "Altere os campos e salve." : "Preencha os campos e publique."}
                 </p>
             </div>
@@ -204,7 +204,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                 {/* Descrição */}
                 <div>
                     <label className={LABEL_CLASS}>
-                        Descrição <span className="font-normal text-[var(--text-secondary)]/70">(opcional)</span>
+                        Descrição <span className="font-normal text-muted-foreground/70">(opcional)</span>
                     </label>
                     <textarea
                         className={`${INPUT_CLASS} resize-y min-h-[68px]`}
@@ -243,7 +243,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                     <div className="flex items-center gap-3">
                         <input
                             type="color"
-                            className="h-12 w-14 rounded-lg cursor-pointer border border-[var(--border-glass)] bg-transparent flex-shrink-0"
+                            className="h-12 w-14 rounded-lg cursor-pointer border border-border bg-transparent flex-shrink-0"
                             value={form.accentColor}
                             onChange={e => onChange("accentColor", e.target.value)}
                             aria-label="Selecionar cor"
@@ -307,7 +307,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                             role="switch"
                             aria-checked={form.isActive}
                             onClick={() => onChange("isActive", !form.isActive)}
-                            className={`mt-1 relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${form.isActive ? "bg-[var(--brand-blue)]" : "bg-[var(--surface-glass)] border border-[var(--border-subtle)]"
+                            className={`mt-1 relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-foreground/20 ${form.isActive ? "bg-foreground" : "bg-accent border border-border"
                                 }`}
                         >
                             <span
@@ -315,7 +315,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                                     }`}
                             />
                         </button>
-                        <span className="text-xs text-[var(--text-secondary)] mt-1 text-center">
+                        <span className="text-xs text-muted-foreground mt-1 text-center">
                             {form.isActive ? "Sim" : "Não"}
                         </span>
                     </div>
@@ -351,7 +351,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                                         onChange("linkType", "");
                                         onChange("linkItemId", null);
                                     }}
-                                    className="mt-1 p-2.5 rounded-lg border border-[var(--border-subtle)] hover:bg-red-500/10 hover:border-red-500/30 transition-colors"
+                                    className="mt-1 p-2.5 rounded-lg border border-border hover:bg-red-500/10 hover:border-red-500/30 transition-colors"
                                     title="Remover vínculo"
                                 >
                                     <X className="w-4 h-4 text-red-400" />
@@ -364,7 +364,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                         <div>
                             <label className={LABEL_CLASS}>Material</label>
                             {isLoadingLinkItems ? (
-                                <div className="flex items-center gap-2 py-3 text-[var(--text-secondary)] text-sm">
+                                <div className="flex items-center gap-2 py-3 text-muted-foreground text-sm">
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                     Carregando...
                                 </div>
@@ -384,11 +384,11 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                     )}
 
                     {form.linkType && form.linkItemId && (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-[var(--surface-glass)] rounded-lg border border-[var(--border-subtle)]">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-accent rounded-lg border border-border">
                             <span className="text-sm">📎</span>
-                            <span className="text-sm text-[var(--text-secondary)]">
+                            <span className="text-sm text-muted-foreground">
                                 {LINK_TYPE_CONFIG[form.linkType]?.label} ›{" "}
-                                <span className="text-[var(--text-primary)]">
+                                <span className="text-foreground">
                                     {linkItems.find(i => i.id === form.linkItemId)?.title ?? `ID ${form.linkItemId}`}
                                 </span>
                             </span>
@@ -441,14 +441,14 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                         type="button"
                         onClick={onCancel}
                         disabled={isSubmitting}
-                        className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"
+                        className="px-6 py-2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         disabled={isSubmitting || titleEmpty}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--brand-green)] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-green-500 text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? (
                             <>
@@ -463,7 +463,7 @@ function ItemModal({ form, isSubmitting, isEdit, onChange, onSubmit, onCancel, l
                     </button>
                 </div>
             </form>
-        </GlassCard>
+        </div>
     );
 }
 
@@ -693,10 +693,10 @@ export function AdminPortalNews() {
         <div className="space-y-6">
             {/* Cabeçalho + botão criar */}
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">Novidades do Portal</h2>
+                <h2 className="font-serif text-2xl tracking-tight text-ink">Novidades do Portal</h2>
                 <button
                     onClick={handleOpenCreate}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--brand-blue)] text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px]"
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px]"
                 >
                     <Plus className="w-5 h-5" />
                     Nova novidade
@@ -718,29 +718,29 @@ export function AdminPortalNews() {
             )}
 
             {/* Tabela */}
-            <GlassCard variant="bordered" padding="none">
+            <div className="overflow-hidden rounded-2xl border border-border bg-card">
                 {isLoading ? (
-                    <div className="text-center py-12 text-[var(--text-secondary)] text-lg">Carregando...</div>
+                    <div className="text-center py-12 text-muted-foreground text-lg">Carregando...</div>
                 ) : rows.length === 0 ? (
-                    <div className="text-center py-12 text-[var(--text-secondary)] text-lg">
+                    <div className="text-center py-12 text-muted-foreground text-lg">
                         Nenhuma novidade cadastrada.
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-[var(--surface-glass)]">
+                            <thead className="bg-accent">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium w-8">Cor</th>
-                                    <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">Título</th>
-                                    <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">Categoria</th>
-                                    <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium w-20">Ordem</th>
-                                    <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium w-20">Ativo</th>
-                                    <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium w-28">Ações</th>
+                                    <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium w-8">Cor</th>
+                                    <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium">Título</th>
+                                    <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium">Categoria</th>
+                                    <th className="px-4 py-3 text-center text-muted-foreground text-sm font-medium w-20">Ordem</th>
+                                    <th className="px-4 py-3 text-center text-muted-foreground text-sm font-medium w-20">Ativo</th>
+                                    <th className="px-4 py-3 text-center text-muted-foreground text-sm font-medium w-28">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[var(--border-glass)]">
+                            <tbody className="divide-y divide-border">
                                 {rows.map(row => (
-                                    <tr key={row.id} className="hover:bg-[var(--surface-glass)]/50 transition-colors">
+                                    <tr key={row.id} className="hover:bg-accent/50 transition-colors">
                                         {/* Preview barra colorida */}
                                         <td className="px-4 py-3">
                                             <div
@@ -756,11 +756,11 @@ export function AdminPortalNews() {
                                             <div className="flex items-start gap-2">
                                                 <span className="text-base flex-shrink-0">{row.icon}</span>
                                                 <div>
-                                                    <p className={`text-sm font-medium ${row.is_active ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)] line-through"}`}>
+                                                    <p className={`text-sm font-medium ${row.is_active ? "text-foreground" : "text-muted-foreground line-through"}`}>
                                                         {row.title}
                                                     </p>
                                                     {row.description && (
-                                                        <p className="text-xs text-[var(--text-secondary)] truncate max-w-xs">
+                                                        <p className="text-xs text-muted-foreground truncate max-w-xs">
                                                             {row.description}
                                                         </p>
                                                     )}
@@ -785,7 +785,7 @@ export function AdminPortalNews() {
                                         <td className="px-4 py-3 text-center">
                                             <input
                                                 type="number"
-                                                className="w-14 px-2 py-1 text-xs text-center rounded bg-[var(--surface-glass)] border border-[var(--border-subtle)] text-[var(--text-primary)] focus:outline-none"
+                                                className="w-14 px-2 py-1 text-xs text-center rounded bg-accent border border-border text-foreground focus:outline-none"
                                                 defaultValue={row.display_order}
                                                 onBlur={e => {
                                                     const val = Number(e.target.value);
@@ -800,13 +800,13 @@ export function AdminPortalNews() {
                                         <td className="px-4 py-3 text-center">
                                             <button
                                                 onClick={() => handleToggleActive(row)}
-                                                className="p-1.5 rounded-lg hover:bg-[var(--surface-glass)] transition-colors"
+                                                className="p-1.5 rounded-lg hover:bg-accent transition-colors"
                                                 title={row.is_active ? "Desativar" : "Ativar"}
                                             >
                                                 {row.is_active ? (
-                                                    <Eye className="w-5 h-5 text-[var(--brand-green)]" />
+                                                    <Eye className="w-5 h-5 text-green-500" />
                                                 ) : (
-                                                    <EyeOff className="w-5 h-5 text-[var(--text-secondary)]" />
+                                                    <EyeOff className="w-5 h-5 text-muted-foreground" />
                                                 )}
                                             </button>
                                         </td>
@@ -815,14 +815,14 @@ export function AdminPortalNews() {
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
                                                     onClick={() => handleOpenEdit(row)}
-                                                    className="p-2 rounded-lg hover:bg-[var(--surface-glass)] transition-colors"
+                                                    className="p-2 rounded-lg hover:bg-accent transition-colors"
                                                     title="Editar"
                                                 >
-                                                    <Pencil className="w-4 h-4 text-[var(--brand-blue)]" />
+                                                    <Pencil className="w-4 h-4 text-foreground" />
                                                 </button>
                                                 <button
                                                     onClick={() => setConfirmDelete({ show: true, row })}
-                                                    className="p-2 rounded-lg hover:bg-[var(--surface-glass)] transition-colors"
+                                                    className="p-2 rounded-lg hover:bg-accent transition-colors"
                                                     title="Deletar"
                                                 >
                                                     <Trash2 className="w-4 h-4 text-red-400" />
@@ -835,7 +835,7 @@ export function AdminPortalNews() {
                         </table>
                     </div>
                 )}
-            </GlassCard>
+            </div>
 
             {/* Confirmação de delete */}
             <ConfirmDialog

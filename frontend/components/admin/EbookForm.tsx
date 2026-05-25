@@ -17,7 +17,7 @@
  * - Validation: Cliente-side antes de submit
  */
 
-import { GlassCard, GradientButton } from "@/components/ui";
+
 import type { ContentItem } from "@/domain/entities/ContentItem";
 import { EBOOK_PART_SLUGS } from "@/infrastructure/config/storage.config";
 import { AlertCircle, Upload, X } from "lucide-react";
@@ -43,11 +43,11 @@ interface EbookFormProps {
     isLoading?: boolean;
 }
 
-const INPUT_CLASS = `w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
-                     text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50
-                     focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50`;
+const INPUT_CLASS = `w-full px-4 py-3 bg-card border border-border rounded-lg
+                     text-foreground placeholder:text-muted-foreground/50
+                     focus:outline-none focus:ring-2 focus:ring-foreground/20`;
 
-const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
+const LABEL_CLASS = "block text-sm font-medium text-muted-foreground mb-2";
 
 interface FileUploadFieldProps {
     id: string;
@@ -65,7 +65,7 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange, isEd
             <label className={LABEL_CLASS}>{label}</label>
 
             {isEditing && existingPath && (
-                <div className="mb-2 flex items-center gap-2 text-sm text-[var(--brand-green)]">
+                <div className="mb-2 flex items-center gap-2 text-sm text-green-500">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span className="truncate">Atual: {existingPath.split("/").pop()}</span>
                 </div>
@@ -82,8 +82,8 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange, isEd
                 <label
                     htmlFor={id}
                     className="flex items-center justify-center gap-2 w-full px-4 py-3
-                               bg-[var(--bg-secondary)] border-2 border-dashed border-[var(--border-glass)] rounded-lg
-                               text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-blue)]/50 transition-colors"
+                               bg-card border-2 border-dashed border-border rounded-lg
+                               text-muted-foreground cursor-pointer hover:border-foreground/30 transition-colors"
                 >
                     <Upload className="w-5 h-5 shrink-0" />
                     <span className="truncate">
@@ -98,7 +98,7 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange, isEd
                     <button
                         type="button"
                         onClick={() => onChange(null)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--brand-red)] transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-red-500 transition-colors"
                         aria-label="Remover arquivo"
                     >
                         <X className="w-4 h-4" />
@@ -157,8 +157,8 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
     };
 
     return (
-        <GlassCard variant="elevated" padding="lg">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-6">
+        <div className="rounded-2xl border border-border bg-card p-6">
+            <h2 className="text-xl font-semibold text-foreground mb-6">
                 {isEditing ? "Editar E-book" : "Novo E-book"}
             </h2>
 
@@ -192,7 +192,7 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                             <option value="3">Parte III — O Que Fica</option>
                         </select>
                         {order && (
-                            <p className="mt-1 text-xs text-[var(--text-secondary)]/60 font-mono">
+                            <p className="mt-1 text-xs text-muted-foreground/60 font-mono">
                                 Pasta no bucket: mini-livros/ebook/{EBOOK_PART_SLUGS[parseInt(order)]}/
                             </p>
                         )}
@@ -249,8 +249,8 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                 </div>
 
                 {/* Separador de arquivos */}
-                <div className="border-t border-[var(--border-glass)] pt-4">
-                    <p className="text-sm font-semibold text-[var(--text-secondary)] mb-4 uppercase tracking-wide">
+                <div className="border-t border-border pt-4">
+                    <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
                         Arquivos do E-book
                     </p>
 
@@ -315,15 +315,19 @@ export function EbookForm({ editItem, onSubmit, onCancel, isLoading }: EbookForm
                         type="button"
                         onClick={onCancel}
                         disabled={isLoading}
-                        className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Cancelar
                     </button>
-                    <GradientButton type="submit" variant="cta" disabled={isLoading || !title.trim()}>
-                        {isLoading ? "Salvando..." : isEditing ? "Salvar Alterações" : "Criar E-book"}
-                    </GradientButton>
+                        <button
+        type="submit"
+        disabled={isLoading || !title.trim()}
+        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+        {isLoading ? "Salvando..." : isEditing ? "Salvar Alterações" : "Criar E-book"}
+    </button>
                 </div>
             </form>
-        </GlassCard>
+        </div>
     );
 }

@@ -8,22 +8,6 @@ import { usePasswordRecovery } from "../hooks/usePasswordRecovery";
 import { isValidEmail, isValidPassword } from "../lib/validators";
 import Portal from "./Portal";
 
-/**
- * ForgotPasswordModal Component
- * Modal para recuperação de senha com fluxo OTP de 3 etapas
- *
- * Fluxo:
- * 1. idle -> Email input (requestReset)
- * 2. awaiting_code/verifying -> OTP input de 8 dígitos (verifyCode)
- * 3. ready -> Password input (resetPassword)
- * 4. success -> Mensagem de sucesso (auto-close)
- *
- * Princípios aplicados:
- * - SRP: Componente focado exclusivamente em recuperação de senha
- * - Clean Code: Nomes reveladores de intenção, funções pequenas
- * - Clean Architecture: Usa casos de uso via hook
- */
-
 export default function ForgotPasswordModal() {
     const { isOpen, closeModal } = useForgotPasswordModal();
     const {
@@ -38,7 +22,6 @@ export default function ForgotPasswordModal() {
         resetPassword,
     } = usePasswordRecovery();
 
-    // Estados do formulário
     const [email, setEmail] = useState("");
     const [otp, setOtp] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -52,10 +35,8 @@ export default function ForgotPasswordModal() {
         confirmPassword?: string;
     }>({});
 
-    // Hook para travar scroll do body
     useBodyScrollLock(isOpen);
 
-    // Limpa formulário quando modal abre
     useEffect(() => {
         if (isOpen) {
             setEmail(userEmail || "");
@@ -68,437 +49,314 @@ export default function ForgotPasswordModal() {
         }
     }, [isOpen, userEmail]);
 
-    // Fecha modal automaticamente após sucesso
     useEffect(() => {
         if (recoveryStatus === "success") {
-            const timer = setTimeout(() => {
-                closeModal();
-            }, 2000);
+            const timer = setTimeout(() => closeModal(), 2000);
             return () => clearTimeout(timer);
         }
     }, [recoveryStatus, closeModal]);
 
-    /**
-     * Valida email
-     */
-    const validateEmail = (): boolean => {
-        const newErrors: { email?: string } = {};
-
-        if (!email.trim()) {
-            newErrors.email = "Email é obrigatório";
-        } else if (!isValidEmail(email)) {
-            newErrors.email = "Email inválido";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+    const validateEmail = () => {
+        const e: typeof errors = {};
+        if (!email.trim()) e.email = "Email é obrigatório";
+        else if (!isValidEmail(email)) e.email = "Email inválido";
+        setErrors(e);
+        return !e.email;
     };
 
-    /**
-     * Valida OTP
-     */
-    const validateOTP = (): boolean => {
-        const newErrors: { otp?: string } = {};
-
-        if (!otp.trim()) {
-            newErrors.otp = "Código é obrigatório";
-        } else if (!/^\d{8}$/.test(otp)) {
-            newErrors.otp = "Código deve ter 8 dígitos";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+    const validateOTP = () => {
+        const e: typeof errors = {};
+        if (!otp.trim()) e.otp = "Código é obrigatório";
+        else if (!/^\d{8}$/.test(otp)) e.otp = "Código deve ter 8 dígitos";
+        setErrors(e);
+        return !e.otp;
     };
 
-    /**
-     * Valida senha
-     */
-    const validatePassword = (): boolean => {
-        const newErrors: { newPassword?: string; confirmPassword?: string } = {};
-
-        if (!newPassword.trim()) {
-            newErrors.newPassword = "Nova senha é obrigatória";
-        } else if (!isValidPassword(newPassword, 6)) {
-            newErrors.newPassword = "Senha deve ter no mínimo 6 caracteres";
-        }
-
-        if (!confirmPassword.trim()) {
-            newErrors.confirmPassword = "Confirmação de senha é obrigatória";
-        } else if (newPassword !== confirmPassword) {
-            newErrors.confirmPassword = "As senhas não coincidem";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+    const validatePassword = () => {
+        const e: typeof errors = {};
+        if (!newPassword.trim()) e.newPassword = "Nova senha é obrigatória";
+        else if (!isValidPassword(newPassword, 6)) e.newPassword = "Senha deve ter no mínimo 6 caracteres";
+        if (!confirmPassword.trim()) e.confirmPassword = "Confirmação é obrigatória";
+        else if (newPassword !== confirmPassword) e.confirmPassword = "As senhas não coincidem";
+        setErrors(e);
+        return !e.newPassword && !e.confirmPassword;
     };
 
-    /**
-     * Handler para solicitar código OTP
-     */
     const handleRequestCode = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!validateEmail()) {
-            return;
-        }
-
-        await requestReset(email);
+        if (validateEmail()) await requestReset(email);
     };
 
-    /**
-     * Handler para verificar código OTP
-     */
     const handleVerifyCode = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!validateOTP()) {
-            return;
-        }
-
-        await verifyCode(otp);
+        if (validateOTP()) await verifyCode(otp);
     };
 
-    /**
-     * Handler para reenviar código
-     */
     const handleResendCode = async () => {
-        if (cooldownRemaining > 0) {
-            return;
-        }
-
+        if (cooldownRemaining > 0) return;
         setOtp("");
         setErrors({});
         await resendCode();
     };
 
-    /**
-     * Handler para redefinir senha
-     */
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (!validatePassword()) {
-            return;
-        }
-
-        await resetPassword(newPassword);
+        if (validatePassword()) await resetPassword(newPassword);
     };
 
-    /**
-     * Fecha o modal
-     */
-    const handleClose = () => {
-        if (!isLoading) {
-            closeModal();
-        }
-    };
+    const handleClose = () => { if (!isLoading) closeModal(); };
 
-    /**
-     * Determina título dinâmico baseado no status
-     */
-    const getTitle = () => {
-        switch (recoveryStatus) {
-            case "idle":
-                return "Recuperar Senha";
-            case "awaiting_code":
-            case "verifying":
-                return "Verificar Código";
-            case "ready":
-                return "Redefinir Senha";
-            case "success":
-                return "Sucesso!";
-            default:
-                return "Recuperar Senha";
-        }
-    };
+    const steps = ["Email", "Código", "Nova senha"];
+    const stepIndex = recoveryStatus === "idle" ? 0
+        : recoveryStatus === "awaiting_code" || recoveryStatus === "verifying" ? 1
+        : recoveryStatus === "ready" ? 2
+        : 2;
 
-    /**
-     * Determina descrição dinâmica baseada no status
-     */
-    const getDescription = () => {
-        switch (recoveryStatus) {
-            case "idle":
-                return "Insira seu email para receber um código de recuperação";
-            case "awaiting_code":
-            case "verifying":
-                return `Digite o código de 8 dígitos enviado para ${userEmail}`;
-            case "ready":
-                return "Crie uma nova senha para sua conta";
-            case "success":
-                return "Sua senha foi redefinida com sucesso!";
-            default:
-                return "Insira seu email para recuperar sua senha";
-        }
-    };
+    const titles = ["Recuperar senha.", "Verificar código.", "Nova senha.", "Tudo certo!"];
+    const subtitles = [
+        "Insira seu email para receber um código de recuperação.",
+        `Digite o código de 8 dígitos enviado para ${userEmail}.`,
+        "Crie uma nova senha para sua conta.",
+        "Sua senha foi redefinida com sucesso.",
+    ];
+    const titleIndex = recoveryStatus === "idle" ? 0
+        : recoveryStatus === "awaiting_code" || recoveryStatus === "verifying" ? 1
+        : recoveryStatus === "ready" ? 2
+        : 3;
+
+    const inputClass = (hasError: boolean) =>
+        `w-full rounded-xl border px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background outline-none transition-all focus:ring-2 focus:ring-primary/20 ${
+            hasError ? "border-red-400" : "border-border focus:border-primary/40"
+        }`;
 
     if (!isOpen) return null;
 
     return (
         <Portal>
-            {/* Overlay */}
             <div
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                 onClick={handleClose}
             >
-                {/* Modal Container */}
+                <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
+
                 <div
-                    className="relative w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 overflow-hidden"
+                    className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--shadow-elevated)]"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="px-6 py-5 border-b border-white/10">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-white">{getTitle()}</h2>
-                            <button
-                                onClick={handleClose}
-                                disabled={isLoading}
-                                className="p-2 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50"
-                                aria-label="Fechar modal"
-                            >
-                                <X className="w-5 h-5 text-white" />
-                            </button>
+                    <div className="flex items-start justify-between p-6 pb-4">
+                        <div className="flex-1">
+                            {/* Step indicator */}
+                            {recoveryStatus !== "success" && (
+                                <div className="mb-3 flex items-center gap-2">
+                                    {steps.map((step, i) => (
+                                        <div key={step} className="flex items-center gap-2">
+                                            <div className={`flex size-5 items-center justify-center rounded-full text-[10px] font-medium transition-colors ${
+                                                i < stepIndex
+                                                    ? "bg-ink text-background"
+                                                    : i === stepIndex
+                                                    ? "border-2 border-ink text-ink"
+                                                    : "border border-border text-muted-foreground"
+                                            }`}>
+                                                {i < stepIndex ? <Check className="size-3" /> : i + 1}
+                                            </div>
+                                            <span className={`text-[10px] uppercase tracking-wide ${i === stepIndex ? "text-foreground" : "text-muted-foreground"}`}>
+                                                {step}
+                                            </span>
+                                            {i < steps.length - 1 && (
+                                                <div className={`h-px w-6 ${i < stepIndex ? "bg-ink" : "bg-border"}`} />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            <h2 className="font-serif text-2xl text-ink">{titles[titleIndex]}</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">{subtitles[titleIndex]}</p>
                         </div>
-                        <p className="mt-2 text-sm text-white/70">{getDescription()}</p>
+                        <button
+                            onClick={handleClose}
+                            disabled={isLoading}
+                            className="ml-4 mt-1 shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
+                            aria-label="Fechar modal"
+                        >
+                            <X className="size-4" />
+                        </button>
                     </div>
 
-                    {/* Content */}
-                    <div className="px-6 py-6">
-                        {/* Error Message */}
+                    <div className="px-6 pb-6">
+                        {/* Error */}
                         {recoveryError && (
-                            <div className="mb-4 p-4 rounded-lg bg-red-500/20 border border-red-500/30 flex items-start gap-3">
-                                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                                <p className="text-sm text-red-100">{recoveryError}</p>
+                            <div className="mb-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/20">
+                                <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
+                                <p className="text-xs text-red-700 dark:text-red-400">{recoveryError}</p>
                             </div>
                         )}
 
-                        {/* Step 1: Email Input */}
+                        {/* Step 1: Email */}
                         {recoveryStatus === "idle" && (
                             <form onSubmit={handleRequestCode} className="space-y-4">
-                                <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
+                                <div className="space-y-1.5">
+                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                         Email
                                     </label>
                                     <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+                                        <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                         <input
-                                            id="email"
                                             type="email"
                                             value={email}
-                                            onChange={e => {
-                                                setEmail(e.target.value);
-                                                if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
-                                            }}
+                                            onChange={e => { setEmail(e.target.value); if (errors.email) setErrors(p => ({ ...p, email: undefined })); }}
                                             placeholder="seu@email.com"
-                                            className={`w-full pl-11 pr-4 py-3 bg-white/10 border ${
-                                                errors.email ? "border-red-500/50" : "border-white/20"
-                                            } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
+                                            className={`${inputClass(!!errors.email)} pl-10`}
                                             disabled={isLoading}
                                             autoComplete="email"
                                             autoFocus
                                         />
                                     </div>
-                                    {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
+                                    {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
                                 </div>
-
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
                                     {isLoading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            <span>Enviando...</span>
-                                        </>
+                                        <span className="inline-flex items-center gap-2">
+                                            <span className="size-4 animate-spin rounded-full border-2 border-background/30 border-t-background" />
+                                            Enviando…
+                                        </span>
                                     ) : (
-                                        <>
-                                            <Mail className="w-5 h-5" />
-                                            <span>Enviar Código</span>
-                                        </>
+                                        "Enviar código"
                                     )}
                                 </button>
                             </form>
                         )}
 
-                        {/* Step 2: OTP Input */}
+                        {/* Step 2: OTP */}
                         {(recoveryStatus === "awaiting_code" || recoveryStatus === "verifying") && (
                             <form onSubmit={handleVerifyCode} className="space-y-4">
-                                <div>
-                                    <label htmlFor="otp" className="block text-sm font-medium text-white mb-2">
-                                        Código de Verificação
+                                <div className="space-y-1.5">
+                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                        Código de verificação
                                     </label>
                                     <input
-                                        id="otp"
                                         type="text"
                                         inputMode="numeric"
                                         maxLength={8}
                                         pattern="[0-9]{8}"
                                         value={otp}
-                                        onChange={e => {
-                                            const value = e.target.value.replace(/\D/g, "");
-                                            setOtp(value);
-                                            if (errors.otp) setErrors(prev => ({ ...prev, otp: undefined }));
-                                        }}
+                                        onChange={e => { const v = e.target.value.replace(/\D/g, ""); setOtp(v); if (errors.otp) setErrors(p => ({ ...p, otp: undefined })); }}
                                         placeholder="00000000"
-                                        className={`w-full px-4 py-3 bg-white/10 border ${
-                                            errors.otp ? "border-red-500/50" : "border-white/20"
-                                        } rounded-lg text-white text-center text-2xl tracking-widest placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
+                                        className={`${inputClass(!!errors.otp)} text-center font-mono text-2xl tracking-[0.5em]`}
                                         disabled={isLoading}
                                         autoComplete="one-time-code"
                                         autoFocus
                                     />
-                                    {errors.otp && <p className="mt-1 text-xs text-red-400">{errors.otp}</p>}
+                                    {errors.otp && <p className="text-xs text-red-500">{errors.otp}</p>}
                                 </div>
-
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
                                     {isLoading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            <span>Verificando...</span>
-                                        </>
+                                        <span className="inline-flex items-center gap-2">
+                                            <span className="size-4 animate-spin rounded-full border-2 border-background/30 border-t-background" />
+                                            Verificando…
+                                        </span>
                                     ) : (
-                                        <>
-                                            <Check className="w-5 h-5" />
-                                            <span>Verificar Código</span>
-                                        </>
+                                        "Verificar código"
                                     )}
                                 </button>
-
-                                {/* Resend Code Button */}
                                 <button
                                     type="button"
                                     onClick={handleResendCode}
                                     disabled={cooldownRemaining > 0}
-                                    className="w-full py-2 text-sm text-white/70 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full text-center text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {cooldownRemaining > 0
-                                        ? `Reenviar código em ${cooldownRemaining}s`
-                                        : "Reenviar código"}
+                                    {cooldownRemaining > 0 ? `Reenviar em ${cooldownRemaining}s` : "Reenviar código"}
                                 </button>
                             </form>
                         )}
 
-                        {/* Step 3: Password Input */}
+                        {/* Step 3: Nova senha */}
                         {recoveryStatus === "ready" && (
                             <form onSubmit={handleResetPassword} className="space-y-4">
-                                <div>
-                                    <label htmlFor="newPassword" className="block text-sm font-medium text-white mb-2">
-                                        Nova Senha
+                                <div className="space-y-1.5">
+                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                        Nova senha
                                     </label>
                                     <div className="relative">
                                         <input
-                                            id="newPassword"
                                             type={showPassword ? "text" : "password"}
                                             value={newPassword}
-                                            onChange={e => {
-                                                setNewPassword(e.target.value);
-                                                if (errors.newPassword)
-                                                    setErrors(prev => ({ ...prev, newPassword: undefined }));
-                                            }}
+                                            onChange={e => { setNewPassword(e.target.value); if (errors.newPassword) setErrors(p => ({ ...p, newPassword: undefined })); }}
                                             placeholder="Mínimo 6 caracteres"
-                                            className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
-                                                errors.newPassword ? "border-red-500/50" : "border-white/20"
-                                            } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
+                                            className={`${inputClass(!!errors.newPassword)} pr-10`}
                                             disabled={isLoading}
                                             autoComplete="new-password"
                                             autoFocus
                                         />
                                         <button
                                             type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
-                                            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                                            onClick={() => setShowPassword(v => !v)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                                         >
-                                            {showPassword ? (
-                                                <EyeOff className="w-5 h-5" />
-                                            ) : (
-                                                <Eye className="w-5 h-5" />
-                                            )}
+                                            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                                         </button>
                                     </div>
-                                    {errors.newPassword && (
-                                        <p className="mt-1 text-xs text-red-400">{errors.newPassword}</p>
-                                    )}
+                                    {errors.newPassword && <p className="text-xs text-red-500">{errors.newPassword}</p>}
                                 </div>
 
-                                <div>
-                                    <label
-                                        htmlFor="confirmPassword"
-                                        className="block text-sm font-medium text-white mb-2"
-                                    >
-                                        Confirmar Nova Senha
+                                <div className="space-y-1.5">
+                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                        Confirmar nova senha
                                     </label>
                                     <div className="relative">
                                         <input
-                                            id="confirmPassword"
                                             type={showConfirmPassword ? "text" : "password"}
                                             value={confirmPassword}
-                                            onChange={e => {
-                                                setConfirmPassword(e.target.value);
-                                                if (errors.confirmPassword)
-                                                    setErrors(prev => ({ ...prev, confirmPassword: undefined }));
-                                            }}
+                                            onChange={e => { setConfirmPassword(e.target.value); if (errors.confirmPassword) setErrors(p => ({ ...p, confirmPassword: undefined })); }}
                                             placeholder="Repita a senha"
-                                            className={`w-full pl-4 pr-11 py-3 bg-white/10 border ${
-                                                errors.confirmPassword ? "border-red-500/50" : "border-white/20"
-                                            } rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-colors`}
+                                            className={`${inputClass(!!errors.confirmPassword)} pr-10`}
                                             disabled={isLoading}
                                             autoComplete="new-password"
                                         />
                                         <button
                                             type="button"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
-                                            aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                                            onClick={() => setShowConfirmPassword(v => !v)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                                         >
-                                            {showConfirmPassword ? (
-                                                <EyeOff className="w-5 h-5" />
-                                            ) : (
-                                                <Eye className="w-5 h-5" />
-                                            )}
+                                            {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                                         </button>
                                     </div>
-                                    {errors.confirmPassword && (
-                                        <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>
-                                    )}
+                                    {errors.confirmPassword && <p className="text-xs text-red-500">{errors.confirmPassword}</p>}
                                 </div>
 
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
                                     {isLoading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            <span>Redefinindo...</span>
-                                        </>
+                                        <span className="inline-flex items-center gap-2">
+                                            <span className="size-4 animate-spin rounded-full border-2 border-background/30 border-t-background" />
+                                            Redefinindo…
+                                        </span>
                                     ) : (
-                                        <>
-                                            <Check className="w-5 h-5" />
-                                            <span>Redefinir Senha</span>
-                                        </>
+                                        "Redefinir senha"
                                     )}
                                 </button>
                             </form>
                         )}
 
-                        {/* Step 4: Success Message */}
+                        {/* Step 4: Sucesso */}
                         {recoveryStatus === "success" && (
-                            <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                                <div className="w-16 h-16 rounded-full bg-green-500/20 border-2 border-green-500/50 flex items-center justify-center">
-                                    <Check className="w-8 h-8 text-green-400" />
+                            <div className="flex flex-col items-center gap-4 py-6 text-center">
+                                <div className="flex size-14 items-center justify-center rounded-full border-2 border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/20">
+                                    <Check className="size-7 text-emerald-600 dark:text-emerald-400" />
                                 </div>
-                                <p className="text-white text-center">
-                                    Senha redefinida com sucesso!
-                                    <br />
-                                    <span className="text-sm text-white/70">
-                                        Você já pode fazer login com sua nova senha.
-                                    </span>
+                                <p className="text-sm text-muted-foreground">
+                                    Você já pode fazer login com sua nova senha.
                                 </p>
                             </div>
                         )}

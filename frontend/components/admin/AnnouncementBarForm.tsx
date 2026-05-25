@@ -7,20 +7,20 @@
  * Estilo GlassCard, igual ao formulário de Novidades (AdminPortalNews).
  */
 
-import { GlassCard } from "@/components/ui";
+
 import { AnnouncementBar } from "@/domain/entities/AnnouncementBar";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AnnouncementBarPreview } from "./AnnouncementBarPreview";
 
-const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
+const LABEL_CLASS = "block text-sm font-medium text-muted-foreground mb-2";
 const INPUT_CLASS =
-    "w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50";
+    "w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20";
 
 function SectionDivider({ label }: { label: string }) {
     return (
         <div className="flex items-center gap-3 pt-1">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]/70 whitespace-nowrap">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/70 whitespace-nowrap">
                 {label}
             </span>
             <div className="flex-1 h-px bg-[var(--border-subtle)]" />
@@ -37,8 +37,8 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
                 role="switch"
                 aria-checked={checked}
                 onClick={() => onChange(!checked)}
-                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${
-                    checked ? "bg-[var(--brand-blue)]" : "bg-[var(--surface-glass)] border border-[var(--border-subtle)]"
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-foreground/20 ${
+                    checked ? "bg-foreground" : "bg-accent border border-border"
                 }`}
             >
                 <span
@@ -47,7 +47,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
                     }`}
                 />
             </button>
-            <span className="text-xs text-[var(--text-secondary)]">{checked ? "Sim" : "Não"}</span>
+            <span className="text-xs text-muted-foreground">{checked ? "Sim" : "Não"}</span>
         </div>
     );
 }
@@ -159,12 +159,12 @@ export function AnnouncementBarForm({ editBar, onSubmit, onCancel }: Announcemen
     };
 
     return (
-        <GlassCard variant="elevated" padding="lg">
+        <div className="rounded-2xl border border-border bg-card p-6">
             <div className="mb-6">
-                <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+                <h2 className="text-xl font-semibold text-foreground">
                     {editBar ? "Editar Barra de Aviso" : "Nova Barra de Aviso"}
                 </h2>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                     {editBar ? "Altere os campos e salve." : "Preencha os campos e publique."}
                 </p>
             </div>
@@ -194,7 +194,7 @@ export function AnnouncementBarForm({ editBar, onSubmit, onCancel }: Announcemen
                                 <AlertCircle className="w-3 h-3" /> Campo obrigatório
                             </span>
                         )}
-                        <span className="ml-auto text-xs text-[var(--text-secondary)]">{msgLen}/200</span>
+                        <span className="ml-auto text-xs text-muted-foreground">{msgLen}/200</span>
                     </div>
                 </div>
 
@@ -233,7 +233,7 @@ export function AnnouncementBarForm({ editBar, onSubmit, onCancel }: Announcemen
                                 type="color"
                                 value={form.bgColor}
                                 onChange={e => set("bgColor", e.target.value)}
-                                className="h-12 w-14 rounded-lg cursor-pointer border border-[var(--border-glass)] bg-transparent flex-shrink-0"
+                                className="h-12 w-14 rounded-lg cursor-pointer border border-border bg-transparent flex-shrink-0"
                                 aria-label="Cor de fundo"
                             />
                             <input
@@ -252,7 +252,7 @@ export function AnnouncementBarForm({ editBar, onSubmit, onCancel }: Announcemen
                                 type="color"
                                 value={form.textColor}
                                 onChange={e => set("textColor", e.target.value)}
-                                className="h-12 w-14 rounded-lg cursor-pointer border border-[var(--border-glass)] bg-transparent flex-shrink-0"
+                                className="h-12 w-14 rounded-lg cursor-pointer border border-border bg-transparent flex-shrink-0"
                                 aria-label="Cor do texto"
                             />
                             <input
@@ -312,14 +312,14 @@ export function AnnouncementBarForm({ editBar, onSubmit, onCancel }: Announcemen
                         type="button"
                         onClick={onCancel}
                         disabled={isSubmitting}
-                        className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"
+                        className="px-6 py-2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         disabled={isSubmitting || msgEmpty}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[var(--brand-blue)] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-foreground text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? (
                             <>
@@ -334,6 +334,6 @@ export function AnnouncementBarForm({ editBar, onSubmit, onCancel }: Announcemen
                     </button>
                 </div>
             </form>
-        </GlassCard>
+        </div>
     );
 }

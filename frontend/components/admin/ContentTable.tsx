@@ -1,21 +1,8 @@
 "use client";
 
-/**
- * ContentTable Component (Presentation Layer)
- *
- * Tabela de conteúdos com ações de editar e deletar.
- * Exibe informações de forma clara e acessível.
- *
- * Princípios aplicados:
- * - SRP: Responsável apenas por exibir tabela de conteúdos
- * - Composition: Recebe handlers via props
- * - Accessibility: Labels e aria-labels adequados
- */
-
-import { GlassCard } from "@/components/ui";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import { BIBLIOTECA_TEMAS } from "@/domain/entities/BibliotecaItem";
-import { File, FileText, Pencil, Trash2 } from "lucide-react";
+import { FileText, Pencil, Trash2 } from "lucide-react";
 
 interface ContentTableProps {
     items: ContentItem[];
@@ -29,89 +16,65 @@ export function ContentTable({ items, onEdit, onDelete, lastUpdated, type }: Con
     const isBiblioteca = type === "biblioteca";
 
     const getTemaLabel = (tema: string | null | undefined): string => {
-        if (!tema) return "-";
+        if (!tema) return "—";
         return BIBLIOTECA_TEMAS.find(t => t.slug === tema)?.label ?? tema;
     };
 
     return (
-        <GlassCard variant="bordered" padding="none">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
             {lastUpdated && (
-                <div className="px-4 py-2 text-sm text-[var(--text-secondary)] border-b border-[var(--border-glass)]">
-                    Última atualização:{" "}
+                <div className="border-b border-border px-4 py-2 text-[11px] text-muted-foreground">
+                    Atualizado em{" "}
                     {lastUpdated.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" })}
                 </div>
             )}
             <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-[var(--surface-glass)]">
+                <table className="w-full text-sm">
+                    <thead className="bg-accent">
                         <tr>
-                            <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">ID</th>
-                            <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">
-                                Título
-                            </th>
-                            <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">
-                                Leitura
-                            </th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">ID</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Título</th>
+                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">Leitura</th>
                             {isBiblioteca && (
-                                <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">
-                                    Tema
-                                </th>
+                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Tema</th>
                             )}
-                            <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium">
-                                HTML
-                            </th>
-                            <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium">
-                                PDF
-                            </th>
-                            <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium">
-                                Ações
-                            </th>
+                            <th className="px-4 py-3 text-center font-medium text-muted-foreground">HTML</th>
+                            <th className="px-4 py-3 text-center font-medium text-muted-foreground">Ações</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[var(--border-glass)]">
+                    <tbody className="divide-y divide-border">
                         {items.map(item => (
-                            <tr key={item.id} className="hover:bg-[var(--surface-glass)]/50 transition-colors">
-                                <td className="px-4 py-3 text-[var(--text-primary)] font-mono">
-                                    {item.formattedNumber}
-                                </td>
-                                <td className="px-4 py-3 text-[var(--text-primary)]">{item.title}</td>
-                                <td className="px-4 py-3 text-[var(--text-secondary)]">
-                                    {item.readTime ? `${item.readTime} min` : "-"}
+                            <tr key={item.id} className="transition-colors hover:bg-accent/50">
+                                <td className="px-4 py-3 font-mono text-muted-foreground">{item.formattedNumber}</td>
+                                <td className="px-4 py-3 text-foreground">{item.title}</td>
+                                <td className="px-4 py-3 text-muted-foreground">
+                                    {item.readTime ? `${item.readTime} min` : "—"}
                                 </td>
                                 {isBiblioteca && (
-                                    <td className="px-4 py-3 text-[var(--text-secondary)]">
-                                        {getTemaLabel(item.tema)}
-                                    </td>
+                                    <td className="px-4 py-3 text-muted-foreground">{getTemaLabel(item.tema)}</td>
                                 )}
                                 <td className="px-4 py-3 text-center">
                                     {item.htmlAvailable ? (
-                                        <FileText className="w-5 h-5 text-[var(--brand-green)] mx-auto" />
+                                        <FileText className="mx-auto size-4 text-green-500" />
                                     ) : (
-                                        <span className="text-[var(--text-secondary)]">-</span>
-                                    )}
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                    {item.pdfAvailable ? (
-                                        <File className="w-5 h-5 text-[var(--brand-orange)] mx-auto" />
-                                    ) : (
-                                        <span className="text-[var(--text-secondary)]">-</span>
+                                        <span className="text-muted-foreground">—</span>
                                     )}
                                 </td>
                                 <td className="px-4 py-3">
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="flex items-center justify-center gap-1">
                                         <button
                                             onClick={() => onEdit(item)}
-                                            className="p-2 rounded-lg hover:bg-[var(--brand-blue)]/20 text-[var(--brand-blue)] transition-colors"
+                                            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                                             aria-label="Editar"
                                         >
-                                            <Pencil className="w-4 h-4" />
+                                            <Pencil className="size-3.5" />
                                         </button>
                                         <button
                                             onClick={() => onDelete(item)}
-                                            className="p-2 rounded-lg hover:bg-red-500/20 text-red-500 transition-colors"
+                                            className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-500"
                                             aria-label="Deletar"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="size-3.5" />
                                         </button>
                                     </div>
                                 </td>
@@ -120,6 +83,6 @@ export function ContentTable({ items, onEdit, onDelete, lastUpdated, type }: Con
                     </tbody>
                 </table>
             </div>
-        </GlassCard>
+        </div>
     );
 }

@@ -17,7 +17,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { FeedbackMessage } from "./FeedbackMessage";
 import { AnnouncementBarForm, AnnouncementBarFormSubmitData } from "./AnnouncementBarForm";
-import { GlassCard } from "@/components/ui";
+
 
 /**
  * Reidrata uma AnnouncementBar serializada via JSON.
@@ -217,10 +217,10 @@ export function AnnouncementBarTab() {
         <div className="space-y-6">
             {/* Cabeçalho */}
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">Barras de Aviso</h2>
+                <h2 className="font-serif text-2xl tracking-tight text-ink">Barras de Aviso</h2>
                 <button
                     onClick={() => { setEditBar(null); setShowForm(true); }}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--brand-blue)] text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px]"
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px]"
                 >
                     <Plus className="w-5 h-5" />
                     Nova Barra
@@ -228,30 +228,30 @@ export function AnnouncementBarTab() {
             </div>
 
             {/* Tabela */}
-            <GlassCard variant="bordered" padding="none">
+            <div className="overflow-hidden rounded-2xl border border-border bg-card">
                 {isLoading ? (
-                    <div className="text-center py-12 text-[var(--text-secondary)] text-lg">Carregando...</div>
+                    <div className="text-center py-12 text-muted-foreground text-lg">Carregando...</div>
                 ) : bars.length === 0 ? (
-                    <div className="text-center py-12 text-[var(--text-secondary)] text-lg">
+                    <div className="text-center py-12 text-muted-foreground text-lg">
                         Nenhuma barra de aviso cadastrada.
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-[var(--surface-glass)]">
+                            <thead className="bg-accent">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium">Mensagem</th>
-                                    <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium w-28">Status</th>
-                                    <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium w-20">Prior.</th>
-                                    <th className="px-4 py-3 text-left text-[var(--text-secondary)] text-sm font-medium w-44">Período</th>
-                                    <th className="px-4 py-3 text-center text-[var(--text-secondary)] text-sm font-medium w-36">Ações</th>
+                                    <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium">Mensagem</th>
+                                    <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium w-28">Status</th>
+                                    <th className="px-4 py-3 text-center text-muted-foreground text-sm font-medium w-20">Prior.</th>
+                                    <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium w-44">Período</th>
+                                    <th className="px-4 py-3 text-center text-muted-foreground text-sm font-medium w-36">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[var(--border-glass)]">
+                            <tbody className="divide-y divide-border">
                                 {bars.map(bar => {
                                     const status = getBarStatus(bar);
                                     return (
-                                        <tr key={bar.id} className="hover:bg-[var(--surface-glass)]/50 transition-colors">
+                                        <tr key={bar.id} className="hover:bg-accent/50 transition-colors">
                                             {/* Mensagem */}
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
@@ -261,11 +261,11 @@ export function AnnouncementBarTab() {
                                                         title={`Fundo: ${bar.bgColor}`}
                                                     />
                                                     <div className="min-w-0">
-                                                        <p className="text-sm text-[var(--text-primary)] truncate max-w-xs">
+                                                        <p className="text-sm text-foreground truncate max-w-xs">
                                                             {bar.message}
                                                         </p>
                                                         {bar.linkUrl && (
-                                                            <p className="text-xs text-[var(--text-secondary)] truncate max-w-xs">
+                                                            <p className="text-xs text-muted-foreground truncate max-w-xs">
                                                                 🔗 {bar.linkLabel || bar.linkUrl}
                                                             </p>
                                                         )}
@@ -290,12 +290,12 @@ export function AnnouncementBarTab() {
                                                 </span>
                                             </td>
                                             {/* Prioridade */}
-                                            <td className="px-4 py-3 text-center text-sm text-[var(--text-secondary)]">
+                                            <td className="px-4 py-3 text-center text-sm text-muted-foreground">
                                                 {bar.priority}
                                             </td>
                                             {/* Período */}
                                             <td className="px-4 py-3">
-                                                <div className="text-xs text-[var(--text-secondary)] space-y-0.5">
+                                                <div className="text-xs text-muted-foreground space-y-0.5">
                                                     <div>De: {formatDatetime(bar.startsAt)}</div>
                                                     <div>Até: {formatDatetime(bar.endsAt)}</div>
                                                 </div>
@@ -306,35 +306,35 @@ export function AnnouncementBarTab() {
                                                     {/* Toggle ativo */}
                                                     <button
                                                         onClick={() => handleToggle(bar)}
-                                                        className="p-2 rounded-lg hover:bg-[var(--surface-glass)] transition-colors"
+                                                        className="p-2 rounded-lg hover:bg-accent transition-colors"
                                                         title={bar.isActive ? "Desativar" : "Ativar"}
                                                     >
                                                         {bar.isActive ? (
-                                                            <Eye className="w-4 h-4 text-[var(--brand-green)]" />
+                                                            <Eye className="w-4 h-4 text-green-500" />
                                                         ) : (
-                                                            <EyeOff className="w-4 h-4 text-[var(--text-secondary)]" />
+                                                            <EyeOff className="w-4 h-4 text-muted-foreground" />
                                                         )}
                                                     </button>
                                                     {/* Editar */}
                                                     <button
                                                         onClick={() => { setEditBar(bar); setShowForm(true); }}
-                                                        className="p-2 rounded-lg hover:bg-[var(--surface-glass)] transition-colors"
+                                                        className="p-2 rounded-lg hover:bg-accent transition-colors"
                                                         title="Editar"
                                                     >
-                                                        <Pencil className="w-4 h-4 text-[var(--brand-blue)]" />
+                                                        <Pencil className="w-4 h-4 text-foreground" />
                                                     </button>
                                                     {/* Duplicar */}
                                                     <button
                                                         onClick={() => handleDuplicate(bar)}
-                                                        className="p-2 rounded-lg hover:bg-[var(--surface-glass)] transition-colors"
+                                                        className="p-2 rounded-lg hover:bg-accent transition-colors"
                                                         title="Duplicar"
                                                     >
-                                                        <Copy className="w-4 h-4 text-[var(--text-secondary)]" />
+                                                        <Copy className="w-4 h-4 text-muted-foreground" />
                                                     </button>
                                                     {/* Deletar */}
                                                     <button
                                                         onClick={() => setConfirmDelete({ show: true, bar })}
-                                                        className="p-2 rounded-lg hover:bg-[var(--surface-glass)] transition-colors"
+                                                        className="p-2 rounded-lg hover:bg-accent transition-colors"
                                                         title="Deletar"
                                                     >
                                                         <Trash2 className="w-4 h-4 text-red-400" />
@@ -348,7 +348,7 @@ export function AnnouncementBarTab() {
                         </table>
                     </div>
                 )}
-            </GlassCard>
+            </div>
 
             {/* Modal de criação/edição */}
             {showForm && (

@@ -1,19 +1,5 @@
-/**
- * Dashboard Component (Admin UI)
- *
- * Dashboard com estatísticas do painel admin.
- * Projetado para idosos 80+: números grandes, poucos itens.
- *
- * Princípios de UX:
- * - Números em font-size 48px+
- * - Máximo 4 cards
- * - Sem gráficos (confusos)
- * - Apenas números absolutos (sem porcentagens)
- */
-
 "use client";
 
-import { GlassCard } from "@/components/ui";
 import { BookOpen, Clock, Sparkles, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { TodayRegistrations } from "./TodayRegistrations";
@@ -46,7 +32,6 @@ export function Dashboard() {
                 throw new Error(err.error ?? `HTTP ${res.status}`);
             }
             const data = await res.json();
-
             setStats({
                 totalUsers: data.users.totalUsers,
                 totalContent: data.content.total,
@@ -61,58 +46,31 @@ export function Dashboard() {
     };
 
     const cards = [
-        {
-            label: "Total de Leitores",
-            value: stats.totalUsers,
-            icon: Users,
-            color: "text-[var(--brand-blue)]",
-        },
-        {
-            label: "Total de Conteúdos",
-            value: stats.totalContent,
-            icon: BookOpen,
-            color: "text-[var(--brand-orange)]",
-        },
-        {
-            label: "Administradores",
-            value: stats.totalAdmins,
-            icon: Sparkles,
-            color: "text-[var(--brand-green)]",
-        },
-        {
-            label: "Novos Leitores (30 dias)",
-            value: stats.newUsersLast30Days,
-            icon: Clock,
-            color: "text-[var(--brand-purple)]",
-        },
+        { label: "Total de Leitores",        value: stats.totalUsers,         icon: Users    },
+        { label: "Total de Conteúdos",       value: stats.totalContent,       icon: BookOpen },
+        { label: "Administradores",          value: stats.totalAdmins,        icon: Sparkles },
+        { label: "Novos Leitores (30 dias)", value: stats.newUsersLast30Days, icon: Clock    },
     ];
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center py-20">
-                <p className="text-xl text-[var(--text-secondary)]">Carregando estatísticas...</p>
+            <div className="flex min-h-[200px] items-center justify-center rounded-2xl border border-border bg-card">
+                <p className="text-sm text-muted-foreground">Carregando…</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">Visão Geral</h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {cards.map(({ label, value, icon: Icon, color }) => (
-                    <GlassCard key={label} variant="bordered" padding="lg">
-                        <div className="flex flex-col items-center text-center space-y-4">
-                            <Icon className={`w-12 h-12 ${color}`} />
-                            <div className="text-6xl font-bold text-[var(--text-primary)] tabular-nums">{value}</div>
-                            <div className="text-lg text-[var(--text-secondary)] font-medium">{label}</div>
-                        </div>
-                    </GlassCard>
+        <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                {cards.map(({ label, value, icon: Icon }) => (
+                    <div key={label} className="flex flex-col items-center rounded-2xl border border-border bg-card p-5 text-center">
+                        <Icon className="mb-3 size-5 text-muted-foreground" />
+                        <div className="font-serif text-4xl tracking-tight text-ink tabular-nums">{value}</div>
+                        <p className="mt-1.5 text-[11px] text-muted-foreground">{label}</p>
+                    </div>
                 ))}
             </div>
-
             <TodayRegistrations />
         </div>
     );

@@ -84,6 +84,26 @@
     --shadow-glow-green-lg: 0 0 30px rgba(34, 197, 94, 0.28);
     --shadow-glow-purple-md: 0 0 20px rgba(99, 102, 241, 0.22);
     --shadow-glow-purple-lg: 0 0 30px rgba(99, 102, 241, 0.28);
+
+    --ink: #111111;
+    --ink-soft: rgba(17, 17, 17, 0.78);
+    --primary-soft: rgba(29, 78, 216, 0.18);
+    --block-newsletter: #3b82f6;
+    --block-newsletter-soft: rgba(59, 130, 246, 0.18);
+    --block-reportagem: #f97316;
+    --block-reportagem-soft: rgba(249, 115, 22, 0.16);
+    --block-radar: #06b6d4;
+    --block-radar-soft: rgba(6, 182, 212, 0.16);
+    --block-livro: #f59e0b;
+    --block-livro-soft: rgba(245, 158, 11, 0.16);
+    --block-biblioteca: #14b8a6;
+    --block-biblioteca-soft: rgba(20, 184, 166, 0.16);
+    --block-estudar: #6366f1;
+    --block-estudar-soft: rgba(99, 102, 241, 0.16);
+    --block-ensinar: #ec4899;
+    --block-ensinar-soft: rgba(236, 72, 153, 0.16);
+    --shadow-card: 0 20px 40px rgba(15, 23, 42, 0.08);
+    --shadow-elevated: 0 24px 60px rgba(15, 23, 42, 0.14);
 }
 
 .dark {
@@ -139,6 +159,26 @@
     --border: rgba(255, 255, 255, 0.1);
     --input: rgba(255, 255, 255, 0.14);
     --ring: #3b9eff;
+
+    --ink: #f8fafc;
+    --ink-soft: rgba(248, 250, 252, 0.7);
+    --primary-soft: rgba(59, 130, 246, 0.2);
+    --block-newsletter: #60a5fa;
+    --block-newsletter-soft: rgba(96, 165, 250, 0.18);
+    --block-reportagem: #fb923c;
+    --block-reportagem-soft: rgba(251, 146, 60, 0.16);
+    --block-radar: #22d3ee;
+    --block-radar-soft: rgba(34, 211, 238, 0.16);
+    --block-livro: #fbbf24;
+    --block-livro-soft: rgba(251, 191, 36, 0.16);
+    --block-biblioteca: #2dd4bf;
+    --block-biblioteca-soft: rgba(45, 212, 191, 0.16);
+    --block-estudar: #818cf8;
+    --block-estudar-soft: rgba(129, 140, 248, 0.16);
+    --block-ensinar: #f472b6;
+    --block-ensinar-soft: rgba(244, 114, 182, 0.16);
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
+    --shadow-elevated: 0 26px 60px rgba(0, 0, 0, 0.45);
 }
 
 .portal-back-link {
@@ -511,6 +551,7 @@
     --color-input: var(--input);
     --color-ring: var(--ring);
     --font-sans: var(--font-inter), "Inter", "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-serif: var(--font-instrument-serif), "Instrument Serif", "Times New Roman", serif;
     --font-mono: "SF Mono", ui-monospace, monospace;
 
     /* PP7+IAS Custom Colors */
@@ -525,6 +566,22 @@
     --color-brand-green: var(--brand-green);
     --color-brand-yellow: var(--brand-yellow);
     --color-brand-purple: var(--brand-purple);
+    --color-ink: var(--ink);
+    --color-primary-soft: var(--primary-soft);
+    --color-block-newsletter: var(--block-newsletter);
+    --color-block-newsletter-soft: var(--block-newsletter-soft);
+    --color-block-reportagem: var(--block-reportagem);
+    --color-block-reportagem-soft: var(--block-reportagem-soft);
+    --color-block-radar: var(--block-radar);
+    --color-block-radar-soft: var(--block-radar-soft);
+    --color-block-livro: var(--block-livro);
+    --color-block-livro-soft: var(--block-livro-soft);
+    --color-block-biblioteca: var(--block-biblioteca);
+    --color-block-biblioteca-soft: var(--block-biblioteca-soft);
+    --color-block-estudar: var(--block-estudar);
+    --color-block-estudar-soft: var(--block-estudar-soft);
+    --color-block-ensinar: var(--block-ensinar);
+    --color-block-ensinar-soft: var(--block-ensinar-soft);
 }
 
 /* === Reset & Base === */

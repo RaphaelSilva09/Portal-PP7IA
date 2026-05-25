@@ -200,11 +200,16 @@ export function SessionProvider({ children }: SessionProviderProps) {
         }
     }, []);
 
+    // isPending sinaliza que o fetch terminou, mas o useEffect que mapeia
+    // sessionData → user state ainda não rodou. Manter isLoading=true durante
+    // esse gap de um render evita redirecionamentos prematuros no admin.
+    const isLoading = isPending || (!!sessionData?.user && user === null);
+
     return (
         <SessionContext.Provider
             value={{
                 user,
-                isLoading: isPending,
+                isLoading,
                 error,
                 emailConfirmationRequired,
                 signUp,

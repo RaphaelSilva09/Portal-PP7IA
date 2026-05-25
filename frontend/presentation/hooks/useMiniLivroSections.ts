@@ -20,10 +20,12 @@ interface UseMiniLivroSectionsResult {
 function rehydrate(raw: unknown): MiniLivroSection | null {
     const data = raw as { props?: Partial<MiniLivroSectionProps> } & Partial<MiniLivroSectionProps>;
     const src = (data?.props ?? data) as Partial<MiniLivroSectionProps>;
-    if (typeof src.id !== "number" || typeof src.title !== "string") return null;
+    const rawId = src.id as unknown;
+    const idOk = (typeof rawId === "number" || typeof rawId === "string") && !isNaN(Number(rawId));
+    if (!idOk || typeof src.title !== "string") return null;
     if (src.kind !== "introducao" && src.kind !== "encerramento") return null;
     return MiniLivroSection.create({
-        id: src.id,
+        id: Number(src.id),
         createdAt: src.createdAt ? new Date(src.createdAt as unknown as string) : new Date(0),
         updatedAt: src.updatedAt ? new Date(src.updatedAt as unknown as string) : new Date(0),
         kind: src.kind as MiniLivroSectionKind,

@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
+
+// useLayoutEffect fires synchronously before the browser paints,
+// eliminating the one-frame delay caused by useEffect's async scheduling.
+const useMountEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 interface PortalProps {
     children: React.ReactNode;
@@ -21,7 +25,7 @@ interface PortalProps {
 export default function Portal({ children }: PortalProps) {
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
+    useMountEffect(() => {
         setMounted(true);
         return () => setMounted(false);
     }, []);

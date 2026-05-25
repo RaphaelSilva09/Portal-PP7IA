@@ -8,7 +8,7 @@
  */
 
 import { FeedbackMessage } from "@/components/admin";
-import { GlassCard, GradientButton } from "@/components/ui";
+
 import { AlertCircle, Loader2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -25,11 +25,11 @@ interface BookRow {
     is_active: boolean;
 }
 
-const INPUT_CLASS = `w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
-                     text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50
-                     focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50`;
+const INPUT_CLASS = `w-full px-4 py-3 bg-card border border-border rounded-lg
+                     text-foreground placeholder:text-muted-foreground/50
+                     focus:outline-none focus:ring-2 focus:ring-foreground/20`;
 
-const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
+const LABEL_CLASS = "block text-sm font-medium text-muted-foreground mb-2";
 
 // —— FileUploadField (reutilizado do EbookForm) ——
 interface FileUploadFieldProps {
@@ -46,7 +46,7 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange }: Fi
         <div>
             <label className={LABEL_CLASS}>{label}</label>
             {existingPath && (
-                <div className="mb-2 flex items-center gap-2 text-sm text-[var(--brand-green)]">
+                <div className="mb-2 flex items-center gap-2 text-sm text-green-500">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span className="truncate">Atual: {existingPath.split("/").pop()}</span>
                 </div>
@@ -62,8 +62,8 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange }: Fi
                 <label
                     htmlFor={id}
                     className="flex items-center justify-center gap-2 w-full px-4 py-3
-                               bg-[var(--bg-secondary)] border-2 border-dashed border-[var(--border-glass)] rounded-lg
-                               text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-blue)]/50 transition-colors"
+                               bg-card border-2 border-dashed border-border rounded-lg
+                               text-muted-foreground cursor-pointer hover:border-foreground/30 transition-colors"
                 >
                     <Upload className="w-5 h-5 shrink-0" />
                     <span className="truncate">
@@ -74,7 +74,7 @@ function FileUploadField({ id, label, accept, file, existingPath, onChange }: Fi
                     <button
                         type="button"
                         onClick={() => onChange(null)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-red-400 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-red-400 transition-colors"
                         aria-label="Remover arquivo"
                     >
                         <X className="w-4 h-4" />
@@ -173,7 +173,7 @@ export function AdminBook() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center py-24 text-[var(--text-secondary)]">
+            <div className="flex items-center justify-center py-24 text-muted-foreground">
                 <Loader2 className="w-6 h-6 animate-spin mr-2" />
                 Carregando...
             </div>
@@ -182,9 +182,9 @@ export function AdminBook() {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)]">Livro Principal</h2>
+            <h2 className="font-serif text-2xl tracking-tight text-ink">Livro Principal</h2>
 
-            <GlassCard variant="elevated" padding="lg">
+            <div className="rounded-2xl border border-border bg-card p-6">
                 <form onSubmit={handleSave} className="space-y-6">
 
                     {/* Título */}
@@ -243,8 +243,8 @@ export function AdminBook() {
                             role="switch"
                             aria-checked={isActive}
                             onClick={() => setIsActive(v => !v)}
-                            className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/40 ${
-                                isActive ? "bg-[var(--brand-blue)]" : "bg-[var(--surface-glass)] border border-[var(--border-subtle)]"
+                            className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-foreground/20 ${
+                                isActive ? "bg-foreground" : "bg-accent border border-border"
                             }`}
                         >
                             <span className={`inline-block h-6 w-6 rounded-full bg-white shadow-md transition-transform ${isActive ? "translate-x-7" : "translate-x-1"}`} />
@@ -255,8 +255,8 @@ export function AdminBook() {
                     </div>
 
                     {/* Arquivos */}
-                    <div className="border-t border-[var(--border-glass)] pt-4 space-y-5">
-                        <p className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+                    <div className="border-t border-border pt-4 space-y-5">
+                        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                             Arquivos do Livro
                         </p>
 
@@ -296,12 +296,16 @@ export function AdminBook() {
 
                     {/* Ações */}
                     <div className="flex justify-end pt-2">
-                        <GradientButton type="submit" variant="cta" disabled={isSaving || !title.trim()}>
-                            {isSaving ? "Salvando..." : "Salvar Alterações"}
-                        </GradientButton>
+                            <button
+        type="submit"
+        disabled={isSaving || !title.trim()}
+        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+        {isSaving ? "Salvando..." : "Salvar Alterações"}
+    </button>
                     </div>
                 </form>
-            </GlassCard>
+            </div>
 
             <FeedbackMessage
                 isVisible={feedback.show}

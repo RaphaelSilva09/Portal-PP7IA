@@ -3,7 +3,7 @@ import { MiniLivroSection, type MiniLivroSectionKind, type MiniLivroSectionProps
 import type { IMiniLivroSectionRepository } from "@/domain/repositories/IMiniLivroSectionRepository";
 
 interface MiniLivroSectionRow {
-    id: number;
+    id: number | string; // pg returns BIGINT as string at runtime
     created_at: string;
     updated_at: string;
     kind: MiniLivroSectionKind;
@@ -115,8 +115,9 @@ export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepo
         }
 
         const candidate = row as Record<string, unknown>;
+        const idOk = (typeof candidate.id === "number" || typeof candidate.id === "string") && !isNaN(Number(candidate.id));
         return (
-            typeof candidate.id === "number"
+            idOk
             && typeof candidate.title === "string"
             && (candidate.kind === "introducao" || candidate.kind === "encerramento")
         );
@@ -124,7 +125,7 @@ export class SupabaseMiniLivroSectionRepository implements IMiniLivroSectionRepo
 
     private mapToEntity(row: MiniLivroSectionRow): MiniLivroSection {
         const props: MiniLivroSectionProps = {
-            id: row.id,
+            id: Number(row.id),
             createdAt: new Date(row.created_at),
             updatedAt: new Date(row.updated_at),
             kind: row.kind,

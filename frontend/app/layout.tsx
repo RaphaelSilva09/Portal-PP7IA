@@ -8,7 +8,7 @@ import { InviteModalProvider } from "@/context/InviteModalContext";
 import { SearchModalProvider } from "@/context/SearchModalContext";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Instrument_Serif } from "next/font/google";
 import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
@@ -20,16 +20,26 @@ const inter = Inter({
     display: "swap",
 });
 
+const instrumentSerif = Instrument_Serif({
+    subsets: ["latin"],
+    weight: ["400"],
+    variable: "--font-instrument-serif",
+    display: "swap",
+});
+
 export const metadata: Metadata = {
-    title: "Pp7+ias Portal - Curadoria Humana para Líderes e Inovadores",
-    description: "Menos ruído, mais clareza. Conhecimento e IA acessível para todos.",
-    keywords: ["curadoria", "inteligência artificial", "IA", "liderança", "inovação", "newsletter", "tecnologia"],
-    authors: [{ name: "Pp7ia" }],
+    title: "PP7+IAS — Menos ruído. Mais clareza.",
+    description: "Curadoria editorial sobre liderança, gestão de pessoas e inteligência artificial. 7 blocos, 7 IAs — para quem decide.",
+    keywords: ["curadoria", "liderança", "gestão de pessoas", "inteligência artificial", "IA", "newsletter", "editorial"],
+    authors: [{ name: "Paulo Pacheco" }],
     openGraph: {
-        title: "Pp7+ias Portal - Curadoria Humana",
-        description: "Menos ruído, mais clareza. Conhecimento e IA acessível para todos.",
+        title: "PP7+IAS — Menos ruído. Mais clareza.",
+        description: "Curadoria editorial sobre liderança, gestão de pessoas e inteligência artificial. 7 blocos, 7 IAs — para quem decide.",
         type: "website",
         locale: "pt_BR",
+        images: [
+            "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d2e4d955-2d67-4a2d-aa19-72db2ce1f778/id-preview-cb16b84c--0228cf06-7a9e-4e69-8dd8-fde2ea37a40c.lovable.app-1779132240293.png",
+        ],
     },
 };
 
@@ -52,8 +62,9 @@ export default function RootLayout({
     const showAnalytics = process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === "true";
 
     return (
-        <html lang="pt-BR" className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
+        <html lang="pt-BR" className={`${inter.variable} ${instrumentSerif.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
             <head>
+                <link rel="stylesheet" href="/api/theme-css" />
                 {process.env.NEXT_PUBLIC_AUTH_DEBUG === 'true' && (
                     <>
                         <Script src="https://cdn.jsdelivr.net/npm/eruda@3/eruda.js" strategy="afterInteractive" />

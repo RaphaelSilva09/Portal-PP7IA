@@ -1,22 +1,5 @@
 "use client";
 
-/**
- * ContentForm Component (Presentation Layer)
- *
- * Formulário para criar e editar conteúdo.
- * Suporta upload de arquivos HTML e PDF (criar e editar).
- *
- * Regras de negócio:
- * - Criar: Título + ReadTime + Pelo menos 1 formato (HTML ou PDF ou ambos)
- * - Editar: Título + ReadTime + Formatos opcionais (mantém existentes se não enviar novos)
- *
- * Princípios aplicados:
- * - SRP: Responsável apenas pelo formulário de conteúdo
- * - Controlled Components: Estado gerenciado via React
- * - Validation: Cliente-side antes de submit
- */
-
-import { GlassCard, GradientButton } from "@/components/ui";
 import { BIBLIOTECA_TEMAS, BibliotecaTema } from "@/domain/entities/BibliotecaItem";
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import { AlertCircle, Upload } from "lucide-react";
@@ -44,13 +27,10 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setFormatError("");
-
-        // Validação: Ao criar, pelo menos um formato é obrigatório
         if (!isEditing && !htmlFile && !pdfFile) {
             setFormatError("Envie pelo menos um formato (HTML ou PDF)");
             return;
         }
-
         await onSubmit({
             title,
             readTime: readTime ? parseInt(readTime, 10) : undefined,
@@ -61,7 +41,7 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
         });
     };
 
-    const typeLabel = {
+    const typeLabel: Record<ContentType, string> = {
         newsletter: "Newsletter",
         "mini-livro": "Mini-livros",
         biblioteca: "Biblioteca",
@@ -69,33 +49,38 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
         ebook: "E-book",
         radar_oportunidades: "Radar de Oportunidades",
         estudar: "Estudar",
-    }[type];
+    };
+
+    const inputClass = "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-foreground/30";
 
     return (
-        <GlassCard variant="elevated" padding="lg">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-6">
-                {isEditing ? `Editar ${typeLabel}` : `Nova ${typeLabel}`}
+        <div className="rounded-2xl border border-border bg-card p-6">
+            <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                {isEditing ? "Editar" : "Novo"}
+            </p>
+            <h2 className="mb-6 font-serif text-2xl tracking-tight text-ink">
+                {typeLabel[type] ?? type}
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Título */}
-                <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Título *</label>
+                <div className="space-y-1.5">
+                    <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                        Título *
+                    </label>
                     <input
                         type="text"
                         value={title}
                         onChange={e => setTitle(e.target.value)}
                         required
-                        className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
-                                   text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50
-                                   focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50"
-                        placeholder="Digite o título..."
+                        className={inputClass}
+                        placeholder="Digite o título…"
                     />
                 </div>
 
                 {/* Tempo de Leitura */}
-                <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                <div className="space-y-1.5">
+                    <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                         Tempo de Leitura (minutos)
                     </label>
                     <input
@@ -103,134 +88,96 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
                         value={readTime}
                         onChange={e => setReadTime(e.target.value)}
                         min="1"
-                        className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
-                                   text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50
-                                   focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50"
+                        className={inputClass}
                         placeholder="Ex: 5"
                     />
                 </div>
 
-                {/* Tema (apenas para Biblioteca) */}
+                {/* Tema (Biblioteca only) */}
                 {type === "biblioteca" && (
-                    <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                    <div className="space-y-1.5">
+                        <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                             Tema *
                         </label>
                         <select
                             value={tema}
                             onChange={e => setTema(e.target.value as BibliotecaTema)}
                             required
-                            className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg
-                                       text-[var(--text-primary)]
-                                       focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50"
+                            className={inputClass}
                         >
                             {BIBLIOTECA_TEMAS.map(({ slug, label }) => (
-                                <option key={slug} value={slug}>
-                                    {label}
-                                </option>
+                                <option key={slug} value={slug}>{label}</option>
                             ))}
                         </select>
                     </div>
                 )}
 
                 {/* Upload HTML */}
-                <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                        {isEditing ? "Upload Novo HTML (opcional)" : "Arquivo HTML"}
+                <div className="space-y-1.5">
+                    <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                        {isEditing ? "Novo HTML (opcional)" : "Arquivo HTML"}
                     </label>
-
-                    {/* Mostrar arquivo atual ao editar */}
                     {isEditing && editItem?.htmlPath && (
-                        <div className="mb-2 flex items-center gap-2 text-sm text-[var(--brand-green)]">
-                            <AlertCircle className="w-4 h-4" />
-                            <span>Arquivo HTML atual: {editItem.htmlPath.split("/").pop()}</span>
-                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                            Atual: {editItem.htmlPath.split("/").pop()}
+                        </p>
                     )}
-
-                    <div className="relative">
-                        <input
-                            type="file"
-                            accept=".html"
-                            onChange={e => setHtmlFile(e.target.files?.[0] || null)}
-                            className="hidden"
-                            id="html-upload"
-                        />
-                        <label
-                            htmlFor="html-upload"
-                            className="flex items-center justify-center gap-2 w-full px-4 py-3
-                                       bg-[var(--bg-secondary)] border-2 border-dashed border-[var(--border-glass)] rounded-lg
-                                       text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-blue)]/50 transition-colors"
-                        >
-                            <Upload className="w-5 h-5" />
-                            {htmlFile
-                                ? htmlFile.name
-                                : isEditing
-                                  ? "Escolher novo HTML (substitui o atual)"
-                                  : "Selecionar arquivo HTML"}
-                        </label>
-                    </div>
+                    <input type="file" accept=".html" onChange={e => setHtmlFile(e.target.files?.[0] || null)} className="hidden" id="html-upload" />
+                    <label
+                        htmlFor="html-upload"
+                        className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                    >
+                        <Upload className="size-4" />
+                        {htmlFile ? htmlFile.name : isEditing ? "Substituir HTML" : "Selecionar HTML"}
+                    </label>
                 </div>
 
                 {/* Upload PDF */}
-                <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                        {isEditing ? "Upload Novo PDF (opcional)" : "Arquivo PDF"}
+                <div className="space-y-1.5">
+                    <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                        {isEditing ? "Novo PDF (opcional)" : "Arquivo PDF"}
                     </label>
-
-                    {/* Mostrar arquivo atual ao editar */}
                     {isEditing && editItem?.pdfPath && (
-                        <div className="mb-2 flex items-center gap-2 text-sm text-[var(--brand-green)]">
-                            <AlertCircle className="w-4 h-4" />
-                            <span>Arquivo PDF atual: {editItem.pdfPath.split("/").pop()}</span>
-                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                            Atual: {editItem.pdfPath.split("/").pop()}
+                        </p>
                     )}
-
-                    <div className="relative">
-                        <input
-                            type="file"
-                            accept=".pdf"
-                            onChange={e => setPdfFile(e.target.files?.[0] || null)}
-                            className="hidden"
-                            id="pdf-upload"
-                        />
-                        <label
-                            htmlFor="pdf-upload"
-                            className="flex items-center justify-center gap-2 w-full px-4 py-3
-                                       bg-[var(--bg-secondary)] border-2 border-dashed border-[var(--border-glass)] rounded-lg
-                                       text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-orange)]/50 transition-colors"
-                        >
-                            <Upload className="w-5 h-5" />
-                            {pdfFile
-                                ? pdfFile.name
-                                : isEditing
-                                  ? "Escolher novo PDF (substitui o atual)"
-                                  : "Selecionar arquivo PDF"}
-                        </label>
-                    </div>
+                    <input type="file" accept=".pdf" onChange={e => setPdfFile(e.target.files?.[0] || null)} className="hidden" id="pdf-upload" />
+                    <label
+                        htmlFor="pdf-upload"
+                        className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background px-4 py-3 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                    >
+                        <Upload className="size-4" />
+                        {pdfFile ? pdfFile.name : isEditing ? "Substituir PDF" : "Selecionar PDF"}
+                    </label>
                 </div>
 
-                {/* Mensagem de erro de validação */}
+                {/* Error */}
                 {formatError && (
-                    <div className="flex items-center gap-2 p-4 rounded-lg bg-red-500/10 border border-red-500/50">
-                        <AlertCircle className="w-5 h-5 text-red-400" />
-                        <p className="text-lg text-red-400 font-medium">{formatError}</p>
+                    <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3">
+                        <AlertCircle className="size-4 shrink-0 text-red-500" />
+                        <p className="text-sm text-red-500">{formatError}</p>
                     </div>
                 )}
 
-                {/* Botões */}
-                <div className="flex items-center justify-end gap-4 pt-4">
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-3 pt-2">
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="px-6 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                        className="rounded-full border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
                     >
                         Cancelar
                     </button>
-                    <GradientButton type="submit" variant="cta" loading={isLoading} loadingText="Salvando...">
-                        {isEditing ? "Salvar Alterações" : "Criar Material"}
-                    </GradientButton>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50"
+                    >
+                        {isLoading ? "Salvando…" : isEditing ? "Salvar Alterações" : "Criar Material"}
+                    </button>
                 </div>
             </form>
-        </GlassCard>
+        </div>
     );
 }
