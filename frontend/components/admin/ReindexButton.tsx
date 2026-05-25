@@ -32,16 +32,16 @@ function SourceList({ states, endpoint }: { states: Record<string, SourceState>;
     const anyRan = SOURCES.some(s => states[s.key].status !== "idle");
     if (!anyRan) return null;
     return (
-        <div className="space-y-1 text-sm">
+        <div className="mt-3 space-y-1.5">
             {SOURCES.map(({ key, label }) => {
                 const s = states[key];
                 return (
-                    <div key={`${endpoint}-${key}`} className="flex items-center gap-2">
-                        <span className="w-44 text-slate-600 dark:text-slate-400">{label}</span>
-                        {s.status === "idle"    && <span className="text-slate-400">—</span>}
-                        {s.status === "running" && <span className="text-blue-500 animate-pulse">processando…</span>}
-                        {s.status === "ok"      && <span className="text-emerald-600">✓ {s.detail}</span>}
-                        {s.status === "error"   && <span className="text-red-600">✗ {s.error}</span>}
+                    <div key={`${endpoint}-${key}`} className="flex items-center gap-2 text-xs">
+                        <span className="w-40 text-muted-foreground">{label}</span>
+                        {s.status === "idle"    && <span className="text-muted-foreground/40">—</span>}
+                        {s.status === "running" && <span className="animate-pulse text-foreground">processando…</span>}
+                        {s.status === "ok"      && <span className="text-green-500">✓ {s.detail}</span>}
+                        {s.status === "error"   && <span className="text-red-500">✗ {s.error}</span>}
                     </div>
                 );
             })}
@@ -95,29 +95,31 @@ export function ReindexButton() {
     );
 
     return (
-        <div className="space-y-4">
-            <div className="space-y-2">
+        <div className="space-y-5">
+            <div>
                 <button
                     type="button"
                     onClick={handleIndex}
                     disabled={indexRunning || metaRunning}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold disabled:opacity-50 hover:bg-blue-700"
+                    className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-foreground/30 disabled:opacity-50"
                 >
                     {indexRunning ? "Reindexando…" : "Reindexar conteúdo"}
                 </button>
                 <SourceList states={index.states} endpoint="index" />
             </div>
 
-            <div className="space-y-2">
+            <div>
                 <button
                     type="button"
                     onClick={handleMeta}
                     disabled={indexRunning || metaRunning}
-                    className="px-4 py-2 rounded-lg bg-violet-600 text-white font-semibold disabled:opacity-50 hover:bg-violet-700"
+                    className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-foreground/30 disabled:opacity-50"
                 >
                     {metaRunning ? "Gerando meta-chunks…" : "Gerar meta-chunks"}
                 </button>
-                <p className="text-xs text-slate-500">Extrai pessoas, empresas e referências via LLM. Lento — ~3-5 min.</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                    Extrai pessoas, empresas e referências via LLM. Lento — ~3–5 min.
+                </p>
                 <SourceList states={meta.states} endpoint="meta" />
             </div>
         </div>

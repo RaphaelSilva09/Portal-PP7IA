@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { GlassCard, GradientButton } from "@/components/ui";
+
 import { FeedbackMessage } from "./FeedbackMessage";
 import { HOME_BLOCKS, type HomeBlockSlug } from "@/constants/homeBlocks";
 
@@ -18,9 +18,9 @@ interface HomeBlockRow {
     description: string | null;
 }
 
-const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
+const LABEL_CLASS = "block text-sm font-medium text-muted-foreground mb-2";
 const INPUT_CLASS =
-    "w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/50";
+    "w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20";
 
 export function AdminHomeBlockDescriptions() {
     const queryClient = useQueryClient();
@@ -115,18 +115,23 @@ export function AdminHomeBlockDescriptions() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">Descricoes da Home</h2>
-                <GradientButton onClick={handleSave} disabled={isLoading || isSaving} loading={isSaving} loadingText="Salvando...">
-                    Salvar descricoes
-                </GradientButton>
+                <h2 className="font-serif text-2xl tracking-tight text-ink">Descricoes da Home</h2>
+                    <button
+        type="button"
+        onClick={handleSave}
+        disabled={isLoading || isSaving}
+        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+        {isSaving ? "Salvando…" : "Salvar"}
+    </button>
             </div>
 
-            <GlassCard variant="elevated" padding="lg">
+            <div className="rounded-2xl border border-border bg-card p-6">
                 {isLoading ? (
-                    <div className="text-center py-12 text-[var(--text-secondary)] text-lg">Carregando...</div>
+                    <div className="text-center py-12 text-muted-foreground text-lg">Carregando...</div>
                 ) : (
                     <div className="space-y-6">
-                        <p className="text-sm text-[var(--text-secondary)]">
+                        <p className="text-sm text-muted-foreground">
                             Edite o texto de cada bloco. Use quebra de linha para separar as linhas exibidas na home.
                         </p>
                         {HOME_BLOCKS.map(block => (
@@ -147,7 +152,7 @@ export function AdminHomeBlockDescriptions() {
                         ))}
                     </div>
                 )}
-            </GlassCard>
+            </div>
 
             <FeedbackMessage
                 isVisible={feedback.show}

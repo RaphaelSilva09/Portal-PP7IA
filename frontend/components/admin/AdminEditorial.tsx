@@ -15,7 +15,7 @@ import {
     getEditorialViewPath,
     type EditorialSlug,
 } from "@/constants/editorials";
-import { GlassCard, GradientButton } from "@/components/ui";
+
 import { AlertCircle, FileText, Loader2, Trash2, Upload, X } from "lucide-react";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { FeedbackMessage } from "./FeedbackMessage";
@@ -23,7 +23,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 type EditorialFileMap = Record<EditorialSlug, string | null>;
 
-const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-2";
+const LABEL_CLASS = "block text-sm font-medium text-muted-foreground mb-2";
 
 interface EditorialUploadFieldProps {
     id: string;
@@ -49,23 +49,23 @@ function EditorialUploadField({
     onDeleteExisting,
 }: EditorialUploadFieldProps) {
     return (
-        <div className="rounded-2xl border border-[var(--border-glass)] bg-[var(--bg-secondary)]/40 p-5 space-y-4">
+        <div className="rounded-2xl border border-border bg-card/40 p-5 space-y-4">
             <div className="space-y-2">
-                <div className="flex items-center gap-2 text-[var(--text-primary)]">
-                    <FileText className="w-5 h-5 text-[var(--brand-blue)]" />
+                <div className="flex items-center gap-2 text-foreground">
+                    <FileText className="w-5 h-5 text-foreground" />
                     <h3 className="text-lg font-semibold">{label}</h3>
                 </div>
-                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">{description}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
             </div>
 
-            <div className="text-xs text-[var(--text-secondary)] space-y-1">
+            <div className="text-xs text-muted-foreground space-y-1">
                 <p>Destino no storage: <code>{getEditorialStoragePath(slug)}</code></p>
                 <p>Leitura pública: <code>{getEditorialViewPath(slug)}</code></p>
             </div>
 
             {existingFileName ? (
                 <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-[var(--brand-green)]">
+                    <div className="flex items-center gap-2 text-sm text-green-500">
                         <AlertCircle className="w-4 h-4 shrink-0" />
                         <span className="truncate">Arquivo atual: {existingFileName}</span>
                     </div>
@@ -80,7 +80,7 @@ function EditorialUploadField({
                     </button>
                 </div>
             ) : (
-                <div className="text-sm text-[var(--text-secondary)]">Nenhum HTML enviado ainda.</div>
+                <div className="text-sm text-muted-foreground">Nenhum HTML enviado ainda.</div>
             )}
 
             <div>
@@ -95,7 +95,7 @@ function EditorialUploadField({
                     />
                     <label
                         htmlFor={id}
-                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border-glass)] rounded-lg text-[var(--text-secondary)] cursor-pointer hover:border-[var(--brand-blue)]/50 transition-colors"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-background border-2 border-dashed border-border rounded-lg text-muted-foreground cursor-pointer hover:border-foreground/30 transition-colors"
                     >
                         <Upload className="w-5 h-5 shrink-0" />
                         <span className="truncate">
@@ -106,7 +106,7 @@ function EditorialUploadField({
                         <button
                             type="button"
                             onClick={() => onChange(slug, null)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-red-400 transition-colors"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-red-400 transition-colors"
                             aria-label={`Remover arquivo ${label}`}
                         >
                             <X className="w-4 h-4" />
@@ -246,30 +246,30 @@ export function AdminEditorial() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">Editorial</h2>
-                <GradientButton
-                    onClick={handleSave}
-                    disabled={isSaving || isLoading || !hasPendingUploads}
-                    loading={isSaving}
-                    loadingText="Enviando..."
-                >
-                    Salvar HTMLs
-                </GradientButton>
+                <h2 className="font-serif text-2xl tracking-tight text-ink">Editorial</h2>
+                    <button
+        type="button"
+        onClick={handleSave}
+        disabled={isSaving || isLoading || !hasPendingUploads}
+        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+        {isSaving ? "Enviando…" : "Salvar HTMLs"}
+    </button>
             </div>
 
-            <GlassCard variant="elevated" padding="lg">
+            <div className="rounded-2xl border border-border bg-card p-6">
                 <div className="space-y-6">
                     <div className="space-y-2">
-                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
                             A home agora aponta para dois editoriais fixos. Envie um arquivo HTML para cada destino e o portal exibirá os botões automaticamente.
                         </p>
-                        <p className="text-xs text-[var(--text-secondary)]/80">
+                        <p className="text-xs text-muted-foreground/80">
                             Pasta de storage usada: <code>{EDITORIAL_STORAGE_FOLDER}</code>
                         </p>
                     </div>
 
                     {isLoading ? (
-                        <div className="flex items-center justify-center py-16 text-[var(--text-secondary)]">
+                        <div className="flex items-center justify-center py-16 text-muted-foreground">
                             <Loader2 className="w-5 h-5 animate-spin mr-2" />
                             Carregando...
                         </div>
@@ -292,7 +292,7 @@ export function AdminEditorial() {
                         </div>
                     )}
                 </div>
-            </GlassCard>
+            </div>
 
             <FeedbackMessage
                 isVisible={feedback.show}

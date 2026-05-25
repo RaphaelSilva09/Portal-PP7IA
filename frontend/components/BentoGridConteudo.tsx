@@ -116,7 +116,7 @@ export default function BentoGrid() {
 
                 <div className="grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-8">
                     <a
-                        href="/newsletter"
+                        href="/explorar?b=newsletter"
                         id="newsletter"
                         className="group relative block h-full overflow-hidden rounded-3xl border border-blue-500/35 bg-gradient-to-br from-blue-600/10 via-indigo-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-blue-600/15 hover:via-indigo-500/10 hover:to-card/95 hover:border-blue-500/55 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
@@ -154,7 +154,7 @@ export default function BentoGrid() {
                     </a>
 
                     <a
-                        href="/especial-semana"
+                        href="/explorar?b=reportagem"
                         id="especial"
                         className="group relative block h-full overflow-hidden rounded-3xl border border-amber-500/40 bg-gradient-to-br from-amber-700/12 via-yellow-500/8 to-card/90 backdrop-blur-sm transition-all duration-300 hover:from-amber-700/18 hover:via-yellow-500/12 hover:to-card/95 hover:border-amber-600/60 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
@@ -192,7 +192,7 @@ export default function BentoGrid() {
                     </a>
 
                     <a
-                        href="/radar-oportunidades"
+                        href="/explorar?b=radar"
                         id="radar"
                         className="group relative block h-full overflow-hidden rounded-3xl border border-orange-600/40 bg-gradient-to-br from-orange-700/12 via-red-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-orange-700/18 hover:via-red-500/12 hover:to-card/95 hover:border-orange-700/60 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
@@ -230,7 +230,7 @@ export default function BentoGrid() {
                     </a>
 
                     <a
-                        href="/mini-livros"
+                        href="/explorar?b=livro"
                         id="mini-livros"
                         className="group relative block h-full overflow-hidden rounded-3xl border border-green-500/35 bg-gradient-to-br from-green-600/10 via-emerald-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-green-600/15 hover:via-emerald-500/10 hover:to-card/95 hover:border-green-500/55 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
@@ -268,7 +268,7 @@ export default function BentoGrid() {
                     </a>
 
                     <a
-                        href="/biblioteca"
+                        href="/explorar?b=biblioteca"
                         id="biblioteca"
                         className="group relative block h-full overflow-hidden rounded-3xl border border-purple-500/35 bg-gradient-to-br from-purple-600/10 via-violet-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-purple-600/15 hover:via-violet-500/10 hover:to-card/95 hover:border-purple-500/55 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] xl:col-span-2 xl:col-start-2"
                         style={{ scrollMarginTop: "100px" }}
@@ -306,7 +306,7 @@ export default function BentoGrid() {
                     </a>
 
                     <a
-                        href="/estudar"
+                        href="/explorar?b=estudar"
                         id="estudar"
                         className="group relative block h-full overflow-hidden rounded-3xl border border-blue-500/35 bg-gradient-to-br from-blue-600/10 via-cyan-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-blue-600/15 hover:via-cyan-500/10 hover:to-card/95 hover:border-blue-500/55 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}

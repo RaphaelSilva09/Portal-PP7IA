@@ -45,8 +45,13 @@ export function useBodyScrollLock(isLocked: boolean): void {
                 document.body.style.width = "";
                 document.body.style.overflow = "";
 
-                // Restaura a posição do scroll
+                // Desativa scroll-behavior: smooth temporariamente para que a
+                // restauração da posição seja instantânea (sem animação visível)
+                const htmlEl = document.documentElement;
+                const prevBehavior = htmlEl.style.scrollBehavior;
+                htmlEl.style.scrollBehavior = "auto";
                 window.scrollTo(0, scrollPositionRef.current);
+                htmlEl.style.scrollBehavior = prevBehavior;
             };
         }
     }, [isLocked]);

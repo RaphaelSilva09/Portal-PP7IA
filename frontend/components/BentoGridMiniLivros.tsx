@@ -557,7 +557,7 @@ export default function BentoGridMiniLivros() {
                                     {featuredMiniLivro.htmlAvailable ? (
                                         <a href={featuredMiniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white font-medium text-sm transition-all duration-300 whitespace-nowrap">
                                             <Globe className="w-5 h-5 shrink-0" />
-                                            <span>Ler online</span>
+                                            <span>Ler agora</span>
                                         </a>
                                     ) : (
                                         <button
@@ -616,7 +616,7 @@ export default function BentoGridMiniLivros() {
                                     {miniLivro.htmlAvailable ? (
                                         <a href={miniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white text-sm font-medium transition-all duration-300 whitespace-nowrap">
                                             <Globe className="w-5 h-5 shrink-0" />
-                                            <span>Ler online</span>
+                                            <span>Ler agora</span>
                                         </a>
                                     ) : (
                                         <button

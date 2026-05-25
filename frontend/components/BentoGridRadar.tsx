@@ -100,7 +100,7 @@ export default function BentoGridRadar() {
                                         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-700 hover:bg-orange-800 border border-orange-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
-                                        <span>Ler online</span>
+                                        <span>Ler agora</span>
                                     </a>
                                 ) : (
                                     <button
@@ -155,7 +155,7 @@ export default function BentoGridRadar() {
                                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-700 hover:bg-orange-800 border border-orange-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
                                             <Globe className="w-5 h-5" />
-                                            <span>Ler online</span>
+                                            <span>Ler agora</span>
                                         </a>
                                     ) : (
                                         <button

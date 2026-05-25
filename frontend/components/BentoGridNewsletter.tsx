@@ -116,7 +116,7 @@ export default function BentoGridNewsletter() {
                                         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
-                                        <span>Ler online</span>
+                                        <span>Ler agora</span>
                                     </a>
                                 ) : (
                                     <button
@@ -180,7 +180,7 @@ export default function BentoGridNewsletter() {
                                             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
                                         >
                                             <Globe className="w-5 h-5" />
-                                            <span>Ler online</span>
+                                            <span>Ler agora</span>
                                         </a>
                                     ) : (
                                         <button
