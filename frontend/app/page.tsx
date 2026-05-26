@@ -46,7 +46,7 @@ function HeroSection({ s }: { s: SectionConfig }) {
             </div>
             <div className="mx-auto max-w-7xl px-6 pb-24">
                 <div className="relative mt-12">
-                    <h1 className="font-serif text-[clamp(3.5rem,11vw,11rem)] leading-[0.95] tracking-[-0.025em] text-ink">
+                    <h1 className="text-[clamp(3.5rem,11vw,11rem)] leading-[0.95] tracking-[-0.025em] text-ink" style={{ fontFamily: '"Instrument Serif", serif' }}>
                         <span className="block">{t(s, "line1", "Menos ruído.")}</span>
                         <span className="block">
                             Mais{" "}
