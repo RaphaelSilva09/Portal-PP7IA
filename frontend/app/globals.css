@@ -551,7 +551,8 @@
     --color-input: var(--input);
     --color-ring: var(--ring);
     --font-sans: var(--font-inter), "Inter", "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-serif: var(--font-instrument-serif), "Instrument Serif", "Times New Roman", serif;
+    --font-serif: var(--font-lora), "Lora", "Georgia", serif;
+    --font-editorial: var(--font-instrument-serif), "Instrument Serif", serif;
     --font-mono: "SF Mono", ui-monospace, monospace;
 
     /* PP7+IAS Custom Colors */
@@ -591,6 +592,10 @@
 
 html {
     scroll-behavior: smooth;
+}
+
+.font-editorial {
+    font-family: "Instrument Serif", serif;
 }
 
 body {

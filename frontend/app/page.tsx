@@ -258,7 +258,7 @@ function ManifestoSection({ s }: { s: SectionConfig }) {
                 </p>
                 <div className="mt-10 inline-flex items-center gap-3 text-sm text-muted-foreground">
                     <span className="h-px w-10 bg-border" />
-                    {t(s, "author", "Paulo Pacheco · Editor")}
+                    {t(s, "author", "Paulo Periquito · Editor")}
                     <span className="h-px w-10 bg-border" />
                 </div>
             </div>

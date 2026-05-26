@@ -179,7 +179,7 @@ export default function ExplorarClient({ initialBlock }: Props) {
                         <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                             {explorarConfig.hero.eyebrow}
                         </p>
-                        <h1 className="font-serif text-4xl leading-[1.1] tracking-[-0.02em] text-ink sm:text-5xl md:text-6xl">
+                        <h1 className="font-editorial text-4xl leading-[1.1] tracking-[-0.02em] text-ink sm:text-5xl md:text-6xl">
                             {explorarConfig.hero.titleBefore}{" "}
                             <em className="italic text-primary">{explorarConfig.hero.titleEm}</em>.
                         </h1>

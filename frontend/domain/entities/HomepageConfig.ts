@@ -191,7 +191,7 @@ export const DEFAULT_HOMEPAGE_CONFIG: HomepageConfig = {
             texts: {
                 label: "Manifesto",
                 quote: '"Liderar é servir. Formar pessoas. Deixar legado."',
-                author: "Paulo Pacheco · Editor",
+                author: "Paulo Periquito · Editor",
             },
         },
         {

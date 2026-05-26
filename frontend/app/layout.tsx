@@ -8,7 +8,7 @@ import { InviteModalProvider } from "@/context/InviteModalContext";
 import { SearchModalProvider } from "@/context/SearchModalContext";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Inter, Instrument_Serif, Lora } from "next/font/google";
 import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
@@ -27,11 +27,19 @@ const instrumentSerif = Instrument_Serif({
     display: "swap",
 });
 
+const lora = Lora({
+    subsets: ["latin"],
+    weight: ["400", "500", "600", "700"],
+    variable: "--font-lora",
+    display: "swap",
+});
+
+
 export const metadata: Metadata = {
     title: "PP7+IAS — Menos ruído. Mais clareza.",
     description: "Curadoria editorial sobre liderança, gestão de pessoas e inteligência artificial. 7 blocos, 7 IAs — para quem decide.",
     keywords: ["curadoria", "liderança", "gestão de pessoas", "inteligência artificial", "IA", "newsletter", "editorial"],
-    authors: [{ name: "Paulo Pacheco" }],
+    authors: [{ name: "Paulo Periquito" }],
     openGraph: {
         title: "PP7+IAS — Menos ruído. Mais clareza.",
         description: "Curadoria editorial sobre liderança, gestão de pessoas e inteligência artificial. 7 blocos, 7 IAs — para quem decide.",
@@ -62,7 +70,7 @@ export default function RootLayout({
     const showAnalytics = process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === "true";
 
     return (
-        <html lang="pt-BR" className={`${inter.variable} ${instrumentSerif.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+        <html lang="pt-BR" className={`${inter.variable} ${lora.variable} ${instrumentSerif.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
             <head>
                 <link rel="stylesheet" href="/api/theme-css" />
                 {process.env.NEXT_PUBLIC_AUTH_DEBUG === 'true' && (

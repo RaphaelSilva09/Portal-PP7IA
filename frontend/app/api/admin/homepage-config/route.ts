@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers as nextHeaders } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import DIContainer from "@/infrastructure/di/container";
 import type { HomepageConfig } from "@/domain/entities/HomepageConfig";
@@ -28,5 +29,6 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
     }
     await DIContainer.getUpdateHomepageConfigUseCase().execute(body);
+    revalidatePath("/");
     return NextResponse.json({ ok: true });
 }
