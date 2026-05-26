@@ -112,7 +112,9 @@ export default function NewsletterForm() {
             {status === "error" && (
                 <p className="text-xs text-red-400">Algo deu errado. Tente novamente.</p>
             )}
-            <p className="text-xs text-background/40">142 edições publicadas · ~5.000 leitores</p>
         </form>
     );
 }
+
+
+
