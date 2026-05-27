@@ -62,6 +62,17 @@ const GLOBAL_SOURCE_IDS: Record<string, string> = {
     estudar:             "00000000-0000-4000-8000-fffffffffffa",
 };
 
+const THEMES_SOURCE_IDS: Record<string, string> = {
+    mini_livro:          "00000000-0000-4000-8000-fffffffffff9",
+    newsletter:          "00000000-0000-4000-8000-fffffffffff8",
+    radar_oportunidades: "00000000-0000-4000-8000-fffffffffff7",
+    especial_semana:     "00000000-0000-4000-8000-fffffffffff6",
+    biblioteca:          "00000000-0000-4000-8000-fffffffffff5",
+    estudar:             "00000000-0000-4000-8000-fffffffffff4",
+};
+
+const ENTITY_INDEX_SOURCE_ID = "00000000-0000-4000-8001-000000000001";
+
 const ALL_SOURCES: ContentSource[] = [
     new MiniLivrosContentSource(),
     new NewsletterContentSource(),
@@ -180,6 +191,100 @@ async function extractForSource(
     return { summaryChunks, globalChunk };
 }
 
+async function generateThemesChunk(
+    sourceType: string,
+    allExtractions: string[],
+    llm: LLMProvider,
+    embedder: GeminiEmbeddingProvider,
+): Promise<EmbeddedChunk> {
+    const sourceId = THEMES_SOURCE_IDS[sourceType];
+    if (!sourceId) throw new Error(`No THEMES_SOURCE_IDS entry for: ${sourceType}`);
+
+    const input = allExtractions.join("\n\n---\n\n").slice(0, 8000);
+    const prompt = `Você recebeu extrações de entidades de ${allExtractions.length} conteúdos do tipo "${sourceType}".
+Identifique os temas recorrentes nestes documentos.
+Para cada tema, liste quais documentos o abordam e em que contexto específico.
+
+Formato:
+Tema: [nome do tema]
+- [Título do documento]: [descrição breve do contexto]
+
+Extrações:
+${input}`;
+
+    let themesText = `[Temas — ${sourceType}]\n`;
+    const stream = llm.streamGenerate({
+        system: "Você é um analista de conteúdo. Identifique temas recorrentes e mapeie-os para os documentos.",
+        context: "",
+        history: [],
+        question: prompt,
+    });
+    for await (const token of stream) themesText += token;
+
+    const embedding = await embedder.embed(themesText);
+    return {
+        source_type: "meta_themes",
+        source_id: sourceId,
+        chunk_index: 0,
+        content: themesText,
+        metadata: {
+            heading_path: [],
+            slug: `themes_${sourceType}`,
+            title: `Temas — ${sourceType}`,
+            char_start: 0,
+            char_end: 0,
+        },
+        embedding,
+    };
+}
+
+async function generateEntityIndexChunk(
+    allSummaryChunks: EmbeddedChunk[],
+    llm: LLMProvider,
+    embedder: GeminiEmbeddingProvider,
+): Promise<EmbeddedChunk> {
+    const allText = allSummaryChunks
+        .map(c => c.content)
+        .join("\n\n---\n\n")
+        .slice(0, 16000);
+
+    const prompt = `Você recebeu extrações de entidades de múltiplos conteúdos (mini-livros, newsletters, etc.).
+Liste todas as pessoas e empresas mencionadas.
+Para cada uma: em quais documentos aparece e em que contexto foi citada.
+
+Formato:
+[Nome da entidade]
+- [Título do documento]: [contexto da citação]
+
+Extrações:
+${allText}`;
+
+    let indexText = "[Índice global de entidades]\n";
+    const stream = llm.streamGenerate({
+        system: "Você é um indexador. Liste entidades e onde aparecem, de forma concisa.",
+        context: "",
+        history: [],
+        question: prompt,
+    });
+    for await (const token of stream) indexText += token;
+
+    const embedding = await embedder.embed(indexText);
+    return {
+        source_type: "meta_entity_index",
+        source_id: ENTITY_INDEX_SOURCE_ID,
+        chunk_index: 0,
+        content: indexText,
+        metadata: {
+            heading_path: [],
+            slug: "entity_index_global",
+            title: "Índice global de entidades",
+            char_start: 0,
+            char_end: 0,
+        },
+        embedding,
+    };
+}
+
 async function main() {
     const geminiKey = process.env.GEMINI_API_KEY;
     if (!geminiKey) {
@@ -217,6 +322,38 @@ async function main() {
 
     console.log(`Storing ${allGlobalChunks.length} meta_global chunks...`);
     await chunkRepo.replaceAllForSource({ sourceType: "meta_global", chunks: allGlobalChunks });
+
+    // meta_themes: one chunk per source type
+    console.log("\nGenerating meta_themes chunks...");
+    const allThemesChunks: EmbeddedChunk[] = [];
+    for (const source of ALL_SOURCES) {
+        const extractionsForSource = allSummaryChunks
+            .filter(c => c.metadata.parent_source_type === source.sourceType)
+            .map(c => c.content);
+        if (extractionsForSource.length === 0) continue;
+        process.stdout.write(`  Themes for ${source.sourceType}... `);
+        try {
+            const chunk = await generateThemesChunk(source.sourceType, extractionsForSource, llm, embedder);
+            allThemesChunks.push(chunk);
+            process.stdout.write("done\n");
+        } catch (err) {
+            console.error(`  [${source.sourceType}] themes failed:`, err);
+            failed = true;
+        }
+    }
+    console.log(`Storing ${allThemesChunks.length} meta_themes chunks...`);
+    await chunkRepo.replaceAllForSource({ sourceType: "meta_themes", chunks: allThemesChunks });
+
+    // meta_entity_index: single cross-source chunk
+    console.log("\nGenerating meta_entity_index chunk...");
+    try {
+        const entityChunk = await generateEntityIndexChunk(allSummaryChunks, llm, embedder);
+        await chunkRepo.replaceAllForSource({ sourceType: "meta_entity_index", chunks: [entityChunk] });
+        console.log("Stored meta_entity_index.");
+    } catch (err) {
+        console.error("meta_entity_index generation failed:", err);
+        failed = true;
+    }
 
     if (failed) {
         console.error("Meta-chunk generation completed with errors.");
