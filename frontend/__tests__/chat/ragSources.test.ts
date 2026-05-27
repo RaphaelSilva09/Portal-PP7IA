@@ -12,10 +12,12 @@ describe("RAG_SOURCES", () => {
         expect(s.topK).toBe(50);
     });
 
-    it("meta_global is the only non-citable source", () => {
-        const nonCitable = RAG_SOURCES.filter(s => !s.citable);
-        expect(nonCitable).toHaveLength(1);
-        expect(nonCitable[0].sourceType).toBe("meta_global");
+    it("meta_global, meta_themes, and meta_entity_index are non-citable", () => {
+        const nonCitable = RAG_SOURCES.filter(s => !s.citable).map(s => s.sourceType);
+        expect(nonCitable).toHaveLength(3);
+        expect(nonCitable).toContain("meta_global");
+        expect(nonCitable).toContain("meta_themes");
+        expect(nonCitable).toContain("meta_entity_index");
     });
 });
 
