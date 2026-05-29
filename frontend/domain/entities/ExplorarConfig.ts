@@ -35,7 +35,7 @@ export const EXPLORAR_BLOCK_LABELS: Record<ExplorarBlockId, string> = {
 
 export const DEFAULT_EXPLORAR_CONFIG: ExplorarConfig = {
     hero: {
-        eyebrow:      "Explorar · um portal, sete cores",
+        eyebrow:      "Explorar · um portal, sete blocos",
         titleBefore:  "Tudo o que o portal",
         titleEm:      "publicou até hoje",
         description:  "Sete blocos editoriais reunidos num só lugar. Navegue pelos temas ou filtre pelo formato.",

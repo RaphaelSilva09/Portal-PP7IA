@@ -54,6 +54,16 @@ const BLOCK_SOFT: Record<BlockId, string> = {
     ensinar:    "var(--block-ensinar-soft)",
 };
 
+const BLOCK_ON: Record<BlockId, string> = {
+    newsletter: "var(--block-newsletter-on)",
+    reportagem: "var(--block-reportagem-on)",
+    radar:      "var(--block-radar-on)",
+    livro:      "var(--block-livro-on)",
+    biblioteca: "var(--block-biblioteca-on)",
+    estudar:    "var(--block-estudar-on)",
+    ensinar:    "var(--block-ensinar-on)",
+};
+
 interface CardItem {
     key: string;
     blockId: BlockId;
@@ -348,6 +358,7 @@ function SkExplorarCard({ color }: { color: string }) {
 function ExplorarCard({ card }: { card: CardItem }) {
     const color = BLOCK_COLOR[card.blockId];
     const colorSoft = BLOCK_SOFT[card.blockId];
+    const colorOn = BLOCK_ON[card.blockId];
     const primaryHref = card.htmlPath ?? card.pdfPath;
 
     return (
@@ -359,8 +370,8 @@ function ExplorarCard({ card }: { card: CardItem }) {
                 {/* Block badge + code */}
                 <div className="flex items-center justify-between gap-2">
                     <span
-                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white"
-                        style={{ backgroundColor: color }}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                        style={{ backgroundColor: color, color: colorOn }}
                     >
                         <span className="font-serif opacity-80">{card.block.num}</span>
                         {card.block.label}

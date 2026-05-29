@@ -211,7 +211,7 @@ export default function UserPage() {
                         <div className="mb-10 flex items-center gap-5">
                             <div
                                 className="flex size-14 shrink-0 items-center justify-center rounded-2xl font-serif text-2xl"
-                                style={{ backgroundColor: "var(--block-newsletter-soft)", color: "var(--block-newsletter)" }}
+                                style={{ backgroundColor: "var(--block-newsletter-soft)", color: "var(--block-newsletter-on-soft)" }}
                             >
                                 {firstName[0].toUpperCase()}
                             </div>
