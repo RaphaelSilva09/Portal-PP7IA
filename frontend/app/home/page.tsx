@@ -1,23 +1,5 @@
-import BentoGrid from "@/components/BentoGridConteudo";
-import Footer from "@/components/Footer";
-import HeroSection from "@/components/HeroSection";
-import IASParceiras from "@/components/IASParceiras";
-import Navbar from "@/components/Header";
-import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
-import LiderarCita from "@/components/LiderarCita";
-import ChatBubble from "@/components/chat/ChatBubble";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
-    return (
-        <main className="min-h-screen bg-background text-foreground">
-            <Navbar />
-            <HeroSection />
-            <BentoGrid />
-            <IASParceiras />
-            <HomeRecomendacoesPaulo />
-            <LiderarCita />
-            <Footer />
-            {process.env.NEXT_PUBLIC_CHAT_ENABLED !== "false" && <ChatBubble />}
-        </main>
-    );
+    redirect("/");
 }

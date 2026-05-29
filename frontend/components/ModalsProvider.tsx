@@ -1,13 +1,11 @@
 "use client";
 
 import { useAuthModal } from "@/context/AuthModalContext";
-import { useFirstVisitModal } from "@/context/FirstVisitModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import AuthModal from "./AuthModal";
-import FirstVisitModal from "./FirstVisitModal";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import InviteModal from "./InviteModal";
 import Portal from "./Portal";
@@ -32,7 +30,6 @@ export default function ModalsProvider() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { isOpen: isSearchOpen, closeModal: closeSearchModal } = useSearchModal();
-    const { isOpen: isFirstVisitOpen, closeModal: closeFirstVisitModal } = useFirstVisitModal();
     const {
         isOpen: isAuthOpen,
         initialData,
@@ -80,7 +77,6 @@ export default function ModalsProvider() {
         <Portal>
             <SearchModal isOpen={isSearchOpen} onClose={closeSearchModal} />
             <ForgotPasswordModal />
-            <FirstVisitModal isOpen={isFirstVisitOpen} onClose={closeFirstVisitModal} />
             <AuthModal
                 isOpen={isAuthOpen}
                 onClose={closeAuthModal}

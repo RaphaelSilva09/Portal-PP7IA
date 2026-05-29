@@ -1,28 +1,12 @@
 import { promises as fs } from "node:fs";
-import path from "node:path";
 import { pool } from "@/lib/db";
 import type { ContentSource, SourceItem } from "@/domain/chat/ContentSource";
-
-const STORAGE_ROOT = process.env.STORAGE_ROOT ?? "./data";
+import { deriveSlug, safeJoin, toSourceId } from "./contentSourceUtils";
 
 interface MiniLivroRow {
     id: number | string;
     title: string | null;
     html_path: string | null;
-}
-
-function deriveSlug(htmlPath: string): string {
-    const fileName = htmlPath.split("/").pop() ?? "";
-    return fileName.replace(/\.html?$/i, "");
-}
-
-function safeJoin(relPath: string): string {
-    const root = path.resolve(STORAGE_ROOT);
-    const target = path.resolve(root, relPath);
-    if (target !== root && !target.startsWith(root + path.sep)) {
-        throw new Error(`Path traversal blocked: ${relPath}`);
-    }
-    return target;
 }
 
 export class MiniLivrosContentSource implements ContentSource {
@@ -57,7 +41,7 @@ export class MiniLivrosContentSource implements ContentSource {
             }
 
             items.push({
-                source_id: String(row.id),
+                source_id: toSourceId(row.id),
                 title: row.title ?? "",
                 slug,
                 html,

@@ -1,15 +1,3 @@
-/**
- * UserEditModal Component (Admin UI)
- *
- * Modal para edição de dados de usuário pelo admin.
- * Usa PATCH /api/admin/users/[id] com service_role.
- *
- * Princípios:
- * - Glassmorphism: visual consistente com o restante do painel
- * - Validação por campo: feedback específico, não genérico
- * - SRP: único arquivo, única responsabilidade (editar um usuário)
- */
-
 "use client";
 
 import { UserListItem } from "@/domain/repositories/IUserManagementRepository";
@@ -56,6 +44,9 @@ function validateCelular(celular: string): string | undefined {
     if (digits.length > 0 && (digits.length < 10 || digits.length > 11)) return "Celular deve ter 10 ou 11 dígitos";
 }
 
+const inputClass = (hasError: boolean) =>
+    `w-full rounded-xl border ${hasError ? "border-red-500/60 focus:border-red-500" : "border-border focus:border-foreground/30"} bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors`;
+
 export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModalProps) {
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
@@ -65,7 +56,6 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
     const [success, setSuccess] = useState(false);
     const [globalError, setGlobalError] = useState<string | null>(null);
 
-    // Sincroniza campos ao abrir o modal
     useEffect(() => {
         if (user && isOpen) {
             setNome(user.nome || "");
@@ -87,19 +77,15 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setGlobalError(null);
-
-        // Validação por campo
         const errors: FieldErrors = {
             nome: validateNome(nome),
             email: validateEmail(email),
             celular: validateCelular(celular),
         };
-        const hasErrors = Object.values(errors).some(Boolean);
-        if (hasErrors) {
+        if (Object.values(errors).some(Boolean)) {
             setFieldErrors(errors);
             return;
         }
-
         setIsSaving(true);
         try {
             const res = await fetch(`/api/admin/users/${user.id}`, {
@@ -115,7 +101,6 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
                 const err = await res.json().catch(() => ({}));
                 throw new Error(err.error ?? `HTTP ${res.status}`);
             }
-
             setSuccess(true);
             const updatedUser: UserListItem = {
                 ...user,
@@ -123,154 +108,139 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
                 email: email.trim(),
                 celular: celular.replace(/\D/g, ""),
             };
-
             setTimeout(() => {
                 onSuccess(updatedUser);
                 setSuccess(false);
             }, 1200);
         } catch (err) {
-            const message = err instanceof Error ? err.message : "Erro ao salvar alterações";
-            setGlobalError(message);
+            setGlobalError(err instanceof Error ? err.message : "Erro ao salvar alterações");
         } finally {
             setIsSaving(false);
         }
     };
 
     return (
-        /* Overlay */
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-            onClick={e => {
-                if (e.target === e.currentTarget) onClose();
-            }}
+            className="fixed inset-0 z-[9999] flex items-end justify-center p-0 sm:items-center sm:p-4"
+            onClick={e => { if (e.target === e.currentTarget) onClose(); }}
         >
-            {/* Painel glassmorphism */}
-            <div className="w-full max-w-md bg-[var(--bg-secondary)] border border-[var(--border-glass)] rounded-2xl shadow-2xl">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+            <div
+                className="relative w-full max-w-md rounded-t-3xl border border-border bg-background shadow-2xl sm:rounded-3xl"
+                onClick={e => e.stopPropagation()}
+            >
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-[var(--border-glass)]">
-                    <h2 className="text-xl font-bold text-[var(--text-primary)]">Editar Usuário</h2>
+                <div className="flex items-start justify-between px-6 pb-0 pt-6">
+                    <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                            Usuário
+                        </p>
+                        <h2 className="mt-1 font-serif text-2xl tracking-tight text-ink">Editar dados.</h2>
+                    </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-colors"
+                        className="ml-4 shrink-0 text-muted-foreground transition-colors hover:text-foreground"
                         aria-label="Fechar"
                     >
-                        <X className="w-5 h-5" />
+                        <X className="size-5" />
                     </button>
                 </div>
 
+                <div className="mx-6 mt-4 h-px bg-border" />
+
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                    {/* Sucesso */}
+                <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
                     {success && (
-                        <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-xl text-green-300">
-                            <Check className="w-4 h-4 flex-shrink-0" />
-                            <span className="text-sm font-medium">Usuário atualizado com sucesso!</span>
+                        <div className="flex items-center gap-2 rounded-xl border border-green-500/30 bg-green-500/5 px-4 py-3">
+                            <Check className="size-4 shrink-0 text-green-500" />
+                            <span className="text-sm text-foreground">Usuário atualizado com sucesso!</span>
                         </div>
                     )}
-
-                    {/* Erro global */}
                     {globalError && (
-                        <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300">
-                            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                            <span className="text-sm">{globalError}</span>
+                        <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3">
+                            <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
+                            <span className="text-sm text-foreground">{globalError}</span>
                         </div>
                     )}
 
                     {/* Nome */}
                     <div className="space-y-1.5">
-                        <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
-                            <User className="w-4 h-4" />
-                            Nome
+                        <label className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                            <User className="size-3" /> Nome
                         </label>
                         <input
                             type="text"
                             value={nome}
-                            onChange={e => {
-                                setNome(e.target.value);
-                                setFieldErrors(p => ({ ...p, nome: undefined }));
-                            }}
+                            onChange={e => { setNome(e.target.value); setFieldErrors(p => ({ ...p, nome: undefined })); }}
                             placeholder="Nome completo"
-                            className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 outline-none focus:bg-white/[0.07] transition-all ${fieldErrors.nome ? "border-red-500/60 focus:border-red-500" : "border-[var(--border-glass)] focus:border-[var(--brand-blue)]"}`}
+                            className={inputClass(Boolean(fieldErrors.nome))}
                         />
                         {fieldErrors.nome && (
-                            <p className="text-xs text-red-400 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                {fieldErrors.nome}
+                            <p className="flex items-center gap-1 text-xs text-red-500">
+                                <AlertCircle className="size-3" />{fieldErrors.nome}
                             </p>
                         )}
                     </div>
 
                     {/* Email */}
                     <div className="space-y-1.5">
-                        <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
-                            <Mail className="w-4 h-4" />
-                            Email
+                        <label className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                            <Mail className="size-3" /> Email
                         </label>
                         <input
                             type="email"
                             value={email}
-                            onChange={e => {
-                                setEmail(e.target.value);
-                                setFieldErrors(p => ({ ...p, email: undefined }));
-                            }}
+                            onChange={e => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: undefined })); }}
                             placeholder="email@exemplo.com"
-                            className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 outline-none focus:bg-white/[0.07] transition-all ${fieldErrors.email ? "border-red-500/60 focus:border-red-500" : "border-[var(--border-glass)] focus:border-[var(--brand-blue)]"}`}
+                            className={inputClass(Boolean(fieldErrors.email))}
                         />
                         {fieldErrors.email && (
-                            <p className="text-xs text-red-400 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                {fieldErrors.email}
+                            <p className="flex items-center gap-1 text-xs text-red-500">
+                                <AlertCircle className="size-3" />{fieldErrors.email}
                             </p>
                         )}
                     </div>
 
                     {/* Celular */}
                     <div className="space-y-1.5">
-                        <label className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
-                            <Phone className="w-4 h-4" />
-                            Celular
+                        <label className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                            <Phone className="size-3" /> Celular
                         </label>
                         <input
                             type="tel"
                             value={celular}
                             onChange={e => handleCelularChange(e.target.value)}
                             placeholder="(11) 99999-9999"
-                            className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 outline-none focus:bg-white/[0.07] transition-all ${fieldErrors.celular ? "border-red-500/60 focus:border-red-500" : "border-[var(--border-glass)] focus:border-[var(--brand-blue)]"}`}
+                            className={inputClass(Boolean(fieldErrors.celular))}
                         />
                         {fieldErrors.celular && (
-                            <p className="text-xs text-red-400 flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" />
-                                {fieldErrors.celular}
+                            <p className="flex items-center gap-1 text-xs text-red-500">
+                                <AlertCircle className="size-3" />{fieldErrors.celular}
                             </p>
                         )}
                     </div>
 
-                    {/* Botões */}
-                    <div className="flex gap-3 pt-2">
+                    {/* Actions */}
+                    <div className="flex gap-3 pb-1 pt-1">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={isSaving}
-                            className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-[var(--text-primary)] rounded-xl transition-all disabled:opacity-50"
+                            className="flex-1 rounded-full border border-border py-3 text-sm font-medium text-foreground transition-colors hover:border-foreground/30 disabled:opacity-50"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
                             disabled={isSaving || success}
-                            className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50"
                         >
                             {isSaving ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 animate-spin" /> Salvando...
-                                </>
+                                <><Loader2 className="size-4 animate-spin" />Salvando…</>
                             ) : success ? (
-                                <>
-                                    <Check className="w-4 h-4" /> Salvo!
-                                </>
-                            ) : (
-                                "Salvar Alterações"
-                            )}
+                                <><Check className="size-4" />Salvo!</>
+                            ) : "Salvar Alterações"}
                         </button>
                     </div>
                 </form>

@@ -1,19 +1,6 @@
-/**
- * FeedbackMessage Component (Admin UI)
- *
- * Mensagem de feedback centralizada após ações.
- * Projetado para idosos 80+: grande, central, clara.
- *
- * Princípios de UX:
- * - Aparece no centro da tela
- * - Font-size grande (20px)
- * - Desaparece automaticamente após 3s
- * - Fundo com contraste alto
- */
-
 "use client";
 
-import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, X, XCircle } from "lucide-react";
 import { useEffect } from "react";
 
 export type FeedbackType = "success" | "error" | "warning";
@@ -26,46 +13,34 @@ export interface FeedbackMessageProps {
 }
 
 export function FeedbackMessage({ isVisible, type, message, onClose }: FeedbackMessageProps) {
-    // Auto-close após 3 segundos
     useEffect(() => {
         if (!isVisible) return;
-
-        const timer = setTimeout(() => {
-            onClose();
-        }, 3000);
-
+        const timer = setTimeout(onClose, 4000);
         return () => clearTimeout(timer);
     }, [isVisible, onClose]);
 
     if (!isVisible) return null;
 
     const styles = {
-        success: {
-            bg: "bg-green-600",
-            border: "border-green-500",
-            icon: CheckCircle2,
-        },
-        error: {
-            bg: "bg-red-600",
-            border: "border-red-500",
-            icon: XCircle,
-        },
-        warning: {
-            bg: "bg-orange-600",
-            border: "border-orange-500",
-            icon: AlertCircle,
-        },
+        success: { icon: CheckCircle2, color: "text-green-500",  border: "border-green-500/20" },
+        error:   { icon: XCircle,      color: "text-red-500",    border: "border-red-500/20"   },
+        warning: { icon: AlertCircle,  color: "text-orange-500", border: "border-orange-500/20"},
     };
 
-    const { bg, border, icon: Icon } = styles[type];
+    const { icon: Icon, color, border } = styles[type];
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className={`${bg} ${border} border-2 rounded-2xl shadow-2xl px-8 py-6 max-w-md w-full`}>
-                <div className="flex items-center gap-4">
-                    <Icon className="w-10 h-10 text-white flex-shrink-0" />
-                    <p className="text-xl font-semibold text-white leading-relaxed">{message}</p>
-                </div>
+        <div className="fixed bottom-6 right-6 z-[9999] w-full max-w-sm">
+            <div className={`flex items-center gap-3 rounded-2xl border ${border} bg-card px-4 py-3.5 shadow-xl`}>
+                <Icon className={`size-4 shrink-0 ${color}`} />
+                <p className="flex-1 text-sm text-foreground">{message}</p>
+                <button
+                    onClick={onClose}
+                    className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+                    aria-label="Fechar"
+                >
+                    <X className="size-4" />
+                </button>
             </div>
         </div>
     );

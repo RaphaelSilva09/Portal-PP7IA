@@ -18,7 +18,7 @@ export interface ChatError {
 
 const GREETING: ChatMessage = {
     role: "assistant",
-    content: "Olá! Posso responder perguntas sobre o livro Enquanto é Tempo. O que quer saber?",
+    content: "Olá! Posso responder perguntas sobre os conteúdos do portal — mini-livros, newsletters, radar de oportunidades e mais. O que quer saber?",
     citations: [],
     streaming: false,
 };

@@ -16,10 +16,14 @@
  */
 
 import type { EbookFormData } from "@/components/admin";
+import AdminBlockColors from "@/components/admin/AdminBlockColors";
 import {
     AdminBook,
     AdminEditorial,
+    AdminExplorarConfig,
+    AdminSiteBg,
     AdminHomeBlockDescriptions,
+    AdminHomepageConfig,
     AdminHomeRecomendacoesPaulo,
     AdminMiniLivroSections,
     AdminPortalNews,
@@ -34,7 +38,6 @@ import {
     SortableContentTable,
     UserManager,
 } from "@/components/admin";
-import { GlassCard, GradientButton } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { ContentItem, ContentItemProps, ContentType } from "@/domain/entities/ContentItem";
 import { portalContentClass } from "@/lib/layout";
@@ -51,6 +54,7 @@ import {
     Library,
     Newspaper,
     NotebookPen,
+    Palette,
     Plus,
     Radar,
     Star,
@@ -62,7 +66,7 @@ import { useEbook } from "@/presentation/hooks/useEbook";
 import ThemeToggle from "@/components/ThemeToggle";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar" | "site-bg";
 
 type ContentTab = ContentType | "livro" | "mini-livro-sections";
 
@@ -386,243 +390,249 @@ export default function PainelAdminPage() {
         }
     };
 
+    // ── Nav helpers ──────────────────────────────────────────────────────────
+    type NavGroup = {
+        label: string;
+        items: { section: MainSection; label: string; icon: typeof Home }[];
+    };
+
+    const NAV_GROUPS: NavGroup[] = [
+        {
+            label: "Visão Geral",
+            items: [
+                { section: "inicio",      label: "Dashboard",       icon: Home       },
+                { section: "usuarios",    label: "Usuários",        icon: Users      },
+            ],
+        },
+        {
+            label: "Conteúdo",
+            items: [
+                { section: "conteudo",    label: "Materiais",       icon: FileText   },
+                { section: "editorial",   label: "Editorial",       icon: NotebookPen },
+                { section: "novidades",   label: "Portal News",     icon: Bell       },
+                { section: "barra-aviso", label: "Barra de Aviso",  icon: Bell       },
+            ],
+        },
+        {
+            label: "Homepage",
+            items: [
+                { section: "home",        label: "Blocos",          icon: HomeIcon   },
+                { section: "pagina-home", label: "Configuração",    icon: HomeIcon   },
+                { section: "recomendacoes", label: "Recomendações", icon: BookOpen   },
+                { section: "cores-blocos", label: "Cores dos Blocos", icon: Palette  },
+                { section: "site-bg",      label: "Fundo do Site",    icon: Palette  },
+            ],
+        },
+        {
+            label: "Explorar",
+            items: [
+                { section: "pagina-explorar", label: "Configuração", icon: Radar },
+            ],
+        },
+    ];
+
+    function NavItem({ section, label, icon: Icon }: { section: MainSection; label: string; icon: typeof Home }) {
+        const isActive = mainSection === section;
+        return (
+            <button
+                onClick={() => handleMainSectionChange(section)}
+                className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors text-left ${
+                    isActive
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                }`}
+            >
+                <Icon className="size-4 shrink-0" />
+                {label}
+            </button>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-[var(--bg-primary)] py-8">
-            <div className={`${portalContentClass} space-y-8`}>
+        <div className="min-h-screen bg-background">
+            <div className={`${portalContentClass} py-8`}>
+
                 {/* Header */}
-                <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-4">
+                <div className="mb-8 flex items-start justify-between gap-4">
+                    <div>
                         <button
                             onClick={() => router.push("/user")}
-                            className="cursor-pointer inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                            className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-foreground"
                         >
-                            <ArrowLeft className="w-4 h-4" />
-                            <span className="text-lg">Voltar para Perfil</span>
+                            <ArrowLeft className="size-3.5" />
+                            Perfil
                         </button>
-                        <h1 className="text-4xl font-bold text-[var(--text-primary)]">Painel de Administração</h1>
+                        <h1 className="mt-3 font-serif text-3xl tracking-tight text-ink md:text-4xl">
+                            Administração.
+                        </h1>
                     </div>
-                    <div className="shrink-0">
+                    <div className="shrink-0 pt-1">
                         <ThemeToggle />
                     </div>
                 </div>
 
-                {/* Menu Principal - Botões Grandes (80+ acessibilidade) */}
-                <GlassCard variant="bordered" padding="lg">
-                    <div className="flex flex-wrap gap-4">
-                        <button
-                            onClick={() => handleMainSectionChange("inicio")}
-                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
-                                mainSection === "inicio"
-                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
-                            }`}
-                        >
-                            <Home className="w-6 h-6" />
-                            Início
-                        </button>
-                        <button
-                            onClick={() => handleMainSectionChange("home")}
-                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
-                                mainSection === "home"
-                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
-                            }`}
-                        >
-                            <HomeIcon className="w-6 h-6" />
-                            Home
-                        </button>
-                        <button
-                            onClick={() => handleMainSectionChange("recomendacoes")}
-                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
-                                mainSection === "recomendacoes"
-                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
-                            }`}
-                        >
-                            <BookOpen className="w-6 h-6" />
-                            Recomendacoes
-                        </button>
-                        <button
-                            onClick={() => handleMainSectionChange("conteudo")}
-                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
-                                mainSection === "conteudo"
-                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
-                            }`}
-                        >
-                            <FileText className="w-6 h-6" />
-                            Conteúdo
-                        </button>
-                        <button
-                            onClick={() => handleMainSectionChange("usuarios")}
-                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
-                                mainSection === "usuarios"
-                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
-                            }`}
-                        >
-                            <Users className="w-6 h-6" />
-                            Usuários
-                        </button>
-                        <button
-                            onClick={() => handleMainSectionChange("novidades")}
-                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
-                                mainSection === "novidades"
-                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
-                            }`}
-                        >
-                            <Bell className="w-6 h-6" />
-                            Novidades
-                        </button>
-                        <button
-                            onClick={() => handleMainSectionChange("editorial")}
-                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
-                                mainSection === "editorial"
-                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
-                            }`}
-                        >
-                            <NotebookPen className="w-6 h-6" />
-                            Editorial
-                        </button>
-                        <button
-                            onClick={() => handleMainSectionChange("barra-aviso")}
-                            className={`flex items-center gap-3 px-8 py-5 rounded-xl text-lg font-medium transition-all min-h-[56px] ${
-                                mainSection === "barra-aviso"
-                                    ? "bg-[var(--brand-blue)] text-white shadow-lg scale-105"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)] border-2 border-[var(--border-subtle)]"
-                            }`}
-                        >
-                            <Bell className="w-6 h-6" />
-                            Barra de Aviso
-                        </button>
-                    </div>
-                </GlassCard>
+                {/* Layout: sidebar + content */}
+                <div className="flex flex-col gap-6 md:flex-row md:items-start">
 
-                {/* Conteúdo por Seção */}
-                {mainSection === "inicio" && (
-                    <>
-                        <section className="my-6">
-                            <h2 className="text-lg font-semibold mb-2 text-[#162338] dark:text-slate-100">Assistente RAG</h2>
-                            <ReindexButton />
-                        </section>
-                        <Dashboard />
-                    </>
-                )}
-
-                {mainSection === "home" && <AdminHomeBlockDescriptions />}
-
-                {mainSection === "recomendacoes" && <AdminHomeRecomendacoesPaulo />}
-
-                {mainSection === "conteudo" && (
-                    <div className="space-y-6">
-                        {/* Sub-navegação de Conteúdo */}
-                        <GlassCard variant="bordered" padding="md">
-                            <div className="flex flex-wrap gap-3 justify-center">
-                                {CONTENT_TABS.map(({ type, label, icon: Icon }) => (
+                    {/* ── Sidebar ─────────────────────────────────────── */}
+                    <aside className="shrink-0 md:w-52">
+                        {/* Mobile: horizontal scroll */}
+                        <div className="flex gap-2 overflow-x-auto pb-2 md:hidden">
+                            {NAV_GROUPS.flatMap(g => g.items).map(({ section, label, icon: Icon }) => {
+                                const isActive = mainSection === section;
+                                return (
                                     <button
-                                        key={type}
-                                        onClick={() => handleContentTabChange(type)}
-                                        className={`flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-all min-h-[48px] ${
-                                            contentTab === type
-                                                ? "bg-[var(--brand-purple)] text-white shadow-md"
-                                                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)]"
+                                        key={section}
+                                        onClick={() => handleMainSectionChange(section)}
+                                        className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+                                            isActive
+                                                ? "bg-foreground text-background"
+                                                : "border border-border text-muted-foreground hover:text-foreground"
                                         }`}
                                     >
-                                        <Icon className="w-5 h-5" />
+                                        <Icon className="size-3.5" />
                                         {label}
                                     </button>
-                                ))}
-                            </div>
-                        </GlassCard>
+                                );
+                            })}
+                        </div>
 
-                        {/* Aba Livro — singleton, gerenciado pelo AdminBook */}
-                        {contentTab === "livro" ? (
-                            <AdminBook />
-                        ) : contentTab === "mini-livro-sections" ? (
-                            <AdminMiniLivroSections />
-                        ) : showForm ? (
-                            contentTab === "ebook" ? (
-                                <EbookForm
-                                    editItem={editItem}
-                                    onSubmit={handleEbookSubmit}
-                                    onCancel={() => {
-                                        setShowForm(false);
-                                        setEditItem(null);
-                                    }}
-                                    isLoading={isSubmitting}
-                                />
-                            ) : (
-                                <ContentForm
-                                    type={contentTab as ContentType}
-                                    editItem={editItem}
-                                    onSubmit={handleSubmit}
-                                    onCancel={() => {
-                                        setShowForm(false);
-                                        setEditItem(null);
-                                    }}
-                                    isLoading={isSubmitting}
-                                    ebookId={contentTab === "mini-livro" && !editItem ? (allEbooks.find(e => e.order === selectedEbookIndex + 1)?.id ?? null) : undefined}
-                                />
-                            )
-                        ) : (
-                            <>
-                                {/* Botão Criar */}
-                                <div className="flex justify-end">
-                                    <GradientButton variant="cta" icon={Plus} onClick={handleCreate}>
-                                        Novo Material
-                                    </GradientButton>
-                                </div>
-
-                                {/* Tabela */}
-                                {isLoading ? (
-                                    <div className="text-center py-12 text-[var(--text-secondary)] text-lg">
-                                        Carregando...
+                        {/* Desktop: grouped sidebar */}
+                        <nav className="hidden rounded-2xl border border-border bg-card p-3 md:block">
+                            {NAV_GROUPS.map((group, gi) => (
+                                <div key={group.label} className={gi > 0 ? "mt-4" : ""}>
+                                    <p className="px-3 pb-1.5 text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/60">
+                                        {group.label}
+                                    </p>
+                                    <div className="space-y-0.5">
+                                        {group.items.map(item => (
+                                            <NavItem key={item.section} {...item} />
+                                        ))}
                                     </div>
-                                ) : items.length === 0 ? (
-                                    <GlassCard variant="bordered" padding="lg">
-                                        <div className="text-center py-8 text-[var(--text-secondary)] text-lg">
-                                            Nenhum material cadastrado.
-                                        </div>
-                                    </GlassCard>
-                                ) : SORTABLE_TYPES.has(contentTab) ? (
-                                    <SortableContentTable
-                                        items={contentTab === "mini-livro"
-                                            ? items.filter(ml => ml.partOrder === selectedEbookIndex + 1)
-                                            : items}
-                                        onEdit={handleEdit}
-                                        onDelete={handleDelete}
-                                        onReorder={handleReorder}
-                                        lastUpdated={lastUpdated}
-                                        type={contentTab as ContentType}
-                                        selectedEbookIndex={selectedEbookIndex}
-                                        onEbookChange={setSelectedEbookIndex}
-                                    />
-                                ) : (
-                                    <ContentTable
-                                        items={items}
-                                        onEdit={handleEdit}
-                                        onDelete={handleDelete}
-                                        lastUpdated={lastUpdated}
-                                        type={contentTab as ContentType}
-                                    />
-                                )}
+                                </div>
+                            ))}
+                        </nav>
+                    </aside>
+
+                    {/* ── Content area ────────────────────────────────── */}
+                    <div className="min-w-0 flex-1 space-y-6">
+
+                        {mainSection === "inicio" && (
+                            <>
+                                <div className="rounded-2xl border border-border bg-card p-6">
+                                    <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                                        Assistente RAG
+                                    </p>
+                                    <ReindexButton />
+                                </div>
+                                <Dashboard />
                             </>
                         )}
+
+                        {mainSection === "pagina-explorar" && <AdminExplorarConfig />}
+                        {mainSection === "home"         && <AdminHomeBlockDescriptions />}
+                        {mainSection === "pagina-home"  && <AdminHomepageConfig />}
+                        {mainSection === "cores-blocos" && <AdminBlockColors />}
+{mainSection === "site-bg"      && <AdminSiteBg />}
+                        {mainSection === "recomendacoes" && <AdminHomeRecomendacoesPaulo />}
+                        {mainSection === "usuarios"     && <UserManager />}
+                        {mainSection === "novidades"    && <AdminPortalNews />}
+                        {mainSection === "editorial"    && <AdminEditorial />}
+                        {mainSection === "barra-aviso"  && <AnnouncementBarTab />}
+
+                        {mainSection === "conteudo" && (
+                            <div className="space-y-5">
+                                {/* Content type tabs */}
+                                <div className="flex flex-wrap gap-2">
+                                    {CONTENT_TABS.map(({ type, label, icon: Icon }) => (
+                                        <button
+                                            key={type}
+                                            onClick={() => handleContentTabChange(type)}
+                                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                                                contentTab === type
+                                                    ? "bg-foreground text-background"
+                                                    : "border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+                                            }`}
+                                        >
+                                            <Icon className="size-3.5" />
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {contentTab === "livro" ? (
+                                    <AdminBook />
+                                ) : contentTab === "mini-livro-sections" ? (
+                                    <AdminMiniLivroSections />
+                                ) : showForm ? (
+                                    contentTab === "ebook" ? (
+                                        <EbookForm
+                                            editItem={editItem}
+                                            onSubmit={handleEbookSubmit}
+                                            onCancel={() => { setShowForm(false); setEditItem(null); }}
+                                            isLoading={isSubmitting}
+                                        />
+                                    ) : (
+                                        <ContentForm
+                                            type={contentTab as ContentType}
+                                            editItem={editItem}
+                                            onSubmit={handleSubmit}
+                                            onCancel={() => { setShowForm(false); setEditItem(null); }}
+                                            isLoading={isSubmitting}
+                                            ebookId={contentTab === "mini-livro" && !editItem ? (allEbooks.find(e => e.order === selectedEbookIndex + 1)?.id ?? null) : undefined}
+                                        />
+                                    )
+                                ) : (
+                                    <>
+                                        <div className="flex justify-end">
+                                            <button
+                                                onClick={handleCreate}
+                                                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80"
+                                            >
+                                                <Plus className="size-4" />
+                                                Novo Material
+                                            </button>
+                                        </div>
+
+                                        {isLoading ? (
+                                            <div className="flex min-h-[200px] items-center justify-center rounded-2xl border border-border bg-card">
+                                                <p className="text-sm text-muted-foreground">Carregando…</p>
+                                            </div>
+                                        ) : items.length === 0 ? (
+                                            <div className="flex min-h-[200px] items-center justify-center rounded-2xl border border-border bg-card">
+                                                <p className="text-sm text-muted-foreground">Nenhum material cadastrado.</p>
+                                            </div>
+                                        ) : SORTABLE_TYPES.has(contentTab) ? (
+                                            <SortableContentTable
+                                                items={contentTab === "mini-livro"
+                                                    ? items.filter(ml => ml.partOrder === selectedEbookIndex + 1)
+                                                    : items}
+                                                onEdit={handleEdit}
+                                                onDelete={handleDelete}
+                                                onReorder={handleReorder}
+                                                lastUpdated={lastUpdated}
+                                                type={contentTab as ContentType}
+                                                selectedEbookIndex={selectedEbookIndex}
+                                                onEbookChange={setSelectedEbookIndex}
+                                            />
+                                        ) : (
+                                            <ContentTable
+                                                items={items}
+                                                onEdit={handleEdit}
+                                                onDelete={handleDelete}
+                                                lastUpdated={lastUpdated}
+                                                type={contentTab as ContentType}
+                                            />
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
+
                     </div>
-                )}
-
-                {mainSection === "usuarios" && <UserManager />}
-
-                {mainSection === "novidades" && <AdminPortalNews />}
-
-                {mainSection === "editorial" && <AdminEditorial />}
-
-                {mainSection === "barra-aviso" && <AnnouncementBarTab />}
+                </div>
             </div>
 
-            {/* Componentes Globais */}
             <ConfirmDialog
                 isOpen={confirmDialog.show}
                 title={confirmDialog.title}

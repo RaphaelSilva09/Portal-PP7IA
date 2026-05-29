@@ -29,7 +29,7 @@ export function AnnouncementBarPreview({ bar }: AnnouncementBarPreviewProps) {
         <div className="space-y-3">
             {/* Desktop */}
             <div>
-                <p className="text-xs text-[var(--text-secondary)] mb-1">Desktop</p>
+                <p className="text-xs text-muted-foreground mb-1">Desktop</p>
                 <div
                     className="w-full h-10 rounded flex items-center justify-center px-4 overflow-hidden"
                     style={{ backgroundColor: bg, color: text }}
@@ -43,7 +43,7 @@ export function AnnouncementBarPreview({ bar }: AnnouncementBarPreviewProps) {
 
             {/* Mobile */}
             <div>
-                <p className="text-xs text-[var(--text-secondary)] mb-1">Mobile (375px)</p>
+                <p className="text-xs text-muted-foreground mb-1">Mobile (375px)</p>
                 <div
                     className="max-w-[375px] min-h-12 rounded px-4 py-2 flex flex-col justify-center"
                     style={{ backgroundColor: bg, color: text }}
