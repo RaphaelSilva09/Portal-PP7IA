@@ -70,6 +70,9 @@ import { UpdateBlockColorsUseCase } from "../../application/usecases/UpdateBlock
 import { ExplorarConfigRepository } from "../repositories/ExplorarConfigRepository";
 import { GetExplorarConfigUseCase } from "../../application/usecases/GetExplorarConfigUseCase";
 import { UpdateExplorarConfigUseCase } from "../../application/usecases/UpdateExplorarConfigUseCase";
+import { SiteBgRepository } from "../repositories/SiteBgRepository";
+import { GetSiteBgUseCase } from "../../application/usecases/GetSiteBgUseCase";
+import { UpdateSiteBgUseCase } from "../../application/usecases/UpdateSiteBgUseCase";
 
 /**
  * Container de Dependências
@@ -97,6 +100,7 @@ class DIContainer {
     private static homepageConfigRepositoryInstance: SupabaseHomepageConfigRepository | null = null;
     private static blockColorsRepositoryInstance: BlockColorsRepository | null = null;
     private static explorarConfigRepositoryInstance: ExplorarConfigRepository | null = null;
+    private static siteBgRepositoryInstance: SiteBgRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -500,6 +504,21 @@ class DIContainer {
 
     static getUpdateExplorarConfigUseCase(): UpdateExplorarConfigUseCase {
         return new UpdateExplorarConfigUseCase(this.getExplorarConfigRepository());
+    }
+
+    static getSiteBgRepository(): SiteBgRepository {
+        if (!this.siteBgRepositoryInstance) {
+            this.siteBgRepositoryInstance = new SiteBgRepository();
+        }
+        return this.siteBgRepositoryInstance;
+    }
+
+    static getSiteBgUseCase(): GetSiteBgUseCase {
+        return new GetSiteBgUseCase(this.getSiteBgRepository());
+    }
+
+    static getUpdateSiteBgUseCase(): UpdateSiteBgUseCase {
+        return new UpdateSiteBgUseCase(this.getSiteBgRepository());
     }
 
     /**
