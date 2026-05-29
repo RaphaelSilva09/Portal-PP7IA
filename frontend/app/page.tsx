@@ -90,6 +90,25 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                         <p className="mt-7 max-w-lg text-lg leading-relaxed text-muted-foreground">
                             {t(s, "description", "Um livro sobre liderança, escrito devagar e publicado capítulo a capítulo. Em paralelo, uma curadoria semanal sobre inteligência artificial — sem ruído.")}
                         </p>
+
+                        {/* CTAs */}
+                        <div className="mt-8 flex flex-wrap items-center gap-3">
+                            <a href="/explorar" className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
+                                    <path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+                                </svg>
+                                {t(s, "btn1", "Explorar os 7 blocos")}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">
+                                    <path d="M7 7h10v10" /><path d="M7 17 17 7" />
+                                </svg>
+                            </a>
+                            <a href="#newsletter" className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-foreground/40">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
+                                    <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" />
+                                </svg>
+                                {t(s, "btn2", "Receber a newsletter")}
+                            </a>
+                        </div>
                     </div>
 
                     {/* ── Right column: cards ── */}
@@ -140,7 +159,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
 
                         {/* Newsletter card */}
                         <a
-                            href="/newsletter"
+                            href="/explorar?b=newsletter"
                             className="group relative flex min-h-[180px] overflow-hidden rounded-2xl p-5 transition-opacity hover:opacity-90 lg:min-h-[220px]"
                             style={{ background: "var(--hero-newsletter-card-bg)" }}
                         >
