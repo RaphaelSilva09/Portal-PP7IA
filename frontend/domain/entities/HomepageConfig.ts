@@ -107,7 +107,7 @@ export const DEFAULT_HOMEPAGE_CONFIG: HomepageConfig = {
                 line1: "Menos ruído.",
                 line3: "Leia Enquanto é Tempo",
                 description:
-                    "Curadoria editorial independente sobre liderança, gestão de pessoas e IA — para quem decide melhor e não acumula abas abertas.",
+                    "Curadoria editorial independente sobre liderança, gestão de pessoas e IA — para quem quer decidir melhor usando IA.",
                 btn1: "Explorar os 7 blocos",
                 btn2: "Receber a newsletter",
             },
