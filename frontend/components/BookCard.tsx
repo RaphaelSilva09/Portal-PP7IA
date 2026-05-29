@@ -6,6 +6,7 @@
  * Exibe o card do Livro principal, alimentado pela tabela `book` (singleton).
  */
 
+import capaLivro from "@/assets/capa-livro.jpeg";
 import { useBook } from "@/presentation/hooks/useBook";
 import { BookOpen, FileText, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -38,17 +39,15 @@ export default function BookCard() {
             {/* Content */}
             <div className="relative z-10 h-full flex flex-col md:flex-row items-center gap-8 p-8 sm:p-12">
                 {/* Capa — esquerda */}
-                {book.coverImagePath && (
-                    <div className="w-full md:w-1/3 flex-shrink-0">
-                        <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-border shadow-2xl">
-                            <img
-                                src={book.coverImagePath}
-                                alt={`Capa do livro ${book.title}`}
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
+                <div className="w-full md:w-1/3 flex-shrink-0">
+                    <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-border shadow-2xl">
+                        <img
+                            src={capaLivro.src}
+                            alt={`Capa do livro ${book.title}`}
+                            className="w-full h-full object-cover"
+                        />
                     </div>
-                )}
+                </div>
 
                 {/* Informações — direita */}
                 <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">

@@ -1,13 +1,15 @@
 "use client";
 
+import capaP1 from "@/assets/capa-parte-1.jpeg";
+import capaP2 from "@/assets/capa-parte-2.jpeg";
+import capaP3 from "@/assets/capa-parte-3.jpeg";
 import { portalContentClass } from "@/lib/layout";
-import { BookOpen, FileText, Globe, Loader2, Sparkles } from "lucide-react";
+import { BookOpen, FileText, Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
 
 import { MiniLivro } from "@/domain/entities/MiniLivro";
 import { MiniLivroSection } from "@/domain/entities/MiniLivroSection";
-import { useEbook } from "@/presentation/hooks/useEbook";
 import { useMiniLivroSections } from "@/presentation/hooks/useMiniLivroSections";
 import { useMiniLivroSectionMeta } from "@/presentation/hooks/useMiniLivroSectionMeta";
 import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
@@ -166,12 +168,11 @@ function compareMiniLivrosForDisplay(left: MiniLivro, right: MiniLivro): number 
  */
 export default function BentoGridMiniLivros() {
     const { all: allMiniLivros, isLoading, error } = useMiniLivros();
-    const { all: allEbooks, isLoading: ebooksLoading } = useEbook();
     const { introducoes, encerramentos, isLoading: sectionsLoading } = useMiniLivroSections();
     const { meta: sectionMeta } = useMiniLivroSectionMeta();
     const { resolvedTheme } = useTheme();
     const isLight = resolvedTheme === "light";
-    useScrollToHash(!isLoading && !ebooksLoading && !sectionsLoading);
+    useScrollToHash(!isLoading && !sectionsLoading);
 
     const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
 
@@ -195,48 +196,47 @@ export default function BentoGridMiniLivros() {
             line: "from-green-600 to-green-700",
         },
         {
-            accent: "blue",
+            accent: "orange",
             lightBg:
-                "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.12), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(14, 165, 233, 0.08), transparent), linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%)",
+                "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(249, 115, 22, 0.12), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(234, 88, 12, 0.08), transparent), linear-gradient(180deg, #f8fbff 0%, #fff7ed 100%)",
             darkBg:
-                "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.25), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(14, 165, 233, 0.15), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
-            title: "text-blue-800 dark:text-blue-300",
-            subtitle: "text-blue-700 dark:text-blue-400",
-            caption: "text-blue-900 dark:text-blue-300",
-            badge: "text-blue-700 dark:text-blue-300",
-            border: "border-blue-600/30 dark:border-blue-400/20",
-            buttonPrimary: "bg-blue-700 hover:bg-blue-800 border-blue-800",
-            buttonSecondary: "bg-sky-700 hover:bg-sky-800 border-sky-800",
-            tabActive: "bg-blue-700 text-white border-blue-800",
-            tabInactiveLight: "bg-blue-50 border-blue-300 text-blue-950 hover:bg-blue-100",
-            tabInactive: "bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-300 hover:bg-blue-500/15",
-            line: "from-blue-600 to-sky-700",
+                "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(249, 115, 22, 0.25), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(234, 88, 12, 0.15), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
+            title: "text-orange-800 dark:text-orange-300",
+            subtitle: "text-orange-700 dark:text-orange-400",
+            caption: "text-orange-900 dark:text-orange-300",
+            badge: "text-orange-700 dark:text-orange-300",
+            border: "border-orange-600/30 dark:border-orange-400/20",
+            buttonPrimary: "bg-orange-600 hover:bg-orange-700 border-orange-700",
+            buttonSecondary: "bg-orange-500 hover:bg-orange-600 border-orange-600",
+            tabActive: "bg-orange-600 text-white border-orange-700",
+            tabInactiveLight: "bg-orange-50 border-orange-300 text-orange-950 hover:bg-orange-100",
+            tabInactive: "bg-orange-500/10 border-orange-500/20 text-orange-700 dark:text-orange-300 hover:bg-orange-500/15",
+            line: "from-orange-500 to-orange-600",
         },
         {
-            accent: "purple",
+            accent: "red",
             lightBg:
-                "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.12), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(168, 85, 247, 0.08), transparent), linear-gradient(180deg, #f8fbff 0%, #f5f3ff 100%)",
+                "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(239, 68, 68, 0.12), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(220, 38, 38, 0.08), transparent), linear-gradient(180deg, #f8fbff 0%, #fff5f5 100%)",
             darkBg:
-                "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.25), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(168, 85, 247, 0.15), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
-            title: "text-purple-800 dark:text-purple-300",
-            subtitle: "text-purple-700 dark:text-purple-400",
-            caption: "text-purple-900 dark:text-purple-300",
-            badge: "text-purple-700 dark:text-purple-300",
-            border: "border-purple-600/30 dark:border-purple-400/20",
-            buttonPrimary: "bg-purple-700 hover:bg-purple-800 border-purple-800",
-            buttonSecondary: "bg-violet-700 hover:bg-violet-800 border-violet-800",
-            tabActive: "bg-purple-700 text-white border-purple-800",
-            tabInactiveLight: "bg-purple-50 border-purple-300 text-purple-950 hover:bg-purple-100",
-            tabInactive: "bg-purple-500/10 border-purple-500/20 text-purple-700 dark:text-purple-300 hover:bg-purple-500/15",
-            line: "from-purple-600 to-violet-700",
+                "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(239, 68, 68, 0.25), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(220, 38, 38, 0.15), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
+            title: "text-red-700 dark:text-red-300",
+            subtitle: "text-red-600 dark:text-red-400",
+            caption: "text-red-700 dark:text-red-300",
+            badge: "text-red-600 dark:text-red-300",
+            border: "border-red-500/30 dark:border-red-400/20",
+            buttonPrimary: "bg-red-500 hover:bg-red-600 border-red-600",
+            buttonSecondary: "bg-red-400 hover:bg-red-500 border-red-500",
+            tabActive: "bg-red-500 text-white border-red-600",
+            tabInactiveLight: "bg-red-50 border-red-300 text-red-900 hover:bg-red-100",
+            tabInactive: "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-300 hover:bg-red-500/15",
+            line: "from-red-400 to-red-500",
         },
     ] as const;
 
     const selectedTheme = ebookThemes[selectedEbookIndex] ?? ebookThemes[0];
-    const isFirstTheme = selectedEbookIndex === 0;
 
     // Estado de carregamento
-    if (isLoading || ebooksLoading || sectionsLoading) {
+    if (isLoading || sectionsLoading) {
         return (
             <section className="py-12">
                 <div className={portalContentClass}>
@@ -271,20 +271,10 @@ export default function BentoGridMiniLivros() {
     const getContinuousMiniLivroNumber = (miniLivro: MiniLivro): string =>
         continuousMiniLivroNumberById.get(miniLivro.id) ?? miniLivro.formattedNumber;
 
-    const selectedEbook = allEbooks.find(e => e.order === selectedEbookIndex + 1) ?? null;
     const ebookMiniLivros = orderedMiniLivros.filter(ml => ml.partOrder === selectedEbookIndex + 1);
     const featuredMiniLivro = ebookMiniLivros[0] ?? null;
     const gridMiniLivros = ebookMiniLivros.slice(1);
 
-    const ebookHasContent = Boolean(
-        selectedEbook &&
-        (selectedEbook.subtitle ||
-            selectedEbook.description ||
-            selectedEbook.coverImagePath ||
-            selectedEbook.htmlAvailable ||
-            selectedEbook.coverPdfAvailable),
-    );
-    const hasMiniLivros = ebookMiniLivros.length > 0;
     const shouldShowEncerramento = selectedEbookIndex === 2 && encerramentos.length > 0;
 
     return (
@@ -392,7 +382,7 @@ export default function BentoGridMiniLivros() {
                         const fixedTitles = [
                             "Parte I — Liderança Híbrida",
                             "Parte II — A Coragem de Executar",
-                            "Parte III — O Que Fica"
+                            "Parte III — O Que Fica",
                         ];
                         const label = fixedTitles[slotIndex];
                         const isSelected = selectedEbookIndex === slotIndex;
@@ -409,115 +399,26 @@ export default function BentoGridMiniLivros() {
                     })}
                 </div>
 
-                {/* Bento Grid - 3 Columns Layout */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                {/* Capa + Mini-livro destaque — flex side by side */}
+                <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
 
-                    {/* ============================================
-                    E-BOOK EM DESTAQUE
-                    1 Card - col-span-3 - min-h-80
-                    ============================================ */}
-                    {/* Placeholder quando ebook não tem conteúdo nem mini-livros */}
-                    {!ebookHasContent && !hasMiniLivros && (
-                        <div className="col-span-1 md:col-span-2 flex flex-col items-center justify-center text-center py-20 rounded-3xl border border-border bg-card/80">
-                            <p className="text-text-secondary text-xl font-medium">Ainda estamos trabalhando por aqui. Volte em breve!</p>
+                    {/* CAPA: aspect-[3/4] próprio, nunca cortada */}
+                    <div className="w-full md:w-52 lg:w-60 flex-shrink-0">
+                        <div className="aspect-[3/4] relative rounded-3xl overflow-hidden shadow-xl border border-border">
+                            {([capaP1.src, capaP2.src, capaP3.src]).map((src, i) => (
+                                <img
+                                    key={i}
+                                    src={src}
+                                    alt={`Capa Parte ${i + 1}`}
+                                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${i === selectedEbookIndex ? "opacity-100" : "opacity-0"}`}
+                                />
+                            ))}
                         </div>
-                    )}
+                    </div>
 
-                    {selectedEbook && ebookHasContent && (
-                        <div className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01]">
-                            {/* Gradient Background - Azul/Roxo para E-book */}
-                            <div
-                                className="absolute inset-0"
-                                style={{
-                                    background: isLight ? selectedTheme.lightBg : selectedTheme.darkBg,
-                                }}
-                            />
-                            <div className={`absolute inset-0 rounded-3xl border ${selectedTheme.border}`} />
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700">
-                                <div className="absolute inset-0 shimmer" />
-                            </div>
-
-                            {/* Content - Layout com Imagem + Texto */}
-                            <div className="relative z-10 h-full flex flex-col md:flex-row items-center gap-8 p-8 sm:p-12">
-                                {/* Imagem da Capa - Esquerda */}
-                                {selectedEbook.coverImagePath && (
-                                    <div className="w-full md:w-1/3 flex-shrink-0">
-                                        <div className={`relative aspect-[3/4] rounded-xl overflow-hidden border shadow-2xl ${selectedTheme.border}`}>
-                                            <img
-                                                src={selectedEbook.coverImagePath}
-                                                alt={`Capa do E-book ${selectedEbook.title}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Informações do E-book - Direita */}
-                                <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
-                                    {/* Badge */}
-                                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 ${isLight ? "bg-white/70 border border-green-300" : "bg-white/10"} ${!isLight ? selectedTheme.border : ""}`}>
-                                        <Sparkles className={`w-4 h-4 ${isLight ? "text-green-700" : selectedTheme.badge}`} />
-                                        <span className={`text-sm font-semibold ${isLight ? "text-green-900" : selectedTheme.badge}`}>
-                                            {selectedEbook.badgeText || `E-book #${selectedEbook.formattedNumber}`}
-                                        </span>
-                                    </div>
-
-                                    {/* Título */}
-                                    <h3 className={`text-2xl sm:text-3xl md:text-3xl font-bold mb-3 tracking-tight leading-tight line-clamp-2 ${isFirstTheme && isLight ? "text-green-950" : selectedTheme.title}`}> 
-                                        {selectedEbook.title}
-                                    </h3>
-
-                                    {/* Subtítulo */}
-                                    {selectedEbook.subtitle && (
-                                    <p className={`text-xl sm:text-2xl mb-6 font-semibold ${isFirstTheme && isLight ? "text-green-950" : selectedTheme.caption}`}>
-                                        {selectedEbook.subtitle}
-                                    </p>
-                                    )}
-
-                                    {/* Descrição */}
-                                    {selectedEbook.description && (
-                                        <p className="text-base sm:text-lg text-text-secondary mb-8 leading-relaxed max-w-4xl">
-                                            {selectedEbook.description}
-                                        </p>
-                                    )}
-
-                                    {/* Botões de Ação */}
-                                    <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
-                                        {selectedEbook.coverPdfAvailable && (
-                                            <a
-                                                href={selectedEbook.coverPdfPath!}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            className={`flex items-center justify-center gap-2 px-6 py-3 ${selectedTheme.buttonPrimary} rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 w-full sm:w-auto min-w-[160px]`}
-                                            >
-                                                <FileText className="w-5 h-5" />
-                                                <span>Ver Capa</span>
-                                            </a>
-                                        )}
-                                        {selectedEbook.htmlAvailable && (
-                                            <a
-                                            href={selectedEbook.introHtmlPath!}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`flex items-center justify-center gap-2 px-6 py-3 ${selectedTheme.buttonSecondary} rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 w-full sm:w-auto min-w-[160px]`}
-                                            >
-                                                <BookOpen className="w-5 h-5" />
-                                                <span>Ler Introdução</span>
-                                            </a>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ============================================
-                    MINI-LIVRO DESTAQUE — 1º do ebook selecionado
-                    1 Card - col-span-3 - min-h-80
-                    ============================================ */}
+                    {/* MINI-LIVRO DESTAQUE — ocupa o espaço restante */}
                     {featuredMiniLivro && (
-                        <div id={`item-${featuredMiniLivro.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] transition-all duration-500 hover:scale-[1.01]">
-                            {/* Gradient Background */}
+                        <div id={`item-${featuredMiniLivro.id}`} style={{ scrollMarginTop: "80px" }} className="flex-1 group relative overflow-hidden rounded-3xl min-h-[200px] transition-all duration-500 hover:scale-[1.01]">
                             <div
                                 className="absolute inset-0"
                                 style={{
@@ -526,33 +427,20 @@ export default function BentoGridMiniLivros() {
                                         : "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.3), transparent), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.2), transparent), linear-gradient(180deg, #0a0a0f 0%, #111118 100%)",
                                 }}
                             />
-
-                            {/* Subtle Border */}
                             <div className="absolute inset-0 rounded-3xl border border-border" />
-
-                            {/* Shimmer on Hover */}
                             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                                 <div className="absolute inset-0 shimmer" />
                             </div>
-
-                            {/* Content */}
                             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-12">
-                                {/* Mini-Livro Number */}
                                 <p className="text-green-700 text-base sm:text-lg font-mono mb-2">
                                     Mini-Livro #{getContinuousMiniLivroNumber(featuredMiniLivro)}
                                 </p>
-
-                                {/* Title */}
                                 <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
                                     {featuredMiniLivro.title}
                                 </h3>
-
-                                {/* Date */}
                                 <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-text-secondary text-base sm:text-lg mb-8 md:mb-4 whitespace-nowrap">
                                     <p>Publicado em&nbsp;{featuredMiniLivro.formattedDate}</p>
                                 </div>
-
-                                {/* Action Buttons */}
                                 <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-3 w-full">
                                     {featuredMiniLivro.htmlAvailable ? (
                                         <a href={featuredMiniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white font-medium text-sm transition-all duration-300 whitespace-nowrap">
@@ -560,10 +448,7 @@ export default function BentoGridMiniLivros() {
                                             <span>Ler agora</span>
                                         </a>
                                     ) : (
-                                        <button
-                                            disabled
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm cursor-not-allowed opacity-90 whitespace-nowrap"
-                                        >
+                                        <button disabled className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm cursor-not-allowed opacity-90 whitespace-nowrap">
                                             <Globe className="w-5 h-5 shrink-0" />
                                             <span>Indisponível</span>
                                         </button>
@@ -574,10 +459,7 @@ export default function BentoGridMiniLivros() {
                                             <span>Baixar PDF</span>
                                         </a>
                                     ) : (
-                                        <button
-                                            disabled
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm cursor-not-allowed opacity-90 whitespace-nowrap"
-                                        >
+                                        <button disabled className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 font-medium text-sm cursor-not-allowed opacity-90 whitespace-nowrap">
                                             <FileText className="w-5 h-5 shrink-0" />
                                             <span>Indisponível</span>
                                         </button>
@@ -586,69 +468,56 @@ export default function BentoGridMiniLivros() {
                             </div>
                         </div>
                     )}
-
-                    {/* ============================================
-                    GRID DE MINI-LIVROS — demais do ebook selecionado
-                    ============================================ */}
-                    {gridMiniLivros.map((miniLivro: MiniLivro) => (
-                        <div
-                            key={miniLivro.id}
-                            id={`item-${miniLivro.id}`}
-                            style={{ scrollMarginTop: "80px" }}
-                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border transition-all duration-300 hover:bg-accent/40 hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
-                        >
-                            <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
-                                {/* Mini-Livro Number */}
-                                <p className="text-green-700 text-base sm:text-lg font-mono mb-2">
-                                    Mini-Livro #{getContinuousMiniLivroNumber(miniLivro)}
-                                </p>
-
-                                {/* Title */}
-                                <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-foreground mt-1 mb-2 tracking-tight line-clamp-2">
-                                    {miniLivro.title}
-                                </h4>
-
-                                {/* Date */}
-                                <p className="text-text-secondary text-base sm:text-lg mb-8 md:mb-4 whitespace-nowrap">Publicado em&nbsp;{miniLivro.formattedDate}</p>
-
-                                {/* Action Buttons */}
-                                <div className="flex flex-wrap md:flex-nowrap gap-3 mt-auto justify-center">
-                                    {miniLivro.htmlAvailable ? (
-                                        <a href={miniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white text-sm font-medium transition-all duration-300 whitespace-nowrap">
-                                            <Globe className="w-5 h-5 shrink-0" />
-                                            <span>Ler agora</span>
-                                        </a>
-                                    ) : (
-                                        <button
-                                            disabled
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap"
-                                        >
-                                            <Globe className="w-5 h-5 shrink-0" />
-                                            <span>Indisponível</span>
-                                        </button>
-                                    )}
-                                    {miniLivro.pdfAvailable ? (
-                                        <a href={miniLivro.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white text-sm font-medium transition-all duration-300 whitespace-nowrap">
-                                            <FileText className="w-5 h-5 shrink-0" />
-                                            <span>Baixar PDF</span>
-                                        </a>
-                                    ) : (
-                                        <button
-                                            disabled
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap"
-                                        >
-                                            <FileText className="w-5 h-5 shrink-0" />
-                                            <span>Indisponível</span>
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* Accent Line */}
-                                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r ${selectedTheme.line} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
-                            </div>
-                        </div>
-                    ))}
                 </div>
+
+                {/* GRID DE MINI-LIVROS — demais do ebook selecionado */}
+                {gridMiniLivros.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6">
+                        {gridMiniLivros.map((miniLivro: MiniLivro) => (
+                            <div
+                                key={miniLivro.id}
+                                id={`item-${miniLivro.id}`}
+                                style={{ scrollMarginTop: "80px" }}
+                                className="group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border transition-all duration-300 hover:bg-accent/40 hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
+                            >
+                                <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
+                                    <p className="text-green-700 text-base sm:text-lg font-mono mb-2">
+                                        Mini-Livro #{getContinuousMiniLivroNumber(miniLivro)}
+                                    </p>
+                                    <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-foreground mt-1 mb-2 tracking-tight line-clamp-2">
+                                        {miniLivro.title}
+                                    </h4>
+                                    <p className="text-text-secondary text-base sm:text-lg mb-8 md:mb-4 whitespace-nowrap">Publicado em&nbsp;{miniLivro.formattedDate}</p>
+                                    <div className="flex flex-wrap md:flex-nowrap gap-3 mt-auto justify-center">
+                                        {miniLivro.htmlAvailable ? (
+                                            <a href={miniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white text-sm font-medium transition-all duration-300 whitespace-nowrap">
+                                                <Globe className="w-5 h-5 shrink-0" />
+                                                <span>Ler online</span>
+                                            </a>
+                                        ) : (
+                                            <button disabled className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap">
+                                                <Globe className="w-5 h-5 shrink-0" />
+                                                <span>Indisponível</span>
+                                            </button>
+                                        )}
+                                        {miniLivro.pdfAvailable ? (
+                                            <a href={miniLivro.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white text-sm font-medium transition-all duration-300 whitespace-nowrap">
+                                                <FileText className="w-5 h-5 shrink-0" />
+                                                <span>Baixar PDF</span>
+                                            </a>
+                                        ) : (
+                                            <button disabled className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-200 border border-slate-300 rounded-full text-slate-500 text-sm font-medium cursor-not-allowed opacity-90 whitespace-nowrap">
+                                                <FileText className="w-5 h-5 shrink-0" />
+                                                <span>Indisponível</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className={`absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r ${selectedTheme.line} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 {shouldShowEncerramento && (
                     <div className="w-full mt-10 mb-6 space-y-6">
