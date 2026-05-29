@@ -90,18 +90,25 @@
     --primary-soft: rgba(29, 78, 216, 0.18);
     --block-newsletter: #3b82f6;
     --block-newsletter-soft: rgba(59, 130, 246, 0.18);
+    --block-newsletter-on: #ffffff;
     --block-reportagem: #f97316;
     --block-reportagem-soft: rgba(249, 115, 22, 0.16);
+    --block-reportagem-on: #ffffff;
     --block-radar: #06b6d4;
     --block-radar-soft: rgba(6, 182, 212, 0.16);
+    --block-radar-on: #ffffff;
     --block-livro: #f59e0b;
     --block-livro-soft: rgba(245, 158, 11, 0.16);
+    --block-livro-on: #ffffff;
     --block-biblioteca: #14b8a6;
     --block-biblioteca-soft: rgba(20, 184, 166, 0.16);
+    --block-biblioteca-on: #ffffff;
     --block-estudar: #6366f1;
     --block-estudar-soft: rgba(99, 102, 241, 0.16);
+    --block-estudar-on: #ffffff;
     --block-ensinar: #ec4899;
     --block-ensinar-soft: rgba(236, 72, 153, 0.16);
+    --block-ensinar-on: #ffffff;
     --shadow-card: 0 20px 40px rgba(15, 23, 42, 0.08);
     --shadow-elevated: 0 24px 60px rgba(15, 23, 42, 0.14);
 }
@@ -165,20 +172,49 @@
     --primary-soft: rgba(59, 130, 246, 0.2);
     --block-newsletter: #60a5fa;
     --block-newsletter-soft: rgba(96, 165, 250, 0.18);
+    --block-newsletter-on: #ffffff;
+    --block-newsletter-on-soft: #93c5fd;
     --block-reportagem: #fb923c;
     --block-reportagem-soft: rgba(251, 146, 60, 0.16);
+    --block-reportagem-on: #ffffff;
+    --block-reportagem-on-soft: #fdba74;
     --block-radar: #22d3ee;
     --block-radar-soft: rgba(34, 211, 238, 0.16);
+    --block-radar-on: #ffffff;
+    --block-radar-on-soft: #67e8f9;
     --block-livro: #fbbf24;
     --block-livro-soft: rgba(251, 191, 36, 0.16);
+    --block-livro-on: #ffffff;
+    --block-livro-on-soft: #fcd34d;
     --block-biblioteca: #2dd4bf;
     --block-biblioteca-soft: rgba(45, 212, 191, 0.16);
+    --block-biblioteca-on: #ffffff;
+    --block-biblioteca-on-soft: #5eead4;
     --block-estudar: #818cf8;
     --block-estudar-soft: rgba(129, 140, 248, 0.16);
+    --block-estudar-on: #ffffff;
+    --block-estudar-on-soft: #a5b4fc;
     --block-ensinar: #f472b6;
     --block-ensinar-soft: rgba(244, 114, 182, 0.16);
+    --block-ensinar-on: #ffffff;
+    --block-ensinar-on-soft: #f9a8d4;
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
     --shadow-elevated: 0 26px 60px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes cover-backdrop-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes cover-img-in {
+    from { opacity: 0; transform: scale(0.88); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes cover-backdrop-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
 }
 
 .portal-back-link {
