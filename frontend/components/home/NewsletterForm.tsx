@@ -1,23 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 export default function NewsletterForm() {
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const { openModal } = useAuthModal();
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (!email || status === "loading") return;
-
-        setStatus("loading");
-        try {
-            await new Promise((r) => setTimeout(r, 800));
-            setStatus("success");
-            setEmail("");
-        } catch {
-            setStatus("error");
-        }
+        openModal({ email }, "signup");
     }
 
     if (status === "success") {
@@ -56,7 +50,7 @@ export default function NewsletterForm() {
             <label className="block text-[11px] uppercase tracking-[0.22em] text-background/50">
                 Seu e-mail
             </label>
-            <div className="flex flex-col gap-2 rounded-2xl border border-background/15 bg-background/5 p-2 sm:flex-row">
+            <div className="flex flex-col gap-2 rounded-2xl border border-background/15 bg-background/5 p-2 sm:flex-row focus-within:ring-0 focus-within:outline-none">
                 <div className="flex flex-1 items-center gap-2 px-3">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +74,8 @@ export default function NewsletterForm() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="ceo@empresa.com"
                         required
-                        className="w-full bg-transparent py-3 text-sm text-background placeholder:text-background/30 focus:outline-none"
+                        className="w-full bg-transparent pt-3 pb-1 text-sm text-background placeholder:text-background/30 border-b border-transparent focus:border-white/60 transition-colors"
+                        style={{ outline: "none", boxShadow: "none" }}
                     />
                 </div>
                 <button
