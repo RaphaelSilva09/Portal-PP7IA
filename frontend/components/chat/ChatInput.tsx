@@ -27,8 +27,8 @@ export function ChatInput({ isStreaming, onSend }: Props) {
     };
 
     return (
-        <div className="border-t border-border/80 bg-background/90 px-3 py-3 dark:bg-background/55">
-            <div className="flex items-end gap-2.5 rounded-[22px] border border-border/80 bg-card/85 p-2 backdrop-blur-sm transition-[border-color,box-shadow] duration-200 focus-within:border-brand-blue/30 focus-within:shadow-[inset_0_0_0_1px_rgba(29,78,216,0.08)] dark:bg-background/70 dark:focus-within:shadow-[inset_0_0_0_1px_rgba(59,158,255,0.12)]">
+        <div className="border-t border-border bg-background/97 px-3 py-3 dark:bg-card">
+            <div className="flex items-end gap-2 rounded-[22px] border border-border bg-background p-2 transition-[border-color,box-shadow] duration-200 focus-within:border-ink/15 focus-within:shadow-[inset_0_0_0_1px_rgba(17,17,17,0.06)] dark:bg-background/60 dark:focus-within:border-foreground/20">
                 <textarea
                     value={text}
                     onChange={e => setText(e.target.value)}
@@ -43,7 +43,7 @@ export function ChatInput({ isStreaming, onSend }: Props) {
                     onClick={submit}
                     disabled={!canSend}
                     aria-label={isStreaming ? "Assistente respondendo" : "Enviar mensagem"}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-purple-700 text-white shadow-[0_3px_10px_rgba(29,78,216,0.12)] transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_6px_14px_rgba(29,78,216,0.16)] focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-[0_3px_10px_rgba(29,78,216,0.12)]"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink text-background transition-all duration-200 hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-35 dark:bg-foreground dark:text-background"
                 >
                     {isStreaming
                         ? <LoaderCircle size={16} className="animate-spin" />
