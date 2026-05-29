@@ -159,7 +159,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
 
                         {/* Newsletter card */}
                         <a
-                            href="/newsletter"
+                            href="/explorar?b=newsletter"
                             className="group relative flex min-h-[180px] overflow-hidden rounded-2xl p-5 transition-opacity hover:opacity-90 lg:min-h-[220px]"
                             style={{ background: "var(--hero-newsletter-card-bg)" }}
                         >
