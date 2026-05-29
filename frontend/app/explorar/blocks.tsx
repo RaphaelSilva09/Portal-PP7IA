@@ -39,6 +39,7 @@ const C = {
 } as const;
 
 type BlockCfg = typeof C[keyof typeof C];
+type BlockColors = Omit<BlockCfg, 'color' | 'soft' | 'on'> & { color: string; soft: string; on: string; onSoft?: string };
 
 // ── Shared content interface ──────────────────────────────────────────────────
 
@@ -826,7 +827,7 @@ function PartEbookCard({ ebook, block, partOrder, partColor, partSoft }: { ebook
     );
 }
 
-function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: BlockCfg; globalIndex: number }) {
+function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: BlockColors; globalIndex: number }) {
     const href = item.htmlPath;
     const displayNum = String(globalIndex).padStart(2, "0");
     return (
