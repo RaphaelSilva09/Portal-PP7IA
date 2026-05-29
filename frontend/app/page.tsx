@@ -77,13 +77,13 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                             className="mt-8 leading-[0.95] tracking-[-0.025em] text-ink text-[clamp(3.2rem,6.5vw,5.8rem)]"
                             style={{ fontFamily: '"Instrument Serif", serif' }}
                         >
-                            <span className="block">{t(s, "line1", "Menos ruído.")}</span>
-                            <span className="block">
+                            <span className="block text-[7.5rem]">{t(s, "line1", "Menos ruído.")}</span>
+                            <span className="block text-[7.5rem]">
                                 Mais{" "}
                                 <HeroAnimatedWord />
                                 .
                             </span>
-                            <span className="block text-foreground/50">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
+                            <span className="block text-foreground/50 text-[5rem] mt-3">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
                         </h1>
 
                         {/* Description */}

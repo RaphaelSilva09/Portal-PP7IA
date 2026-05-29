@@ -72,7 +72,7 @@ export default function HeroAnimatedWord() {
                     top: -9999,
                     left: -9999,
                     fontFamily: '"Instrument Serif", serif',
-                    fontSize: "clamp(3.2rem, 6.5vw, 5.8rem)",
+                    fontSize: "7.9rem",
                     lineHeight: 1,
                     whiteSpace: "nowrap",
                 }}
