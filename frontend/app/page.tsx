@@ -1,6 +1,7 @@
 import ChatBubble from "@/components/chat/ChatBubble";
 import Navbar from "@/components/Header";
 import capaLivro from "@/assets/capa-livro.jpeg";
+import HeroAnimatedWord from "@/components/home/HeroAnimatedWord";
 import HomeEditorialSection from "@/components/home/HomeEditorialSection";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
@@ -73,11 +74,16 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
 
                         {/* Heading */}
                         <h1
-                            className="mt-8 italic leading-[1.02] tracking-[-0.025em] text-ink text-[clamp(3.2rem,6.5vw,5.8rem)]"
+                            className="mt-8 leading-[0.95] tracking-[-0.025em] text-ink text-[clamp(3.2rem,6.5vw,5.8rem)]"
                             style={{ fontFamily: '"Instrument Serif", serif' }}
                         >
-                            <span className="block">{t(s, "title_line1", "Leia o que importa,")}</span>
-                            <span className="block">{t(s, "title_line2", "enquanto é tempo.")}</span>
+                            <span className="block">{t(s, "line1", "Menos ruído.")}</span>
+                            <span className="block">
+                                Mais{" "}
+                                <HeroAnimatedWord />
+                                .
+                            </span>
+                            <span className="block text-foreground/50">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
                         </h1>
 
                         {/* Description */}
