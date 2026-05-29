@@ -105,7 +105,7 @@ export const DEFAULT_HOMEPAGE_CONFIG: HomepageConfig = {
             visible: true,
             texts: {
                 line1: "Menos ruído.",
-                line3: "Sete blocos. Sete IAs.",
+                line3: "Leia Enquanto é Tempo",
                 description:
                     "Curadoria editorial independente sobre liderança, gestão de pessoas e IA — para quem decide melhor e não acumula abas abertas.",
                 btn1: "Explorar os 7 blocos",
