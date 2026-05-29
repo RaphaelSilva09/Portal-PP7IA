@@ -158,12 +158,12 @@ export default function Navbar({ autoHideOnScroll = false }: NavbarProps) {
                             className="group flex flex-1 items-start gap-1 leading-none font-editorial min-[1108px]:flex-none"
                         >
                             <div className="flex flex-col items-stretch gap-[3px]">
-                                <span className="text-[2.8rem] font-semibold tracking-[-0.03em] text-ink">PP7</span>
+                                <span className="text-[2rem] lg:text-[2.8rem] font-semibold tracking-[-0.03em] text-ink">PP7</span>
                                 <span className="h-[3px] w-full rounded-full bg-amber-600" />
                             </div>
-                            <Plus className="mt-[8px] shrink-0 text-primary" size={26} strokeWidth={2.0} />
+                            <Plus className="mt-[7px] lg:mt-[9px] shrink-0 text-primary w-[18px] h-[18px] lg:w-[26px] lg:h-[26px]" strokeWidth={2.0} />
                             <div className="flex flex-col items-start gap-[3px]">
-                                <span className="text-[2.8rem] font-semibold tracking-[0.06em] text-ink">IAS</span>
+                                <span className="text-[2rem] lg:text-[2.8rem] font-semibold tracking-[0.06em] text-ink">IAS</span>
                                 <span className="h-[3px] w-[95%] rounded-full bg-primary" />
                             </div>
                         </Link>

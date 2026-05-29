@@ -59,7 +59,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
 
                         {/* Eyebrow */}
                         <div className="flex items-center gap-3">
-                            <span className="h-px w-6 bg-border" />
+                            <span className="h-[2px] w-6 bg-border border-black opacity-100" />
                             <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                                 {t(s, "eyebrow1", "Livro")}
                                 <span className="mx-2 opacity-40">·</span>
@@ -77,13 +77,13 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                             className="mt-8 leading-[0.95] tracking-[-0.025em] text-ink text-[clamp(3.2rem,6.5vw,5.8rem)]"
                             style={{ fontFamily: '"Instrument Serif", serif' }}
                         >
-                            <span className="block text-[7.5rem]">{t(s, "line1", "Menos ruído.")}</span>
-                            <span className="block text-[7.5rem]">
+                            <span className="block text-[4.5rem] lg:text-[7.5rem]">{t(s, "line1", "Menos ruído.")}</span>
+                            <span className="block text-[4.5rem] lg:text-[7.5rem]">
                                 Mais{" "}
                                 <HeroAnimatedWord />
                                 .
                             </span>
-                            <span className="block text-foreground/50 text-[5rem] mt-3">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
+                            <span className="block text-foreground/50 text-[3rem] lg:text-[5rem] mt-3">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
                         </h1>
 
                         {/* Description */}
