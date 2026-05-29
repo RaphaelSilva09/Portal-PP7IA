@@ -40,6 +40,13 @@ export const SECTION_TEXT_FIELDS: Record<SectionId, SectionTextField[]> = {
         { key: "description", label: "Descrição", multiline: true },
         { key: "btn1", label: "Botão principal" },
         { key: "btn2", label: "Botão secundário" },
+        { key: "bookCard_label", label: "Card do Livro — eyebrow (ex: O Livro)" },
+        { key: "bookCard_cta", label: "Card do Livro — botão (ex: Ler →)" },
+        { key: "newsletterCard_label", label: "Card de Newsletter — eyebrow (ex: Curadoria Semanal)" },
+        { key: "newsletterCard_headline1", label: "Card de Newsletter — título linha 1 (ex: Toda quarta,)" },
+        { key: "newsletterCard_headline2", label: "Card de Newsletter — título linha 2 (ex: no seu inbox.)" },
+        { key: "newsletterCard_tagline", label: "Card de Newsletter — tagline inferior (ex: IA · Liderança · Semanal)" },
+        { key: "newsletterCard_cta", label: "Card de Newsletter — botão (ex: Assinar →)" },
     ],
     "sete-cores": [
         { key: "label", label: "Label (eyebrow)" },

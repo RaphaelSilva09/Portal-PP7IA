@@ -31,6 +31,8 @@ const BLOCK_META = [
         number: "01",
         color: "var(--block-newsletter)",
         colorSoft: "var(--block-newsletter-soft)",
+        colorOn: "var(--block-newsletter-on)",
+        colorOnSoft: "var(--block-newsletter-on-soft)",
         subtitle: "Bloco 01 · Toda quarta",
         shortDesc: "Notícias práticas de IA e startups",
         cadence: "Toda quarta",
@@ -42,6 +44,8 @@ const BLOCK_META = [
         number: "02",
         color: "var(--block-reportagem)",
         colorSoft: "var(--block-reportagem-soft)",
+        colorOn: "var(--block-reportagem-on)",
+        colorOnSoft: "var(--block-reportagem-on-soft)",
         subtitle: "Bloco 02 · Semanal",
         shortDesc: "Análises e destaques editoriais",
         cadence: "Semanal",
@@ -53,6 +57,8 @@ const BLOCK_META = [
         number: "03",
         color: "var(--block-radar)",
         colorSoft: "var(--block-radar-soft)",
+        colorOn: "var(--block-radar-on)",
+        colorOnSoft: "var(--block-radar-on-soft)",
         subtitle: "Bloco 03 · Contínuo",
         shortDesc: "Ferramentas, startups e tendências",
         cadence: "Contínuo",
@@ -64,6 +70,8 @@ const BLOCK_META = [
         number: "04",
         color: "var(--block-livro)",
         colorSoft: "var(--block-livro-soft)",
+        colorOn: "var(--block-livro-on)",
+        colorOnSoft: "var(--block-livro-on-soft)",
         subtitle: "Bloco 04 · Mini-livro",
         shortDesc: "Mini-livro publicado a cada semana",
         cadence: "20 de 21 publicados",
@@ -75,6 +83,8 @@ const BLOCK_META = [
         number: "05",
         color: "var(--block-biblioteca)",
         colorSoft: "var(--block-biblioteca-soft)",
+        colorOn: "var(--block-biblioteca-on)",
+        colorOnSoft: "var(--block-biblioteca-on-soft)",
         subtitle: "Bloco 05 · Semanal",
         shortDesc: "Acervo vivo de prompts, leituras e referências",
         cadence: "Atualizada toda semana",
@@ -86,6 +96,8 @@ const BLOCK_META = [
         number: "06",
         color: "var(--block-estudar)",
         colorSoft: "var(--block-estudar-soft)",
+        colorOn: "var(--block-estudar-on)",
+        colorOnSoft: "var(--block-estudar-on-soft)",
         subtitle: "Bloco 06 · Em curadoria",
         shortDesc: "Guias, tutoriais e aulas",
         cadence: "Em curadoria",
@@ -97,6 +109,8 @@ const BLOCK_META = [
         number: "07",
         color: "var(--block-ensinar)",
         colorSoft: "var(--block-ensinar-soft)",
+        colorOn: "var(--block-ensinar-on)",
+        colorOnSoft: "var(--block-ensinar-on-soft)",
         subtitle: "Bloco 07 · Em construção",
         shortDesc: "Espaço para multiplicar conhecimento",
         cadence: "Em construção",
@@ -171,7 +185,7 @@ export default function HeroBlockCard() {
                     <div>
                         <div
                             className="text-[10px] uppercase tracking-[0.22em] transition-colors duration-500"
-                            style={{ color: block.color }}
+                            style={{ color: block.colorOnSoft }}
                         >
                             {block.subtitle}
                         </div>
@@ -186,7 +200,7 @@ export default function HeroBlockCard() {
                         className="flex size-12 items-center justify-center rounded-xl font-serif text-xl transition-colors duration-500"
                         style={{
                             backgroundColor: block.colorSoft,
-                            color: block.color,
+                            color: "var(--ink)",
                         }}
                     >
                         {block.number}
@@ -231,7 +245,7 @@ export default function HeroBlockCard() {
                     <a
                         href={block.href}
                         className="text-[10px] uppercase tracking-[0.22em] transition-colors hover:underline"
-                        style={{ color: block.color }}
+                        style={{ color: block.colorOnSoft }}
                     >
                         Acessar {block.label} →
                     </a>
