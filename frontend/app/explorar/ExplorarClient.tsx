@@ -7,6 +7,11 @@ import { useMiniLivros } from "@/presentation/hooks/useMiniLivros";
 import { useNewsletters } from "@/presentation/hooks/useNewsletters";
 import { useRadarOportunidades } from "@/presentation/hooks/useRadarOportunidades";
 import {
+    PUBLIC_BLOCK_LABELS,
+    normalizeExplorarBlock,
+    publicExplorarBlockSlug,
+} from "@/lib/explorarBlocks";
+import {
     BlockBiblioteca,
     BlockEstudar,
     BlockLivro,
@@ -24,8 +29,8 @@ import { useExplorarConfig } from "@/presentation/hooks/useExplorarConfig";
 
 const BLOCKS = [
     { id: "newsletter",  label: "Newsletter",          num: "01", codePrefix: "PPNEWS"  },
-    { id: "reportagem",  label: "Reportagem da Semana", num: "02", codePrefix: "PPREP"  },
-    { id: "radar",       label: "Radar",               num: "03", codePrefix: "PPRADAR" },
+    { id: "reportagem",  label: PUBLIC_BLOCK_LABELS.reportagem, num: "02", codePrefix: "PPIA"    },
+    { id: "radar",       label: PUBLIC_BLOCK_LABELS.radar,      num: "03", codePrefix: "PPART"  },
     { id: "livro",       label: "Enquanto é Tempo",    num: "04", codePrefix: "PPLIVRO" },
     { id: "biblioteca",  label: "Biblioteca",          num: "05", codePrefix: "PPBIB"   },
     { id: "estudar",     label: "Estudar",             num: "06", codePrefix: "PPEST"   },
@@ -97,7 +102,7 @@ interface Props {
 export default function ExplorarClient({ initialBlock }: Props) {
     const router = useRouter();
     const explorarConfig = useExplorarConfig();
-    const validInitial = (BLOCKS.find(b => b.id === initialBlock)?.id ?? null) as BlockId | null;
+    const validInitial = normalizeExplorarBlock(initialBlock) as BlockId | null;
     const [activeBlock, setActiveBlock] = useState<BlockId | null>(validInitial);
     const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +119,8 @@ export default function ExplorarClient({ initialBlock }: Props) {
 
     const handleBlockChange = useCallback((blockId: BlockId | null) => {
         setActiveBlock(blockId);
-        const url = blockId ? `/explorar?b=${blockId}` : "/explorar";
+        const publicSlug = publicExplorarBlockSlug(blockId);
+        const url = publicSlug ? `/explorar?b=${publicSlug}` : "/explorar";
         router.replace(url, { scroll: false });
     }, [router]);
 

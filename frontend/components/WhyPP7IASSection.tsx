@@ -19,7 +19,7 @@ export default function WhyPP7IASSection() {
                 
                 {/* Título da Seção */}
                 <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-6 sm:mb-8">
-                    Por Que "PP7+IAS"
+                    Por Que &ldquo;PP7+IAS&rdquo;
                 </h2>
 
                 {/* Grid de 4 Cards */}

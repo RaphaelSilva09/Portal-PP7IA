@@ -1,49 +1,38 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SessionProvider, useSession } from '@/context/SessionContext';
 import { User } from '@/domain/entities/User';
 import { InvalidCredentialsError, UserAlreadyExistsError } from '@/domain/errors/AuthError';
 
-// vi.hoisted ensures these vars are available inside vi.mock factory (which is hoisted to top)
 const {
     mockGetSession,
-    mockGetUserFromSession,
     mockRepositoryGetCurrentUser,
+    mockSessionState,
     mockSignInExecute,
     mockSignOutExecute,
     mockSignUpExecute,
-    mockUnsubscribe,
-    capturedCallback,
-} = vi.hoisted(() => {
-    const capturedCallback = { value: null as ((event: string, session: any) => Promise<void>) | null };
-        return {
-            mockGetSession: vi.fn(),
-            mockGetUserFromSession: vi.fn(),
-            mockRepositoryGetCurrentUser: vi.fn(),
-            mockSignInExecute: vi.fn(),
-            mockSignOutExecute: vi.fn(),
-            mockSignUpExecute: vi.fn(),
-        mockUnsubscribe: vi.fn(),
-        capturedCallback,
-    };
-});
+} = vi.hoisted(() => ({
+    mockGetSession: vi.fn(),
+    mockRepositoryGetCurrentUser: vi.fn(),
+    mockSessionState: {
+        data: null as { user: Record<string, unknown> } | null,
+        isPending: false,
+    },
+    mockSignInExecute: vi.fn(),
+    mockSignOutExecute: vi.fn(),
+    mockSignUpExecute: vi.fn(),
+}));
 
-vi.mock('@/infrastructure/config/supabase', () => ({
-    supabase: {
-        auth: {
-            onAuthStateChange: vi.fn((cb) => {
-                capturedCallback.value = cb;
-                return { data: { subscription: { unsubscribe: mockUnsubscribe } } };
-            }),
-            getSession: mockGetSession,
-        },
+vi.mock('@/lib/auth-client', () => ({
+    authClient: {
+        useSession: vi.fn(() => mockSessionState),
+        getSession: mockGetSession,
     },
 }));
 
 vi.mock('@/infrastructure/di/container', () => ({
     default: {
         getAuthRepository: vi.fn(() => ({
-            getUserFromSession: mockGetUserFromSession,
             getCurrentUser: mockRepositoryGetCurrentUser,
         })),
         getSignInUseCase: vi.fn(() => ({ execute: mockSignInExecute })),
@@ -52,6 +41,17 @@ vi.mock('@/infrastructure/di/container', () => ({
     },
 }));
 
+const sessionUser = {
+    id: 'u1',
+    email: 'test@example.com',
+    nome: 'Test User',
+    celular: '11999999999',
+    accept_email_updates: true,
+    accept_whatsapp_updates: false,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    role: 'user',
+};
+
 const mockUser = User.create({
     id: 'u1',
     email: 'test@example.com',
@@ -59,17 +59,24 @@ const mockUser = User.create({
     celular: '11999999999',
     acceptEmailUpdates: true,
     acceptWhatsAppUpdates: false,
-    createdAt: new Date(),
+    createdAt: new Date('2024-01-01T00:00:00.000Z'),
     role: 'user',
 });
 
+function resetSessionState() {
+    mockSessionState.data = null;
+    mockSessionState.isPending = false;
+}
+
 function SessionConsumer() {
-    const { user, isLoading, error } = useSession();
+    const { user, isLoading, error, emailConfirmationRequired } = useSession();
     return (
         <div>
             <span data-testid="loading">{isLoading ? 'loading' : 'done'}</span>
             <span data-testid="user">{user?.email ?? 'null'}</span>
+            <span data-testid="name">{user?.nome ?? 'null'}</span>
             <span data-testid="error">{error ?? 'null'}</span>
+            <span data-testid="emailConfirmation">{emailConfirmationRequired ? 'true' : 'false'}</span>
         </div>
     );
 }
@@ -81,10 +88,9 @@ function SignInButton() {
             <span data-testid="loading">{isLoading ? 'loading' : 'done'}</span>
             <span data-testid="error">{error ?? 'null'}</span>
             <button
-                onClick={async () => {
-                    try {
-                        await signIn({ email: 'test@test.com', password: 'wrong' });
-                    } catch {}
+                type="button"
+                onClick={() => {
+                    void signIn({ email: 'test@test.com', password: 'wrong' }).catch(() => {});
                 }}
             >
                 Sign In
@@ -94,60 +100,32 @@ function SignInButton() {
 }
 
 function SignOutButton() {
-    const { signOut, isLoading } = useSession();
+    const { signOut } = useSession();
     return (
-        <div>
-            <span data-testid="loading">{isLoading ? 'loading' : 'done'}</span>
-            <button onClick={() => signOut().catch(() => {})}>Sign Out</button>
-        </div>
-    );
-}
-
-function EmailConfirmationConsumer() {
-    const { signUp, emailConfirmationRequired } = useSession();
-    return (
-        <div>
-            <span data-testid="emailConfirmation">{emailConfirmationRequired ? 'true' : 'false'}</span>
-            <button
-                onClick={async () => {
-                    try {
-                        await signUp({
-                            email: 't@t.com',
-                            password: '123456',
-                            nome: 'T',
-                            celular: '11999999999',
-                            acceptEmailUpdates: false,
-                            acceptWhatsAppUpdates: false,
-                        });
-                    } catch {}
-                }}
-            >
-                Sign Up
-            </button>
-        </div>
+        <button type="button" onClick={() => { void signOut().catch(() => {}); }}>
+            Sign Out
+        </button>
     );
 }
 
 function SignUpButton() {
-    const { signUp, emailConfirmationRequired, error, isLoading } = useSession();
+    const { signUp, emailConfirmationRequired, error } = useSession();
 
     return (
         <div>
-            <span data-testid="loading">{isLoading ? 'loading' : 'done'}</span>
             <span data-testid="error">{error ?? 'null'}</span>
             <span data-testid="emailConfirmation">{emailConfirmationRequired ? 'true' : 'false'}</span>
             <button
-                onClick={async () => {
-                    try {
-                        await signUp({
-                            email: 'new@example.com',
-                            password: '123456',
-                            nome: 'New User',
-                            celular: '11999999999',
-                            acceptEmailUpdates: true,
-                            acceptWhatsAppUpdates: false,
-                        });
-                    } catch {}
+                type="button"
+                onClick={() => {
+                    void signUp({
+                        email: 'new@example.com',
+                        password: '123456',
+                        nome: 'New User',
+                        celular: '11999999999',
+                        acceptEmailUpdates: true,
+                        acceptWhatsAppUpdates: false,
+                    }).catch(() => {});
                 }}
             >
                 Sign Up
@@ -157,55 +135,80 @@ function SignUpButton() {
 }
 
 function GetCurrentUserButton() {
-    const { getCurrentUser, user, error, isLoading } = useSession();
+    const { getCurrentUser, user, error } = useSession();
 
     return (
         <div>
-            <span data-testid="loading">{isLoading ? 'loading' : 'done'}</span>
             <span data-testid="user">{user?.email ?? 'null'}</span>
             <span data-testid="error">{error ?? 'null'}</span>
-            <button onClick={() => getCurrentUser().catch(() => {})}>Get Current User</button>
+            <button type="button" onClick={() => { void getCurrentUser().catch(() => {}); }}>
+                Get Current User
+            </button>
         </div>
     );
 }
 
 describe('SessionContext', () => {
     beforeEach(() => {
-        capturedCallback.value = null;
         vi.clearAllMocks();
-        mockGetSession.mockResolvedValue({ data: { session: null } });
+        resetSessionState();
+        mockGetSession.mockResolvedValue({ data: { session: { user: sessionUser } } });
         mockRepositoryGetCurrentUser.mockResolvedValue(null);
+        mockSignInExecute.mockResolvedValue(undefined);
+        mockSignOutExecute.mockResolvedValue(undefined);
+        mockSignUpExecute.mockResolvedValue({ emailConfirmationRequired: false });
     });
 
-    it('fallback via getSession sem INITIAL_SESSION popula usuário e resolve loading', async () => {
-        mockGetSession.mockResolvedValueOnce({
-            data: {
-                session: {
-                    user: { id: 'u1', app_metadata: { role: 'user' } },
-                },
-            },
-        });
-        mockGetUserFromSession.mockResolvedValue(mockUser);
+    afterEach(() => {
+        resetSessionState();
+    });
+
+    it('sem sessão → user=null e isLoading=false', () => {
+        render(
+            <SessionProvider>
+                <SessionConsumer />
+            </SessionProvider>,
+        );
+
+        expect(screen.getByTestId('user').textContent).toBe('null');
+        expect(screen.getByTestId('loading').textContent).toBe('done');
+    });
+
+    it('sessão pendente → isLoading=true', () => {
+        mockSessionState.isPending = true;
 
         render(
             <SessionProvider>
                 <SessionConsumer />
-            </SessionProvider>
+            </SessionProvider>,
+        );
+
+        expect(screen.getByTestId('loading').textContent).toBe('loading');
+    });
+
+    it('sessão do better-auth popula usuário e resolve loading', async () => {
+        mockSessionState.data = { user: sessionUser };
+
+        render(
+            <SessionProvider>
+                <SessionConsumer />
+            </SessionProvider>,
         );
 
         await waitFor(() => {
             expect(screen.getByTestId('user').textContent).toBe('test@example.com');
+            expect(screen.getByTestId('name').textContent).toBe('Test User');
             expect(screen.getByTestId('loading').textContent).toBe('done');
         });
     });
 
-    it('fallback via getSession com erro ainda resolve loading para false', async () => {
-        mockGetSession.mockRejectedValueOnce(new Error('session bootstrap failed'));
+    it('sessão malformada limpa usuário e resolve loading', async () => {
+        mockSessionState.data = { user: { id: null, email: null } };
 
         render(
             <SessionProvider>
                 <SessionConsumer />
-            </SessionProvider>
+            </SessionProvider>,
         );
 
         await waitFor(() => {
@@ -214,101 +217,19 @@ describe('SessionContext', () => {
         });
     });
 
-    it('INITIAL_SESSION com sessão → user populado, isLoading=false', async () => {
-        mockGetUserFromSession.mockResolvedValue(mockUser);
+    it('visibilitychange para visible revalida e limpa usuário quando servidor não tem sessão', async () => {
+        mockSessionState.data = { user: sessionUser };
+        mockGetSession.mockResolvedValueOnce({ data: { session: null } });
 
         render(
             <SessionProvider>
                 <SessionConsumer />
-            </SessionProvider>
+            </SessionProvider>,
         );
-
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', {
-                user: { id: 'u1', app_metadata: { role: 'user' } },
-            });
-        });
 
         await waitFor(() => {
             expect(screen.getByTestId('user').textContent).toBe('test@example.com');
-            expect(screen.getByTestId('loading').textContent).toBe('done');
         });
-    });
-
-    it('INITIAL_SESSION sem sessão → user=null, isLoading=false', async () => {
-        render(
-            <SessionProvider>
-                <SessionConsumer />
-            </SessionProvider>
-        );
-
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('user').textContent).toBe('null');
-            expect(screen.getByTestId('loading').textContent).toBe('done');
-        });
-    });
-
-    it('SIGNED_OUT → user=null', async () => {
-        mockGetUserFromSession.mockResolvedValue(mockUser);
-
-        render(
-            <SessionProvider>
-                <SessionConsumer />
-            </SessionProvider>
-        );
-
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', {
-                user: { id: 'u1', app_metadata: {} },
-            });
-        });
-
-        await act(async () => {
-            await capturedCallback.value!('SIGNED_OUT', null);
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('user').textContent).toBe('null');
-        });
-    });
-
-    it('TOKEN_REFRESHED → user atualizado', async () => {
-        const updatedUser = User.create({ ...mockUser.toObject(), email: 'updated@example.com' });
-        mockGetUserFromSession.mockResolvedValue(updatedUser);
-
-        render(
-            <SessionProvider>
-                <SessionConsumer />
-            </SessionProvider>
-        );
-
-        await act(async () => {
-            await capturedCallback.value!('TOKEN_REFRESHED', {
-                user: { id: 'u1', app_metadata: { role: 'user' } },
-            });
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('user').textContent).toBe('updated@example.com');
-        });
-    });
-
-    it('visibilitychange para visible → getSession chamado', async () => {
-        render(
-            <SessionProvider>
-                <SessionConsumer />
-            </SessionProvider>
-        );
-
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
-        });
-
-        const callsBefore = mockGetSession.mock.calls.length;
 
         await act(async () => {
             Object.defineProperty(document, 'visibilityState', {
@@ -319,21 +240,25 @@ describe('SessionContext', () => {
             document.dispatchEvent(new Event('visibilitychange'));
         });
 
-        expect(mockGetSession.mock.calls.length).toBeGreaterThan(callsBefore);
+        await waitFor(() => {
+            expect(mockGetSession).toHaveBeenCalledTimes(1);
+            expect(screen.getByTestId('user').textContent).toBe('null');
+        });
     });
 
-    it('pageshow com persisted=true → getSession chamado novamente', async () => {
+    it('pageshow persisted=true revalida sessão ativa sem limpar usuário', async () => {
+        mockSessionState.data = { user: sessionUser };
+        mockGetSession.mockResolvedValueOnce({ data: { session: { user: sessionUser } } });
+
         render(
             <SessionProvider>
                 <SessionConsumer />
-            </SessionProvider>
+            </SessionProvider>,
         );
 
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
+        await waitFor(() => {
+            expect(screen.getByTestId('user').textContent).toBe('test@example.com');
         });
-
-        const callsBefore = mockGetSession.mock.calls.length;
 
         await act(async () => {
             const event = new Event('pageshow');
@@ -344,25 +269,39 @@ describe('SessionContext', () => {
             window.dispatchEvent(event);
         });
 
-        expect(mockGetSession.mock.calls.length).toBeGreaterThan(callsBefore);
+        expect(mockGetSession).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId('user').textContent).toBe('test@example.com');
     });
 
-    it('signIn com erro → isLoading=false, error setado', async () => {
+    it('eventos de revalidação não chamam servidor quando não há usuário local', async () => {
+        render(
+            <SessionProvider>
+                <SessionConsumer />
+            </SessionProvider>,
+        );
+
+        await act(async () => {
+            const event = new Event('pageshow');
+            Object.defineProperty(event, 'persisted', {
+                value: true,
+                configurable: true,
+            });
+            window.dispatchEvent(event);
+        });
+
+        expect(mockGetSession).not.toHaveBeenCalled();
+    });
+
+    it('signIn com erro de domínio expõe mensagem amigável', async () => {
         mockSignInExecute.mockRejectedValue(new InvalidCredentialsError());
 
         render(
             <SessionProvider>
                 <SignInButton />
-            </SessionProvider>
+            </SessionProvider>,
         );
 
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
-        });
-
-        await act(async () => {
-            screen.getByText('Sign In').click();
-        });
+        fireEvent.click(screen.getByText('Sign In'));
 
         await waitFor(() => {
             expect(screen.getByTestId('loading').textContent).toBe('done');
@@ -370,258 +309,50 @@ describe('SessionContext', () => {
         });
     });
 
-    it('signUp com erro de domínio → mantém emailConfirmationRequired=false e expõe mensagem', async () => {
+    it('signUp com confirmação de email atualiza flag', async () => {
+        mockSignUpExecute.mockResolvedValueOnce({ emailConfirmationRequired: true });
+
+        render(
+            <SessionProvider>
+                <SignUpButton />
+            </SessionProvider>,
+        );
+
+        fireEvent.click(screen.getByText('Sign Up'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('emailConfirmation').textContent).toBe('true');
+        });
+    });
+
+    it('signUp com erro de domínio mantém flag false e expõe mensagem', async () => {
         mockSignUpExecute.mockRejectedValue(new UserAlreadyExistsError());
 
         render(
             <SessionProvider>
                 <SignUpButton />
-            </SessionProvider>
+            </SessionProvider>,
         );
 
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
-        });
-
-        await act(async () => {
-            screen.getByText('Sign Up').click();
-        });
+        fireEvent.click(screen.getByText('Sign Up'));
 
         await waitFor(() => {
-            expect(screen.getByTestId('loading').textContent).toBe('done');
             expect(screen.getByTestId('error').textContent).toBe('Já existe uma conta com este email');
             expect(screen.getByTestId('emailConfirmation').textContent).toBe('false');
         });
     });
 
-    describe('cascata de revalidação Safari/iOS ITP', () => {
-        beforeEach(() => vi.useFakeTimers());
-        afterEach(() => vi.useRealTimers());
-
-        it('INITIAL_SESSION vazio seguido de SIGNED_IN tardio → usuário setado corretamente', async () => {
-            mockGetUserFromSession.mockResolvedValue(mockUser);
-
-            render(
-                <SessionProvider>
-                    <SessionConsumer />
-                </SessionProvider>
-            );
-
-            await act(async () => {
-                await capturedCallback.value!('INITIAL_SESSION', null);
-            });
-
-            expect(screen.getByTestId('user').textContent).toBe('null');
-            expect(screen.getByTestId('loading').textContent).toBe('done');
-
-            // Before 1s timer — still null
-            await act(async () => { await vi.advanceTimersByTimeAsync(500); });
-            expect(screen.getByTestId('user').textContent).toBe('null');
-
-            // SIGNED_IN fires after the 500ms mark
-            await act(async () => {
-                await capturedCallback.value!('SIGNED_IN', {
-                    user: { id: 'u1', app_metadata: { role: 'user' } },
-                });
-            });
-
-            expect(screen.getByTestId('user').textContent).toBe('test@example.com');
-            expect(screen.getByTestId('loading').textContent).toBe('done');
-        });
-
-        it('cascata 1s/3s retornam sessão nula, SIGNED_IN ganha corrida, timer de 8s é no-op', async () => {
-            // Default mockGetSession returns null session (set in outer beforeEach)
-            mockGetUserFromSession.mockResolvedValue(mockUser);
-
-            render(
-                <SessionProvider>
-                    <SessionConsumer />
-                </SessionProvider>
-            );
-
-            await act(async () => {
-                await capturedCallback.value!('INITIAL_SESSION', null);
-            });
-
-            // Timer 1s fires — getSession returns null — revalidate aborts
-            await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
-
-            // Timer 3s fires — getSession returns null — revalidate aborts
-            await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
-
-            // SIGNED_IN wins the race — getUserFromSession called (1st and only time)
-            await act(async () => {
-                await capturedCallback.value!('SIGNED_IN', {
-                    user: { id: 'u1', app_metadata: { role: 'user' } },
-                });
-            });
-
-            // Timer 8s fires — userRef.current !== null — no-op
-            await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
-
-            expect(screen.getByTestId('user').textContent).toBe('test@example.com');
-            expect(mockGetUserFromSession).toHaveBeenCalledTimes(1);
-        });
-
-        it('revalidação bem-sucedida no timer de 1s → timers subsequentes são no-op', async () => {
-            // Override: revalidation at 1s finds a valid session
-            mockGetSession.mockResolvedValue({
-                data: {
-                    session: {
-                        user: { id: 'u1', app_metadata: { role: 'user' } },
-                    },
-                },
-            });
-            mockGetUserFromSession.mockResolvedValue(mockUser);
-
-            render(
-                <SessionProvider>
-                    <SessionConsumer />
-                </SessionProvider>
-            );
-
-            await act(async () => {
-                await capturedCallback.value!('INITIAL_SESSION', null);
-            });
-
-            // Timer 1s fires — getSession returns valid session — getUserFromSession called
-            await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
-
-            expect(screen.getByTestId('user').textContent).toBe('test@example.com');
-
-            // Timers 3s and 8s fire — userRef.current !== null — no-op
-            await act(async () => { await vi.advanceTimersByTimeAsync(7000); });
-
-            expect(mockGetUserFromSession).toHaveBeenCalledTimes(1);
-        });
-    });
-
-    it('SIGNED_OUT após signUp com emailConfirmationRequired → reseta emailConfirmationRequired para false', async () => {
-        mockSignUpExecute.mockResolvedValue({ emailConfirmationRequired: true });
-
+    it('signOut chama use case de saída', async () => {
         render(
             <SessionProvider>
-                <EmailConfirmationConsumer />
-            </SessionProvider>
+                <SignOutButton />
+            </SessionProvider>,
         );
 
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
-        });
-
-        expect(screen.getByTestId('emailConfirmation').textContent).toBe('false');
-
-        await act(async () => {
-            screen.getByText('Sign Up').click();
-        });
+        fireEvent.click(screen.getByText('Sign Out'));
 
         await waitFor(() => {
-            expect(screen.getByTestId('emailConfirmation').textContent).toBe('true');
-        });
-
-        await act(async () => {
-            await capturedCallback.value!('SIGNED_OUT', null);
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('emailConfirmation').textContent).toBe('false');
-        });
-    });
-
-    it('signIn bem-sucedido → isLoading permanece true até onAuthStateChange (SIGNED_IN) disparar', async () => {
-        mockSignInExecute.mockResolvedValue(undefined);
-        mockGetUserFromSession.mockResolvedValue(mockUser);
-
-        render(
-            <SessionProvider>
-                <SignInButton />
-            </SessionProvider>
-        );
-
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
-        });
-
-        await act(async () => {
-            screen.getByText('Sign In').click();
-        });
-
-        // isLoading deve permanecer true: resolve somente via onAuthStateChange, não pelo finally
-        expect(screen.getByTestId('loading').textContent).toBe('loading');
-
-        // Simula SIGNED_IN — só então isLoading deve resolver
-        await act(async () => {
-            await capturedCallback.value!('SIGNED_IN', {
-                user: { id: 'u1', app_metadata: { role: 'user' } },
-            });
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('loading').textContent).toBe('done');
-        });
-    });
-
-    it('SIGNED_IN com mesmo userId não re-busca perfil', async () => {
-        mockGetUserFromSession.mockResolvedValue(mockUser);
-
-        render(
-            <SessionProvider>
-                <SessionConsumer />
-            </SessionProvider>
-        );
-
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', {
-                user: { id: 'u1', app_metadata: { role: 'user' } },
-            });
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('user').textContent).toBe('test@example.com');
-        });
-
-        mockGetUserFromSession.mockClear();
-
-        await act(async () => {
-            await capturedCallback.value!('SIGNED_IN', {
-                user: { id: 'u1', app_metadata: { role: 'user' } },
-            });
-        });
-
-        expect(mockGetUserFromSession).not.toHaveBeenCalled();
-        expect(screen.getByTestId('loading').textContent).toBe('done');
-    });
-
-    it('SIGNED_IN com falha em getUserFromSession limpa usuário e resolve loading', async () => {
-        mockGetUserFromSession
-            .mockResolvedValueOnce(mockUser)
-            .mockRejectedValueOnce(new Error('profile fetch failed'));
-
-        render(
-            <SessionProvider>
-                <SessionConsumer />
-            </SessionProvider>
-        );
-
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', {
-                user: { id: 'u1', app_metadata: { role: 'user' } },
-            });
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('user').textContent).toBe('test@example.com');
-        });
-
-        await act(async () => {
-            await capturedCallback.value!('SIGNED_IN', {
-                user: { id: 'u2', app_metadata: { role: 'user' } },
-            });
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('user').textContent).toBe('null');
-            expect(screen.getByTestId('loading').textContent).toBe('done');
+            expect(mockSignOutExecute).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -631,101 +362,36 @@ describe('SessionContext', () => {
         render(
             <SessionProvider>
                 <GetCurrentUserButton />
-            </SessionProvider>
+            </SessionProvider>,
         );
 
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
-        });
-
-        await act(async () => {
-            screen.getByText('Get Current User').click();
-        });
+        fireEvent.click(screen.getByText('Get Current User'));
 
         await waitFor(() => {
             expect(screen.getByTestId('user').textContent).toBe('test@example.com');
-            expect(screen.getByTestId('loading').textContent).toBe('done');
+            expect(screen.getByTestId('error').textContent).toBe('null');
         });
     });
 
     it('getCurrentUser com erro limpa usuário e expõe mensagem', async () => {
+        mockSessionState.data = { user: sessionUser };
         mockRepositoryGetCurrentUser.mockRejectedValueOnce(new Error('fetch failed'));
 
         render(
             <SessionProvider>
                 <GetCurrentUserButton />
-            </SessionProvider>
+            </SessionProvider>,
         );
 
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
+        await waitFor(() => {
+            expect(screen.getByTestId('user').textContent).toBe('test@example.com');
         });
 
-        await act(async () => {
-            screen.getByText('Get Current User').click();
-        });
+        fireEvent.click(screen.getByText('Get Current User'));
 
         await waitFor(() => {
             expect(screen.getByTestId('user').textContent).toBe('null');
             expect(screen.getByTestId('error').textContent).toBe('Erro ao buscar usuário.');
-            expect(screen.getByTestId('loading').textContent).toBe('done');
         });
-    });
-
-    it('signOut bem-sucedido → isLoading permanece true até onAuthStateChange (SIGNED_OUT) disparar', async () => {
-        mockSignOutExecute.mockResolvedValue(undefined);
-
-        render(
-            <SessionProvider>
-                <SignOutButton />
-            </SessionProvider>
-        );
-
-        await act(async () => {
-            await capturedCallback.value!('INITIAL_SESSION', null);
-        });
-
-        await act(async () => {
-            screen.getByText('Sign Out').click();
-        });
-
-        // isLoading deve permanecer true: resolve somente via onAuthStateChange, não pelo finally
-        expect(screen.getByTestId('loading').textContent).toBe('loading');
-
-        // Simula SIGNED_OUT — só então isLoading deve resolver
-        await act(async () => {
-            await capturedCallback.value!('SIGNED_OUT', null);
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('loading').textContent).toBe('done');
-        });
-    });
-
-    it('safety timer de 8s: se execute() nunca resolver, isLoading volta para false em 8s', async () => {
-        vi.useFakeTimers();
-        try {
-            mockSignInExecute.mockReturnValue(new Promise(() => {}));
-
-            render(
-                <SessionProvider>
-                    <SignInButton />
-                </SessionProvider>
-            );
-
-            await act(async () => {
-                await capturedCallback.value!('INITIAL_SESSION', null);
-            });
-
-            await act(async () => {
-                screen.getByText('Sign In').click();
-            });
-
-            await act(async () => { await vi.advanceTimersByTimeAsync(8001); });
-
-            expect(screen.getByTestId('loading').textContent).toBe('done');
-        } finally {
-            vi.useRealTimers();
-        }
     });
 });

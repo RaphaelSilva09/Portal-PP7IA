@@ -90,18 +90,18 @@ $$;
 
 insert into public.home_block_descriptions (slug, description)
 values
-    ('newsletter', 'Publicacao semanal com 7 itens
-Noticias de IA e startups. O que realmente importa.'),
-    ('especial-semana', 'Reportagem curada da semana
-Analises e destaques editoriais.'),
-    ('radar', '7 itens mensais
-Ferramentas, startups e tendencias.'),
+    ('newsletter', 'Publicação semanal com 7 itens
+Notícias de IA e startups. O que realmente importa.'),
+    ('especial-semana', 'Notícias e análises de IA
+Prioridade para o que importa ao Brasil.'),
+    ('radar', '3 a 4 textos por publicação
+Leitura curta e opinião editorial.'),
     ('mini-livros', '1 Livro, 3 Ebooks, 21 Mini-livros
 Leitura de 7 a 21 minutos.'),
     ('biblioteca', '7 categorias com 7 itens cada
 Prompts, ferramentas, guias e dicas.'),
     ('estudar', 'Guias, tutoriais e aulas
-IA, tech, saude, startups, financas.'),
+IA, tech, saúde, startups, finanças.'),
     ('ensinar', 'A ser implementado
 Estamos construindo este bloco com cuidado para lançar em breve.')
 on conflict (slug) do update set

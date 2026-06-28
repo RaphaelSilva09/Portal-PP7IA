@@ -136,6 +136,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     if (!isOpen) return null;
 
     const isLoginMode = mode === "login";
+    const nameInputId = "auth-nome";
+    const emailInputId = "auth-email";
+    const phoneInputId = "auth-celular";
+    const passwordInputId = "auth-senha";
 
     const inputClass = (hasError: boolean) =>
         `w-full rounded-xl border px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background outline-none transition-all focus:ring-2 focus:ring-primary/20 ${
@@ -209,17 +213,19 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             {/* Nome */}
                             {!isLoginMode && (
                                 <div className="space-y-1.5">
-                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                                        Nome completo
+                                    <label htmlFor={nameInputId} className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                        Nome Completo
                                     </label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                         <input
+                                            id={nameInputId}
                                             type="text"
                                             value={formData.nome}
                                             onChange={handleInputChange("nome")}
                                             placeholder="Seu nome completo"
                                             autoComplete="name"
+                                            aria-invalid={!!errors.nome}
                                             className={iconInputClass(!!errors.nome)}
                                         />
                                     </div>
@@ -229,17 +235,19 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
                             {/* Email */}
                             <div className="space-y-1.5">
-                                <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                <label htmlFor={emailInputId} className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                     Email
                                 </label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                     <input
+                                        id={emailInputId}
                                         type="email"
                                         value={formData.email}
                                         onChange={handleInputChange("email")}
                                         placeholder="seu@email.com"
                                         autoComplete="email"
+                                        aria-invalid={!!errors.email}
                                         className={iconInputClass(!!errors.email)}
                                     />
                                 </div>
@@ -249,18 +257,20 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             {/* Celular */}
                             {!isLoginMode && (
                                 <div className="space-y-1.5">
-                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                    <label htmlFor={phoneInputId} className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                         Celular
                                     </label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                         <input
+                                            id={phoneInputId}
                                             type="tel"
                                             value={formData.celular}
                                             onChange={handleInputChange("celular")}
                                             placeholder="(00) 00000-0000"
                                             maxLength={15}
                                             autoComplete="tel"
+                                            aria-invalid={!!errors.celular}
                                             className={iconInputClass(!!errors.celular)}
                                         />
                                     </div>
@@ -270,16 +280,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
 
                             {/* Senha */}
                             <div className="space-y-1.5">
-                                <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                <label htmlFor={passwordInputId} className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                     Senha
                                 </label>
                                 <div className="relative">
                                     <input
+                                        id={passwordInputId}
                                         type={showPassword ? "text" : "password"}
                                         value={formData.senha}
                                         onChange={handleInputChange("senha")}
                                         placeholder="Mínimo 6 caracteres"
                                         autoComplete={isLoginMode ? "current-password" : "new-password"}
+                                        aria-invalid={!!errors.senha}
                                         className={`${inputClass(!!errors.senha)} pr-10`}
                                     />
                                     <button
@@ -301,12 +313,19 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                         Quero receber atualizações por
                                     </p>
                                     {[
-                                        { checked: acceptEmailUpdates, onChange: (v: boolean) => { setAcceptEmailUpdates(v); if (errors.consent && (v || acceptWhatsAppUpdates)) setErrors(p => ({ ...p, consent: undefined })); }, label: "E-mail" },
-                                        { checked: acceptWhatsAppUpdates, onChange: (v: boolean) => { setAcceptWhatsAppUpdates(v); if (errors.consent && (v || acceptEmailUpdates)) setErrors(p => ({ ...p, consent: undefined })); }, label: "WhatsApp" },
-                                    ].map(({ checked, onChange, label }) => (
-                                        <label key={label} className="flex cursor-pointer items-center gap-2.5 group">
+                                        { id: "auth-consent-email", checked: acceptEmailUpdates, onChange: (v: boolean) => { setAcceptEmailUpdates(v); if (errors.consent && (v || acceptWhatsAppUpdates)) setErrors(p => ({ ...p, consent: undefined })); }, label: "E-mail" },
+                                        { id: "auth-consent-whatsapp", checked: acceptWhatsAppUpdates, onChange: (v: boolean) => { setAcceptWhatsAppUpdates(v); if (errors.consent && (v || acceptEmailUpdates)) setErrors(p => ({ ...p, consent: undefined })); }, label: "WhatsApp" },
+                                    ].map(({ id, checked, onChange, label }) => (
+                                        <label key={label} htmlFor={id} className="flex cursor-pointer items-center gap-2.5 group">
+                                            <input
+                                                id={id}
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={event => onChange(event.target.checked)}
+                                                className="sr-only"
+                                            />
                                             <span
-                                                onClick={() => onChange(!checked)}
+                                                aria-hidden="true"
                                                 className={`flex size-4 shrink-0 items-center justify-center rounded border transition-colors ${
                                                     checked ? "border-ink bg-ink" : "border-border group-hover:border-foreground/40"
                                                 }`}
@@ -332,7 +351,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                                         Processando…
                                     </span>
                                 ) : (
-                                    isLoginMode ? "Entrar" : "Criar conta"
+                                    isLoginMode ? "Entrar" : "Cadastrar"
                                 )}
                             </button>
 

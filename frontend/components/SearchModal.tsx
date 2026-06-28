@@ -40,8 +40,8 @@ const TYPE_LABEL: Record<SearchResultItem["type"], string> = {
     newsletter:        "Newsletter",
     "mini-livro":      "Mini-livros",
     biblioteca:        "Biblioteca",
-    "especial-semana": "Especial da Semana",
-    radar:             "Radar",
+    "especial-semana": "Inteligência Artificial",
+    radar:             "Editoriais e Artigos",
     estudar:           "Estudar",
 };
 

@@ -39,7 +39,7 @@ export default function BentoGridRadar() {
                     <div className="max-w-4xl mx-auto">
                         <div className="text-center py-16">
                             <p className="text-text-secondary text-lg">
-                                {error || "Nenhum radar de oportunidades disponível no momento."}
+                                {error || "Nenhum editorial ou artigo disponível no momento."}
                             </p>
                         </div>
                     </div>
@@ -54,13 +54,13 @@ export default function BentoGridRadar() {
                 {/* Introdução */}
                 <div id="introducao" className="mx-auto mb-6 max-w-4xl text-center sm:mb-7 md:mb-8">
                     <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-                        Radar de Oportunidades
+                        Editoriais e Artigos
                     </h3>
                     <p
                         className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
                         style={{ animationDelay: "0.4s" }}
                     >
-                        Oportunidades identificadas com apoio de IA — tendências, cursos, ferramentas e mercado.
+                        Textos curtos, opinião editorial e artigos selecionados para leitura objetiva.
                     </p>
                 </div>
 
@@ -87,7 +87,7 @@ export default function BentoGridRadar() {
                         </div>
                         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-12">
                             <p className="text-orange-700 text-base sm:text-lg font-mono mb-2">
-                                Radar #{latest.formattedNumber}
+                                Artigo #{latest.formattedNumber}
                             </p>
                             <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2">
                                 {latest.title}
@@ -142,7 +142,7 @@ export default function BentoGridRadar() {
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 <p className="text-orange-700 text-base sm:text-lg font-mono mb-2">
-                                    Radar #{item.formattedNumber}
+                                    Artigo #{item.formattedNumber}
                                 </p>
                                 <h4 className="text-2xl sm:text-3xl md:text-2xl font-bold text-foreground mt-1 mb-2 tracking-tight line-clamp-2">
                                     {item.title}

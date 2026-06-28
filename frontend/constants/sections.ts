@@ -36,13 +36,13 @@ export const SECTIONS: Section[] = [
     },
     {
         id: "especial-semana",
-        label: "Especial da Semana",
-        subsections: [{ id: "especial-all", label: "Reportagens" }],
+        label: "Inteligência Artificial",
+        subsections: [{ id: "especial-all", label: "IA no Brasil" }],
     },
     {
         id: "radar",
-        label: "Radar",
-        subsections: [{ id: "radar-all", label: "Oportunidades" }],
+        label: "Editoriais e Artigos",
+        subsections: [{ id: "radar-all", label: "Textos curtos" }],
     },
     {
         id: "mini-livro",
