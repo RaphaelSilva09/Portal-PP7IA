@@ -65,7 +65,7 @@ describe('AuthModal', () => {
         mockAuthState.signIn.mockResolvedValue(undefined);
     });
 
-    it('login bem-sucedido chama signIn, fecha modal e navega para /home', async () => {
+    it('login bem-sucedido chama signIn, fecha modal e navega para /', async () => {
         const user = userEvent.setup();
         const onClose = vi.fn();
 
@@ -81,7 +81,7 @@ describe('AuthModal', () => {
                 password: '123456',
             });
             expect(onClose).toHaveBeenCalledTimes(1);
-            expect(mockRouterPush).toHaveBeenCalledWith('/home');
+            expect(mockRouterPush).toHaveBeenCalledWith('/');
         });
     });
 
@@ -96,7 +96,7 @@ describe('AuthModal', () => {
         await user.type(screen.getByLabelText('Email'), 'test@example.com');
         await user.type(screen.getByLabelText('Celular'), '11999999999');
         await user.type(screen.getByLabelText('Senha'), '123456');
-        await user.click(screen.getByText('Aceito receber atualizações e novidades por e-mail'));
+        await user.click(screen.getByLabelText('E-mail'));
         await user.click(screen.getByRole('button', { name: 'Cadastrar' }));
 
         await waitFor(() => {
