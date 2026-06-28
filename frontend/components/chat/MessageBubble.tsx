@@ -22,16 +22,16 @@ export function MessageBubble({ role, content, citations, streaming }: Props) {
             className={[
                 "max-w-[90%] px-4 py-3 text-[14px] leading-6 break-words transition-[background-color,border-color] duration-300",
                 isUser
-                    ? "self-end rounded-[22px_22px_8px_22px] border border-white/12 bg-gradient-to-br from-[#1f4f8a] to-[#253a6b] text-primary-foreground shadow-[0_3px_10px_rgba(37,58,107,0.1)] dark:border-white/10 dark:from-[#2a5d98] dark:to-[#2f4878] dark:shadow-[0_4px_12px_rgba(0,0,0,0.16)]"
+                    ? "self-end rounded-[22px_22px_8px_22px] border border-ink/10 bg-ink text-background shadow-[0_2px_8px_rgba(17,17,17,0.15)] dark:border-foreground/10 dark:bg-foreground dark:text-background"
                     : [
-                        "self-start rounded-[22px_22px_22px_8px] border border-border/80 bg-background/92 text-foreground shadow-[0_3px_10px_rgba(15,23,42,0.05)] dark:bg-background/80 dark:shadow-[0_4px_12px_rgba(0,0,0,0.14)]",
+                        "self-start rounded-[22px_22px_22px_8px] border border-border/80 bg-card/90 text-foreground shadow-[0_2px_8px_rgba(15,23,42,0.05)] dark:bg-background/80 dark:shadow-[0_4px_12px_rgba(0,0,0,0.14)]",
                         isAssistantStreaming && !hasContent ? "min-w-[240px]" : "",
                     ].join(" "),
             ].join(" ")}
         >
             {isAssistantStreaming && (
                 <div className="mb-2 flex items-center gap-2 text-[11px] font-medium tracking-tight text-text-secondary transition-[opacity,transform] duration-300 motion-reduce:transition-none">
-                    <span className="inline-flex h-2 w-2 rounded-full bg-brand-blue animate-pulse-dot dark:bg-blue-300" />
+                    <span className="inline-flex h-2 w-2 rounded-full bg-ink animate-pulse-dot dark:bg-foreground/60" />
                     <span>{streamingLabel}</span>
                 </div>
             )}
@@ -61,7 +61,7 @@ export function MessageBubble({ role, content, citations, streaming }: Props) {
                     ].join(" ")}
                 >
                     <MessageContent content={content} citations={citations} />
-                    {isAssistantStreaming && hasContent && <span className="ml-1 inline-block h-[14px] w-[7px] align-text-bottom animate-pulse bg-brand-blue dark:bg-blue-400" />}
+                    {isAssistantStreaming && hasContent && <span className="ml-1 inline-block h-[14px] w-[6px] align-text-bottom animate-pulse bg-ink/40 dark:bg-foreground/40" />}
                 </div>
             </div>
 

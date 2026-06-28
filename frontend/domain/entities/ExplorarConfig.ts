@@ -26,8 +26,8 @@ export interface ExplorarConfig {
 
 export const EXPLORAR_BLOCK_LABELS: Record<ExplorarBlockId, string> = {
     newsletter:  "Newsletter",
-    reportagem:  "Reportagem da Semana",
-    radar:       "Radar",
+    reportagem:  "Inteligência Artificial",
+    radar:       "Editoriais e Artigos",
     livro:       "Enquanto é Tempo",
     biblioteca:  "Biblioteca",
     estudar:     "Estudar",
@@ -35,15 +35,15 @@ export const EXPLORAR_BLOCK_LABELS: Record<ExplorarBlockId, string> = {
 
 export const DEFAULT_EXPLORAR_CONFIG: ExplorarConfig = {
     hero: {
-        eyebrow:      "Explorar · um portal, sete cores",
+        eyebrow:      "Explorar · um portal, sete blocos",
         titleBefore:  "Tudo o que o portal",
         titleEm:      "publicou até hoje",
         description:  "Sete blocos editoriais reunidos num só lugar. Navegue pelos temas ou filtre pelo formato.",
     },
     blocks: [
-        { id: "newsletter",  title: "Newsletter",           description: "Notícias práticas sobre IA, liderança e gestão — toda quarta-feira."                             },
-        { id: "reportagem",  title: "Reportagem da Semana", description: "Análises e destaques editoriais: artigos, apps, tutoriais e pontos de atenção especial."          },
-        { id: "radar",       title: "Radar",                description: "Ferramentas, startups e tendências em inteligência artificial — em curadoria contínua."           },
+        { id: "newsletter",  title: "Newsletter",              description: "Sete notas curtas por semana sobre IA, liderança e tecnologia, com links para aprofundar."       },
+        { id: "reportagem",  title: "Inteligência Artificial", description: "Notícias, análises e aplicações de IA com foco no que importa para o Brasil."                    },
+        { id: "radar",       title: "Editoriais e Artigos",    description: "Textos curtos, opinião editorial e artigos selecionados para leitura objetiva."                  },
         { id: "livro",       title: "Enquanto é Tempo",     description: "Mini-livro publicado semana a semana — uma obra que nasce em capítulos. A cada sete, um e-book compilado." },
         { id: "biblioteca",  title: "Biblioteca",           description: "Acervo vivo de prompts, leituras e referências pessoais — atualizado toda semana."                },
         { id: "estudar",     title: "Estudar",              description: "Guias, tutoriais e aulas para aprofundar o conhecimento em IA e liderança."                       },

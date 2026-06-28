@@ -4,7 +4,7 @@ import { betterAuth } from "better-auth";
 import { emailOTP } from "better-auth/plugins";
 import bcrypt from "bcrypt";
 import { hash as argonHash, verify as argonVerify } from "@node-rs/argon2";
-import { resend, EMAIL_FROM } from "./email/resend";
+import { assertEmailConfigured, resend, EMAIL_FROM } from "./email/resend";
 import { renderResetPasswordOtpEmail } from "./email/templates/reset-password-otp";
 import { renderEmailVerificationLinkEmail } from "./email/templates/email-verification-link";
 
@@ -67,6 +67,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     expiresIn: 60 * 60, // 1h
     async sendVerificationEmail({ user, url }) {
+      assertEmailConfigured();
       const tpl = renderEmailVerificationLinkEmail({ url });
       console.log("[Verify link send]", { to: user.email, subject: tpl.subject });
       const { error } = await resend.emails.send({
@@ -120,6 +121,7 @@ export const auth = betterAuth({
           console.warn("[OTP] unexpected type w/ link-based verification:", type);
           return;
         }
+        assertEmailConfigured();
         const tpl = renderResetPasswordOtpEmail({ otp });
         console.log("[OTP send]", { type, to: email, subject: tpl.subject });
 

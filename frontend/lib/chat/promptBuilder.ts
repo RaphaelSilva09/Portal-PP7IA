@@ -6,8 +6,8 @@ const MAX_HISTORY = 5;
 const SOURCE_TYPE_LABELS: Record<string, string> = {
     mini_livro:          "Mini-Livro",
     newsletter:          "Newsletter",
-    radar_oportunidades: "Radar de Oportunidades",
-    especial_semana:     "Especial da Semana",
+    radar_oportunidades: "Editoriais e Artigos",
+    especial_semana:     "Inteligência Artificial",
     biblioteca:          "Biblioteca",
     estudar:             "Estudar",
     meta_summary:        "Resumo",
@@ -20,7 +20,7 @@ function sourceLabel(chunk: RetrievedChunk): string {
     return SOURCE_TYPE_LABELS[type] ?? type;
 }
 
-export const SYSTEM_PROMPT = `Você é assistente do Portal-PP7IA. Responda APENAS com base nos trechos fornecidos do portal (mini-livros, newsletters, radar de oportunidades e outros conteúdos). Se a resposta não estiver nos trechos, diga que não encontrou. Responda em português brasileiro.
+export const SYSTEM_PROMPT = `Você é assistente do Portal-PP7IA. Responda APENAS com base nos trechos fornecidos do portal (mini-livros, newsletters, editoriais, artigos e outros conteúdos). Se a resposta não estiver nos trechos, diga que não encontrou. Responda em português brasileiro.
 
 ESTILO de resposta:
 - SEJA CONCISO. Responda em 1-3 frases curtas sempre que possível.

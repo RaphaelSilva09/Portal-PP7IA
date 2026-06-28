@@ -11,8 +11,8 @@ interface Props {
 export function Citations({ citations }: Props) {
     if (citations.length === 0) return null;
     return (
-        <details className="group mt-3 border-t border-border/70 pt-3 text-xs text-text-secondary">
-            <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-border bg-background/70 px-2.5 py-1 font-medium transition-colors duration-200 group-open:border-brand-blue/20 group-open:bg-brand-blue/10 hover:border-brand-blue/20 hover:text-foreground dark:bg-background/60">
+        <details className="group mt-3 border-t border-border/60 pt-3 text-xs text-muted-foreground">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-border bg-background/60 px-2.5 py-1 font-medium transition-colors duration-200 group-open:border-ink/15 group-open:bg-ink/5 hover:border-ink/15 hover:text-foreground dark:bg-background/40 dark:group-open:border-foreground/20 dark:group-open:bg-foreground/5">
                 <span className="inline-block transition-transform duration-200 group-open:rotate-90">›</span>
                 Fontes consultadas ({citations.length})
             </summary>

@@ -1,14 +1,18 @@
 import ChatBubble from "@/components/chat/ChatBubble";
 import Navbar from "@/components/Header";
+import capaLivro from "@/assets/capa-livro.jpeg";
 import HeroAnimatedWord from "@/components/home/HeroAnimatedWord";
-import HeroStats from "@/components/home/HeroStats";
 import HomeEditorialSection from "@/components/home/HomeEditorialSection";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
 import DIContainer from "@/infrastructure/di/container";
 import { DEFAULT_HOMEPAGE_CONFIG } from "@/domain/entities/HomepageConfig";
 import type { SectionConfig } from "@/domain/entities/HomepageConfig";
+import type { Book } from "@/domain/entities/Book";
+import type { Newsletter } from "@/domain/entities/Newsletter";
+import { DEFAULT_SITE_BG } from "@/domain/entities/SiteBg";
 import { parseManifestoQuote } from "@/lib/parseManifestoQuote";
+import Link from "next/link";
 
 async function getConfig(): Promise<SectionConfig[]> {
     try {
@@ -24,62 +28,177 @@ function t(section: SectionConfig, key: string, fallback: string): string {
     return section.texts[key] ?? fallback;
 }
 
-function HeroSection({ s }: { s: SectionConfig }) {
+const HERO_BLOCKS = [
+    { id: "newsletter", label: "Newsletter",       color: "var(--block-newsletter)", href: "/newsletter" },
+    { id: "reportagem", label: "Inteligência Artificial", color: "var(--block-reportagem)", href: "/explorar?b=inteligencia-artificial" },
+    { id: "radar",      label: "Editoriais e Artigos",    color: "var(--block-radar)",      href: "/explorar?b=editoriais-artigos" },
+    { id: "livro",      label: "Enquanto é Tempo", color: "var(--block-livro)",      href: "/mini-livros" },
+    { id: "biblioteca", label: "Biblioteca",       color: "var(--block-biblioteca)", href: "/biblioteca" },
+    { id: "estudar",    label: "Estudar",          color: "var(--block-estudar)",    href: "/estudar" },
+    { id: "ensinar",    label: "Ensinar",          color: "var(--block-ensinar)",    href: "#newsletter" },
+];
+
+function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: {
+    s: SectionConfig;
+    book: Book | null;
+    newsletter: Newsletter | null;
+    totalChapters: number;
+    bookChaptersTotal: number;
+}) {
+    const edition = newsletter?.index ?? null;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
+        .toUpperCase().replace(/\. DE /g, " ").replace(/\.$/, "");
+
     return (
-        <section className="relative overflow-hidden bg-background">
-            <div className="pointer-events-none absolute inset-0 -z-10">
-                <div
-                    className="absolute inset-0 transition-colors duration-700"
-                    style={{
-                        background:
-                            "radial-gradient(60% 50% at 80% 0%, var(--block-newsletter-soft) 0%, transparent 60%), radial-gradient(50% 40% at 0% 100%, var(--primary-soft) 0%, transparent 60%)",
-                    }}
-                />
-                <svg className="absolute inset-0 size-full opacity-[0.18]" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
-                            <circle cx="1" cy="1" r="1" fill="currentColor" className="text-ink" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grid)" />
-                </svg>
-            </div>
-            <div className="mx-auto max-w-7xl px-6 pb-24">
-                <div className="relative mt-12">
-                    <h1 className="text-[clamp(3.5rem,11vw,11rem)] leading-[0.95] tracking-[-0.025em] text-ink" style={{ fontFamily: '"Instrument Serif", serif' }}>
-                        <span className="block">{t(s, "line1", "Menos ruído.")}</span>
-                        <span className="block">
-                            Mais{" "}
-                            <HeroAnimatedWord />
-                            .
-                        </span>
-                        <span className="block text-foreground/30">{t(s, "line3", "Sete blocos. Sete IAs.")}</span>
-                    </h1>
-                </div>
-                <div className="mt-16 grid gap-12 md:grid-cols-2 md:items-center">
-                    <div>
-                        <p className="text-lg leading-relaxed text-muted-foreground">
-                            {t(s, "description", "Curadoria editorial independente sobre ")}
+        <section className="border-b border-border bg-background">
+            <div className="mx-auto max-w-7xl px-6 py-14 lg:py-20">
+                <div className="grid gap-10 lg:grid-cols-[1fr_420px] lg:gap-14 xl:grid-cols-[1fr_460px]">
+
+                    {/* ── Left column ── */}
+                    <div className="flex flex-col lg:justify-center">
+
+                        {/* Eyebrow */}
+                        <div className="flex items-center gap-3">
+                            <span className="h-[2px] w-6 bg-border border-black opacity-100" />
+                            <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                                {t(s, "eyebrow1", "Livro")}
+                                <span className="mx-2 opacity-40">·</span>
+                                {t(s, "eyebrow2", "IAs")}
+                                <span className="mx-2 opacity-40">·</span>
+                                {t(s, "eyebrow2", "Liderança")}
+                            </span>
+                            <div className="hidden flex-1 lg:flex">
+                                <div className="h-px flex-1 bg-border" />
+                            </div>
+                        </div>
+
+                        {/* Heading */}
+                        <h1
+                            className="mt-8 leading-[0.95] tracking-[-0.025em] text-ink text-[clamp(3.2rem,6.5vw,5.8rem)]"
+                            style={{ fontFamily: '"Instrument Serif", serif' }}
+                        >
+                            <span className="block text-[3.2rem] sm:text-[4.5rem] lg:text-[7.5rem]">{t(s, "line1", "Menos ruído.")}</span>
+                            <span className="block text-[3.2rem] sm:text-[4.5rem] lg:text-[7.5rem]">
+                                Mais{" "}
+                                <HeroAnimatedWord />
+                                .
+                            </span>
+                            <span className="block text-foreground/50 text-[2.4rem] sm:text-[3rem] lg:text-[5rem] mt-3">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
+                        </h1>
+
+                        {/* Description */}
+                        <p className="mt-7 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
+                            {t(s, "description", "Um livro sobre liderança, escrito devagar e publicado capítulo a capítulo. Em paralelo, uma curadoria semanal sobre inteligência artificial — sem ruído.")}
                         </p>
+
+                        {/* CTAs */}
                         <div className="mt-8 flex flex-wrap items-center gap-3">
                             <a href="/explorar" className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-book-open size-4" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                                     <path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
                                 </svg>
                                 {t(s, "btn1", "Explorar os 7 blocos")}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up-right size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">
                                     <path d="M7 7h10v10" /><path d="M7 17 17 7" />
                                 </svg>
                             </a>
                             <a href="#newsletter" className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-foreground/40">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-mail size-4" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                                     <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" />
                                 </svg>
                                 {t(s, "btn2", "Receber a newsletter")}
                             </a>
                         </div>
                     </div>
-                    <HeroStats />
+
+                    {/* ── Right column: cards ── */}
+                    <div className="flex flex-col gap-5">
+
+                        {/* Book card */}
+                        <a
+                            href="/mini-livros"
+                            className="group relative flex min-h-[180px] gap-5 overflow-hidden rounded-2xl p-5 transition-opacity hover:opacity-90 lg:min-h-[220px]"
+                            style={{ background: "var(--hero-book-card-bg)" }}
+                        >
+                            <svg className="pointer-events-none absolute inset-0 h-full w-full select-none" viewBox="0 0 460 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="450" cy="230" r="195" fill="none" stroke="white" strokeWidth="1" opacity="0.13" />
+                                <circle cx="38" cy="28" r="52" fill="none" stroke="white" strokeWidth="0.5" strokeDasharray="4 3" opacity="0.10" />
+                                <line x1="0" y1="55" x2="460" y2="175" stroke="white" strokeWidth="0.5" opacity="0.08" />
+                                <line x1="376" y1="38" x2="392" y2="38" stroke="white" strokeWidth="1" opacity="0.16" />
+                                <line x1="384" y1="30" x2="384" y2="46" stroke="white" strokeWidth="1" opacity="0.16" />
+                            </svg>
+                            <img
+                                src={capaLivro.src}
+                                alt={book?.title ?? "Enquanto é Tempo"}
+                                className="w-[100px] shrink-0 self-stretch rounded-lg object-cover shadow-xl lg:w-[120px]"
+                            />
+                            <div className="flex flex-1 flex-col justify-between py-1">
+                                <div className="flex flex-col">
+                                    <p className="text-xs font-medium uppercase tracking-[0.2em]"
+                                        style={{ color: "var(--hero-book-card-label)" }}>
+                                        {t(s, "bookCard_label", "O Livro")} · {book?.badgeText ?? "Novo Capítulo"}
+                                    </p>
+                                    <p className="font-serif italic text-xl leading-snug lg:text-4xl mt-3"
+                                        style={{ color: "var(--hero-book-card-title)" }}>
+                                        {book?.title ?? "Enquanto é Tempo"}
+                                    </p>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    {totalChapters > 0 && (
+                                        <span className="text-sm italic" style={{ color: "var(--hero-book-card-label)" }}>
+                                            {totalChapters} de {bookChaptersTotal} cap.
+                                        </span>
+                                    )}
+                                    <span className="ml-auto text-sm font-medium transition-opacity group-hover:opacity-80"
+                                        style={{ color: "var(--hero-book-card-cta)" }}>
+                                        {t(s, "bookCard_cta", "Ler →")}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+
+                        {/* Newsletter card */}
+                        <a
+                            href="/explorar?b=newsletter"
+                            className="group relative flex min-h-[180px] overflow-hidden rounded-2xl p-5 transition-opacity hover:opacity-90 lg:min-h-[220px]"
+                            style={{ background: "var(--hero-newsletter-card-bg)" }}
+                        >
+                            <svg className="pointer-events-none absolute inset-0 h-full w-full select-none" viewBox="0 0 460 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="450" cy="-10" r="195" fill="none" stroke="white" strokeWidth="1" opacity="0.13" />
+                                <circle cx="0" cy="230" r="125" fill="none" stroke="white" strokeWidth="0.5" opacity="0.09" />
+                                <line x1="0" y1="98" x2="85" y2="98" stroke="white" strokeWidth="0.5" opacity="0.09" />
+                                <line x1="0" y1="126" x2="52" y2="126" stroke="white" strokeWidth="0.5" opacity="0.07" />
+                                <line x1="195" y1="0" x2="345" y2="220" stroke="white" strokeWidth="0.5" opacity="0.07" />
+                                <line x1="58" y1="178" x2="74" y2="178" stroke="white" strokeWidth="1" opacity="0.15" />
+                                <line x1="66" y1="170" x2="66" y2="186" stroke="white" strokeWidth="1" opacity="0.15" />
+                            </svg>
+                            <div className="flex flex-1 flex-col justify-between">
+                                <div>
+                                    <p className="text-xs font-medium uppercase tracking-[0.2em]"
+                                        style={{ color: "var(--hero-newsletter-sidebar-label)" }}>
+                                        {t(s, "newsletterCard_label", "Curadoria Semanal")}
+                                    </p>
+                                    <p className="mt-3 font-serif italic text-xl leading-tight lg:text-4xl"
+                                        style={{ color: "var(--hero-newsletter-sidebar-number)" }}>
+                                        {t(s, "newsletterCard_headline1", "O melhor da IA,")}
+                                        <br />
+                                        {t(s, "newsletterCard_headline2", "toda quarta.")}
+                                    </p>
+                                </div>
+                                <div className="mt-4 flex items-center justify-between">
+                                    <span className="text-sm"
+                                        style={{ color: "var(--hero-newsletter-sidebar-label)" }}>
+                                        {t(s, "newsletterCard_tagline", "Gratuito · Recomendado")}
+                                    </span>
+                                    <span className="self-center text-sm font-medium transition-opacity group-hover:opacity-80"
+                                        style={{ color: "var(--hero-newsletter-sidebar-number)" }}>
+                                        {t(s, "newsletterCard_cta", "Assinar →")}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -108,17 +227,44 @@ function SetesCoresSection({ s }: { s: SectionConfig }) {
 
     return (
         <section className="relative overflow-hidden border-t border-border bg-ink py-24 text-background">
-            <div
-                className="pointer-events-none absolute inset-x-0 -bottom-10 select-none text-center font-serif italic leading-none tracking-tighter text-background/[0.04]"
-                style={{ fontSize: "clamp(8rem, 24vw, 22rem)" }}
+            <svg
+                className="pointer-events-none absolute inset-0 h-full w-full select-none"
+                viewBox="0 0 1440 600"
+                preserveAspectRatio="xMidYMid slice"
                 aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
             >
-                clareza
-            </div>
+                {/* Large circles — structural anchors */}
+                <circle cx="-60" cy="70" r="420" fill="none" stroke="white" strokeWidth="1" opacity="0.1" />
+                <circle cx="1510" cy="540" r="340" fill="none" stroke="white" strokeWidth="1" opacity="0.08" />
+                <circle cx="760" cy="620" r="160" fill="none" stroke="white" strokeWidth="0.5" opacity="0.06" />
+
+                {/* Dashed medium circle — mid section */}
+                <circle cx="1050" cy="120" r="110" fill="none" stroke="white" strokeWidth="0.75" strokeDasharray="6 5" opacity="0.09" />
+
+                {/* Diagonal lines */}
+                <line x1="140" y1="0" x2="520" y2="600" stroke="white" strokeWidth="0.75" opacity="0.08" />
+                <line x1="880" y1="0" x2="1180" y2="600" stroke="white" strokeWidth="0.5" opacity="0.05" />
+
+                {/* Horizontal rules */}
+                <line x1="0" y1="190" x2="220" y2="190" stroke="white" strokeWidth="0.5" opacity="0.08" />
+                <line x1="1180" y1="390" x2="1440" y2="390" stroke="white" strokeWidth="0.5" opacity="0.07" />
+
+                {/* Cross marks — editorial detail */}
+                <line x1="950" y1="88" x2="974" y2="88" stroke="white" strokeWidth="1.2" opacity="0.18" />
+                <line x1="962" y1="76" x2="962" y2="100" stroke="white" strokeWidth="1.2" opacity="0.18" />
+
+                <line x1="330" y1="468" x2="350" y2="468" stroke="white" strokeWidth="1" opacity="0.14" />
+                <line x1="340" y1="458" x2="340" y2="478" stroke="white" strokeWidth="1" opacity="0.14" />
+
+                <line x1="1310" y1="160" x2="1326" y2="160" stroke="white" strokeWidth="1" opacity="0.12" />
+                <line x1="1318" y1="152" x2="1318" y2="168" stroke="white" strokeWidth="1" opacity="0.12" />
+
+            </svg>
             <div className="relative mx-auto max-w-7xl px-6">
                 <div className="grid items-center gap-12 lg:grid-cols-12">
                     <div className="lg:col-span-5">
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-background/50">{t(s, "label", "Sistema cromático")}</div>
+                        <div className="text-sm uppercase tracking-[0.22em] text-background/50">{t(s, "label", "Sistema cromático")}</div>
                         <h2 className="mt-4 font-serif text-5xl leading-[1.02] tracking-tight md:text-6xl">
                             {t(s, "title", "Cada cor é um caminho.")}
                         </h2>
@@ -131,7 +277,7 @@ function SetesCoresSection({ s }: { s: SectionConfig }) {
                                 style={{ borderColor: "var(--block-livro)", background: "color-mix(in oklab, var(--block-livro) 14%, transparent)" }}
                             >
                                 <span className="absolute -left-[7px] top-5 size-3 rounded-full" style={{ backgroundColor: "var(--block-livro)" }} />
-                                <p className="font-serif text-lg italic leading-snug">"{t(s, "quote", "Suceder é o teste final da liderança.")}"</p>
+                                <p className="font-serif text-lg italic leading-snug">&ldquo;{t(s, "quote", "Suceder é o teste final da liderança.")}&rdquo;</p>
                                 <footer className="mt-2 text-[10px] uppercase tracking-[0.22em] text-background/50">{t(s, "quoteAuthor", "ML-20 · Enquanto é Tempo")}</footer>
                             </blockquote>
                         </div>
@@ -182,11 +328,30 @@ function IAsSection({ s }: { s: SectionConfig }) {
     }));
 
     return (
-        <section id="ias" className="border-t border-border bg-ink py-24 text-background">
-            <div className="mx-auto max-w-7xl px-6">
+        <section id="ias" className="relative overflow-hidden border-t border-border bg-ink py-24 text-background">
+            <svg className="pointer-events-none absolute inset-0 h-full w-full select-none" viewBox="0 0 1440 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                {/* Circles */}
+                <circle cx="-40" cy="580" r="380" fill="none" stroke="white" strokeWidth="1" opacity="0.09" />
+                <circle cx="1490" cy="60" r="300" fill="none" stroke="white" strokeWidth="1" opacity="0.08" />
+                <circle cx="860" cy="300" r="90" fill="none" stroke="white" strokeWidth="0.75" strokeDasharray="4 4" opacity="0.08" />
+                {/* Grid-like horizontal lines — technical feel */}
+                <line x1="0" y1="110" x2="260" y2="110" stroke="white" strokeWidth="0.5" opacity="0.07" />
+                <line x1="0" y1="300" x2="160" y2="300" stroke="white" strokeWidth="0.5" opacity="0.06" />
+                <line x1="0" y1="490" x2="220" y2="490" stroke="white" strokeWidth="0.5" opacity="0.05" />
+                <line x1="1200" y1="0" x2="1200" y2="600" stroke="white" strokeWidth="0.5" opacity="0.05" />
+                <line x1="380" y1="0" x2="660" y2="600" stroke="white" strokeWidth="0.5" opacity="0.05" />
+                {/* Crosses */}
+                <line x1="1310" y1="240" x2="1330" y2="240" stroke="white" strokeWidth="1.2" opacity="0.16" />
+                <line x1="1320" y1="230" x2="1320" y2="250" stroke="white" strokeWidth="1.2" opacity="0.16" />
+                <line x1="190" y1="78" x2="206" y2="78" stroke="white" strokeWidth="1" opacity="0.14" />
+                <line x1="198" y1="70" x2="198" y2="86" stroke="white" strokeWidth="1" opacity="0.14" />
+                <line x1="700" y1="520" x2="714" y2="520" stroke="white" strokeWidth="1" opacity="0.12" />
+                <line x1="707" y1="513" x2="707" y2="527" stroke="white" strokeWidth="1" opacity="0.12" />
+            </svg>
+            <div className="relative mx-auto max-w-7xl px-6">
                 <div className="grid gap-12 lg:grid-cols-12">
                     <div className="lg:col-span-5">
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-background/50">{t(s, "label", "As 7 IAs parceiras")}</div>
+                        <div className="text-sm uppercase tracking-[0.22em] text-background/50">{t(s, "label", "As 7 IAs parceiras")}</div>
                         <h2 className="mt-4 font-serif text-5xl leading-[1.05] tracking-tight md:text-6xl">
                             {t(s, "title_before", "A IA ")}
                             <em className="italic" style={{ color: "var(--block-newsletter)" }}>
@@ -211,7 +376,7 @@ function IAsSection({ s }: { s: SectionConfig }) {
                                     </div>
                                 </div>
                             ))}
-                            <div className="relative flex aspect-square flex-col justify-between overflow-hidden rounded-2xl p-4 text-ink" style={{ backgroundColor: "var(--block-newsletter)" }}>
+                            <div className="relative flex aspect-square flex-col justify-between overflow-hidden rounded-2xl p-4" style={{ backgroundColor: "var(--block-newsletter)", color: "var(--block-newsletter-on)" }}>
                                 <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{ background: "radial-gradient(120% 80% at 100% 0%, white, transparent 60%)" }} />
                                 <div className="relative text-[10px] uppercase tracking-[0.22em] opacity-70">Curadoria</div>
                                 <div className="relative">
@@ -221,13 +386,13 @@ function IAsSection({ s }: { s: SectionConfig }) {
                             </div>
                         </div>
                         <div className="mt-8 flex flex-wrap items-center gap-3">
-                            <a href="/view/biblioteca/009" className="group inline-flex items-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-medium text-ink transition-transform hover:-translate-y-0.5">
+                            <Link href="/view/biblioteca/009" className="group inline-flex items-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-medium text-ink transition-transform hover:-translate-y-0.5">
                                 Conhecer mais
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up-right size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">
                                     <path d="M7 7h10v10" /><path d="M7 17 17 7" />
                                 </svg>
-                            </a>
-                            <span className="text-xs text-background/50">Como cada IA entra no fluxo editorial</span>
+                            </Link>
+                            <span className="text-sm text-background/50">Como cada IA entra no fluxo editorial</span>
                         </div>
                     </div>
                 </div>
@@ -241,9 +406,26 @@ function ManifestoSection({ s }: { s: SectionConfig }) {
         t(s, "quote", '"Liderar é servir. Formar pessoas. Deixar legado."'),
     );
     return (
-        <section id="manifesto" className="border-t border-border bg-background py-32">
-            <div className="mx-auto max-w-4xl px-6 text-center">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{t(s, "label", "Manifesto")}</div>
+        <section id="manifesto" className="relative overflow-hidden border-t border-border bg-background py-32">
+            <svg className="pointer-events-none absolute inset-0 h-full w-full select-none" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                {/* Concentric arcs centered behind the quote */}
+                <circle cx="720" cy="400" r="200" fill="none" stroke="currentColor" strokeWidth="0.75" opacity="0.05" />
+                <circle cx="720" cy="400" r="360" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.04" />
+                <circle cx="720" cy="400" r="520" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.03" />
+                {/* Corner anchors */}
+                <circle cx="-120" cy="-80" r="460" fill="none" stroke="currentColor" strokeWidth="0.75" opacity="0.05" />
+                <circle cx="1560" cy="880" r="400" fill="none" stroke="currentColor" strokeWidth="0.75" opacity="0.04" />
+                {/* Horizontal rules — like paper lines */}
+                <line x1="160" y1="620" x2="1280" y2="620" stroke="currentColor" strokeWidth="0.5" opacity="0.06" />
+                <line x1="320" y1="660" x2="1120" y2="660" stroke="currentColor" strokeWidth="0.5" opacity="0.04" />
+                {/* Crosses */}
+                <line x1="170" y1="200" x2="186" y2="200" stroke="currentColor" strokeWidth="1" opacity="0.12" />
+                <line x1="178" y1="192" x2="178" y2="208" stroke="currentColor" strokeWidth="1" opacity="0.12" />
+                <line x1="1254" y1="500" x2="1270" y2="500" stroke="currentColor" strokeWidth="1" opacity="0.12" />
+                <line x1="1262" y1="492" x2="1262" y2="508" stroke="currentColor" strokeWidth="1" opacity="0.12" />
+            </svg>
+            <div className="relative mx-auto max-w-4xl px-6 text-center">
+                <div className="text-sm uppercase tracking-[0.22em] text-muted-foreground">{t(s, "label", "Manifesto")}</div>
                 <p className="mt-8 font-serif text-4xl leading-tight tracking-tight text-ink md:text-6xl">
                     {segments.map((seg, i) => {
                         if (seg.type === "linebreak") return <br key={i} />;
@@ -256,7 +438,7 @@ function ManifestoSection({ s }: { s: SectionConfig }) {
                         return <span key={i}>{seg.text}</span>;
                     })}
                 </p>
-                <div className="mt-10 inline-flex items-center gap-3 text-sm text-muted-foreground">
+                <div className="mt-10 inline-flex items-center gap-3 text-md text-muted-foreground">
                     <span className="h-px w-10 bg-border" />
                     {t(s, "author", "Paulo Periquito · Editor")}
                     <span className="h-px w-10 bg-border" />
@@ -268,11 +450,29 @@ function ManifestoSection({ s }: { s: SectionConfig }) {
 
 function NewsletterSection({ s }: { s: SectionConfig }) {
     return (
-        <section id="newsletter" className="border-t border-border bg-ink py-24 text-background">
-            <div className="mx-auto max-w-5xl px-6">
+        <section id="newsletter" className="relative overflow-hidden border-t border-border bg-ink py-24 text-background">
+            <svg className="pointer-events-none absolute inset-0 h-full w-full select-none" viewBox="0 0 1440 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                {/* Circles */}
+                <circle cx="1420" cy="300" r="380" fill="none" stroke="white" strokeWidth="1" opacity="0.09" />
+                <circle cx="120" cy="-50" r="250" fill="none" stroke="white" strokeWidth="1" opacity="0.08" />
+                <circle cx="480" cy="720" r="200" fill="none" stroke="white" strokeWidth="0.75" strokeDasharray="8 6" opacity="0.08" />
+                {/* Stacked short horizontals — rhythm/pulse feel */}
+                <line x1="0" y1="160" x2="130" y2="160" stroke="white" strokeWidth="0.5" opacity="0.08" />
+                <line x1="0" y1="210" x2="80" y2="210" stroke="white" strokeWidth="0.5" opacity="0.06" />
+                <line x1="0" y1="260" x2="110" y2="260" stroke="white" strokeWidth="0.5" opacity="0.07" />
+                <line x1="680" y1="0" x2="920" y2="600" stroke="white" strokeWidth="0.5" opacity="0.05" />
+                {/* Crosses */}
+                <line x1="570" y1="88" x2="590" y2="88" stroke="white" strokeWidth="1.2" opacity="0.17" />
+                <line x1="580" y1="78" x2="580" y2="98" stroke="white" strokeWidth="1.2" opacity="0.17" />
+                <line x1="1090" y1="450" x2="1108" y2="450" stroke="white" strokeWidth="1" opacity="0.14" />
+                <line x1="1099" y1="441" x2="1099" y2="459" stroke="white" strokeWidth="1" opacity="0.14" />
+                <line x1="300" y1="520" x2="314" y2="520" stroke="white" strokeWidth="1" opacity="0.11" />
+                <line x1="307" y1="513" x2="307" y2="527" stroke="white" strokeWidth="1" opacity="0.11" />
+            </svg>
+            <div className="relative mx-auto max-w-5xl px-6">
                 <div className="grid gap-10 md:grid-cols-2 md:items-end">
                     <div>
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-background/50">{t(s, "label", "Newsletter PP7+IAS")}</div>
+                        <div className="text-sm uppercase tracking-[0.22em] text-background/50">{t(s, "label", "Newsletter PP7+IAS")}</div>
                         <h2 className="mt-4 font-serif text-5xl leading-[1.05] tracking-tight md:text-6xl">
                             {t(s, "title_before", "Toda ")}
                             <em className="italic" style={{ color: "var(--block-newsletter)" }}>
@@ -280,7 +480,7 @@ function NewsletterSection({ s }: { s: SectionConfig }) {
                             </em>
                             .<br />{t(s, "title_line2", "Direto no inbox.")}
                         </h2>
-                        <p className="mt-6 max-w-md text-background/70">{t(s, "description", "")}</p>
+                        <p className="mt-6 max-w-md text-background/70 text-md">{t(s, "description", "")}</p>
                     </div>
                     <NewsletterForm />
                 </div>
@@ -292,7 +492,6 @@ function NewsletterSection({ s }: { s: SectionConfig }) {
 function renderSection(s: SectionConfig) {
     if (!s.visible) return null;
     switch (s.id) {
-        case "hero":        return <HeroSection key={s.id} s={s} />;
         case "sete-cores":  return <SetesCoresSection key={s.id} s={s} />;
         case "editorial":   return <EditorialSection key={s.id} s={s} />;
         case "ias":         return <IAsSection key={s.id} s={s} />;
@@ -303,13 +502,35 @@ function renderSection(s: SectionConfig) {
 }
 
 export default async function Home() {
-    const sections = await getConfig();
+    const [sections, activeBook, { latest: latestNewsletter }, { all: allChapters }, siteBg] = await Promise.all([
+        getConfig(),
+        DIContainer.getActiveBookUseCase().execute().catch(() => null),
+        DIContainer.getNewslettersUseCase().execute().catch(() => ({ latest: null, older: [] as never[] })),
+        DIContainer.getMiniLivrosUseCase().execute().catch(() => ({ latest: null, older: [], all: [] as never[] })),
+        DIContainer.getSiteBgUseCase().execute().catch(() => ({ ...DEFAULT_SITE_BG })),
+    ]);
+
+    const totalChapters = allChapters.length;
+    const bookChaptersTotal = siteBg.bookChaptersTotal;
 
     return (
         <main className="min-h-screen bg-background text-foreground">
             <Navbar />
 
-            {sections.map(renderSection)}
+            {sections.map(s => {
+                if (!s.visible) return null;
+                if (s.id === "hero") return (
+                    <HeroSection
+                        key={s.id}
+                        s={s}
+                        book={activeBook}
+                        newsletter={latestNewsletter}
+                        totalChapters={totalChapters}
+                        bookChaptersTotal={bookChaptersTotal}
+                    />
+                );
+                return renderSection(s);
+            })}
 
             <HomeRecomendacoesPaulo />
 
@@ -331,8 +552,8 @@ export default async function Home() {
                             <ul className="mt-4 grid grid-cols-2 gap-2 text-sm">
                                 {[
                                     { href: "/newsletter", color: "var(--block-newsletter)", label: "Newsletter" },
-                                    { href: "/especial-semana", color: "var(--block-reportagem)", label: "Reportagem da Semana" },
-                                    { href: "/radar-oportunidades", color: "var(--block-radar)", label: "Radar" },
+                                    { href: "/explorar?b=inteligencia-artificial", color: "var(--block-reportagem)", label: "Inteligência Artificial" },
+                                    { href: "/explorar?b=editoriais-artigos", color: "var(--block-radar)", label: "Editoriais e Artigos" },
                                     { href: "/mini-livros", color: "var(--block-livro)", label: "Enquanto é Tempo" },
                                     { href: "/biblioteca", color: "var(--block-biblioteca)", label: "Biblioteca" },
                                     { href: "/estudar", color: "var(--block-estudar)", label: "Estudar" },

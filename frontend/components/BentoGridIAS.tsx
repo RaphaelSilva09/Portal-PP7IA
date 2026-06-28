@@ -99,7 +99,7 @@ export default function BentoGrid() {
                     3 Cards - col-span-1 cada - ~280px
                     ============================================ */}
 
-                    {/* Card: Especial da Semana */}
+                    {/* Card: Inteligência Artificial */}
                     <a
                         // href="/especial"
                         id="especial"
@@ -120,10 +120,10 @@ export default function BentoGrid() {
                             {/* Content */}
                             <div>
                                 <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
-                                    Especial da Semana
+                                    Inteligência Artificial
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    Destaque editorial semanal: artigos, apps, tutoriais ou pontos de atenção especial.
+                                    Notícias e análises de IA importantes para o Brasil.
                                 </p>
                             </div>
 
@@ -132,7 +132,7 @@ export default function BentoGrid() {
                         </div>
                     </a>
 
-                    {/* Card: Radar de Oportunidades */}
+                    {/* Card: Editoriais e Artigos */}
                     <a
                         // href="/radar"
                         id="radar"
@@ -153,10 +153,10 @@ export default function BentoGrid() {
                             {/* Content */}
                             <div>
                                 <h4 className="text-3xl sm:text-4xl md:text-4xl font-bold text-white mt-1 mb-2 tracking-tight">
-                                    Radar de Oportunidades
+                                    Editoriais e Artigos
                                 </h4>
                                 <p className="text-gray-400 mb-1.5 text-base sm:text-1xl tracking-tight">
-                                    7 itens mensais: 3 novas ferramentas, 3 startups em alta e 1 tendência de mercado.
+                                    3 a 4 textos curtos por publicação.
                                 </p>
                             </div>
 

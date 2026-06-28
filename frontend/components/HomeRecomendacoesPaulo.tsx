@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpenCheck, ArrowUpRight } from "lucide-react";
-import { portalContentClass } from "@/lib/layout";
+import { ArrowUpRight } from "lucide-react";
 import { useHomeRecomendacoesPaulo } from "@/presentation/hooks/useHomeRecomendacoesPaulo";
 import { getRecomendacoesPauloViewPath } from "@/constants/recomendacoesPaulo";
 
@@ -16,52 +15,37 @@ export default function HomeRecomendacoesPaulo() {
     }
 
     return (
-        <section id="recomendacoes-paulo" className="py-8" style={{ scrollMarginTop: "100px" }}>
-            <div className={portalContentClass}>
-                <div className="w-full h-px bg-linear-to-r from-transparent via-border to-transparent" />
-
+        <section id="recomendacoes-paulo" className="border-t border-border bg-ink py-16 text-background" style={{ scrollMarginTop: "100px" }}>
+            <div className="mx-auto max-w-7xl px-6">
                 <Link
                     href={getRecomendacoesPauloViewPath()}
-                    className="group relative mt-8 overflow-hidden rounded-2xl border border-border hover:border-cyan-500/40 transition-all duration-300 block bg-card/85"
-                    aria-label="Abrir recomendacoes do Paulo"
+                    className="group relative flex flex-col gap-6 overflow-hidden rounded-2xl border border-background/10 bg-background/5 p-8 transition-colors hover:border-background/20 hover:bg-background/[0.08] md:flex-row md:items-center md:justify-between md:p-10"
+                    aria-label="Abrir recomendações do Paulo"
                 >
                     <div
-                        className="absolute inset-0"
+                        className="pointer-events-none absolute inset-0"
                         style={{
-                            background:
-                                "linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.10) 100%)",
+                            background: "radial-gradient(55% 90% at 100% 50%, color-mix(in oklab, var(--block-livro) 12%, transparent), transparent)",
                         }}
                     />
-                    <div className="relative z-10 p-6 text-center">
-                        <ArrowUpRight className="absolute top-4 right-4 w-5 h-5 text-emerald-700/70 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
 
-                        <div className="flex flex-col items-center gap-2 mb-2">
-                            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                                <BookOpenCheck className="w-5 h-5 text-emerald-900" />
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-                                    {data.title}
-                                </h2>
-                            </div>
-                        </div>
-
-                        <p className="text-sm text-text-secondary italic mb-4 text-center">
+                    <div className="relative flex-1">
+                        <div className="text-[11px] uppercase tracking-[0.22em] text-background/50">Curadoria Pessoal</div>
+                        <h2 className="mt-3 font-serif text-3xl leading-tight tracking-tight text-background md:text-4xl">
+                            {data.title}
+                        </h2>
+                        <p className="mt-3 max-w-xl text-sm italic leading-relaxed text-background/60">
                             {descriptionText}
                         </p>
-
-                        <div className="h-px bg-linear-to-r from-transparent via-border to-transparent" />
-
-                        <div className="mt-4 flex justify-center">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-700/40 bg-emerald-700/10 px-4 py-2 text-sm font-semibold text-emerald-950">
-                                Abrir recomendacoes
-                                <ArrowUpRight className="w-4 h-4 text-emerald-950" />
-                            </span>
-                        </div>
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-emerald-600 to-emerald-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                </Link>
 
+                    <div className="relative shrink-0">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-background/20 px-5 py-3 text-sm font-medium text-background transition-colors group-hover:border-background/40">
+                            Ver recomendações
+                            <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </span>
+                    </div>
+                </Link>
             </div>
         </section>
     );

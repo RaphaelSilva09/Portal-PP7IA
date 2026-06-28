@@ -17,17 +17,17 @@ export const HOME_BLOCKS: HomeBlockDefinition[] = [
     {
         slug: "newsletter",
         label: "Newsletter",
-        defaultDescription: "Publicacao semanal com 7 itens\nNoticias de IA e startups. O que realmente importa.",
+        defaultDescription: "Publicação semanal com 7 itens\nNotícias de IA e startups. O que realmente importa.",
     },
     {
         slug: "especial-semana",
-        label: "Reportagem da Semana",
-        defaultDescription: "Reportagem curada da semana\nAnalises e destaques editoriais.",
+        label: "Inteligência Artificial",
+        defaultDescription: "Notícias e análises de IA\nPrioridade para o que importa ao Brasil.",
     },
     {
         slug: "radar",
-        label: "Radar",
-        defaultDescription: "7 itens mensais\nFerramentas, startups e tendencias.",
+        label: "Editoriais e Artigos",
+        defaultDescription: "3 a 4 textos por publicação\nLeitura curta e opinião editorial.",
     },
     {
         slug: "mini-livros",
@@ -42,7 +42,7 @@ export const HOME_BLOCKS: HomeBlockDefinition[] = [
     {
         slug: "estudar",
         label: "Estudar",
-        defaultDescription: "Guias, tutoriais e aulas\nIA, tech, saude, startups, financas.",
+        defaultDescription: "Guias, tutoriais e aulas\nIA, tech, saúde, startups, finanças.",
     },
     {
         slug: "ensinar",

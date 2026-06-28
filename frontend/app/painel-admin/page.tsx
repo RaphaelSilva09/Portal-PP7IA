@@ -21,6 +21,7 @@ import {
     AdminBook,
     AdminEditorial,
     AdminExplorarConfig,
+    AdminSiteBg,
     AdminHomeBlockDescriptions,
     AdminHomepageConfig,
     AdminHomeRecomendacoesPaulo,
@@ -65,7 +66,7 @@ import { useEbook } from "@/presentation/hooks/useEbook";
 import ThemeToggle from "@/components/ThemeToggle";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar" | "site-bg";
 
 type ContentTab = ContentType | "livro" | "mini-livro-sections";
 
@@ -75,13 +76,13 @@ const SORTABLE_TYPES = new Set<ContentTab>(["newsletter", "mini-livro", "bibliot
 const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
     { type: "biblioteca", label: "Biblioteca", icon: Library },
     { type: "ebook", label: "E-books", icon: BookMarked },
-    { type: "especial-semana", label: "Especial da Semana", icon: Star },
+    { type: "especial-semana", label: "Inteligência Artificial", icon: Star },
     { type: "estudar", label: "Estudar", icon: GraduationCap },
     { type: "livro", label: "Livro", icon: BookText },
     { type: "mini-livro", label: "Mini-livros", icon: BookOpen },
     { type: "mini-livro-sections", label: "Seções Mini-livros", icon: BookText },
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
-    { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
+    { type: "radar_oportunidades", label: "Editoriais e Artigos", icon: Radar },
 ];
 
 /**
@@ -419,6 +420,7 @@ export default function PainelAdminPage() {
                 { section: "pagina-home", label: "Configuração",    icon: HomeIcon   },
                 { section: "recomendacoes", label: "Recomendações", icon: BookOpen   },
                 { section: "cores-blocos", label: "Cores dos Blocos", icon: Palette  },
+                { section: "site-bg",      label: "Fundo do Site",    icon: Palette  },
             ],
         },
         {
@@ -531,6 +533,7 @@ export default function PainelAdminPage() {
                         {mainSection === "home"         && <AdminHomeBlockDescriptions />}
                         {mainSection === "pagina-home"  && <AdminHomepageConfig />}
                         {mainSection === "cores-blocos" && <AdminBlockColors />}
+{mainSection === "site-bg"      && <AdminSiteBg />}
                         {mainSection === "recomendacoes" && <AdminHomeRecomendacoesPaulo />}
                         {mainSection === "usuarios"     && <UserManager />}
                         {mainSection === "novidades"    && <AdminPortalNews />}

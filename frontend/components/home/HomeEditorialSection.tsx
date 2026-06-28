@@ -84,16 +84,34 @@ export default function HomeEditorialSection({
     ).filter(Boolean) as typeof editorials;
 
     return (
-        <section id="novidades" className="border-t border-border bg-primary-soft/40 py-24">
-            <div className="mx-auto max-w-7xl px-6">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+        <section id="novidades" className="relative overflow-hidden border-t border-border bg-primary-soft/40 py-24">
+            <svg className="pointer-events-none absolute inset-0 h-full w-full select-none" viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                <g transform="scale(-1,1) translate(-1440,0)">
+                    {/* Circles */}
+                    <circle cx="1530" cy="350" r="420" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.07" />
+                    <circle cx="90" cy="90" r="150" fill="none" stroke="currentColor" strokeWidth="0.75" opacity="0.07" />
+                    <circle cx="-80" cy="720" r="280" fill="none" stroke="currentColor" strokeWidth="0.75" strokeDasharray="5 4" opacity="0.07" />
+                    {/* Diagonal */}
+                    <line x1="280" y1="0" x2="580" y2="700" stroke="currentColor" strokeWidth="0.5" opacity="0.05" />
+                    {/* Horizontal rules */}
+                    <line x1="1060" y1="150" x2="1440" y2="150" stroke="currentColor" strokeWidth="0.5" opacity="0.07" />
+                    <line x1="0" y1="550" x2="320" y2="550" stroke="currentColor" strokeWidth="0.5" opacity="0.06" />
+                    {/* Crosses */}
+                    <line x1="950" y1="98" x2="968" y2="98" stroke="currentColor" strokeWidth="1.2" opacity="0.13" />
+                    <line x1="959" y1="89" x2="959" y2="107" stroke="currentColor" strokeWidth="1.2" opacity="0.13" />
+                    <line x1="210" y1="560" x2="226" y2="560" stroke="currentColor" strokeWidth="1" opacity="0.11" />
+                    <line x1="218" y1="552" x2="218" y2="568" stroke="currentColor" strokeWidth="1" opacity="0.11" />
+                </g>
+            </svg>
+            <div className="relative mx-auto max-w-7xl px-6">
+                <div className="text-sm uppercase tracking-[0.22em] text-muted-foreground">
                     {label}
                 </div>
                 <h2 className="mt-4 font-serif text-5xl leading-[1.05] tracking-tight text-ink md:text-6xl">
                     {titleBefore}
                     <em className="italic text-primary">{titleEm}</em>.
                 </h2>
-                <p className="mt-5 max-w-xl text-muted-foreground">
+                <p className="mt-5 max-w-xl text-muted-foreground text-md">
                     {description}
                 </p>
                 <div className="mt-12 grid gap-4 md:grid-cols-2">
@@ -108,7 +126,7 @@ export default function HomeEditorialSection({
                                         {meta.icon}
                                     </div>
                                     <span
-                                        className={`text-[10px] uppercase tracking-[0.2em] ${
+                                        className={`text-xs uppercase tracking-[0.2em] ${
                                             isAvailable
                                                 ? meta.cadenceColor
                                                 : "text-muted-foreground"
@@ -118,7 +136,7 @@ export default function HomeEditorialSection({
                                     </span>
                                 </div>
                                 <div>
-                                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                    <div className="text-sm uppercase tracking-[0.22em] text-muted-foreground">
                                         {editorial.audienceLabel}
                                     </div>
                                     <h3 className="mt-2 font-serif text-3xl text-ink">

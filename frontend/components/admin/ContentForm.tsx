@@ -45,11 +45,18 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
         newsletter: "Newsletter",
         "mini-livro": "Mini-livros",
         biblioteca: "Biblioteca",
-        "especial-semana": "Especial da Semana",
+        "especial-semana": "Inteligência Artificial",
         ebook: "E-book",
-        radar_oportunidades: "Radar de Oportunidades",
+        radar_oportunidades: "Editoriais e Artigos",
         estudar: "Estudar",
     };
+
+    const typeGuidance: Partial<Record<ContentType, string>> = {
+        newsletter: "Diretriz: publique 7 notícias curtas por semana, com link para aprofundamento e prioridade para o que importa ao Brasil.",
+        "especial-semana": "Diretriz: publique notícias e análises de IA importantes para o Brasil, em linguagem direta e leitura rápida.",
+        radar_oportunidades: "Diretriz: mantenha editoriais e artigos curtos. Use 3 a 4 textos por publicação.",
+    };
+    const guidance = typeGuidance[type];
 
     const inputClass = "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-foreground/30";
 
@@ -63,6 +70,12 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+                {guidance && (
+                    <p className="rounded-xl border border-border bg-accent px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+                        {guidance}
+                    </p>
+                )}
+
                 {/* Título */}
                 <div className="space-y-1.5">
                     <label className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
