@@ -10,8 +10,8 @@
  * Usage:
  *   pnpm exec tsx scripts/generate-meta-chunks.ts
  *
- * Always runs all sources. replaceAllForSource is called once per meta type
- * at the end, so partial runs would overwrite all previous meta chunks.
+ * Always runs all sources. Generated chunks are persisted only after all phases
+ * finish successfully, so failed runs leave the previous meta chunks intact.
  *
  * Required env: DATABASE_URL (or PG* vars), GEMINI_API_KEY
  * Optional env: STORAGE_ROOT, LLM_PROVIDER, GROQ_API_KEY
@@ -48,6 +48,8 @@ import { RadarContentSource } from "@/infrastructure/chat/RadarContentSource";
 import { EspecialSemanaContentSource } from "@/infrastructure/chat/EspecialSemanaContentSource";
 import { BibliotecaContentSource } from "@/infrastructure/chat/BibliotecaContentSource";
 import { EstudarContentSource } from "@/infrastructure/chat/EstudarContentSource";
+import { buildEntityIndexText } from "@/lib/chat/entityIndex";
+import { assertCompleteMetaGeneration } from "@/lib/chat/metaGenerationSafety";
 import type { ContentSource } from "@/domain/chat/ContentSource";
 import type { EmbeddedChunk } from "@/domain/chat/Chunk";
 import type { LLMProvider } from "@/domain/chat/LLMProvider";
@@ -91,24 +93,34 @@ Número de pessoas: [número inteiro]
 Empresas / organizações: [nomes separados por vírgula, ou "Nenhuma"]
 Referências citadas: [livros, artigos ou estudos separados por vírgula, ou "Nenhuma"]
 
+REGRAS:
+- Inclua TODA pessoa citada, referenciada ou cujo caso é narrado no conteúdo.
+- NÃO inclua o autor/narrador do próprio documento (Paulo Periquito / PP) — apenas pessoas mencionadas dentro do texto.
+- Inclua nomes mesmo que apareçam uma só vez.
+- Se o nome não for explicitado (ex: "meu primeiro chefe"), não invente — omita.
+
 Conteúdo:
-${text.slice(0, 6000)}
+${text.slice(0, 12000)}
 `.trim();
 
-async function extractText(llm: LLMProvider, title: string, html: string): Promise<string> {
-    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    const prompt = EXTRACTION_PROMPT(title, text);
+function stripHtml(html: string): string {
+    return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+async function streamToString(llm: LLMProvider, input: Parameters<LLMProvider["streamGenerate"]>[0]): Promise<string> {
     let result = "";
-    const stream = llm.streamGenerate({
+    for await (const token of llm.streamGenerate(input)) result += token;
+    return result.trim();
+}
+
+async function extractText(llm: LLMProvider, title: string, text: string): Promise<string> {
+    const prompt = EXTRACTION_PROMPT(title, text);
+    return streamToString(llm, {
         system: "Você é um extrator de entidades. Siga o formato exato solicitado.",
         context: "",
         history: [],
         question: prompt,
     });
-    for await (const token of stream) {
-        result += token;
-    }
-    return result.trim();
 }
 
 interface SourceExtractionResult {
@@ -120,6 +132,7 @@ async function extractForSource(
     source: ContentSource,
     llm: LLMProvider,
     embedder: GeminiEmbeddingProvider,
+    chunkRepo: RagChunkRepository,
 ): Promise<SourceExtractionResult> {
     console.log(`\n[${source.sourceType}] Fetching items...`);
     const items = await source.fetchAll();
@@ -130,7 +143,11 @@ async function extractForSource(
 
     for (const item of items) {
         process.stdout.write(`  Extracting "${item.title}"... `);
-        const extracted = await extractText(llm, item.title, item.html);
+        const existingChunks = await chunkRepo.findBySlug(source.sourceType, item.slug);
+        const plainText = existingChunks.length > 0
+            ? existingChunks.map(c => c.content).join("\n\n")
+            : stripHtml(item.html);
+        const extracted = await extractText(llm, item.title, plainText);
         allExtractions.push(`${item.title}:\n${extracted}`);
 
         const summaryText = `[${item.title}]\n${extracted}`;
@@ -159,15 +176,12 @@ async function extractForSource(
     console.log(`[${source.sourceType}] Generating global aggregate...`);
     const globalPrompt = `Você recebeu extrações de entidades de ${items.length} conteúdos do tipo "${source.sourceType}". Resuma as entidades mais frequentes:\n\n${allExtractions.join("\n\n---\n\n").slice(0, 8000)}`;
     let globalText = `[Resumo geral — ${source.sourceType}]\n`;
-    const globalStream = llm.streamGenerate({
+    globalText += await streamToString(llm, {
         system: "Você é um sumarizador. Liste as entidades mais citadas de forma concisa.",
         context: "",
         history: [],
         question: globalPrompt,
     });
-    for await (const token of globalStream) {
-        globalText += token;
-    }
     const globalEmbedding = await embedder.embed(globalText);
     const globalSourceId = GLOBAL_SOURCE_IDS[source.sourceType];
     if (!globalSourceId) {
@@ -213,13 +227,12 @@ Extrações:
 ${input}`;
 
     let themesText = `[Temas — ${sourceType}]\n`;
-    const stream = llm.streamGenerate({
+    themesText += await streamToString(llm, {
         system: "Você é um analista de conteúdo. Identifique temas recorrentes e mapeie-os para os documentos.",
         context: "",
         history: [],
         question: prompt,
     });
-    for await (const token of stream) themesText += token;
 
     const embedding = await embedder.embed(themesText);
     return {
@@ -243,30 +256,13 @@ async function generateEntityIndexChunk(
     llm: LLMProvider,
     embedder: GeminiEmbeddingProvider,
 ): Promise<EmbeddedChunk> {
-    const allText = allSummaryChunks
-        .map(c => c.content)
-        .join("\n\n---\n\n")
-        .slice(0, 16000);
-
-    const prompt = `Você recebeu extrações de entidades de múltiplos conteúdos (mini-livros, newsletters, etc.).
-Liste todas as pessoas e empresas mencionadas.
-Para cada uma: em quais documentos aparece e em que contexto foi citada.
-
-Formato:
-[Nome da entidade]
-- [Título do documento]: [contexto da citação]
-
-Extrações:
-${allText}`;
-
-    let indexText = "[Índice global de entidades]\n";
-    const stream = llm.streamGenerate({
-        system: "Você é um indexador. Liste entidades e onde aparecem, de forma concisa.",
-        context: "",
-        history: [],
-        question: prompt,
+    const indexText = await buildEntityIndexText({
+        summaries: allSummaryChunks.map(c => ({
+            title: (c.metadata.title as string | undefined) ?? (c.metadata.parent_title as string | undefined) ?? "",
+            content: c.content,
+        })),
+        generate: input => streamToString(llm, input),
     });
-    for await (const token of stream) indexText += token;
 
     const embedding = await embedder.embed(indexText);
     return {
@@ -305,7 +301,7 @@ async function main() {
     let failed = false;
     for (const source of ALL_SOURCES) {
         try {
-            const result = await extractForSource(source, llm, embedder);
+            const result = await extractForSource(source, llm, embedder, chunkRepo);
             allSummaryChunks.push(...result.summaryChunks);
             allGlobalChunks.push(result.globalChunk);
         } catch (err) {
@@ -314,14 +310,9 @@ async function main() {
         }
     }
     if (failed) {
-        console.error("\nExtraction completed with errors. Storing partial results.");
+        console.error("\nExtraction completed with errors. No meta chunks were stored.");
+        process.exit(1);
     }
-
-    console.log(`\nStoring ${allSummaryChunks.length} meta_summary chunks...`);
-    await chunkRepo.replaceAllForSource({ sourceType: "meta_summary", chunks: allSummaryChunks });
-
-    console.log(`Storing ${allGlobalChunks.length} meta_global chunks...`);
-    await chunkRepo.replaceAllForSource({ sourceType: "meta_global", chunks: allGlobalChunks });
 
     // meta_themes: one chunk per source type
     console.log("\nGenerating meta_themes chunks...");
@@ -341,24 +332,37 @@ async function main() {
             failed = true;
         }
     }
-    console.log(`Storing ${allThemesChunks.length} meta_themes chunks...`);
-    await chunkRepo.replaceAllForSource({ sourceType: "meta_themes", chunks: allThemesChunks });
 
     // meta_entity_index: single cross-source chunk
     console.log("\nGenerating meta_entity_index chunk...");
+    let entityChunk: EmbeddedChunk | undefined;
     try {
-        const entityChunk = await generateEntityIndexChunk(allSummaryChunks, llm, embedder);
-        await chunkRepo.replaceAllForSource({ sourceType: "meta_entity_index", chunks: [entityChunk] });
-        console.log("Stored meta_entity_index.");
+        entityChunk = await generateEntityIndexChunk(allSummaryChunks, llm, embedder);
+        console.log("Generated meta_entity_index.");
     } catch (err) {
         console.error("meta_entity_index generation failed:", err);
         failed = true;
     }
 
-    if (failed) {
-        console.error("Meta-chunk generation completed with errors.");
+    try {
+        assertCompleteMetaGeneration({ failed, entityIndexReady: Boolean(entityChunk) });
+    } catch (err) {
+        console.error(err instanceof Error ? err.message : String(err));
         process.exit(1);
     }
+
+    console.log(`\nStoring ${allSummaryChunks.length} meta_summary chunks...`);
+    await chunkRepo.replaceAllForSource({ sourceType: "meta_summary", chunks: allSummaryChunks });
+
+    console.log(`Storing ${allGlobalChunks.length} meta_global chunks...`);
+    await chunkRepo.replaceAllForSource({ sourceType: "meta_global", chunks: allGlobalChunks });
+
+    console.log(`Storing ${allThemesChunks.length} meta_themes chunks...`);
+    await chunkRepo.replaceAllForSource({ sourceType: "meta_themes", chunks: allThemesChunks });
+
+    console.log("Storing meta_entity_index...");
+    await chunkRepo.replaceAllForSource({ sourceType: "meta_entity_index", chunks: [entityChunk!] });
+
     console.log("\nMeta-chunk generation complete.");
     process.exit(0);
 }
