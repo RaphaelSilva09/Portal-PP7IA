@@ -76,13 +76,13 @@ const SORTABLE_TYPES = new Set<ContentTab>(["newsletter", "mini-livro", "bibliot
 const CONTENT_TABS: { type: ContentTab; label: string; icon: typeof Newspaper }[] = [
     { type: "biblioteca", label: "Biblioteca", icon: Library },
     { type: "ebook", label: "E-books", icon: BookMarked },
-    { type: "especial-semana", label: "Especial da Semana", icon: Star },
+    { type: "especial-semana", label: "Inteligência Artificial", icon: Star },
     { type: "estudar", label: "Estudar", icon: GraduationCap },
     { type: "livro", label: "Livro", icon: BookText },
     { type: "mini-livro", label: "Mini-livros", icon: BookOpen },
     { type: "mini-livro-sections", label: "Seções Mini-livros", icon: BookText },
     { type: "newsletter", label: "Newsletters", icon: Newspaper },
-    { type: "radar_oportunidades", label: "Radar de Oportunidades", icon: Radar },
+    { type: "radar_oportunidades", label: "Editoriais e Artigos", icon: Radar },
 ];
 
 /**

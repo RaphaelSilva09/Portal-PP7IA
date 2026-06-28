@@ -154,7 +154,7 @@ export default function BentoGrid() {
                     </a>
 
                     <a
-                        href="/explorar?b=reportagem"
+                        href="/explorar?b=inteligencia-artificial"
                         id="especial"
                         className="group relative block h-full overflow-hidden rounded-3xl border border-amber-500/40 bg-gradient-to-br from-amber-700/12 via-yellow-500/8 to-card/90 backdrop-blur-sm transition-all duration-300 hover:from-amber-700/18 hover:via-yellow-500/12 hover:to-card/95 hover:border-amber-600/60 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
@@ -166,7 +166,7 @@ export default function BentoGrid() {
                                         <Star className="h-5 w-5 text-amber-800" />
                                     </div>
                                 }
-                                title="Reportagem da Semana"
+                                title="Inteligência Artificial"
                                 titleClassName="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-foreground"
                                 arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-amber-800 group-hover:opacity-100"
                             />
@@ -192,7 +192,7 @@ export default function BentoGrid() {
                     </a>
 
                     <a
-                        href="/explorar?b=radar"
+                        href="/explorar?b=editoriais-artigos"
                         id="radar"
                         className="group relative block h-full overflow-hidden rounded-3xl border border-orange-600/40 bg-gradient-to-br from-orange-700/12 via-red-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-orange-700/18 hover:via-red-500/12 hover:to-card/95 hover:border-orange-700/60 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
@@ -204,7 +204,7 @@ export default function BentoGrid() {
                                         <Search className="h-5 w-5 text-orange-800" />
                                     </div>
                                 }
-                                title="Radar"
+                                title="Editoriais e Artigos"
                                 titleClassName="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-foreground"
                                 arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-orange-800 group-hover:opacity-100"
                             />

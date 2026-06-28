@@ -50,11 +50,11 @@ export default function BentoGridEspecialSemana() {
     return (
         <section className="py-12">
             <div className={portalContentClass}>
-                {/* Introdução Especial da Semana */}
+                {/* Introdução Inteligência Artificial */}
                 <div id="introducao" className="mx-auto mb-6 max-w-4xl text-center sm:mb-7 md:mb-8">
                     {/* Título da Introdução */}
                     <h3 id="titulo" className="text-2xl sm:text-3xl md:text-3xl font-bold text-foreground mb-4 tracking-tight leading-tight max-w-3xl line-clamp-2 mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-                        Especial da Semana
+                        Inteligência Artificial
                     </h3>
 
                     {/* Descrição */}
@@ -63,7 +63,7 @@ export default function BentoGridEspecialSemana() {
                         className="text-base sm:text-2xl text-text-secondary max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-2 leading-relaxed animate-fade-in-up"
                         style={{ animationDelay: "0.4s" }}
                     >
-                        Destaque editorial semanal: artigos, apps, tutoriais ou pontos de atenção especial.
+                        Notícias e análises de IA importantes para o Brasil, em linguagem direta.
                     </p>
                 </div>
 

@@ -38,8 +38,8 @@ const LINK_TYPE_CONFIG: Record<string, { label: string; table: string }> = {
     "newsletter":          { label: "Newsletter",              table: "newsletters" },
     "mini-livro":          { label: "Mini-livros",             table: "mini_livros" },
     "biblioteca":          { label: "Biblioteca",              table: "biblioteca" },
-    "especial-semana":     { label: "Especial da Semana",      table: "especial_semana" },
-    "radar-oportunidades": { label: "Radar de Oportunidades",  table: "radar_oportunidades" },
+    "especial-semana":     { label: "Inteligência Artificial", table: "especial_semana" },
+    "radar-oportunidades": { label: "Editoriais e Artigos",    table: "radar_oportunidades" },
     "estudar":             { label: "Estudar",                 table: "estudar" },
 };
 

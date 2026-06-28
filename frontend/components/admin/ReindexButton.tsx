@@ -5,8 +5,8 @@ import { useState } from "react";
 const SOURCES = [
     { key: "mini_livro",          label: "Mini-livros" },
     { key: "newsletter",          label: "Newsletters" },
-    { key: "radar_oportunidades", label: "Radar de Oportunidades" },
-    { key: "especial_semana",     label: "Especial da Semana" },
+    { key: "radar_oportunidades", label: "Editoriais e Artigos" },
+    { key: "especial_semana",     label: "Inteligência Artificial" },
     { key: "biblioteca",          label: "Biblioteca" },
     { key: "estudar",             label: "Estudar" },
 ];

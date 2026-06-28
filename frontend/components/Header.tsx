@@ -11,6 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import AuthModal from "./AuthModal";
 import AnnouncementBarWrapper from "./AnnouncementBarWrapper";
+import ThemeToggle from "./ThemeToggle";
 
 const AUTO_HIDE_TOP_REVEAL_THRESHOLD_PX = 24;
 const AUTO_HIDE_MIN_SCROLL_TO_HIDE_PX = 140;
@@ -158,12 +159,12 @@ export default function Navbar({ autoHideOnScroll = false }: NavbarProps) {
                             className="group flex flex-1 items-start gap-1 leading-none font-editorial min-[1108px]:flex-none"
                         >
                             <div className="flex flex-col items-stretch gap-[3px]">
-                                <span className="text-[2rem] lg:text-[2.8rem] font-semibold tracking-[-0.03em] text-ink">PP7</span>
+                                <span className="text-[1.72rem] sm:text-[2rem] lg:text-[2.8rem] font-semibold tracking-[-0.03em] text-ink">PP7</span>
                                 <span className="h-[3px] w-full rounded-full bg-amber-600" />
                             </div>
-                            <Plus className="mt-[7px] lg:mt-[9px] shrink-0 text-primary w-[18px] h-[18px] lg:w-[26px] lg:h-[26px]" strokeWidth={2.0} />
+                            <Plus className="mt-[6px] sm:mt-[7px] lg:mt-[9px] shrink-0 text-primary w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] lg:w-[26px] lg:h-[26px]" strokeWidth={2.0} />
                             <div className="flex flex-col items-start gap-[3px]">
-                                <span className="text-[2rem] lg:text-[2.8rem] font-semibold tracking-[0.06em] text-ink">IAS</span>
+                                <span className="text-[1.72rem] sm:text-[2rem] lg:text-[2.8rem] font-semibold tracking-[0.06em] text-ink">IAS</span>
                                 <span className="h-[3px] w-[95%] rounded-full bg-primary" />
                             </div>
                         </Link>
@@ -206,6 +207,7 @@ export default function Navbar({ autoHideOnScroll = false }: NavbarProps) {
 
                         {/* Desktop CTA / User */}
                         <div className="nav-desktop-1108 hidden items-center justify-end gap-3">
+                            <ThemeToggle />
                             {isLoading ? (
                                 <div className="h-8 w-24 animate-pulse rounded-full bg-border" />
                             ) : user ? (
@@ -256,6 +258,7 @@ export default function Navbar({ autoHideOnScroll = false }: NavbarProps) {
 
                         {/* Mobile right side */}
                         <div className="nav-mobile-1108 flex flex-1 items-center justify-end gap-2">
+                            <ThemeToggle />
                             {isLoading ? (
                                 <div className="h-7 w-16 animate-pulse rounded-full bg-border" />
                             ) : user ? (
