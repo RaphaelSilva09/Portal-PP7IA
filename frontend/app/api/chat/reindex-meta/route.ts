@@ -26,6 +26,15 @@ const GLOBAL_SOURCE_IDS: Record<string, string> = {
     estudar:             "00000000-0000-4000-8000-fffffffffffa",
 };
 
+const THEMES_SOURCE_IDS: Record<string, string> = {
+    mini_livro:          "00000000-0000-4000-8000-fffffffffff9",
+    newsletter:          "00000000-0000-4000-8000-fffffffffff8",
+    radar_oportunidades: "00000000-0000-4000-8000-fffffffffff7",
+    especial_semana:     "00000000-0000-4000-8000-fffffffffff6",
+    biblioteca:          "00000000-0000-4000-8000-fffffffffff5",
+    estudar:             "00000000-0000-4000-8000-fffffffffff4",
+};
+
 const SOURCES: Record<string, ContentSource> = {
     mini_livro:          new MiniLivrosContentSource(),
     newsletter:          new NewsletterContentSource(),
@@ -91,6 +100,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `No global UUID for source: ${sourceType}` }, { status: 500 });
     }
 
+    const themesSourceId = THEMES_SOURCE_IDS[sourceType];
+    if (!themesSourceId) {
+        return NextResponse.json({ error: `No themes UUID for source: ${sourceType}` }, { status: 500 });
+    }
+
     const startedAt = Date.now();
     try {
         const llm = getLLMProvider();
@@ -126,9 +140,28 @@ export async function POST(request: NextRequest) {
             question: `Você recebeu extrações de entidades de ${items.length} conteúdos do tipo "${sourceType}". Resuma as entidades mais frequentes:\n\n${allExtractionTexts.join("\n\n---\n\n").slice(0, 8000)}`,
         });
 
+        // Phase 2b: themes aggregate
+        const themesInput = allExtractionTexts.join("\n\n---\n\n").slice(0, 8000);
+        const themesPrompt = `Você recebeu extrações de entidades de ${items.length} conteúdos do tipo "${sourceType}".
+Identifique os temas recorrentes nestes documentos.
+Para cada tema, liste quais documentos o abordam e em que contexto específico.
+
+Formato:
+Tema: [nome do tema]
+- [Título do documento]: [descrição breve do contexto]
+
+Extrações:
+${themesInput}`;
+        const themesText = `[Temas — ${sourceType}]\n` + await streamToString(llm, {
+            system: "Você é um analista de conteúdo. Identifique temas recorrentes e mapeie-os para os documentos.",
+            context: "",
+            history: [],
+            question: themesPrompt,
+        });
+
         // Phase 3: batch embed all texts at once
         const summaryTexts = extractions.map(e => `[${e.item.title}]\n${e.text}`);
-        const allTexts = [...summaryTexts, globalText];
+        const allTexts = [...summaryTexts, globalText, themesText];
 
         let allEmbeddings: number[][];
         const embedBatch = (embedder as { embedBatch?: (texts: string[]) => Promise<number[][]> }).embedBatch;
@@ -169,7 +202,22 @@ export async function POST(request: NextRequest) {
                 char_start: 0,
                 char_end: 0,
             },
-            embedding: allEmbeddings[allEmbeddings.length - 1],
+            embedding: allEmbeddings[summaryTexts.length],
+        });
+
+        chunks.push({
+            source_type: "meta_themes",
+            source_id: themesSourceId,
+            chunk_index: 0,
+            content: themesText,
+            metadata: {
+                heading_path: [],
+                slug: `themes_${sourceType}`,
+                title: `Temas — ${sourceType}`,
+                char_start: 0,
+                char_end: 0,
+            },
+            embedding: allEmbeddings[summaryTexts.length + 1],
         });
 
         const stored = await repo.replaceMetaForParentSource(sourceType, chunks);

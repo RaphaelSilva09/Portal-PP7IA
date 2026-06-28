@@ -82,8 +82,9 @@ export class RagChunkRepository {
             await client.query(
                 `DELETE FROM public.rag_chunks
                  WHERE (source_type = 'meta_summary' AND metadata->>'parent_source_type' = $1)
-                    OR (source_type = 'meta_global'  AND metadata->>'slug' = $2)`,
-                [parentSourceType, `global_${parentSourceType}`],
+                    OR (source_type = 'meta_global'  AND metadata->>'slug' = $2)
+                    OR (source_type = 'meta_themes'  AND metadata->>'slug' = $3)`,
+                [parentSourceType, `global_${parentSourceType}`, `themes_${parentSourceType}`],
             );
 
             if (chunks.length === 0) {
@@ -135,6 +136,19 @@ export class RagChunkRepository {
             content: r.content,
             metadata: r.metadata as unknown as RetrievedChunk["metadata"],
             similarity: 1.0,
+        }));
+    }
+
+    async findAllContentBySourceType(sourceType: string): Promise<{ content: string; title: string }[]> {
+        const { rows } = await pool.query<{ content: string; metadata: Record<string, unknown> }>(
+            `SELECT content, metadata FROM public.rag_chunks
+             WHERE source_type = $1
+             ORDER BY source_id, chunk_index`,
+            [sourceType],
+        );
+        return rows.map(r => ({
+            content: r.content,
+            title: (r.metadata?.title as string) ?? (r.metadata?.parent_title as string) ?? "",
         }));
     }
 
