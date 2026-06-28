@@ -3,6 +3,7 @@ import { headers as nextHeaders } from "next/headers";
 import { auth } from "@/lib/auth";
 import { RagChunkRepository } from "@/infrastructure/chat/RagChunkRepository";
 import { getLLMProvider, getEmbeddingProvider } from "@/infrastructure/chat/providers";
+import { buildEntityIndexText } from "@/lib/chat/entityIndex";
 import type { EmbeddedChunk } from "@/domain/chat/Chunk";
 import type { EmbeddingProvider } from "@/domain/chat/EmbeddingProvider";
 
@@ -41,27 +42,9 @@ export async function POST() {
             return NextResponse.json({ error: "No meta_summary chunks found. Run reindex-meta first." }, { status: 400 });
         }
 
-        const allText = summaries
-            .map(s => `${s.title}:\n${s.content}`)
-            .join("\n\n---\n\n")
-            .slice(0, 16000);
-
-        const prompt = `Você recebeu extrações de entidades de múltiplos conteúdos (mini-livros, newsletters, etc.).
-Liste todas as pessoas e empresas mencionadas.
-Para cada uma: em quais documentos aparece e em que contexto foi citada.
-
-Formato:
-[Nome da entidade]
-- [Título do documento]: [contexto da citação]
-
-Extrações:
-${allText}`;
-
-        const indexText = "[Índice global de entidades]\n" + await streamToString(llm, {
-            system: "Você é um indexador. Liste entidades e onde aparecem, de forma concisa.",
-            context: "",
-            history: [],
-            question: prompt,
+        const indexText = await buildEntityIndexText({
+            summaries,
+            generate: input => streamToString(llm, input),
         });
 
         const embedding = await embedder.embed(indexText);
