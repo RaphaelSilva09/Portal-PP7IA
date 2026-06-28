@@ -64,6 +64,7 @@ bckup/
 .claude/
 .codex/
 CLAUDE.md
+AGENTS.md
 docs/agent-findings.md
 .vercel
 .superpowers/
