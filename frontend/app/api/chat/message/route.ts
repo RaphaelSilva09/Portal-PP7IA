@@ -9,7 +9,8 @@ import { encodeSseEvent, sseResponse } from "@/lib/chat/sse";
 import { buildPrompt } from "@/lib/chat/promptBuilder";
 import { answerWithMarkers } from "@/lib/chat/answerWithMarkers";
 import { citationFromMetadata } from "@/domain/chat/RagAnswer";
-import { RAG_SOURCES, isCitable } from "@/lib/chat/ragSources";
+import { RAG_SOURCES } from "@/lib/chat/ragSources";
+import { selectRagContext } from "@/lib/chat/ragSelection";
 import type { Message } from "@/domain/chat/Message";
 import type { SseEvent } from "@/domain/chat/RagAnswer";
 import type { RetrievedChunk } from "@/domain/chat/Chunk";
@@ -18,6 +19,7 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const RAG_MIN_SIMILARITY = parseFloat(process.env.RAG_MIN_SIMILARITY ?? "0.55");
+const RAG_META_FALLBACK_MIN_SIMILARITY = parseFloat(process.env.RAG_META_FALLBACK_MIN_SIMILARITY ?? "0.45");
 const RAG_DAILY_LIMIT = parseInt(process.env.RAG_DAILY_LIMIT ?? "30", 10);
 const NO_MATCH_TEXT = "Não encontrei isso nos conteúdos do portal. Tente reformular ou explore a biblioteca completa.";
 
@@ -104,12 +106,13 @@ export async function POST(request: NextRequest) {
         allChunks = results.flat();
     }
 
-    // 5. Split: citable (→ citations + [N] markers) vs uncited (→ [Contexto adicional])
-    //    meta_global bypasses similarity filter and goes straight to uncitedChunks.
-    const uncitedChunks = allChunks.filter(c => !isCitable(c.source_type));
-    const citableCandidates = allChunks
-        .filter(c => isCitable(c.source_type))
-        .filter(c => c.similarity >= RAG_MIN_SIMILARITY);
+    // 5. Split: citable (→ citations + [N] markers) vs uncited (→ [Contexto adicional]).
+    //    If only meta context is strong, keep weaker citable chunks as grounding.
+    const { uncitedChunks, citableCandidates, usedMetaFallback } = selectRagContext({
+        chunks: allChunks,
+        minSimilarity: RAG_MIN_SIMILARITY,
+        metaFallbackMinSimilarity: RAG_META_FALLBACK_MIN_SIMILARITY,
+    });
 
     if (citableCandidates.length === 0) {
         const stream = new ReadableStream({
@@ -122,7 +125,7 @@ export async function POST(request: NextRequest) {
         rateRepo.increment(user.id).catch(err => console.error("rateRepo.increment failed", err));
         console.log(JSON.stringify({
             event: "chat.message", user_id: user.id, ms: Date.now() - startedAt,
-            top_k: 0, min_sim: RAG_MIN_SIMILARITY, status: "no_match",
+            top_k: 0, min_sim: RAG_MIN_SIMILARITY, status: "no_match", meta_fallback: usedMetaFallback,
         }));
         return sseResponse(stream);
     }
@@ -204,6 +207,7 @@ export async function POST(request: NextRequest) {
                     event: "chat.message", user_id: user.id, ms: Date.now() - startedAt,
                     chunks_used: usedChunks.length,
                     min_sim: RAG_MIN_SIMILARITY, status: "ok", retried, markers_ok: markersOk,
+                    meta_fallback: usedMetaFallback,
                 }));
             }
         },

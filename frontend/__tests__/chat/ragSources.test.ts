@@ -28,8 +28,10 @@ describe("isCitable", () => {
         expect(isCitable("meta_summary")).toBe(true);
     });
 
-    it("returns false for meta_global", () => {
+    it("returns false for non-citable meta sources", () => {
         expect(isCitable("meta_global")).toBe(false);
+        expect(isCitable("meta_themes")).toBe(false);
+        expect(isCitable("meta_entity_index")).toBe(false);
     });
 
     it("defaults to true for unknown source types", () => {
