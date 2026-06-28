@@ -1,5 +1,21 @@
 import type { NextConfig } from "next";
 
+type WebpackRule = {
+    test?: {
+        test?: (value: string) => boolean;
+    };
+    issuer?: unknown;
+    resourceQuery?: {
+        not?: RegExp[];
+    };
+    exclude?: RegExp;
+    [key: string]: unknown;
+};
+
+function isWebpackRule(rule: unknown): rule is WebpackRule {
+    return typeof rule === "object" && rule !== null;
+}
+
 const nextConfig: NextConfig = {
     // Empty turbopack config to acknowledge Turbopack and silence the error
     // while we continue using webpack for SVG handling
@@ -92,7 +108,13 @@ const nextConfig: NextConfig = {
             };
         }
         // Grab the existing rule that handles SVG imports
-        const fileLoaderRule = config.module.rules.find((rule: any) => rule.test?.test?.(".svg"));
+        const fileLoaderRule = config.module.rules.find(
+            (rule: unknown): rule is WebpackRule => isWebpackRule(rule) && rule.test?.test?.(".svg") === true,
+        );
+
+        if (!fileLoaderRule) {
+            return config;
+        }
 
         config.module.rules.push(
             // Reapply the existing rule, but only for svg imports ending in ?url
@@ -105,7 +127,7 @@ const nextConfig: NextConfig = {
             {
                 test: /\.svg$/i,
                 issuer: fileLoaderRule.issuer,
-                resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
+                resourceQuery: { not: [...(fileLoaderRule.resourceQuery?.not ?? []), /url/] }, // exclude if *.svg?url
                 use: ["@svgr/webpack"],
             },
         );

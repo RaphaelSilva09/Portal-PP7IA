@@ -68,7 +68,7 @@ export default function Declaracoes() {
                             <div>
                                 <h3 className="text-lg font-bold text-foreground mb-3">Visão</h3>
                                 <blockquote className="border-l-4 border-blue-500 pl-4 italic text-base text-text-secondary leading-relaxed">
-                                    "Liderar é servir. Formar pessoas. Deixar legado."
+                                    &ldquo;Liderar é servir. Formar pessoas. Deixar legado.&rdquo;
                                 </blockquote>
                             </div>
                         </div>

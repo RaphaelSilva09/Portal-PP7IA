@@ -14,7 +14,7 @@ import { PortalNewsItem, PortalNewsItemProps } from '@/domain/entities/PortalNew
 import PortalNewsWidget from '@/components/PortalNewsWidget';
 
 function makeItem(overrides: Partial<PortalNewsItemProps> = {}) {
-    return PortalNewsItem.create({
+    const props: PortalNewsItemProps = {
         id: 'item-1',
         title: 'Test Item',
         description: null,
@@ -29,7 +29,9 @@ function makeItem(overrides: Partial<PortalNewsItemProps> = {}) {
         linkType: null,
         linkItemId: null,
         ...overrides,
-    } as any);
+    };
+
+    return PortalNewsItem.create(props);
 }
 
 describe('PortalNewsWidget', () => {

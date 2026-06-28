@@ -95,7 +95,7 @@ export const authorSections: AuthorSection[] = [
         content: (
             <div className="space-y-5">
                 <blockquote className="text-lg text-white font-medium italic border-l-4 border-brand-purple pl-5 py-1">
-                    "A tecnologia é apenas ferramenta. O foco é, e sempre será, GENTE."
+                    &ldquo;A tecnologia é apenas ferramenta. O foco é, e sempre será, GENTE.&rdquo;
                 </blockquote>
                 <ul className="space-y-4">
                     <li className="flex items-start gap-3 text-text-secondary">
@@ -124,5 +124,4 @@ export const authorSections: AuthorSection[] = [
         ),
     },
 ];
-
 
