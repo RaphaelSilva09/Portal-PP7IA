@@ -62,6 +62,7 @@ bckup/
 
 #AI helpers
 .claude/
+.codex/
 CLAUDE.md
 docs/agent-findings.md
 .vercel
