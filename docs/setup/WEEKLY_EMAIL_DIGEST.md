@@ -42,6 +42,7 @@ Optional variables:
 
 - `DIGEST_DRY_RUN=1` logs recipients without sending.
 - `DIGEST_FORCE=1` allows a manual run outside Wednesday.
+- `DIGEST_MAX_ITEMS=20` controls the maximum queued content items included in one digest.
 
 ## Manual Run
 
@@ -64,3 +65,9 @@ Recipients are tracked in `public.email_digest_deliveries`.
 
 If the job is retried in the same week, users already marked as `sent` are skipped.
 The queue rows are marked with `sent_at` only after all pending deliveries succeed.
+
+## Queue Rollover
+
+The job reads the oldest supported pending rows first and defaults to 20 items per digest.
+If more than `DIGEST_MAX_ITEMS` rows are pending, the remainder stay in `content_digest_queue`
+for the next successful digest run.

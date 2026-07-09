@@ -8,6 +8,7 @@ const DIGEST_TIME_ZONE = "America/Sao_Paulo";
 const DIGEST_HOUR = 10;
 const DIGEST_MINUTE = 0;
 const DIGEST_CRON_UTC = "0 13 * * 3";
+const DEFAULT_DIGEST_MAX_ITEMS = 20;
 
 const TABLE_CONFIG: Record<string, { label: string; viewType: string; fallbackPath: string }> = {
     newsletters: { label: "Newsletter", viewType: "newsletter", fallbackPath: "/explorar?b=newsletter" },
@@ -66,6 +67,7 @@ interface WeeklyDigestOptions {
     force?: boolean;
     dryRun?: boolean;
     siteUrl?: string;
+    maxItems?: number;
     logger?: Logger;
     pool?: typeof defaultPool;
     resendClient?: typeof defaultResend;
@@ -215,6 +217,7 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
     const dbPool = options.pool ?? defaultPool;
     const resendClient = options.resendClient ?? defaultResend;
     const digestKey = getDigestKey(now);
+    const maxItems = resolveDigestMaxItems(options.maxItems);
 
     if (!shouldRunWeeklyDigest(now, { force: options.force })) {
         logger.log(`[weekly-digest] skipped: ${digestKey} is not Wednesday in ${DIGEST_TIME_ZONE}`);
@@ -226,9 +229,10 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
     }
 
     const client = await dbPool.connect();
+    let runId: string | null = null;
     try {
         if (options.dryRun) {
-            const rows = await loadPendingDigestRows(client);
+            const rows = await loadPendingDigestRows(client, maxItems);
             const items = rows.map((row) => normalizeDigestItem(row, siteUrl));
             const recipients = await loadRecipients(client);
             for (const recipient of recipients) {
@@ -244,13 +248,13 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
             };
         }
 
-        const runId = await createOrResumeRun(client, digestKey, now);
+        runId = await createOrResumeRun(client, digestKey, now);
         if (!runId) {
             logger.log(`[weekly-digest] skipped: ${digestKey} already completed`);
             return { status: "skipped", digestKey, contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 };
         }
 
-        const rows = await loadPendingDigestRows(client);
+        const rows = await loadPendingDigestRows(client, maxItems);
         const items = rows.map((row) => normalizeDigestItem(row, siteUrl));
         const recipients = await loadRecipients(client);
 
@@ -299,6 +303,16 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
         await finishRun(client, runId, status, sentCount, failedCount, failedCount ? "Some recipients failed" : null);
 
         return { status, digestKey, contentCount: items.length, recipientCount: recipients.length, sentCount, failedCount };
+    } catch (error) {
+        if (runId) {
+            try {
+                const { sentCount, failedCount } = await loadDeliveryTotals(client, runId);
+                await finishRun(client, runId, "failed", sentCount, failedCount, errorMessage(error));
+            } catch (markError) {
+                logger.error(`[weekly-digest] failed to mark run as failed: ${errorMessage(markError)}`);
+            }
+        }
+        throw error;
     } finally {
         client.release();
     }
@@ -334,6 +348,11 @@ function groupByTable(items: DigestItem[]): Map<string, DigestItem[]> {
 
 function resolveSiteUrl(siteUrl?: string): string {
     return (siteUrl ?? process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? DEFAULT_SITE_URL).replace(/\/+$/, "");
+}
+
+function resolveDigestMaxItems(maxItems?: number): number {
+    const value = maxItems ?? Number(process.env.DIGEST_MAX_ITEMS ?? DEFAULT_DIGEST_MAX_ITEMS);
+    return Number.isInteger(value) && value > 0 ? value : DEFAULT_DIGEST_MAX_ITEMS;
 }
 
 function absoluteUrl(path: string, siteUrl: string): string {
@@ -387,15 +406,15 @@ async function createOrResumeRun(client: PoolClient, digestKey: string, now: Dat
     return result.rows[0]?.id ?? null;
 }
 
-async function loadPendingDigestRows(client: PoolClient): Promise<DigestQueueRow[]> {
+async function loadPendingDigestRows(client: PoolClient, maxItems: number): Promise<DigestQueueRow[]> {
     const { rows } = await client.query<DigestQueueRow>(
         `SELECT id::text, table_name, record_id, record_data, created_at
          FROM public.content_digest_queue
          WHERE sent_at IS NULL
            AND table_name = ANY($1::text[])
          ORDER BY created_at ASC
-         LIMIT 20`,
-        [SUPPORTED_TABLE_NAMES],
+         LIMIT $2`,
+        [SUPPORTED_TABLE_NAMES, maxItems],
     );
     return rows;
 }
@@ -421,14 +440,14 @@ async function updateRunCounts(client: PoolClient, runId: string, contentCount: 
 }
 
 async function ensureDeliveries(client: PoolClient, runId: string, recipients: DigestRecipient[]): Promise<void> {
-    for (const recipient of recipients) {
-        await client.query(
-            `INSERT INTO public.email_digest_deliveries (run_id, user_id, email, status)
-             VALUES ($1, $2, $3, 'pending')
-             ON CONFLICT (run_id, user_id) DO NOTHING`,
-            [runId, recipient.id, recipient.email],
-        );
-    }
+    if (recipients.length === 0) return;
+    await client.query(
+        `INSERT INTO public.email_digest_deliveries (run_id, user_id, email, status)
+         SELECT $1::uuid, recipient.user_id, recipient.email, 'pending'
+         FROM unnest($2::uuid[], $3::text[]) AS recipient(user_id, email)
+         ON CONFLICT (run_id, user_id) DO NOTHING`,
+        [runId, recipients.map((recipient) => recipient.id), recipients.map((recipient) => recipient.email)],
+    );
 }
 
 async function loadPendingRecipients(client: PoolClient, runId: string): Promise<DigestRecipient[]> {

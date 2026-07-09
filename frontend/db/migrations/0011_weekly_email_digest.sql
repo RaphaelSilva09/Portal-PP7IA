@@ -66,3 +66,32 @@ BEGIN
   RETURN NEW;
 END;
 $function$;
+
+DO $$
+DECLARE
+  content_table TEXT;
+BEGIN
+  FOREACH content_table IN ARRAY ARRAY[
+    'biblioteca',
+    'ebooks',
+    'especial_semana',
+    'estudar',
+    'mini_livros',
+    'newsletters',
+    'radar_oportunidades'
+  ]
+  LOOP
+    IF to_regclass(format('public.%I', content_table)) IS NOT NULL THEN
+      EXECUTE format(
+        'DROP TRIGGER IF EXISTS %I ON public.%I',
+        'trg_queue_digest_' || content_table,
+        content_table
+      );
+      EXECUTE format(
+        'CREATE TRIGGER %I AFTER INSERT ON public.%I FOR EACH ROW EXECUTE FUNCTION public.queue_content_for_digest()',
+        'trg_queue_digest_' || content_table,
+        content_table
+      );
+    END IF;
+  END LOOP;
+END $$;
