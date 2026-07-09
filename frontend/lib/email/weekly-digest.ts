@@ -1,7 +1,7 @@
 import type { PoolClient } from "pg";
 
 import { pool as defaultPool } from "../db";
-import { EMAIL_FROM, resend as defaultResend } from "./resend";
+import { EMAIL_FROM, assertEmailConfigured, resend as defaultResend } from "./resend";
 
 const DEFAULT_SITE_URL = "https://pp7ias-portal.com.br";
 const DIGEST_TIME_ZONE = "America/Sao_Paulo";
@@ -18,6 +18,7 @@ const TABLE_CONFIG: Record<string, { label: string; viewType: string; fallbackPa
     radar_oportunidades: { label: "Radar de Oportunidades", viewType: "radar_oportunidades", fallbackPath: "/explorar?b=radar" },
     ebooks: { label: "E-books", viewType: "ebook", fallbackPath: "/mini-livros" },
 };
+const SUPPORTED_TABLE_NAMES = Object.keys(TABLE_CONFIG);
 
 type Logger = Pick<Console, "log" | "warn" | "error">;
 
@@ -220,6 +221,10 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
         return { status: "skipped", digestKey, contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 };
     }
 
+    if (!options.dryRun && !options.resendClient) {
+        assertEmailConfigured();
+    }
+
     const client = await dbPool.connect();
     try {
         if (options.dryRun) {
@@ -267,9 +272,6 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
         const pendingRecipients = await loadPendingRecipients(client, runId);
         const email = buildWeeklyDigestEmail({ items, siteUrl });
 
-        let sentCount = 0;
-        let failedCount = 0;
-
         for (const recipient of pendingRecipients) {
             try {
                 const { data, error } = await resendClient.emails.send({
@@ -281,13 +283,13 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
                 });
                 if (error) throw new Error(error.message ?? String(error));
                 await markDeliverySent(client, runId, recipient.id, stringValue((data as { id?: unknown } | null)?.id));
-                sentCount += 1;
             } catch (error) {
-                failedCount += 1;
                 await markDeliveryFailed(client, runId, recipient.id, errorMessage(error));
                 logger.error(`[weekly-digest] failed for ${recipient.email}: ${errorMessage(error)}`);
             }
         }
+
+        const { sentCount, failedCount } = await loadDeliveryTotals(client, runId);
 
         if (failedCount === 0) {
             await markQueueSent(client, items.map((item) => item.queueId));
@@ -370,29 +372,19 @@ function escapeAttribute(value: string): string {
 }
 
 async function createOrResumeRun(client: PoolClient, digestKey: string, now: Date): Promise<string | null> {
-    const existing = await client.query<{ id: string; status: string; started_at: Date }>(
-        `SELECT id, status, started_at FROM public.email_digest_runs WHERE digest_key = $1`,
-        [digestKey],
-    );
-    const row = existing.rows[0];
-    if (row?.status === "completed") return null;
-    if (row) {
-        await client.query(
-            `UPDATE public.email_digest_runs
-             SET status = 'running', started_at = $2, error = NULL
-             WHERE id = $1`,
-            [row.id, now],
-        );
-        return row.id;
-    }
-
-    const inserted = await client.query<{ id: string }>(
+    const result = await client.query<{ id: string }>(
         `INSERT INTO public.email_digest_runs (digest_key, status, started_at)
          VALUES ($1, 'running', $2)
+         ON CONFLICT (digest_key) DO UPDATE
+         SET status = 'running',
+             started_at = EXCLUDED.started_at,
+             finished_at = NULL,
+             error = NULL
+         WHERE public.email_digest_runs.status <> 'completed'
          RETURNING id`,
         [digestKey, now],
     );
-    return inserted.rows[0].id;
+    return result.rows[0]?.id ?? null;
 }
 
 async function loadPendingDigestRows(client: PoolClient): Promise<DigestQueueRow[]> {
@@ -400,10 +392,12 @@ async function loadPendingDigestRows(client: PoolClient): Promise<DigestQueueRow
         `SELECT id::text, table_name, record_id, record_data, created_at
          FROM public.content_digest_queue
          WHERE sent_at IS NULL
+           AND table_name = ANY($1::text[])
          ORDER BY created_at ASC
          LIMIT 20`,
+        [SUPPORTED_TABLE_NAMES],
     );
-    return rows.filter((row) => Boolean(TABLE_CONFIG[row.table_name]));
+    return rows;
 }
 
 async function loadRecipients(client: PoolClient): Promise<DigestRecipient[]> {
@@ -465,6 +459,21 @@ async function markDeliveryFailed(client: PoolClient, runId: string, userId: str
          WHERE run_id = $1 AND user_id = $2`,
         [runId, userId, error.slice(0, 1000)],
     );
+}
+
+async function loadDeliveryTotals(client: PoolClient, runId: string): Promise<{ sentCount: number; failedCount: number }> {
+    const { rows } = await client.query<{ sent_count: string; failed_count: string }>(
+        `SELECT
+           COUNT(*) FILTER (WHERE status = 'sent')::text AS sent_count,
+           COUNT(*) FILTER (WHERE status = 'failed')::text AS failed_count
+         FROM public.email_digest_deliveries
+         WHERE run_id = $1`,
+        [runId],
+    );
+    return {
+        sentCount: Number(rows[0]?.sent_count ?? 0),
+        failedCount: Number(rows[0]?.failed_count ?? 0),
+    };
 }
 
 async function markQueueSent(client: PoolClient, queueIds: string[]): Promise<void> {
