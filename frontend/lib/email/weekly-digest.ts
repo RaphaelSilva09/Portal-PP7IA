@@ -12,6 +12,8 @@ const DEFAULT_DIGEST_MAX_ITEMS = 20;
 const DEFAULT_DIGEST_SEND_INTERVAL_MS = 125;
 const DEFAULT_DIGEST_RATE_LIMIT_RETRY_MS = 1_200;
 const MAX_DIGEST_RATE_LIMIT_RETRIES = 3;
+const PRODUCTION_ENVIRONMENT_NAMES = new Set(["production", "prod"]);
+const PRODUCTION_BRANCH_NAMES = new Set(["main", "master"]);
 
 const TABLE_CONFIG: Record<string, { label: string; viewType: string; fallbackPath: string }> = {
     newsletters: { label: "Newsletter", viewType: "newsletter", fallbackPath: "/explorar?b=newsletter" },
@@ -236,6 +238,11 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
         return { status: "skipped", digestKey, contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 };
     }
 
+    if (!options.force && !isProductionRuntimeTarget()) {
+        logger.log(`[weekly-digest] skipped: automatic runs are only enabled on main/production`);
+        return { status: "skipped", digestKey, contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 };
+    }
+
     if (!options.dryRun && !options.resendClient) {
         assertEmailConfigured();
     }
@@ -370,6 +377,12 @@ function resolveDigestMaxItems(maxItems?: number): number {
 function resolveNonNegativeNumber(value: number | undefined, envName: string, fallback: number): number {
     const resolved = value ?? Number(process.env[envName] ?? fallback);
     return Number.isFinite(resolved) && resolved >= 0 ? resolved : fallback;
+}
+
+function isProductionRuntimeTarget(): boolean {
+    const environmentName = stringValue(process.env.RAILWAY_ENVIRONMENT_NAME).trim().toLowerCase();
+    const gitBranch = stringValue(process.env.RAILWAY_GIT_BRANCH).trim().toLowerCase();
+    return PRODUCTION_ENVIRONMENT_NAMES.has(environmentName) || PRODUCTION_BRANCH_NAMES.has(gitBranch);
 }
 
 function createProviderSendPacer(intervalMs: number): () => Promise<void> {

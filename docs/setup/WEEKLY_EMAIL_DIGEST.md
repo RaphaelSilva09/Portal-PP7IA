@@ -31,6 +31,10 @@ Create a second Railway service from the same repo:
 - Cron schedule: `0 13 * * 3`
 - Environment: `production`
 
+Automatic runs are enabled only when Railway reports `RAILWAY_ENVIRONMENT_NAME=production|prod`
+or `RAILWAY_GIT_BRANCH=main|master`. On `develop`/`development`, the job exits as `skipped`
+unless it is manually forced with `DIGEST_FORCE=1`.
+
 Required variables:
 
 - `DATABASE_URL`
