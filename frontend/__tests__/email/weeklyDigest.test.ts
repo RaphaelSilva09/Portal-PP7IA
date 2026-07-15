@@ -107,6 +107,72 @@ describe("weekly digest email", () => {
         expect(client.queue[0].sent_at).toBeInstanceOf(Date);
     });
 
+    it("skips automatic runs outside main or production", async () => {
+        await withEnv({ RAILWAY_ENVIRONMENT_NAME: "development", RAILWAY_GIT_BRANCH: "develop" }, async () => {
+            const client = new FakeDigestClient({
+                queue: [queueRow("55555555-5555-4555-8555-555555555555")],
+                recipients: [recipient("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "ana@example.com")],
+            });
+            const resendClient = fakeResendClient([{ data: { id: "email-1" } }]);
+
+            const result = await sendWeeklyDigest({
+                now: new Date("2026-07-08T13:00:00.000Z"),
+                pool: fakePool(client),
+                resendClient,
+                logger: silentLogger,
+            });
+
+            expect(result).toMatchObject({ status: "skipped", contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 });
+            expect(client.run).toBeNull();
+            expect((resendClient as unknown as { emails: { send: ReturnType<typeof vi.fn> } }).emails.send).not.toHaveBeenCalled();
+        });
+    });
+
+    it("allows automatic runs on production", async () => {
+        await withEnv({ RAILWAY_ENVIRONMENT_NAME: "production", RAILWAY_GIT_BRANCH: "main" }, async () => {
+            const client = new FakeDigestClient({
+                queue: [queueRow("66666666-6666-4666-8666-666666666666")],
+                recipients: [recipient("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "ana@example.com")],
+            });
+            const resendClient = fakeResendClient([{ data: { id: "email-1" } }]);
+
+            const result = await sendWeeklyDigest({
+                now: new Date("2026-07-08T13:00:00.000Z"),
+                pool: fakePool(client),
+                resendClient,
+            });
+
+            expect(result).toMatchObject({ status: "completed", sentCount: 1, failedCount: 0 });
+            expect(client.run?.status).toBe("completed");
+        });
+    });
+
+    it("retries provider rate limits before marking a delivery failed", async () => {
+        const client = new FakeDigestClient({
+            queue: [queueRow("44444444-4444-4444-8444-444444444444")],
+            recipients: [recipient("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "ana@example.com")],
+        });
+        const resendClient = fakeResendClient([
+            { error: new Error("Too many requests. You can only make 10 requests per second.") },
+            { data: { id: "email-after-retry" } },
+        ]);
+        const sendMock = (resendClient as unknown as { emails: { send: ReturnType<typeof vi.fn> } }).emails.send;
+
+        const result = await sendWeeklyDigest({
+            force: true,
+            now: new Date("2026-07-08T13:00:00.000Z"),
+            pool: fakePool(client),
+            resendClient,
+            sendIntervalMs: 0,
+            rateLimitRetryDelayMs: 0,
+            logger: silentLogger,
+        });
+
+        expect(result).toMatchObject({ status: "completed", sentCount: 1, failedCount: 0 });
+        expect(sendMock).toHaveBeenCalledTimes(2);
+        expect(client.deliveries[0]).toMatchObject({ status: "sent", provider_message_id: "email-after-retry", error: null });
+    });
+
     it("retries failed deliveries without resetting previous sent totals", async () => {
         const client = new FakeDigestClient({
             queue: [queueRow("22222222-2222-4222-8222-222222222222")],
@@ -375,6 +441,24 @@ function fakeResendClient(results: Array<{ data?: { id: string }; error?: Error 
             }),
         },
     } as never;
+}
+
+async function withEnv<T>(values: Record<string, string>, run: () => Promise<T>): Promise<T> {
+    const previous = Object.fromEntries(Object.keys(values).map((key) => [key, process.env[key]]));
+    for (const [key, value] of Object.entries(values)) {
+        process.env[key] = value;
+    }
+    try {
+        return await run();
+    } finally {
+        for (const [key, value] of Object.entries(previous)) {
+            if (value === undefined) {
+                delete process.env[key];
+            } else {
+                process.env[key] = value;
+            }
+        }
+    }
 }
 
 const silentLogger = {

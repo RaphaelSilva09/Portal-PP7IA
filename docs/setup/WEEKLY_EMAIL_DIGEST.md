@@ -31,6 +31,10 @@ Create a second Railway service from the same repo:
 - Cron schedule: `0 13 * * 3`
 - Environment: `production`
 
+Automatic runs are enabled only when Railway reports `RAILWAY_ENVIRONMENT_NAME=production|prod`
+or `RAILWAY_GIT_BRANCH=main|master`. On `develop`/`development`, the job exits as `skipped`
+unless it is manually forced with `DIGEST_FORCE=1`.
+
 Required variables:
 
 - `DATABASE_URL`
@@ -43,6 +47,8 @@ Optional variables:
 - `DIGEST_DRY_RUN=1` logs recipients without sending.
 - `DIGEST_FORCE=1` allows a manual run outside Wednesday.
 - `DIGEST_MAX_ITEMS=20` controls the maximum queued content items included in one digest.
+- `DIGEST_SEND_INTERVAL_MS=125` spaces provider sends to stay under Resend rate limits.
+- `DIGEST_RATE_LIMIT_RETRY_MS=1200` controls the delay before retrying provider rate-limit responses.
 
 ## Manual Run
 
