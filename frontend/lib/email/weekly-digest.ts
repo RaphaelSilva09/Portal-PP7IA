@@ -9,6 +9,9 @@ const DIGEST_HOUR = 10;
 const DIGEST_MINUTE = 0;
 const DIGEST_CRON_UTC = "0 13 * * 3";
 const DEFAULT_DIGEST_MAX_ITEMS = 20;
+const DEFAULT_DIGEST_SEND_INTERVAL_MS = 125;
+const DEFAULT_DIGEST_RATE_LIMIT_RETRY_MS = 1_200;
+const MAX_DIGEST_RATE_LIMIT_RETRIES = 3;
 
 const TABLE_CONFIG: Record<string, { label: string; viewType: string; fallbackPath: string }> = {
     newsletters: { label: "Newsletter", viewType: "newsletter", fallbackPath: "/explorar?b=newsletter" },
@@ -68,6 +71,8 @@ interface WeeklyDigestOptions {
     dryRun?: boolean;
     siteUrl?: string;
     maxItems?: number;
+    sendIntervalMs?: number;
+    rateLimitRetryDelayMs?: number;
     logger?: Logger;
     pool?: typeof defaultPool;
     resendClient?: typeof defaultResend;
@@ -218,6 +223,13 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
     const resendClient = options.resendClient ?? defaultResend;
     const digestKey = getDigestKey(now);
     const maxItems = resolveDigestMaxItems(options.maxItems);
+    const sendIntervalMs = resolveNonNegativeNumber(options.sendIntervalMs, "DIGEST_SEND_INTERVAL_MS", DEFAULT_DIGEST_SEND_INTERVAL_MS);
+    const rateLimitRetryDelayMs = resolveNonNegativeNumber(
+        options.rateLimitRetryDelayMs,
+        "DIGEST_RATE_LIMIT_RETRY_MS",
+        DEFAULT_DIGEST_RATE_LIMIT_RETRY_MS,
+    );
+    const paceProviderSend = createProviderSendPacer(sendIntervalMs);
 
     if (!shouldRunWeeklyDigest(now, { force: options.force })) {
         logger.log(`[weekly-digest] skipped: ${digestKey} is not Wednesday in ${DIGEST_TIME_ZONE}`);
@@ -278,15 +290,15 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
 
         for (const recipient of pendingRecipients) {
             try {
-                const { data, error } = await resendClient.emails.send({
-                    from: EMAIL_FROM,
-                    to: recipient.email,
-                    subject: email.subject,
-                    html: email.html,
-                    text: email.text,
+                const providerMessageId = await sendDigestEmail({
+                    resendClient,
+                    recipient,
+                    email,
+                    paceProviderSend,
+                    rateLimitRetryDelayMs,
+                    logger,
                 });
-                if (error) throw new Error(error.message ?? String(error));
-                await markDeliverySent(client, runId, recipient.id, stringValue((data as { id?: unknown } | null)?.id));
+                await markDeliverySent(client, runId, recipient.id, providerMessageId);
             } catch (error) {
                 await markDeliveryFailed(client, runId, recipient.id, errorMessage(error));
                 logger.error(`[weekly-digest] failed for ${recipient.email}: ${errorMessage(error)}`);
@@ -353,6 +365,21 @@ function resolveSiteUrl(siteUrl?: string): string {
 function resolveDigestMaxItems(maxItems?: number): number {
     const value = maxItems ?? Number(process.env.DIGEST_MAX_ITEMS ?? DEFAULT_DIGEST_MAX_ITEMS);
     return Number.isInteger(value) && value > 0 ? value : DEFAULT_DIGEST_MAX_ITEMS;
+}
+
+function resolveNonNegativeNumber(value: number | undefined, envName: string, fallback: number): number {
+    const resolved = value ?? Number(process.env[envName] ?? fallback);
+    return Number.isFinite(resolved) && resolved >= 0 ? resolved : fallback;
+}
+
+function createProviderSendPacer(intervalMs: number): () => Promise<void> {
+    let lastSendStartedAt = 0;
+    return async () => {
+        if (intervalMs <= 0) return;
+        const waitMs = Math.max(0, lastSendStartedAt + intervalMs - Date.now());
+        if (waitMs > 0) await sleep(waitMs);
+        lastSendStartedAt = Date.now();
+    };
 }
 
 function absoluteUrl(path: string, siteUrl: string): string {
@@ -503,6 +530,53 @@ async function markQueueSent(client: PoolClient, queueIds: string[]): Promise<vo
          WHERE id = ANY($1::uuid[])`,
         [queueIds],
     );
+}
+
+async function sendDigestEmail({
+    resendClient,
+    recipient,
+    email,
+    paceProviderSend,
+    rateLimitRetryDelayMs,
+    logger,
+}: {
+    resendClient: typeof defaultResend;
+    recipient: DigestRecipient;
+    email: WeeklyDigestEmail;
+    paceProviderSend: () => Promise<void>;
+    rateLimitRetryDelayMs: number;
+    logger: Logger;
+}): Promise<string> {
+    for (let attempt = 0; attempt <= MAX_DIGEST_RATE_LIMIT_RETRIES; attempt += 1) {
+        await paceProviderSend();
+        const { data, error } = await resendClient.emails.send({
+            from: EMAIL_FROM,
+            to: recipient.email,
+            subject: email.subject,
+            html: email.html,
+            text: email.text,
+        });
+
+        if (!error) return stringValue((data as { id?: unknown } | null)?.id);
+
+        const message = error.message ?? String(error);
+        if (!isRateLimitError(message) || attempt === MAX_DIGEST_RATE_LIMIT_RETRIES) {
+            throw new Error(message);
+        }
+
+        logger.warn(`[weekly-digest] rate limited for ${recipient.email}; retrying in ${rateLimitRetryDelayMs}ms`);
+        if (rateLimitRetryDelayMs > 0) await sleep(rateLimitRetryDelayMs);
+    }
+
+    throw new Error("Unable to send digest email");
+}
+
+function isRateLimitError(message: string): boolean {
+    return /rate limit|too many requests/i.test(message);
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function finishRun(

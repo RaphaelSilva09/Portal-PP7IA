@@ -107,6 +107,32 @@ describe("weekly digest email", () => {
         expect(client.queue[0].sent_at).toBeInstanceOf(Date);
     });
 
+    it("retries provider rate limits before marking a delivery failed", async () => {
+        const client = new FakeDigestClient({
+            queue: [queueRow("44444444-4444-4444-8444-444444444444")],
+            recipients: [recipient("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "ana@example.com")],
+        });
+        const resendClient = fakeResendClient([
+            { error: new Error("Too many requests. You can only make 10 requests per second.") },
+            { data: { id: "email-after-retry" } },
+        ]);
+        const sendMock = (resendClient as unknown as { emails: { send: ReturnType<typeof vi.fn> } }).emails.send;
+
+        const result = await sendWeeklyDigest({
+            force: true,
+            now: new Date("2026-07-08T13:00:00.000Z"),
+            pool: fakePool(client),
+            resendClient,
+            sendIntervalMs: 0,
+            rateLimitRetryDelayMs: 0,
+            logger: silentLogger,
+        });
+
+        expect(result).toMatchObject({ status: "completed", sentCount: 1, failedCount: 0 });
+        expect(sendMock).toHaveBeenCalledTimes(2);
+        expect(client.deliveries[0]).toMatchObject({ status: "sent", provider_message_id: "email-after-retry", error: null });
+    });
+
     it("retries failed deliveries without resetting previous sent totals", async () => {
         const client = new FakeDigestClient({
             queue: [queueRow("22222222-2222-4222-8222-222222222222")],
