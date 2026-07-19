@@ -1,13 +1,13 @@
 /**
- * API Route: Proxy de Arquivos HTML do Supabase Storage
+ * API Route: Proxy de Arquivos HTML do storage de arquivos
  *
- * Serve arquivos HTML armazenados no Supabase Storage através do domínio
+ * Serve arquivos HTML armazenados no storage de arquivos através do domínio
  * do portal, permitindo exibição em iframe sem problemas de X-Frame-Options.
  *
  * Fluxo:
  * 1. Recebe requisição: /api/proxy-html/{type}/{slug}
  * 2. Valida tipo e slug
- * 3. Busca arquivo no Supabase Storage
+ * 3. Busca arquivo no storage de arquivos
  * 4. Retorna HTML com headers apropriados
  *
  * Segurança:
@@ -24,7 +24,7 @@ import DIContainer from "@/infrastructure/di/container";
 
 const STORAGE_ROOT = process.env.STORAGE_ROOT ?? "./data";
 
-// Mapeamento de tipos de conteúdo para bucket e pastas do Supabase Storage
+// Mapeamento de tipos de conteúdo para bucket e pastas do storage de arquivos
 // Estrutura: Bucket único "materiais" com subpastas por tipo de conteúdo
 const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
     newsletter: { bucket: "materiais", folder: "newsletters" },
@@ -55,7 +55,7 @@ function isValidSlug(slug: string): boolean {
 /**
  * GET /api/proxy-html/[type]/[slug]
  *
- * Retorna o conteúdo HTML do arquivo solicitado do Supabase Storage
+ * Retorna o conteúdo HTML do arquivo solicitado do storage de arquivos
  */
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ type: string; slug: string }> }) {
     try {

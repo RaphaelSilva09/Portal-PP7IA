@@ -13,7 +13,7 @@ import { useScrollToHash } from "@/presentation/hooks/useScrollToHash";
  * BentoGridBiblioteca Component
  * Exibe a última edição da biblioteca em destaque e edições anteriores em grid 3x3
  * Suporta filtragem por tema via tabs horizontais
- * Dados carregados dinamicamente do Supabase
+ * Dados carregados dinamicamente do Postgres
  */
 export default function BentoGridBiblioteca() {
     const { latest, activeLatest, filteredOlder, activeTema, setActiveTema, isLoading, error } = useBiblioteca();

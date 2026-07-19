@@ -1,7 +1,7 @@
 -- home_recomendacoes_paulo — single-row home block.
--- Idempotent. RLS + Supabase grants + storage.objects policies stripped:
+-- Idempotent. RLS grants + storage.objects policies stripped:
 --   - Auth at route layer (better-auth + admin role check).
---   - Storage served via /api/files/* — no Supabase Storage RLS.
+--   - Storage served via /api/files/* — no storage de arquivos RLS.
 
 CREATE TABLE IF NOT EXISTS public.home_recomendacoes_paulo (
   slug TEXT PRIMARY KEY,

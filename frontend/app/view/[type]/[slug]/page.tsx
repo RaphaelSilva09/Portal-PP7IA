@@ -75,7 +75,7 @@ export default async function ViewPage({ params }: Props) {
         notFound();
     }
 
-    // Usa API route proxy para servir HTML do Supabase Storage
+    // Usa API route proxy para servir HTML do storage de arquivos
     // Isso resolve problemas de X-Frame-Options e CORS
     const htmlPath = `/api/proxy-html/${type}/${slug}`;
     let previous: ContentViewNavigationLink | null = null;

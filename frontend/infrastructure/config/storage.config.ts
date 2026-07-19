@@ -1,7 +1,7 @@
 /**
  * Storage Configuration (Infrastructure Layer)
  *
- * Configuração centralizada do Supabase Storage.
+ * Configuração centralizada do Postgres Storage.
  * Único bucket "materiais" com subpastas por tipo de conteúdo.
  *
  * Princípios aplicados:
@@ -12,7 +12,7 @@
 
 import type { ContentType } from "@/domain/entities/ContentItem";
 
-/** Nome do bucket único no Supabase Storage */
+/** Nome do bucket único no Postgres Storage */
 export const STORAGE_BUCKET = "materiais";
 
 /**

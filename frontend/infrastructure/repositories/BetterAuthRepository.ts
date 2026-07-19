@@ -2,7 +2,7 @@
  * BetterAuthRepository (Infrastructure Layer)
  *
  * Implementação concreta do IAuthRepository usando better-auth.
- * Substitui SupabaseAuthRepository preservando contrato e arquitetura DI.
+ * Substitui PostgresAuthRepository preservando contrato e arquitetura DI.
  *
  * - DIP: Implementa IAuthRepository definido no domínio
  * - Adapter Pattern: Adapta API better-auth → entidade User do domínio

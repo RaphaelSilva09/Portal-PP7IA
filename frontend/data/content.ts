@@ -1,7 +1,7 @@
 /**
  * @deprecated Substituído por SearchContentUseCase + useSearch hook.
  * Este arquivo era usado pelo SearchModal para busca client-side com dados estáticos.
- * A busca agora é feita em tempo real via Supabase.
+ * A busca agora é feita em tempo real via repositórios Postgres.
  * Mantido apenas como referência — não importar em novos componentes.
  *
  * @see frontend/application/usecases/SearchContentUseCase.ts

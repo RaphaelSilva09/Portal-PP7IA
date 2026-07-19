@@ -9,7 +9,7 @@ import { useTheme } from "next-themes";
 /**
  * BentoGridEspecialSemana Component
  * Exibe o especial da semana em destaque e edições anteriores em grid 3x3
- * Dados carregados dinamicamente do Supabase
+ * Dados carregados dinamicamente do Postgres
  */
 
 export default function BentoGridEspecialSemana() {

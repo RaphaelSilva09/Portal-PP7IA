@@ -64,6 +64,28 @@ Dry run:
 DIGEST_DRY_RUN=1 DIGEST_FORCE=1 pnpm run digest:send
 ```
 
+When the database uses Railway private networking, do not use `railway run`
+alone: it injects variables but still executes locally. Open a tunnel to the
+Postgres service, then run the dry-run with `DATABASE_URL` pointing to the
+local tunnel.
+
+```bash
+railway connect Postgres \
+  --project 821e127a-e7ce-4cc8-9c34-ba99d189ed59 \
+  --environment development \
+  --tunnel-only \
+  --port 15432
+```
+
+In another terminal, use the printed tunnel credentials to run:
+
+```bash
+DATABASE_URL="postgresql://USER:PASSWORD@127.0.0.1:15432/DB?sslmode=disable" \
+DIGEST_DRY_RUN=1 \
+DIGEST_FORCE=1 \
+pnpm run digest:send
+```
+
 ## Idempotency
 
 Each weekly run creates one row in `public.email_digest_runs` keyed by the local Wednesday date.
