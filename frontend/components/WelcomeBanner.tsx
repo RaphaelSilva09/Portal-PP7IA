@@ -30,7 +30,7 @@ export default function WelcomeBanner() {
 
                     {/* Quote */}
                     <blockquote className="mt-4 pl-4 border-l-2 border-brand-green/50 text-text-primary italic text-sm sm:text-base text-left">
-                        "Menos ruído, mais clareza."
+                        &ldquo;Menos ruído, mais clareza.&rdquo;
                     </blockquote>
                 </div>
             </div>

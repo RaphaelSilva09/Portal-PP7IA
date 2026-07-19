@@ -36,7 +36,13 @@ export async function proxy(request: NextRequest) {
         return NextResponse.next();
     }
 
-    const session = await auth.api.getSession({ headers: request.headers });
+    let session: Awaited<ReturnType<typeof auth.api.getSession>> | null = null;
+    try {
+        session = await auth.api.getSession({ headers: request.headers });
+    } catch (error) {
+        console.warn("[proxy] Failed to read auth session", error);
+    }
+
     const user = session?.user ?? null;
 
     if (!user) {

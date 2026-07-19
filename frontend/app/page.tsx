@@ -12,6 +12,7 @@ import type { Book } from "@/domain/entities/Book";
 import type { Newsletter } from "@/domain/entities/Newsletter";
 import { DEFAULT_SITE_BG } from "@/domain/entities/SiteBg";
 import { parseManifestoQuote } from "@/lib/parseManifestoQuote";
+import Link from "next/link";
 
 async function getConfig(): Promise<SectionConfig[]> {
     try {
@@ -29,8 +30,8 @@ function t(section: SectionConfig, key: string, fallback: string): string {
 
 const HERO_BLOCKS = [
     { id: "newsletter", label: "Newsletter",       color: "var(--block-newsletter)", href: "/newsletter" },
-    { id: "reportagem", label: "Reportagem",       color: "var(--block-reportagem)", href: "/especial-semana" },
-    { id: "radar",      label: "Radar",            color: "var(--block-radar)",      href: "/radar-oportunidades" },
+    { id: "reportagem", label: "Inteligência Artificial", color: "var(--block-reportagem)", href: "/explorar?b=inteligencia-artificial" },
+    { id: "radar",      label: "Editoriais e Artigos",    color: "var(--block-radar)",      href: "/explorar?b=editoriais-artigos" },
     { id: "livro",      label: "Enquanto é Tempo", color: "var(--block-livro)",      href: "/mini-livros" },
     { id: "biblioteca", label: "Biblioteca",       color: "var(--block-biblioteca)", href: "/biblioteca" },
     { id: "estudar",    label: "Estudar",          color: "var(--block-estudar)",    href: "/estudar" },
@@ -77,17 +78,17 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                             className="mt-8 leading-[0.95] tracking-[-0.025em] text-ink text-[clamp(3.2rem,6.5vw,5.8rem)]"
                             style={{ fontFamily: '"Instrument Serif", serif' }}
                         >
-                            <span className="block text-[4.5rem] lg:text-[7.5rem]">{t(s, "line1", "Menos ruído.")}</span>
-                            <span className="block text-[4.5rem] lg:text-[7.5rem]">
+                            <span className="block text-[3.2rem] sm:text-[4.5rem] lg:text-[7.5rem]">{t(s, "line1", "Menos ruído.")}</span>
+                            <span className="block text-[3.2rem] sm:text-[4.5rem] lg:text-[7.5rem]">
                                 Mais{" "}
                                 <HeroAnimatedWord />
                                 .
                             </span>
-                            <span className="block text-foreground/50 text-[3rem] lg:text-[5rem] mt-3">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
+                            <span className="block text-foreground/50 text-[2.4rem] sm:text-[3rem] lg:text-[5rem] mt-3">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
                         </h1>
 
                         {/* Description */}
-                        <p className="mt-7 max-w-lg text-lg leading-relaxed text-muted-foreground">
+                        <p className="mt-7 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
                             {t(s, "description", "Um livro sobre liderança, escrito devagar e publicado capítulo a capítulo. Em paralelo, uma curadoria semanal sobre inteligência artificial — sem ruído.")}
                         </p>
 
@@ -276,7 +277,7 @@ function SetesCoresSection({ s }: { s: SectionConfig }) {
                                 style={{ borderColor: "var(--block-livro)", background: "color-mix(in oklab, var(--block-livro) 14%, transparent)" }}
                             >
                                 <span className="absolute -left-[7px] top-5 size-3 rounded-full" style={{ backgroundColor: "var(--block-livro)" }} />
-                                <p className="font-serif text-lg italic leading-snug">"{t(s, "quote", "Suceder é o teste final da liderança.")}"</p>
+                                <p className="font-serif text-lg italic leading-snug">&ldquo;{t(s, "quote", "Suceder é o teste final da liderança.")}&rdquo;</p>
                                 <footer className="mt-2 text-[10px] uppercase tracking-[0.22em] text-background/50">{t(s, "quoteAuthor", "ML-20 · Enquanto é Tempo")}</footer>
                             </blockquote>
                         </div>
@@ -385,12 +386,12 @@ function IAsSection({ s }: { s: SectionConfig }) {
                             </div>
                         </div>
                         <div className="mt-8 flex flex-wrap items-center gap-3">
-                            <a href="/view/biblioteca/009" className="group inline-flex items-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-medium text-ink transition-transform hover:-translate-y-0.5">
+                            <Link href="/view/biblioteca/009" className="group inline-flex items-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-medium text-ink transition-transform hover:-translate-y-0.5">
                                 Conhecer mais
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up-right size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">
                                     <path d="M7 7h10v10" /><path d="M7 17 17 7" />
                                 </svg>
-                            </a>
+                            </Link>
                             <span className="text-sm text-background/50">Como cada IA entra no fluxo editorial</span>
                         </div>
                     </div>
@@ -551,8 +552,8 @@ export default async function Home() {
                             <ul className="mt-4 grid grid-cols-2 gap-2 text-sm">
                                 {[
                                     { href: "/newsletter", color: "var(--block-newsletter)", label: "Newsletter" },
-                                    { href: "/especial-semana", color: "var(--block-reportagem)", label: "Reportagem da Semana" },
-                                    { href: "/radar-oportunidades", color: "var(--block-radar)", label: "Radar" },
+                                    { href: "/explorar?b=inteligencia-artificial", color: "var(--block-reportagem)", label: "Inteligência Artificial" },
+                                    { href: "/explorar?b=editoriais-artigos", color: "var(--block-radar)", label: "Editoriais e Artigos" },
                                     { href: "/mini-livros", color: "var(--block-livro)", label: "Enquanto é Tempo" },
                                     { href: "/biblioteca", color: "var(--block-biblioteca)", label: "Biblioteca" },
                                     { href: "/estudar", color: "var(--block-estudar)", label: "Estudar" },

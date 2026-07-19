@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+.pnpm-store/
 /.pnp
 .pnp.*
 
@@ -61,7 +62,9 @@ bckup/
 
 #AI helpers
 .claude/
+.codex/
 CLAUDE.md
+AGENTS.md
 docs/agent-findings.md
 .vercel
 .superpowers/

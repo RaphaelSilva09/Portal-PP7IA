@@ -331,8 +331,8 @@ export default async function Home() {
                             <ul className="mt-4 grid grid-cols-2 gap-2 text-sm">
                                 {[
                                     { href: "/newsletter", color: "var(--block-newsletter)", label: "Newsletter" },
-                                    { href: "/especial-semana", color: "var(--block-reportagem)", label: "Reportagem da Semana" },
-                                    { href: "/radar-oportunidades", color: "var(--block-radar)", label: "Radar" },
+                                    { href: "/explorar?b=inteligencia-artificial", color: "var(--block-reportagem)", label: "Inteligência Artificial" },
+                                    { href: "/explorar?b=editoriais-artigos", color: "var(--block-radar)", label: "Editoriais e Artigos" },
                                     { href: "/mini-livros", color: "var(--block-livro)", label: "Enquanto é Tempo" },
                                     { href: "/biblioteca", color: "var(--block-biblioteca)", label: "Biblioteca" },
                                     { href: "/estudar", color: "var(--block-estudar)", label: "Estudar" },

@@ -15,8 +15,8 @@ export default function InstructionsBanner() {
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
                                 <span className="text-brand-blue font-medium">Como se inscrever:</span> Clique em{" "}
-                                <span className="text-brand-blue font-medium">"Quero Fazer Parte"</span> ou{" "}
-                                <span className="text-brand-blue font-medium">"Entrar"</span> no topo da página.
+                                <span className="text-brand-blue font-medium">&ldquo;Quero Fazer Parte&rdquo;</span> ou{" "}
+                                <span className="text-brand-blue font-medium">&ldquo;Entrar&rdquo;</span> no topo da página.
                                 Preencha nome, e-mail, celular e crie uma senha. Escolha como quer receber atualizações
                                 (e-mail e/ou WhatsApp). Após o cadastro, confirme seu e-mail clicando no link enviado
                                 (verifique a pasta de spam).
@@ -28,7 +28,7 @@ export default function InstructionsBanner() {
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
                                 <span className="text-brand-blue font-medium">Já é inscrito?</span> Use o botão{" "}
-                                <span className="text-brand-blue font-medium">"Entrar"</span> no topo para acessar sua
+                                <span className="text-brand-blue font-medium">&ldquo;Entrar&rdquo;</span> no topo para acessar sua
                                 conta com e-mail e senha.
                             </p>
                         </div>
@@ -57,7 +57,7 @@ export default function InstructionsBanner() {
                             <span className="text-brand-blue font-bold flex-shrink-0">•</span>
                             <p>
                                 <span className="text-brand-blue font-medium">Convide alguém:</span> Após fazer login,
-                                clique no botão <span className="text-brand-blue font-medium">"Convidar"</span> no topo
+                                clique no botão <span className="text-brand-blue font-medium">&ldquo;Convidar&rdquo;</span> no topo
                                 da página ou na sua{" "}
                                 <span className="text-brand-blue font-medium">página de perfil</span>. Informe o e-mail
                                 da pessoa e ela receberá um convite com link para se cadastrar. Você pode enviar vários

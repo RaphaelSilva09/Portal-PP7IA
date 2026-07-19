@@ -19,8 +19,8 @@ export const BLOCK_IDS: BlockId[] = [
 
 export const BLOCK_LABELS: Record<BlockId, string> = {
     newsletter: "Newsletter",
-    reportagem: "Reportagem da Semana",
-    radar: "Radar",
+    reportagem: "Inteligência Artificial",
+    radar: "Editoriais e Artigos",
     livro: "Enquanto é Tempo",
     biblioteca: "Biblioteca",
     estudar: "Estudar",

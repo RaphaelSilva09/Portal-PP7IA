@@ -74,6 +74,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
     const [user, setUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(false);
+    const [processedSessionUser, setProcessedSessionUser] = useState<unknown>(null);
 
     const session = authClient.useSession();
     const sessionData = session.data;
@@ -85,10 +86,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
         if (!sessionData?.user) {
             setUser(null);
             userRef.current = null;
+            setProcessedSessionUser(null);
             return;
         }
+        const rawSessionUser = sessionData.user;
         try {
-            const u = sessionData.user as Record<string, unknown>;
+            const u = rawSessionUser as Record<string, unknown>;
             const acceptEmail = (u.accept_email_updates as boolean | null) ?? true;
             const acceptWA = (u.accept_whatsapp_updates as boolean | null) ?? false;
             const mapped = User.create({
@@ -106,6 +109,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
         } catch {
             setUser(null);
             userRef.current = null;
+        } finally {
+            setProcessedSessionUser(rawSessionUser);
         }
     }, [sessionData]);
 
@@ -203,7 +208,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
     // isPending sinaliza que o fetch terminou, mas o useEffect que mapeia
     // sessionData → user state ainda não rodou. Manter isLoading=true durante
     // esse gap de um render evita redirecionamentos prematuros no admin.
-    const isLoading = isPending || (!!sessionData?.user && user === null);
+    const isLoading = isPending || (!!sessionData?.user && processedSessionUser !== sessionData.user);
 
     return (
         <SessionContext.Provider

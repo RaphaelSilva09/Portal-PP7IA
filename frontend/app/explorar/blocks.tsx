@@ -30,9 +30,9 @@ import { useMemo, useState } from "react";
 // ── Design config per block ───────────────────────────────────────────────────
 
 const C = {
-    newsletter: { color: "var(--block-newsletter)", soft: "var(--block-newsletter-soft)", on: "var(--block-newsletter-on)", num: "01", label: "Newsletter",          code: "PPNEWS"  },
-    reportagem: { color: "var(--block-reportagem)", soft: "var(--block-reportagem-soft)", on: "var(--block-reportagem-on)", num: "02", label: "Reportagem da Semana", code: "PPREP"  },
-    radar:      { color: "var(--block-radar)",      soft: "var(--block-radar-soft)",      on: "var(--block-radar-on)",      num: "03", label: "Radar",               code: "PPRADAR" },
+    newsletter: { color: "var(--block-newsletter)", soft: "var(--block-newsletter-soft)", on: "var(--block-newsletter-on)", num: "01", label: "Newsletter",              code: "PPNEWS" },
+    reportagem: { color: "var(--block-reportagem)", soft: "var(--block-reportagem-soft)", on: "var(--block-reportagem-on)", num: "02", label: "Inteligência Artificial", code: "PPIA"    },
+    radar:      { color: "var(--block-radar)",      soft: "var(--block-radar-soft)",      on: "var(--block-radar-on)",      num: "03", label: "Editoriais e Artigos",    code: "PPART"  },
     livro:      { color: "var(--block-livro)",      soft: "var(--block-livro-soft)",      on: "var(--block-livro-on)",      num: "04", label: "Enquanto é Tempo",    code: "PPLIVRO" },
     biblioteca: { color: "var(--block-biblioteca)", soft: "var(--block-biblioteca-soft)", on: "var(--block-biblioteca-on)", num: "05", label: "Biblioteca",          code: "PPBIB"   },
     estudar:    { color: "var(--block-estudar)",    soft: "var(--block-estudar-soft)",    on: "var(--block-estudar-on)",    num: "06", label: "Estudar",             code: "PPEST"   },
@@ -296,7 +296,7 @@ function Divider({ label }: { label: string }) {
     );
 }
 
-// ── Simple layout (Newsletter, Reportagem, Radar, Estudar) ────────────────────
+// ── Simple layout (Newsletter, IA, Editoriais, Estudar) ───────────────────────
 
 function SimpleBlock({ block, title, description, latest, older, isLoading, error }: {
     block: BlockCfg;

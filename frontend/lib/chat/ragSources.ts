@@ -13,6 +13,8 @@ export const RAG_SOURCES: RagSourceConfig[] = [
     { sourceType: "estudar",             topK: 4,  citable: true  },
     { sourceType: "meta_summary",        topK: 3,  citable: true  },
     { sourceType: "meta_global",         topK: 1,  citable: false },
+    { sourceType: "meta_themes",         topK: 1,  citable: false },
+    { sourceType: "meta_entity_index",   topK: 1,  citable: false },
 ];
 
 export function isCitable(sourceType: string): boolean {

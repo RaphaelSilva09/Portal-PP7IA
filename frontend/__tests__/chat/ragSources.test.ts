@@ -12,10 +12,12 @@ describe("RAG_SOURCES", () => {
         expect(s.topK).toBe(50);
     });
 
-    it("meta_global is the only non-citable source", () => {
-        const nonCitable = RAG_SOURCES.filter(s => !s.citable);
-        expect(nonCitable).toHaveLength(1);
-        expect(nonCitable[0].sourceType).toBe("meta_global");
+    it("meta_global, meta_themes, and meta_entity_index are non-citable", () => {
+        const nonCitable = RAG_SOURCES.filter(s => !s.citable).map(s => s.sourceType);
+        expect(nonCitable).toHaveLength(3);
+        expect(nonCitable).toContain("meta_global");
+        expect(nonCitable).toContain("meta_themes");
+        expect(nonCitable).toContain("meta_entity_index");
     });
 });
 
@@ -26,8 +28,10 @@ describe("isCitable", () => {
         expect(isCitable("meta_summary")).toBe(true);
     });
 
-    it("returns false for meta_global", () => {
+    it("returns false for non-citable meta sources", () => {
         expect(isCitable("meta_global")).toBe(false);
+        expect(isCitable("meta_themes")).toBe(false);
+        expect(isCitable("meta_entity_index")).toBe(false);
     });
 
     it("defaults to true for unknown source types", () => {

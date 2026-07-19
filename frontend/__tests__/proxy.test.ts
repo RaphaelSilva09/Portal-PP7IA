@@ -1,18 +1,16 @@
 import { NextRequest } from 'next/server';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const {
-    mockCreateServerClient,
-    mockGetUser,
-    shouldSetRefreshCookie,
-} = vi.hoisted(() => ({
-    mockCreateServerClient: vi.fn(),
-    mockGetUser: vi.fn(),
-    shouldSetRefreshCookie: { value: false },
+const { mockGetSession } = vi.hoisted(() => ({
+    mockGetSession: vi.fn(),
 }));
 
-vi.mock('@supabase/ssr', () => ({
-    createServerClient: mockCreateServerClient,
+vi.mock('@/lib/auth', () => ({
+    auth: {
+        api: {
+            getSession: mockGetSession,
+        },
+    },
 }));
 
 import { proxy } from '@/proxy';
@@ -24,106 +22,79 @@ function createRequest(url: string): NextRequest {
         url: requestUrl.toString(),
         nextUrl: requestUrl,
         headers: new Headers(),
-        cookies: {
-            getAll: vi.fn(() => []),
-        },
-    } as unknown as NextRequest;
+    } as NextRequest;
 }
 
 describe('proxy auth guard', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
     beforeEach(() => {
         vi.clearAllMocks();
-        shouldSetRefreshCookie.value = false;
-
-        process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = 'publishable-key';
-        delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-        mockGetUser.mockResolvedValue({ data: { user: null } });
-        mockCreateServerClient.mockImplementation((_url: string, _key: string, options: any) => ({
-            auth: {
-                getUser: vi.fn(async () => {
-                    const result = await mockGetUser();
-
-                    if (shouldSetRefreshCookie.value) {
-                        options.cookies.setAll([
-                            {
-                                name: 'sb-refresh',
-                                value: 'fresh-token',
-                                options: { path: '/' },
-                            },
-                        ]);
-                    }
-
-                    return result;
-                }),
-            },
-        }));
+        mockGetSession.mockResolvedValue(null);
     });
 
-    it('permite /home para usuário autenticado', async () => {
-        mockGetUser.mockResolvedValueOnce({
-            data: { user: { id: 'u1', app_metadata: { role: 'user' } } },
-        });
+    afterEach(() => {
+        warnSpy.mockClear();
+    });
 
+    it('permite rota pública sem consultar sessão', async () => {
         const response = await proxy(createRequest('http://localhost/home'));
 
         expect(response.status).toBe(200);
         expect(response.headers.get('location')).toBeNull();
-    });
-
-    it('redireciona /home para / quando usuário não está autenticado', async () => {
-        const response = await proxy(createRequest('http://localhost/home'));
-
-        expect(response.headers.get('location')).toBe('http://localhost/');
+        expect(mockGetSession).not.toHaveBeenCalled();
     });
 
     it('redireciona /user para modal de login quando usuário não está autenticado', async () => {
         const response = await proxy(createRequest('http://localhost/user'));
 
+        expect(mockGetSession).toHaveBeenCalledTimes(1);
         expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
     });
 
-    it('redireciona / para /home quando usuário já está autenticado', async () => {
-        mockGetUser.mockResolvedValueOnce({
-            data: { user: { id: 'u1', app_metadata: { role: 'user' } } },
+    it('trata erro ao consultar sessão como usuário não autenticado', async () => {
+        mockGetSession.mockRejectedValueOnce(new Error('database unavailable'));
+
+        const response = await proxy(createRequest('http://localhost/user'));
+
+        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
+    });
+
+    it('permite /user para usuário autenticado', async () => {
+        mockGetSession.mockResolvedValueOnce({
+            user: { id: 'u1', role: 'user' },
         });
 
-        const response = await proxy(createRequest('http://localhost/'));
+        const response = await proxy(createRequest('http://localhost/user'));
 
-        expect(response.headers.get('location')).toBe('http://localhost/home');
+        expect(response.status).toBe(200);
+        expect(response.headers.get('location')).toBeNull();
+    });
+
+    it('redireciona /painel-admin para login quando não há usuário', async () => {
+        const response = await proxy(createRequest('http://localhost/painel-admin'));
+
+        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
     });
 
     it('bloqueia /painel-admin para usuário sem role admin', async () => {
-        mockGetUser.mockResolvedValueOnce({
-            data: { user: { id: 'u1', app_metadata: { role: 'user' } } },
+        mockGetSession.mockResolvedValueOnce({
+            user: { id: 'u1', role: 'user' },
         });
 
         const response = await proxy(createRequest('http://localhost/painel-admin'));
 
-        expect(response.headers.get('location')).toBe('http://localhost/home');
+        expect(response.headers.get('location')).toBe('http://localhost/');
     });
 
     it('permite /painel-admin para usuário admin', async () => {
-        mockGetUser.mockResolvedValueOnce({
-            data: { user: { id: 'u1', app_metadata: { role: 'admin' } } },
+        mockGetSession.mockResolvedValueOnce({
+            user: { id: 'u1', role: 'admin' },
         });
 
         const response = await proxy(createRequest('http://localhost/painel-admin'));
 
         expect(response.status).toBe(200);
         expect(response.headers.get('location')).toBeNull();
-    });
-
-    it('preserva cookies de refresh quando a resposta final é redirect', async () => {
-        shouldSetRefreshCookie.value = true;
-        mockGetUser.mockResolvedValueOnce({
-            data: { user: { id: 'u1', app_metadata: { role: 'user' } } },
-        });
-
-        const response = await proxy(createRequest('http://localhost/'));
-
-        expect(response.headers.get('location')).toBe('http://localhost/home');
-        expect(response.cookies.get('sb-refresh')?.value).toBe('fresh-token');
     });
 });

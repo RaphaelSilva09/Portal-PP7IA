@@ -44,7 +44,7 @@ export default defineConfig({
         baseURL: LOCAL_BASE_URL,
     },
     webServer: {
-        command: `${envPrefix} pnpm run dev`,
+        command: `${envPrefix} ./node_modules/.bin/next dev --webpack --hostname 127.0.0.1 --port ${LOCAL_PORT}`,
         url: LOCAL_BASE_URL,
         reuseExistingServer: false,
         timeout: 120000,
