@@ -1,8 +1,8 @@
 import type { HomepageConfig } from "@/domain/entities/HomepageConfig";
-import type { SupabaseHomepageConfigRepository } from "@/infrastructure/repositories/SupabaseHomepageConfigRepository";
+import type { PostgresHomepageConfigRepository } from "@/infrastructure/repositories/PostgresHomepageConfigRepository";
 
 export class UpdateHomepageConfigUseCase {
-    constructor(private readonly repo: SupabaseHomepageConfigRepository) {}
+    constructor(private readonly repo: PostgresHomepageConfigRepository) {}
 
     async execute(config: HomepageConfig): Promise<void> {
         return this.repo.upsert(config);

@@ -58,7 +58,7 @@ export class Book {
         const rawPath = this.props.introHtmlPath?.trim();
         if (!rawPath) return null;
         
-        // Se for um HTML hospedado no Supabase Storage (final .html)
+        // Se for um HTML hospedado no storage de arquivos (final .html)
         // usamos a rota interna /view proxy do Next.js
         if (rawPath.endsWith('.html')) {
             const match = rawPath.match(/\/([^/]+)\.html$/);

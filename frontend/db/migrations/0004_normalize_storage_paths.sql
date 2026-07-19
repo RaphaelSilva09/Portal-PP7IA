@@ -6,7 +6,7 @@
 -- Idempotent: running twice produces the same result (each transform short-circuits
 -- if the value is already normalized).
 
--- Helper: strip leading Supabase storage URL prefix + leading slash.
+-- Helper: strip leading storage URL prefix + leading slash.
 -- Pattern matched: https://<host>/storage/v1/object/public/<rest>
 --                  /<rest>      (legacy paths starting with slash)
 --                  <rest>       (already normalized)

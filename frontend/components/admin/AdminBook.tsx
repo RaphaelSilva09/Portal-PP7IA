@@ -4,7 +4,7 @@
  * AdminBook Component (Presentation Layer)
  *
  * Formulário de edição do Livro principal (tabela `book`, singleton id = 1).
- * Suporta edição de metadados e upload de arquivos para o Supabase Storage.
+ * Suporta edição de metadados e upload de arquivos para o storage de arquivos.
  */
 
 import { FeedbackMessage } from "@/components/admin";

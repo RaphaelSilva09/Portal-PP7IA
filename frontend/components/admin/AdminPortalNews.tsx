@@ -17,7 +17,7 @@ import { CATEGORY_DEFAULT_COLORS, PortalNewsCategory } from "@/domain/entities/P
 import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// Tipo local para row do Supabase (snake_case)
+// Tipo local para row do Postgres (snake_case)
 interface PortalNewsRow {
     id: string;
     title: string;

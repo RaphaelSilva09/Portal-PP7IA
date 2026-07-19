@@ -6,8 +6,6 @@ Portal colaborativo para divulgação de conteúdos sobre Inteligência Artifici
 
 **New to the project?** → [**Getting Started Guide**](docs/00-GETTING-STARTED.md)
 
-**Quick setup?** → [**Quick Start (5 min)**](docs/setup/QUICKSTART.md)
-
 **Full documentation** → [**Documentation Index**](docs/README.md)
 
 ---
@@ -18,7 +16,7 @@ O Portal-PP7IA é uma plataforma web que centraliza conteúdos, artigos, newslet
 
 ## Principais Funcionalidades
 
-- 🔐 Autenticação de usuários (Supabase)
+- 🔐 Autenticação de usuários com BetterAuth
 - 📚 Biblioteca de conteúdos e mini-livros
 - 📧 Newsletter semanal
 - ✨ Área especial de conteúdos temáticos
@@ -28,8 +26,8 @@ O Portal-PP7IA é uma plataforma web que centraliza conteúdos, artigos, newslet
 ## Arquitetura
 
 - **Frontend:** Next.js 16 + React 19 (TypeScript)
-- **Backend/Autenticação:** Supabase Auth
-- **Database:** PostgreSQL (Supabase)
+- **Backend/Autenticação:** BetterAuth
+- **Database:** PostgreSQL no Railway
 - **Estilização:** Tailwind CSS v4
 - **Hospedagem:** Vercel
 
@@ -46,9 +44,7 @@ frontend/
   lib/                # Utilitários
   presentation/       # Hooks e lógica de apresentação
   public/             # Arquivos estáticos e HTMLs
-supabase/
-  config.toml         # Configuração do Supabase
-  migrations/         # Scripts de migração do banco
+  db/migrations/      # Scripts de migração do banco
 ```
 
 ## Instalação e Execução
@@ -65,15 +61,13 @@ pnpm install
 
 # 3. Configure variáveis de ambiente
 cp .env.example .env.local
-# Edit .env.local with your Supabase credentials
+# Configure DATABASE_URL, BETTER_AUTH_SECRET e variáveis do Railway/Resend
 
 # 4. Execute o servidor de desenvolvimento
 pnpm run dev
 ```
 
-> **📖 Detailed Guide**: [Quick Start](docs/setup/QUICKSTART.md)
-> **🔧 Supabase Setup**: [Supabase Setup Guide](docs/setup/SUPABASE.md)
-> **👤 Admin Panel**: [Admin Panel Setup](docs/setup/ADMIN_PANEL.md)
+> **📖 Detailed Guide**: [Getting Started](docs/00-GETTING-STARTED.md)
 
 ## 📖 Documentation
 
@@ -86,8 +80,6 @@ This project has comprehensive documentation:
 | Topic                  | Link                                                        |
 | ---------------------- | ----------------------------------------------------------- |
 | 🚀 Getting Started     | [Getting Started Guide](docs/00-GETTING-STARTED.md)         |
-| ⚡ Quick Start (5 min) | [Quick Start](docs/setup/QUICKSTART.md)                     |
-| 🔐 Authentication      | [Authentication Docs](docs/architecture/AUTHENTICATION.md)  |
 | 🎨 Design System       | [Design System](frontend/docs/development/DESIGN_SYSTEM.md) |
 | 💻 Frontend Docs       | [Frontend Documentation](frontend/docs/README.md)           |
 
@@ -95,7 +87,7 @@ This project has comprehensive documentation:
 
 Contribuições são bem-vindas!
 
-1. Siga os [princípios de arquitetura](docs/architecture/AUTHENTICATION.md#architecture-principles)
+1. Siga os princípios de arquitetura documentados em [docs/README.md](docs/README.md)
 2. Use o [Design System](frontend/docs/development/DESIGN_SYSTEM.md)
 3. Escreva commits atômicos e claros
 4. Teste suas alterações antes de enviar

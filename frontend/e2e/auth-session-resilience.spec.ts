@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { getSupabaseAuthStorageKey } from "./utils/env";
+import { getAuthSessionCookieName } from "./utils/env";
 
-const authStorageKey = getSupabaseAuthStorageKey();
+const authCookieName = getAuthSessionCookieName();
 const FIRST_VISIT_STORAGE_KEY = "pp7ia_has_visited";
 
 test.describe("Auth session resilience", () => {
@@ -12,22 +12,19 @@ test.describe("Auth session resilience", () => {
     });
 
     test("localStorage de sessão corrompido não trava a landing page", async ({ page }) => {
-        await page.addInitScript(({ key }) => {
-            window.localStorage.setItem(key, "{invalid-json");
-        }, { key: authStorageKey });
+        await page.addInitScript(() => {
+            window.localStorage.setItem("better-auth-corrupted-session", "{invalid-json");
+        });
 
         await page.goto("/");
 
         await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
-        await expect
-            .poll(async () => page.evaluate(key => window.localStorage.getItem(key), authStorageKey))
-            .toBeNull();
     });
 
     test("sessão antiga parseável no localStorage não prende a landing page após reload", async ({ page }) => {
-        await page.addInitScript(({ key }) => {
+        await page.addInitScript(() => {
             window.localStorage.setItem(
-                key,
+                "better-auth-old-session",
                 JSON.stringify({
                     currentSession: {
                         access_token: "expired-access-token",
@@ -47,7 +44,7 @@ test.describe("Auth session resilience", () => {
                     expiresAt: 1,
                 }),
             );
-        }, { key: authStorageKey });
+        });
 
         await page.goto("/");
         await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible({ timeout: 12000 });
@@ -58,15 +55,15 @@ test.describe("Auth session resilience", () => {
     });
 
     test("payload legado parseável sem formato de sessão não trava a landing page", async ({ page }) => {
-        await page.addInitScript(({ key }) => {
+        await page.addInitScript(() => {
             window.localStorage.setItem(
-                key,
+                "better-auth-legacy-session",
                 JSON.stringify({
                     legacy: true,
                     user: { id: "old-user", email: "old@example.com" },
                 }),
             );
-        }, { key: authStorageKey });
+        });
 
         await page.goto("/");
 
@@ -76,7 +73,7 @@ test.describe("Auth session resilience", () => {
     test("cookie de sessão inválido em /home volta para / sem loading infinito", async ({ context, page, baseURL }) => {
         await context.addCookies([
             {
-                name: authStorageKey,
+                name: authCookieName,
                 value: "stale-session-cookie",
                 url: new URL("/", baseURL!).toString(),
             },
@@ -89,9 +86,9 @@ test.describe("Auth session resilience", () => {
     });
 
     test("cookie inválido + storage antigo não mantêm acesso indevido a /home", async ({ context, page, baseURL }) => {
-        await page.addInitScript(({ key }) => {
+        await page.addInitScript(() => {
             window.localStorage.setItem(
-                key,
+                "better-auth-old-session",
                 JSON.stringify({
                     currentSession: {
                         access_token: "expired-access-token",
@@ -103,11 +100,11 @@ test.describe("Auth session resilience", () => {
                     expiresAt: 1,
                 }),
             );
-        }, { key: authStorageKey });
+        });
 
         await context.addCookies([
             {
-                name: authStorageKey,
+                name: authCookieName,
                 value: "stale-session-cookie",
                 url: new URL("/", baseURL!).toString(),
             },

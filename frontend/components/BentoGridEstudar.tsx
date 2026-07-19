@@ -10,7 +10,7 @@ import { useTheme } from "next-themes";
 /**
  * BentoGridEstudar Component
  * Exibe conteúdo de estudo mais recente em destaque e edições anteriores em grid 3x3
- * Dados carregados dinamicamente do Supabase
+ * Dados carregados dinamicamente do Postgres
  */
 
 export default function BentoGridEstudar() {

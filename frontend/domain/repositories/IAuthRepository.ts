@@ -89,7 +89,7 @@ export interface IAuthRepository {
 
     /**
      * Obtém perfil do usuário a partir de dados da sessão (sem round-trip ao servidor Auth).
-     * Uso ideal: onAuthStateChange handlers onde a sessão já foi validada pelo Supabase.
+     * Uso ideal: handlers onde a sessão já foi validada pelo provedor de auth.
      * @param userId ID do usuário da sessão
      * @param role Role do app_metadata da sessão
      * @returns User ou null se perfil não encontrado

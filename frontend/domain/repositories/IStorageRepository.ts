@@ -2,7 +2,7 @@
  * IStorageRepository Interface (Domain Layer)
  *
  * Define o contrato para operações de upload/delete de arquivos.
- * Abstrai o storage backend (Supabase Storage, S3, etc).
+ * Abstrai o storage backend (filesystem, S3, etc).
  *
  * Princípios aplicados:
  * - DIP: Abstração que permite inversão de dependência

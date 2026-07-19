@@ -1,7 +1,7 @@
 -- Sprint 3 meta tables: home_block_descriptions + mini_livro_section_meta.
--- These were created ad-hoc on Supabase (no migration file shipped) and the
+-- These were created ad-hoc no banco (no migration file shipped) and the
 -- frontend hooks already query them. Define schemas idempotently so Railway
--- dev gets the tables and Supabase prod-restored DBs stay no-op.
+-- dev gets the tables and bancos restaurados stay no-op.
 
 CREATE TABLE IF NOT EXISTS public.home_block_descriptions (
   slug TEXT PRIMARY KEY,

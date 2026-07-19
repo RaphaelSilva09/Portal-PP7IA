@@ -48,6 +48,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
         name: "Sabrina Ai Kato",
         kind: "arts",
     },
+    // Dados complementares podem ser adicionados quando forem confirmados.
     {
         role: "Apoio técnico e revisão",
         name: "Cristiano Benite",

@@ -164,7 +164,7 @@ function compareMiniLivrosForDisplay(left: MiniLivro, right: MiniLivro): number 
 /**
  * BentoGridMiniLivros Component
  * Exibe a hierarquia Ebooks → Mini-livros com abas por ebook
- * Dados carregados dinamicamente do Supabase
+ * Dados carregados dinamicamente do Postgres
  */
 export default function BentoGridMiniLivros() {
     const { all: allMiniLivros, isLoading, error } = useMiniLivros();

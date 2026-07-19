@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22 <26"
+  },
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
@@ -16,12 +19,12 @@
     "test:e2e:android": "playwright test --project=android-chrome",
     "test:e2e:ios": "playwright test --project=ios-touch",
     "test:e2e:ios:safari": "PLAYWRIGHT_ENABLE_WEBKIT=true playwright test --project=ios-safari",
+    "test:e2e:ios:safari:install": "playwright install webkit",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:local": "playwright test --config playwright.local.config.ts",
+    "test:e2e:postgres": "playwright test --config playwright.postgres.config.ts",
     "db:migrate": "tsx db/migrate.ts",
-    "digest:send": "tsx scripts/send-weekly-digest.ts",
-    "storage:migrate": "tsx scripts/migrate-storage.ts"
+    "digest:send": "tsx scripts/send-weekly-digest.ts"
   },
   "pnpm": {
     "overrides": {
@@ -42,8 +45,6 @@
     "@google/generative-ai": "^0.24.1",
     "@lobehub/icons": "^4.0.3",
     "@node-rs/argon2": "^2.0.2",
-    "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.103.0",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-query-devtools": "^5.91.3",
     "@tiptap/extension-bubble-menu": "^3.20.4",
@@ -89,7 +90,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "jsdom": "^26.1.0",
-    "supabase": "^2.89.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5",

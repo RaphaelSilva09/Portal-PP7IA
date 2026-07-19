@@ -238,6 +238,11 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
         return { status: "skipped", digestKey, contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 };
     }
 
+    if (!options.dryRun && isExplicitlyNonProductionRuntimeTarget()) {
+        logger.log(`[weekly-digest] skipped: delivery is disabled outside main/production`);
+        return { status: "skipped", digestKey, contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 };
+    }
+
     if (!options.force && !isProductionRuntimeTarget()) {
         logger.log(`[weekly-digest] skipped: automatic runs are only enabled on main/production`);
         return { status: "skipped", digestKey, contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 };
@@ -381,8 +386,16 @@ function resolveNonNegativeNumber(value: number | undefined, envName: string, fa
 
 function isProductionRuntimeTarget(): boolean {
     const environmentName = stringValue(process.env.RAILWAY_ENVIRONMENT_NAME).trim().toLowerCase();
+    if (environmentName) return PRODUCTION_ENVIRONMENT_NAMES.has(environmentName);
+
     const gitBranch = stringValue(process.env.RAILWAY_GIT_BRANCH).trim().toLowerCase();
-    return PRODUCTION_ENVIRONMENT_NAMES.has(environmentName) || PRODUCTION_BRANCH_NAMES.has(gitBranch);
+    return PRODUCTION_BRANCH_NAMES.has(gitBranch);
+}
+
+function isExplicitlyNonProductionRuntimeTarget(): boolean {
+    const environmentName = stringValue(process.env.RAILWAY_ENVIRONMENT_NAME).trim().toLowerCase();
+    const gitBranch = stringValue(process.env.RAILWAY_GIT_BRANCH).trim().toLowerCase();
+    return Boolean(environmentName || gitBranch) && !isProductionRuntimeTarget();
 }
 
 function createProviderSendPacer(intervalMs: number): () => Promise<void> {
