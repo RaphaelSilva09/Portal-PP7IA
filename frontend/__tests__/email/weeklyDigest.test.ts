@@ -108,7 +108,7 @@ describe("weekly digest email", () => {
     });
 
     it("skips automatic runs outside main or production", async () => {
-        await withEnv({ RAILWAY_ENVIRONMENT_NAME: "development", RAILWAY_GIT_BRANCH: "develop" }, async () => {
+        await withEnv({ RAILWAY_ENVIRONMENT_NAME: "development", RAILWAY_GIT_BRANCH: "main" }, async () => {
             const client = new FakeDigestClient({
                 queue: [queueRow("55555555-5555-4555-8555-555555555555")],
                 recipients: [recipient("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "ana@example.com")],
@@ -116,6 +116,28 @@ describe("weekly digest email", () => {
             const resendClient = fakeResendClient([{ data: { id: "email-1" } }]);
 
             const result = await sendWeeklyDigest({
+                now: new Date("2026-07-08T13:00:00.000Z"),
+                pool: fakePool(client),
+                resendClient,
+                logger: silentLogger,
+            });
+
+            expect(result).toMatchObject({ status: "skipped", contentCount: 0, recipientCount: 0, sentCount: 0, failedCount: 0 });
+            expect(client.run).toBeNull();
+            expect((resendClient as unknown as { emails: { send: ReturnType<typeof vi.fn> } }).emails.send).not.toHaveBeenCalled();
+        });
+    });
+
+    it("never sends from development even when forced", async () => {
+        await withEnv({ RAILWAY_ENVIRONMENT_NAME: "development", RAILWAY_GIT_BRANCH: "develop" }, async () => {
+            const client = new FakeDigestClient({
+                queue: [queueRow("77777777-7777-4777-8777-777777777777")],
+                recipients: [recipient("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "ana@example.com")],
+            });
+            const resendClient = fakeResendClient([{ data: { id: "email-1" } }]);
+
+            const result = await sendWeeklyDigest({
+                force: true,
                 now: new Date("2026-07-08T13:00:00.000Z"),
                 pool: fakePool(client),
                 resendClient,

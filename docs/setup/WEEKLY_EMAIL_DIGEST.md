@@ -32,8 +32,13 @@ Create a second Railway service from the same repo:
 - Environment: `production`
 
 Automatic runs are enabled only when Railway reports `RAILWAY_ENVIRONMENT_NAME=production|prod`
-or `RAILWAY_GIT_BRANCH=main|master`. On `develop`/`development`, the job exits as `skipped`
-unless it is manually forced with `DIGEST_FORCE=1`.
+or `RAILWAY_GIT_BRANCH=main|master`. Delivery is always disabled on explicit non-production
+Railway targets, including when `DIGEST_FORCE=1`; only a forced dry-run is allowed there.
+
+The migration runner exits successfully in Railway environments named `*-pr-<number>` because
+a fresh PR database does not contain the legacy content-table baseline. The digest start command
+also exits as `skipped` there. Prefer Railway Focused PR Environments to avoid building the cron
+service when a PR does not change it.
 
 Required variables:
 
@@ -45,7 +50,7 @@ Required variables:
 Optional variables:
 
 - `DIGEST_DRY_RUN=1` logs recipients without sending.
-- `DIGEST_FORCE=1` allows a manual run outside Wednesday.
+- `DIGEST_FORCE=1` allows a manual run outside Wednesday; outside production it must be combined with `DIGEST_DRY_RUN=1`.
 - `DIGEST_MAX_ITEMS=20` controls the maximum queued content items included in one digest.
 - `DIGEST_SEND_INTERVAL_MS=125` spaces provider sends to stay under Resend rate limits.
 - `DIGEST_RATE_LIMIT_RETRY_MS=1200` controls the delay before retrying provider rate-limit responses.
