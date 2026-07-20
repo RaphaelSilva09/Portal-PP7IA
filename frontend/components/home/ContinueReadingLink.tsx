@@ -1,20 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BookOpen, ArrowRight } from "lucide-react";
-import { loadBookProgress, type BookProgress } from "@/lib/bookProgress";
+import { useBookProgress } from "@/hooks/useBookProgress";
 
 /**
  * "Continue de onde parou" (PDF 5.4) — aparece sob o card do livro na home
  * quando há um capítulo/seção do livro acessado anteriormente neste dispositivo.
  */
 export default function ContinueReadingLink() {
-    const [progress, setProgress] = useState<BookProgress | null>(null);
-
-    useEffect(() => {
-        setProgress(loadBookProgress());
-    }, []);
+    const progress = useBookProgress();
 
     if (!progress) return null;
 

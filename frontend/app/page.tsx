@@ -5,6 +5,7 @@ import ContinueReadingLink from "@/components/home/ContinueReadingLink";
 import HeroAnimatedWord from "@/components/home/HeroAnimatedWord";
 import HomeCarousel from "@/components/home/HomeCarousel";
 import type { HomeCarouselSlide } from "@/components/home/HomeCarousel";
+import HomeFaqSection from "@/components/home/HomeFaqSection";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
 import DIContainer from "@/infrastructure/di/container";
@@ -490,7 +491,14 @@ function renderSection(s: SectionConfig) {
         // Paulo ocupa esse mesmo lugar na ordem de seções da home agora.
         case "editorial":   return <HomeRecomendacoesPaulo key={s.id} />;
         case "ias":         return <IAsSection key={s.id} s={s} />;
-        case "manifesto":   return <ManifestoSection key={s.id} s={s} />;
+        // FAQ não é uma seção configurável no HomepageConfig — fica sempre
+        // colada logo abaixo do Manifesto, na ordem em que ele for renderizado.
+        case "manifesto":   return (
+            <div key={s.id}>
+                <ManifestoSection s={s} />
+                <HomeFaqSection />
+            </div>
+        );
         case "newsletter":  return <NewsletterSection key={s.id} s={s} />;
         default:            return null;
     }

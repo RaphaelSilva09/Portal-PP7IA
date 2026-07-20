@@ -6,12 +6,18 @@
  * O CSS gerado é injetado no documento do iframe de leitura (same-origin).
  */
 
-export const FONT_SCALE_STEPS = [0.85, 1, 1.15, 1.3] as const;
+export const FONT_SCALE_STEPS = [0.75, 0.85, 1, 1.15, 1.3, 1.45, 1.6] as const;
 export const LINE_HEIGHT_STEPS = [null, 1.7, 1.9] as const;
+export const WEIGHT_STEPS = ["regular", "medium", "bold"] as const;
 
 export type FontScale = (typeof FONT_SCALE_STEPS)[number];
 export type LineHeight = (typeof LINE_HEIGHT_STEPS)[number];
-export type FontWeight = "regular" | "medium";
+export type FontWeight = (typeof WEIGHT_STEPS)[number];
+
+const WEIGHT_CSS_VALUE: Record<Exclude<FontWeight, "regular">, number> = {
+    medium: 500,
+    bold: 700,
+};
 
 export interface ReadingPrefs {
     fontScale: FontScale;
@@ -35,7 +41,9 @@ export function sanitizeReadingPrefs(raw: unknown): ReadingPrefs {
     const fontScale = FONT_SCALE_STEPS.includes(candidate.fontScale as FontScale)
         ? (candidate.fontScale as FontScale)
         : DEFAULT_READING_PREFS.fontScale;
-    const weight = candidate.weight === "medium" ? "medium" : "regular";
+    const weight = WEIGHT_STEPS.includes(candidate.weight as FontWeight)
+        ? (candidate.weight as FontWeight)
+        : DEFAULT_READING_PREFS.weight;
     const lineHeight = LINE_HEIGHT_STEPS.includes(candidate.lineHeight as LineHeight)
         ? (candidate.lineHeight as LineHeight)
         : DEFAULT_READING_PREFS.lineHeight;
@@ -81,8 +89,8 @@ export function buildReadingPrefsCss(prefs: ReadingPrefs): string {
     if (prefs.lineHeight !== null) {
         rules.push(`body, body :is(p, li, blockquote) { line-height: ${prefs.lineHeight} !important; }`);
     }
-    if (prefs.weight === "medium") {
-        rules.push("body :is(p, li, blockquote, span, a, em) { font-weight: 500 !important; }");
+    if (prefs.weight !== "regular") {
+        rules.push(`body :is(p, li, blockquote, span, a, em) { font-weight: ${WEIGHT_CSS_VALUE[prefs.weight]} !important; }`);
     }
 
     return rules.join("\n");

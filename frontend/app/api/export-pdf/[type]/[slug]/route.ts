@@ -6,9 +6,19 @@
  * exata em vez de reimplementar a formatação editorial numa segunda vez.
  *
  * Ambientes:
- * - Produção (Vercel/Lambda): puppeteer-core + @sparticuz/chromium (binário
- *   compatível com serverless, sem estourar o limite de tamanho de função).
- * - Dev local: puppeteer completo (baixa seu próprio Chromium), devDependency.
+ * - Produção (qualquer build de produção — Railway, Vercel, etc.):
+ *   puppeteer-core + @sparticuz/chromium, um binário estático que roda sem
+ *   as bibliotecas de sistema (libnss3, libgbm, fontconfig...) que um
+ *   container mínimo normalmente não tem instaladas.
+ * - Dev local: puppeteer completo (baixa seu próprio Chromium), devDependency
+ *   — não existe em builds de produção, e mesmo que existisse, o Chromium
+ *   completo que ele baixa não roda nesses containers mínimos.
+ *
+ * Detectar isso via `VERCEL`/`AWS_LAMBDA_FUNCTION_NAME` deixava a Railway de
+ * fora (nenhuma das duas env vars existe lá) — caía no branch de dev e
+ * quebrava com 500 em produção. `NODE_ENV === "production"` é o sinal que o
+ * próprio Next.js seta em `next build`/`next start` independente da
+ * plataforma de hospedagem.
  */
 import type { Browser } from "puppeteer-core";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,12 +27,12 @@ import { resolveContentFilePath } from "@/lib/contentStorage";
 
 export const maxDuration = 60;
 
-function isServerlessEnv(): boolean {
-    return Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+function needsBundledChromium(): boolean {
+    return process.env.NODE_ENV === "production";
 }
 
 async function launchBrowser(): Promise<Browser> {
-    if (isServerlessEnv()) {
+    if (needsBundledChromium()) {
         const [{ default: chromium }, { default: puppeteer }] = await Promise.all([
             import("@sparticuz/chromium"),
             import("puppeteer-core"),

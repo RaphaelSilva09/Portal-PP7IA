@@ -1,11 +1,11 @@
 import Footer from "@/components/Footer";
+import FaqClient from "@/components/FaqClient";
 import Navbar from "@/components/Header";
 import ReaderQuestionForm from "@/components/ReaderQuestionForm";
 import { portalContentClass } from "@/lib/layout";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import FaqClient from "./FaqClient";
 
 export const metadata: Metadata = {
     title: "Perguntas Frequentes · PP7+IAS",

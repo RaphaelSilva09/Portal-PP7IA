@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import { applyFontScaleToDocument, buildReadingPrefsCss, loadReadingPrefs, READING_PREFS_EVENT } from "@/lib/readingPrefs";
+
+// Tinge o conteúdo do iframe — este é HTML de conteúdo próprio (newsletter,
+// biblioteca etc.), alheio ao tema do portal, então não há como fazê-lo
+// reagir ao tema por dentro. Um `filter: sepia()` no próprio elemento
+// <iframe> tinge o que for renderizado ali dentro, ignorando same-origin —
+// é um filtro visual sobre a pintura final do elemento, não algo que exija
+// acesso ao documento do iframe.
+const SEPIA_FILTER = "sepia(0.55)";
 
 const READING_PREFS_STYLE_ID = "pp7ias-reading-prefs";
 
@@ -110,6 +119,10 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
     const iframeReference = useRef<HTMLIFrameElement | null>(null);
     const [iframeHeight, setIframeHeight] = useState(MIN_IFRAME_HEIGHT_PX);
     const src = htmlPath;
+    const { resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+    const isSepia = mounted && resolvedTheme === "theme-sepia";
 
     useEffect(() => {
         const iframe = iframeReference.current;
@@ -234,8 +247,8 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
         <iframe
             ref={iframeReference}
             src={src}
-            className="block w-full overflow-hidden border-0"
-            style={{ height: `${iframeHeight}px` }}
+            className="block w-full overflow-hidden border-0 transition-[filter] duration-300 ease-out"
+            style={{ height: `${iframeHeight}px`, filter: isSepia ? SEPIA_FILTER : undefined }}
             title={title}
             sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
             scrolling="no"

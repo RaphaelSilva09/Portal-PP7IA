@@ -14,7 +14,7 @@ describe("sanitizeReadingPrefs", () => {
     it("returns defaults for garbage input", () => {
         expect(sanitizeReadingPrefs(null)).toEqual(DEFAULT_READING_PREFS);
         expect(sanitizeReadingPrefs("x")).toEqual(DEFAULT_READING_PREFS);
-        expect(sanitizeReadingPrefs({ fontScale: 99, weight: "bold", lineHeight: 42 })).toEqual(
+        expect(sanitizeReadingPrefs({ fontScale: 99, weight: "black", lineHeight: 42 })).toEqual(
             DEFAULT_READING_PREFS,
         );
     });
@@ -47,6 +47,11 @@ describe("buildReadingPrefsCss", () => {
         const css = buildReadingPrefsCss({ ...DEFAULT_READING_PREFS, weight: "medium" });
         expect(css).toContain("font-weight: 500 !important");
         expect(css).not.toContain("h1");
+    });
+
+    it("supports a bolder weight step beyond medium", () => {
+        const css = buildReadingPrefsCss({ ...DEFAULT_READING_PREFS, weight: "bold" });
+        expect(css).toContain("font-weight: 700 !important");
     });
 });
 

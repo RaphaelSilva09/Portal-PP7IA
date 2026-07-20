@@ -24,7 +24,8 @@ import type { MiniLivroSection } from "@/domain/entities/MiniLivroSection";
 import { useNewsletters } from "@/presentation/hooks/useNewsletters";
 import { useRadarOportunidades } from "@/presentation/hooks/useRadarOportunidades";
 import UpdatedBadge from "@/components/UpdatedBadge";
-import { ArrowUpRight, Clock, FileText, Globe } from "lucide-react";
+import { useBookProgress } from "@/hooks/useBookProgress";
+import { ArrowUpRight, BookOpen, Clock, FileText, Globe } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -690,6 +691,7 @@ function BookHeroCard({ book, block, sectionTitle, sectionDescription }: {
     const hasIntro = Boolean(book.introHtmlPath);
     const hasCoverPdf = Boolean(book.coverPdfPath);
     const [coverOpen, setCoverOpen] = useState(false);
+    const progress = useBookProgress();
     return (
         <>
         <article className="grid grid-cols-1 items-center gap-8 border-b border-border pb-8 md:grid-cols-[200px_1fr] md:gap-10">
@@ -724,8 +726,19 @@ function BookHeroCard({ book, block, sectionTitle, sectionDescription }: {
                 {sectionDescription && (
                     <p className="mt-3 max-w-xl text-muted-foreground">{sectionDescription}</p>
                 )}
-                {(hasCoverPdf || hasIntro) && (
+                {(progress || hasCoverPdf || hasIntro) && (
                     <div className="mt-5 flex flex-wrap gap-3">
+                        {progress && (
+                            <Link
+                                href={progress.href}
+                                className="group inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-background shadow-[var(--shadow-elevated)] transition-transform hover:-translate-y-0.5"
+                                style={{ backgroundColor: block.color }}
+                            >
+                                <BookOpen className="size-4" aria-hidden="true" />
+                                Continuar de onde parou
+                                <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                            </Link>
+                        )}
                         {hasCoverPdf && (
                             <a
                                 href={book.coverPdfPath!}
