@@ -102,6 +102,8 @@ interface NavItem {
 
 interface NavbarProps {
     autoHideOnScroll?: boolean;
+    /** Notificado a cada troca de `isAutoHidden` — permite que barras sticky externas (ex.: `ViewContentFrame`) acompanhem o header ao sumir/voltar. */
+    onAutoHiddenChange?: (hidden: boolean) => void;
 }
 
 const navItems: NavItem[] = [
@@ -111,7 +113,7 @@ const navItems: NavItem[] = [
     { label: "O autor",    href: "/autor"      },
 ];
 
-export default function Navbar({ autoHideOnScroll = false }: NavbarProps) {
+export default function Navbar({ autoHideOnScroll = false, onAutoHiddenChange }: NavbarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -235,6 +237,10 @@ export default function Navbar({ autoHideOnScroll = false }: NavbarProps) {
             if (animationFrameId !== null) window.cancelAnimationFrame(animationFrameId);
         };
     }, [autoHideOnScroll]);
+
+    useEffect(() => {
+        onAutoHiddenChange?.(autoHideOnScroll && isAutoHidden);
+    }, [autoHideOnScroll, isAutoHidden, onAutoHiddenChange]);
 
     const handleLogout = async () => {
         await signOut();

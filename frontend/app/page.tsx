@@ -5,7 +5,6 @@ import ContinueReadingLink from "@/components/home/ContinueReadingLink";
 import HeroAnimatedWord from "@/components/home/HeroAnimatedWord";
 import HomeCarousel from "@/components/home/HomeCarousel";
 import type { HomeCarouselSlide } from "@/components/home/HomeCarousel";
-import HomeEditorialSection from "@/components/home/HomeEditorialSection";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
 import DIContainer from "@/infrastructure/di/container";
@@ -314,17 +313,6 @@ function SetesCoresSection({ s }: { s: SectionConfig }) {
     );
 }
 
-function EditorialSection({ s }: { s: SectionConfig }) {
-    return (
-        <HomeEditorialSection
-            label={t(s, "label", "Editorial")}
-            titleBefore={t(s, "title_before", "Por onde ")}
-            titleEm={t(s, "title_em", "começar")}
-            description={t(s, "description", "")}
-        />
-    );
-}
-
 function IAsSection({ s }: { s: SectionConfig }) {
     const ias = Array.from({ length: 7 }, (_, i) => ({
         n: String(i + 1).padStart(2, "0"),
@@ -498,7 +486,9 @@ function renderSection(s: SectionConfig) {
     if (!s.visible) return null;
     switch (s.id) {
         case "sete-cores":  return <SetesCoresSection key={s.id} s={s} />;
-        case "editorial":   return <EditorialSection key={s.id} s={s} />;
+        // Seção "Editoriais e Artigos" desabilitada — a curadoria pessoal do
+        // Paulo ocupa esse mesmo lugar na ordem de seções da home agora.
+        case "editorial":   return <HomeRecomendacoesPaulo key={s.id} />;
         case "ias":         return <IAsSection key={s.id} s={s} />;
         case "manifesto":   return <ManifestoSection key={s.id} s={s} />;
         case "newsletter":  return <NewsletterSection key={s.id} s={s} />;
@@ -587,8 +577,6 @@ export default async function Home() {
                 );
                 return renderSection(s);
             })}
-
-            <HomeRecomendacoesPaulo />
 
             <footer className="border-t border-border bg-background py-16">
                 <div className="mx-auto max-w-7xl px-6">

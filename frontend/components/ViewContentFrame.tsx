@@ -10,6 +10,7 @@ import ReadingPrefsControl from "@/components/ReadingPrefsControl";
 import ShareButton from "@/components/ShareButton";
 import ViewContentNavigation from "@/components/ViewContentNavigation";
 import ViewIframe from "@/components/ViewIframe";
+import { cn } from "@/lib/utils";
 import { ArrowLeft, Compass, RotateCcw, SearchX } from "lucide-react";
 import Link from "next/link";
 
@@ -109,6 +110,7 @@ export default function ViewContentFrame({
     const [shellBackgroundColor, setShellBackgroundColor] = useState<string | null>(null);
     const [availability, setAvailability] = useState<Availability>("checking");
     const [retryToken, setRetryToken] = useState(0);
+    const [isHeaderHidden, setIsHeaderHidden] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -131,11 +133,25 @@ export default function ViewContentFrame({
             className="min-h-screen bg-[var(--background)]"
             style={shellBackgroundColor ? { backgroundColor: shellBackgroundColor } : undefined}
         >
-            <Navbar autoHideOnScroll />
+            <Navbar autoHideOnScroll onAutoHiddenChange={setIsHeaderHidden} />
             {contentType && availability === "ok" && <ContentViewTracker contentType={contentType} title={title} />}
 
-            {/* Barra de contexto: voltar à seção + ajustes de leitura */}
-            <div className="sticky top-16 z-20 border-b border-border/60 bg-background/90 backdrop-blur-md md:top-20">
+            {/* Barra de contexto: voltar à seção + compartilhar/exportar PDF.
+                Sticky a top-16/20 (altura do header) — quando o header some por
+                autoHideOnScroll, desloca a mesma distância via transform (não
+                `top`, para casar com a transição por transform do próprio
+                header) e assim fecha o vão que sobraria no topo.
+                Os ajustes de leitura NÃO ficam aqui: são o botão flutuante
+                `ReadingPrefsControl`, renderizado fora desta div — colocá-lo
+                dentro criaria um novo bloco de contenção quando o header some
+                (o `transform` acima passaria a ser o ponto de referência do
+                `position: fixed` do botão, tirando-o do canto da tela). */}
+            <div
+                className={cn(
+                    "sticky top-16 z-20 border-b border-border/60 bg-background/90 backdrop-blur-md transition-transform duration-300 ease-out md:top-20",
+                    isHeaderHidden && "-translate-y-16 md:-translate-y-20",
+                )}
+            >
                 <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
                     <Link
                         href={backHref}
@@ -146,13 +162,14 @@ export default function ViewContentFrame({
                     </Link>
                     {availability === "ok" && (
                         <div className="flex flex-wrap items-center justify-end gap-1.5">
-                            <ReadingPrefsControl inline />
                             <ShareButton title={title} />
                             {contentType && slug && <ExportPdfButton contentType={contentType} slug={slug} />}
                         </div>
                     )}
                 </div>
             </div>
+
+            {availability === "ok" && <ReadingPrefsControl />}
 
             <main id="conteudo">
                 {availability === "checking" && <ContentSkeleton />}
