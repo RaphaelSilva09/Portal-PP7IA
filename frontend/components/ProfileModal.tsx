@@ -175,7 +175,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                     <div className="flex gap-1 p-4 border-b border-border-glass bg-bg-primary/30">
                         <button
                             onClick={() => setActiveTab("info")}
-                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${
                                 activeTab === "info"
                                     ? "bg-brand-blue text-white"
                                     : "text-text-secondary hover:text-white hover:bg-white/5"
@@ -185,7 +185,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                         </button>
                         <button
                             onClick={() => setActiveTab("security")}
-                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${
                                 activeTab === "security"
                                     ? "bg-brand-blue text-white"
                                     : "text-text-secondary hover:text-white hover:bg-white/5"
@@ -195,7 +195,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                         </button>
                         <button
                             onClick={() => setActiveTab("preferences")}
-                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${
                                 activeTab === "preferences"
                                     ? "bg-brand-blue text-white"
                                     : "text-text-secondary hover:text-white hover:bg-white/5"
@@ -263,7 +263,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                             onChange={e => setNewEmail(e.target.value)}
                                             className={`w-full pl-10 pr-3 py-2 bg-white/5 border ${
                                                 errors.email ? "border-red-500" : "border-border-glass"
-                                            } rounded-xl text-white focus:border-brand-blue focus:bg-white/[0.07] outline-none transition-all`}
+                                            } rounded-xl text-white focus:border-brand-blue focus:bg-white/[0.07] outline-none transition`}
                                         />
                                     </div>
                                     {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
@@ -272,7 +272,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                 <button
                                     type="submit"
                                     disabled={isLoading || newEmail === user.email}
-                                        className="w-full px-4 py-3 bg-brand-blue hover:bg-brand-blue/80 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full px-4 py-3 bg-brand-blue hover:bg-brand-blue/80 text-white font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? "Atualizando..." : "Atualizar Email"}
                                 </button>
@@ -293,7 +293,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                             onChange={e => setCurrentPassword(e.target.value)}
                                             className={`w-full pr-10 pl-3 py-2 bg-white/5 border ${
                                                 errors.currentPassword ? "border-red-500" : "border-border-glass"
-                                            } rounded-xl text-white focus:border-brand-blue focus:bg-white/[0.07] outline-none transition-all`}
+                                            } rounded-xl text-white focus:border-brand-blue focus:bg-white/[0.07] outline-none transition`}
                                         />
                                         <button
                                             type="button"
@@ -323,7 +323,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                             onChange={e => setNewPassword(e.target.value)}
                                             className={`w-full pr-10 pl-3 py-2 bg-white/5 border ${
                                                 errors.newPassword ? "border-red-500" : "border-border-glass"
-                                            } rounded-xl text-white focus:border-brand-blue focus:bg-white/[0.07] outline-none transition-all`}
+                                            } rounded-xl text-white focus:border-brand-blue focus:bg-white/[0.07] outline-none transition`}
                                         />
                                         <button
                                             type="button"
@@ -353,7 +353,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                             onChange={e => setConfirmPassword(e.target.value)}
                                             className={`w-full pr-10 pl-3 py-2 bg-white/5 border ${
                                                 errors.confirmPassword ? "border-red-500" : "border-border-glass"
-                                            } rounded-xl text-white focus:border-brand-blue focus:bg-white/[0.07] outline-none transition-all`}
+                                            } rounded-xl text-white focus:border-brand-blue focus:bg-white/[0.07] outline-none transition`}
                                         />
                                         <button
                                             type="button"
@@ -375,7 +375,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full px-4 py-3 bg-brand-blue hover:bg-brand-blue/80 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full px-4 py-3 bg-brand-blue hover:bg-brand-blue/80 text-white font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? "Atualizando..." : "Atualizar Senha"}
                                 </button>
@@ -390,7 +390,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                         Como deseja receber notificações?
                                     </label>
                                     <div className="space-y-3">
-                                        <label className="flex items-center gap-3 p-3 bg-white/5 border border-border-glass rounded-xl cursor-pointer hover:bg-white/[0.07] transition-all">
+                                        <label className="flex items-center gap-3 p-3 bg-white/5 border border-border-glass rounded-xl cursor-pointer hover:bg-white/[0.07] transition">
                                             <input
                                                 type="checkbox"
                                                 checked={acceptEmailUpdates}
@@ -405,7 +405,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                             </div>
                                         </label>
 
-                                        <label className="flex items-center gap-3 p-3 bg-white/5 border border-border-glass rounded-xl cursor-pointer hover:bg-white/[0.07] transition-all">
+                                        <label className="flex items-center gap-3 p-3 bg-white/5 border border-border-glass rounded-xl cursor-pointer hover:bg-white/[0.07] transition">
                                             <input
                                                 type="checkbox"
                                                 checked={acceptWhatsAppUpdates}
@@ -429,7 +429,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full px-4 py-3 bg-brand-blue hover:bg-brand-blue/80 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full px-4 py-3 bg-brand-blue hover:bg-brand-blue/80 text-white font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? "Salvando..." : "Salvar Preferências"}
                                 </button>
@@ -441,7 +441,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                         <button
                                             type="button"
                                             onClick={() => setShowDeleteConfirm(true)}
-                                            className="w-full px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 font-medium rounded-xl transition-all flex items-center justify-center gap-2"
+                                            className="w-full px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 font-medium rounded-xl transition flex items-center justify-center gap-2"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                             Deletar Conta
@@ -455,7 +455,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowDeleteConfirm(false)}
-                                                    className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all"
+                                                    className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition"
                                                 >
                                                     Cancelar
                                                 </button>
@@ -463,7 +463,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                                                     type="button"
                                                     onClick={handleDeleteAccount}
                                                     disabled={isLoading}
-                                                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all disabled:opacity-50"
+                                                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition disabled:opacity-50"
                                                 >
                                                     {isLoading ? "Deletando..." : "Sim, Deletar"}
                                                 </button>

@@ -89,7 +89,7 @@ export default function AdminExplorarConfig() {
                     <button
                         onClick={save}
                         disabled={saving}
-                        className="flex items-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
+                        className="flex items-center gap-2 rounded-xl bg-foreground px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
                     >
                         <Save className="size-4" />
                         {saving ? "Salvando…" : "Salvar"}

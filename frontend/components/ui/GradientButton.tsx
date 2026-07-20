@@ -94,7 +94,7 @@ const GradientButton = forwardRef<HTMLButtonElement, GradientButtonProps>(
             // Base
             "inline-flex items-center justify-center gap-2",
             "text-white font-semibold rounded-xl",
-            "transition-all duration-200",
+            "transition duration-200",
             // Interações
             "hover:scale-[1.02] active:scale-95",
             // Touch target (WCAG)

@@ -45,11 +45,11 @@ describe('proxy auth guard', () => {
         expect(mockGetSession).not.toHaveBeenCalled();
     });
 
-    it('redireciona /user para modal de login quando usuário não está autenticado', async () => {
+    it('redireciona /user para modal de login preservando o destino', async () => {
         const response = await proxy(createRequest('http://localhost/user'));
 
         expect(mockGetSession).toHaveBeenCalledTimes(1);
-        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
+        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login&next=%2Fuser');
     });
 
     it('trata erro ao consultar sessão como usuário não autenticado', async () => {
@@ -57,7 +57,7 @@ describe('proxy auth guard', () => {
 
         const response = await proxy(createRequest('http://localhost/user'));
 
-        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
+        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login&next=%2Fuser');
     });
 
     it('permite /user para usuário autenticado', async () => {
@@ -74,7 +74,7 @@ describe('proxy auth guard', () => {
     it('redireciona /painel-admin para login quando não há usuário', async () => {
         const response = await proxy(createRequest('http://localhost/painel-admin'));
 
-        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login');
+        expect(response.headers.get('location')).toBe('http://localhost/?authModal=login&next=%2Fpainel-admin');
     });
 
     it('bloqueia /painel-admin para usuário sem role admin', async () => {

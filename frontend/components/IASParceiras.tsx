@@ -17,7 +17,7 @@ export default function IASParceiras() {
                 ============================================ */}
                 <Link
                     href="/view/biblioteca/009"
-                    className="group relative overflow-hidden rounded-2xl border border-border hover:border-cyan-500/40 transition-all duration-300 block bg-card/85"
+                    className="group relative overflow-hidden rounded-2xl border border-border hover:border-cyan-500/40 transition duration-300 block bg-card/85"
                 >
                     <div
                         className="absolute inset-0"
@@ -28,7 +28,7 @@ export default function IASParceiras() {
                     />
                     <div className="relative z-10 p-6">
                         {/* Arrow (top-right, fora do fluxo centralizado) */}
-                        <ArrowUpRight className="absolute top-4 right-4 w-5 h-5 text-cyan-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
+                        <ArrowUpRight className="absolute top-4 right-4 w-5 h-5 text-cyan-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition duration-300" />
 
                         {/* Header row */}
                         <div className="flex flex-col items-center gap-2 mb-2">

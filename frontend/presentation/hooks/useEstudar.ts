@@ -19,6 +19,7 @@ function rehydrateItem(raw: unknown): Estudar {
     return Estudar.create({
         ...props,
         createdAt: props.createdAt ? new Date(props.createdAt) : new Date(0),
+        updatedAt: props.updatedAt ? new Date(props.updatedAt) : null,
     });
 }
 

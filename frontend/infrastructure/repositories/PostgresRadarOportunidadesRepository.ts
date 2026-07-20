@@ -16,6 +16,7 @@ import { IRadarOportunidadesRepository } from "../../domain/repositories/IRadarO
 interface PostgresRadarRow {
     id: number;
     created_at: string;
+    updated_at?: string | null;
     title: string;
     html_path: string | null;
     pdf_path: string | null;
@@ -74,6 +75,7 @@ export class PostgresRadarOportunidadesRepository implements IRadarOportunidades
         const props: RadarOportunidadesProps = {
             id: row.id,
             createdAt: new Date(row.created_at),
+            updatedAt: row.updated_at ? new Date(row.updated_at) : null,
             title: row.title,
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,

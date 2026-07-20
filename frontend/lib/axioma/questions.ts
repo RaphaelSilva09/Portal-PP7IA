@@ -1,0 +1,255 @@
+export type ChoiceOption = { key: string; label: string };
+export type Question =
+  | { id: string; type: "choice"; section: string; prompt: string; options: ChoiceOption[] }
+  | { id: string; type: "open"; section: string; prompt: string; placeholder?: string };
+
+// TRIAGEM — 10 perguntas rápidas para entender se a pessoa tem ou não conhecimento sobre IA
+export const perfilQuestions: Question[] = [
+  {
+    id: "tr1",
+    type: "choice",
+    section: "Contato com IA",
+    prompt: "Você já utilizou alguma ferramenta de Inteligência Artificial (ChatGPT, Gemini, Claude, Copilot etc.)?",
+    options: [
+      { key: "A", label: "Nunca utilizei." },
+      { key: "B", label: "Já experimentei uma ou duas vezes, por curiosidade." },
+      { key: "C", label: "Uso ocasionalmente, em tarefas pontuais." },
+      { key: "D", label: "Uso com frequência no trabalho ou nos estudos." },
+      { key: "E", label: "Uso diariamente e domino bem várias delas." },
+    ],
+  },
+  {
+    id: "tr2",
+    type: "choice",
+    section: "Contato com IA",
+    prompt: "Como você descreveria seu nível atual de conhecimento sobre IA?",
+    options: [
+      { key: "A", label: "Nenhum — nunca estudei o assunto." },
+      { key: "B", label: "Básico — sei o que é, mas no senso comum." },
+      { key: "C", label: "Intermediário — entendo os conceitos principais." },
+      { key: "D", label: "Avançado — sei explicar IA, ML e LLMs." },
+      { key: "E", label: "Profundo — atuo ou estudo o tema tecnicamente." },
+    ],
+  },
+  {
+    id: "tr3",
+    type: "choice",
+    section: "Vocabulário Técnico",
+    prompt: "Quais destes termos você já ouviu falar e sabe (mesmo que superficialmente) o que significam?",
+    options: [
+      { key: "A", label: "Nenhum deles." },
+      { key: "B", label: "Apenas 'Inteligência Artificial' de forma geral." },
+      { key: "C", label: "IA e Machine Learning." },
+      { key: "D", label: "IA, Machine Learning e Deep Learning." },
+      { key: "E", label: "Todos: IA, ML, Deep Learning, LLM, Prompt, Embeddings etc." },
+    ],
+  },
+  {
+    id: "tr4",
+    type: "choice",
+    section: "Vocabulário Técnico",
+    prompt: "Você sabe o que é um \"prompt\" no contexto de IA?",
+    options: [
+      { key: "A", label: "Não faço ideia." },
+      { key: "B", label: "Já ouvi, mas não saberia explicar." },
+      { key: "C", label: "Sei que é um comando dado à IA, sem mais detalhes." },
+      { key: "D", label: "Sei o que é e já estruturei prompts mais elaborados." },
+      { key: "E", label: "Domino engenharia de prompt e técnicas avançadas." },
+    ],
+  },
+  {
+    id: "tr5",
+    type: "choice",
+    section: "Aplicação Prática",
+    prompt: "Em quais situações você já usou (ou viu alguém usar) IA na prática?",
+    options: [
+      { key: "A", label: "Nunca vi sendo usada na prática." },
+      { key: "B", label: "Só em vídeos, posts ou notícias." },
+      { key: "C", label: "Para tirar dúvidas, fazer resumos ou pesquisas simples." },
+      { key: "D", label: "Em trabalho/estudo: textos, código, planejamento, etc." },
+      { key: "E", label: "Em projetos estruturados, automações ou produtos próprios." },
+    ],
+  },
+  {
+    id: "tr6",
+    type: "choice",
+    section: "Aplicação Prática",
+    prompt: "Você já criou ou ajustou prompts buscando obter respostas melhores da IA?",
+    options: [
+      { key: "A", label: "Nunca tentei." },
+      { key: "B", label: "Já tentei, mas sem método nenhum." },
+      { key: "C", label: "Já refiz prompts até melhorar o resultado." },
+      { key: "D", label: "Costumo planejar o prompt antes de mandar." },
+      { key: "E", label: "Uso técnicas estruturadas (papéis, exemplos, passos)." },
+    ],
+  },
+  {
+    id: "tr7",
+    type: "choice",
+    section: "Compreensão dos Limites",
+    prompt: "Você sabe o que é uma \"alucinação\" de IA?",
+    options: [
+      { key: "A", label: "Não, nunca ouvi falar." },
+      { key: "B", label: "Já ouvi, mas não sei explicar bem." },
+      { key: "C", label: "Sei que é quando a IA inventa algo errado." },
+      { key: "D", label: "Sei explicar por que isso acontece, em linhas gerais." },
+      { key: "E", label: "Domino o conceito e sei como mitigar." },
+    ],
+  },
+  {
+    id: "tr8",
+    type: "choice",
+    section: "Compreensão dos Limites",
+    prompt: "Você costuma validar ou checar as respostas que a IA te dá?",
+    options: [
+      { key: "A", label: "Nunca, confio plenamente no que ela responde." },
+      { key: "B", label: "Raramente, só quando algo soa muito estranho." },
+      { key: "C", label: "Às vezes, em assuntos críticos." },
+      { key: "D", label: "Quase sempre, principalmente fatos e dados." },
+      { key: "E", label: "Sempre — trato a IA como rascunho, não como verdade." },
+    ],
+  },
+  {
+    id: "tr9",
+    type: "choice",
+    section: "Estudo e Atualização",
+    prompt: "Você já estudou IA de alguma forma estruturada?",
+    options: [
+      { key: "A", label: "Nunca estudei." },
+      { key: "B", label: "Só vi conteúdo solto em redes sociais." },
+      { key: "C", label: "Já li artigos ou vi vídeos para aprender de verdade." },
+      { key: "D", label: "Já fiz curso(s) introdutórios sobre IA." },
+      { key: "E", label: "Tenho formação ou cursos avançados sobre o tema." },
+    ],
+  },
+  {
+    id: "tr10",
+    type: "choice",
+    section: "Estudo e Atualização",
+    prompt: "Qual destas frases melhor descreve sua expectativa em aprender IA?",
+    options: [
+      { key: "A", label: "Quero entender o básico, não sei nada sobre o tema." },
+      { key: "B", label: "Quero usar IA no dia a dia com mais segurança." },
+      { key: "C", label: "Quero aprofundar em técnicas e boas práticas." },
+      { key: "D", label: "Quero aplicar IA em projetos profissionais." },
+      { key: "E", label: "Quero dominar IA tecnicamente, indo ao nível avançado." },
+    ],
+  },
+];
+
+// PROVA — avaliação técnica simples sobre IA (10 questões: 7 múltipla escolha + 3 abertas)
+// Gabarito distribuído entre A, B, C e D para evitar viés (A=2, B=2, C=1, D=2).
+export const tecnicoQuestions: (Question & { correct?: string })[] = [
+  {
+    id: "t1",
+    type: "choice",
+    section: "Conceitos Fundamentais da IA",
+    prompt: "Qual das seguintes opções melhor define Inteligência Artificial (IA)?",
+    correct: "A",
+    options: [
+      { key: "A", label: "Um campo da ciência da computação que busca criar sistemas capazes de realizar tarefas que exigiriam inteligência humana." },
+      { key: "B", label: "Um software que apenas automatiza tarefas repetitivas." },
+      { key: "C", label: "Uma tecnologia que permite que robôs pensem e sintam como humanos." },
+      { key: "D", label: "Um banco de dados gigante para armazenar informações." },
+    ],
+  },
+  {
+    id: "t2",
+    type: "choice",
+    section: "Conceitos Fundamentais da IA",
+    prompt: "Qual é a principal diferença entre um software tradicional e um sistema de IA?",
+    correct: "B",
+    options: [
+      { key: "A", label: "Software tradicional é sempre mais rápido que a IA." },
+      { key: "B", label: "Software tradicional segue regras fixas, enquanto a IA aprende com dados e experiências." },
+      { key: "C", label: "A IA não precisa de programação, o software tradicional sim." },
+      { key: "D", label: "Software tradicional é offline, a IA é sempre online." },
+    ],
+  },
+  {
+    id: "t3",
+    type: "choice",
+    section: "Conceitos Fundamentais da IA",
+    prompt: "Qual o papel dos dados no funcionamento de um sistema de IA?",
+    correct: "C",
+    options: [
+      { key: "A", label: "São apenas um subproduto do processamento da IA." },
+      { key: "B", label: "Servem para armazenar os resultados finais gerados pela IA." },
+      { key: "C", label: "São o \"combustível\" essencial que a IA utiliza para aprender, identificar padrões e tomar decisões." },
+      { key: "D", label: "São usados apenas para a interface gráfica do usuário." },
+    ],
+  },
+  {
+    id: "t4",
+    type: "choice",
+    section: "Machine Learning e Deep Learning",
+    prompt: "Qual das opções melhor define \"Machine Learning\" (Aprendizado de Máquina)?",
+    correct: "D",
+    options: [
+      { key: "A", label: "Um processo onde robôs aprendem a se mover fisicamente." },
+      { key: "B", label: "Uma técnica de programação que exige que o desenvolvedor escreva cada regra de decisão." },
+      { key: "C", label: "O processo de ensinar um computador a jogar xadrez manualmente." },
+      { key: "D", label: "Um subcampo da IA que permite aos sistemas aprenderem com dados, sem serem explicitamente programados para cada regra." },
+    ],
+  },
+  {
+    id: "t5",
+    type: "choice",
+    section: "Machine Learning e Deep Learning",
+    prompt: "Qual a relação correta entre \"Machine Learning\" e \"Deep Learning\"?",
+    correct: "A",
+    options: [
+      { key: "A", label: "Deep Learning é um subcampo do Machine Learning que utiliza redes neurais com múltiplas camadas." },
+      { key: "B", label: "São termos sinônimos e podem ser usados de forma intercambiável." },
+      { key: "C", label: "Deep Learning é uma técnica mais antiga que o Machine Learning." },
+      { key: "D", label: "Machine Learning é um subcampo do Deep Learning." },
+    ],
+  },
+  {
+    id: "t6",
+    type: "choice",
+    section: "IA Generativa e Termos Específicos",
+    prompt: "O que significa a sigla \"LLM\" no contexto da IA?",
+    correct: "D",
+    options: [
+      { key: "A", label: "Linguagem de Lógica Matemática" },
+      { key: "B", label: "Local Learning Machine" },
+      { key: "C", label: "Light Learning Module" },
+      { key: "D", label: "Large Language Model (Modelo de Linguagem Grande)" },
+    ],
+  },
+  {
+    id: "t7",
+    type: "choice",
+    section: "IA Generativa e Termos Específicos",
+    prompt: "O que o termo \"Alucinação\" descreve no contexto da IA?",
+    correct: "B",
+    options: [
+      { key: "A", label: "Um erro de sistema que faz a IA parar de funcionar." },
+      { key: "B", label: "Quando a IA gera uma resposta que parece correta e confiante, mas é factualmente falsa ou inventada." },
+      { key: "C", label: "Quando a IA começa a falar em outros idiomas sem ser solicitada." },
+      { key: "D", label: "O mecanismo de segurança que impede a IA de responder perguntas antiéticas." },
+    ],
+  },
+  {
+    id: "t_open_1",
+    type: "open",
+    section: "Reflexão Aberta",
+    prompt: "Em suas palavras, explique o que você entende por \"Inteligência Artificial Generativa\" e dê um exemplo prático de uso.",
+    placeholder: "Sua explicação...",
+  },
+  {
+    id: "t_open_2",
+    type: "open",
+    section: "Reflexão Aberta",
+    prompt: "O que é \"Engenharia de Prompt\" e por que ela é importante para obter bons resultados de uma IA Generativa?",
+    placeholder: "Sua resposta...",
+  },
+  {
+    id: "t_open_3",
+    type: "open",
+    section: "Reflexão Aberta",
+    prompt: "Cite um exemplo de aplicação de IA no dia a dia e explique brevemente como você imagina que ela funciona por trás dos panos.",
+    placeholder: "Exemplo e explicação...",
+  },
+];

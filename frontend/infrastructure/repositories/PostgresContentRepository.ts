@@ -216,7 +216,12 @@ export class PostgresContentRepository implements IContentRepository {
                 return mapRow(type, rows[0]);
             }
 
-            const setClause = columns.map((c, i) => `"${c}" = $${i + 1}`).join(", ");
+            // updated_at manual: só a tabela newsletters tem trigger de auto-update;
+            // setar aqui cobre todos os tipos (usado pelo alerta de conteúdo atualizado).
+            const setClause = [
+                ...columns.map((c, i) => `"${c}" = $${i + 1}`),
+                "updated_at = NOW()",
+            ].join(", ");
             const idPlaceholder = `$${columns.length + 1}`;
             const { rows } = await pool.query<Record<string, unknown>>(
                 `UPDATE ${table} SET ${setClause} WHERE id = ${idPlaceholder} RETURNING *`,

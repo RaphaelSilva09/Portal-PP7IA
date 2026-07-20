@@ -86,7 +86,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     const showDevTools = process.env.NEXT_PUBLIC_GIT_BRANCH === "develop";
 
     return (
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem themes={["light", "dark"]}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem themes={["light", "theme-sepia", "dark"]}>
             <QueryClientProvider client={queryClient}>
                 {children}
                 {showDevTools && <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />}

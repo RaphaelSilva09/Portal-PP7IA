@@ -1,7 +1,10 @@
 import ChatBubble from "@/components/chat/ChatBubble";
 import Navbar from "@/components/Header";
 import capaLivro from "@/assets/capa-livro.jpeg";
+import ContinueReadingLink from "@/components/home/ContinueReadingLink";
 import HeroAnimatedWord from "@/components/home/HeroAnimatedWord";
+import HomeCarousel from "@/components/home/HomeCarousel";
+import type { HomeCarouselSlide } from "@/components/home/HomeCarousel";
 import HomeEditorialSection from "@/components/home/HomeEditorialSection";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
@@ -35,7 +38,7 @@ const HERO_BLOCKS = [
     { id: "livro",      label: "Enquanto é Tempo", color: "var(--block-livro)",      href: "/mini-livros" },
     { id: "biblioteca", label: "Biblioteca",       color: "var(--block-biblioteca)", href: "/biblioteca" },
     { id: "estudar",    label: "Estudar",          color: "var(--block-estudar)",    href: "/estudar" },
-    { id: "ensinar",    label: "Ensinar",          color: "var(--block-ensinar)",    href: "#newsletter" },
+    { id: "ensinar",    label: "Ensinar",          color: "var(--block-ensinar)",    href: "/explorar?b=ensinar" },
 ];
 
 function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: {
@@ -84,7 +87,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                                 <HeroAnimatedWord />
                                 .
                             </span>
-                            <span className="block text-foreground/50 text-[2.4rem] sm:text-[3rem] lg:text-[5rem] mt-3">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
+                            <span className="block text-foreground/70 text-[2.4rem] sm:text-[3rem] lg:text-[5rem] mt-3">{t(s, "line3", "Leia Enquanto é Tempo.")}</span>
                         </h1>
 
                         {/* Description */}
@@ -94,7 +97,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
 
                         {/* CTAs */}
                         <div className="mt-8 flex flex-wrap items-center gap-3">
-                            <a href="/explorar" className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary">
+                            <a href="/explorar" className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                                     <path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
                                 </svg>
@@ -158,6 +161,8 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                             </div>
                         </a>
 
+                        <ContinueReadingLink />
+
                         {/* Newsletter card */}
                         <a
                             href="/explorar?b=newsletter"
@@ -183,7 +188,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                                         style={{ color: "var(--hero-newsletter-sidebar-number)" }}>
                                         {t(s, "newsletterCard_headline1", "O melhor da IA,")}
                                         <br />
-                                        {t(s, "newsletterCard_headline2", "toda quarta.")}
+                                        {t(s, "newsletterCard_headline2", "segunda e quarta.")}
                                     </p>
                                 </div>
                                 <div className="mt-4 flex items-center justify-between">
@@ -364,7 +369,7 @@ function IAsSection({ s }: { s: SectionConfig }) {
                     <div className="lg:col-span-7">
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                             {ias.map((ia) => (
-                                <div key={ia.n} className="group relative flex aspect-square flex-col justify-between overflow-hidden rounded-2xl border border-background/10 bg-background/[0.04] p-4 transition-all hover:-translate-y-1 hover:border-background/30 hover:bg-background/[0.09]">
+                                <div key={ia.n} className="group relative flex aspect-square flex-col justify-between overflow-hidden rounded-2xl border border-background/10 bg-background/[0.04] p-4 transition hover:-translate-y-1 hover:border-background/30 hover:bg-background/[0.09]">
                                     <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-60" style={{ backgroundColor: "var(--block-newsletter)" }} />
                                     <div className="flex items-start justify-between">
                                         <div className="text-[10px] uppercase tracking-[0.22em] text-background/40">IA · {ia.n}</div>
@@ -476,7 +481,7 @@ function NewsletterSection({ s }: { s: SectionConfig }) {
                         <h2 className="mt-4 font-serif text-5xl leading-[1.05] tracking-tight md:text-6xl">
                             {t(s, "title_before", "Toda ")}
                             <em className="italic" style={{ color: "var(--block-newsletter)" }}>
-                                {t(s, "title_em", "quarta")}
+                                {t(s, "title_em", "segunda e quarta")}
                             </em>
                             .<br />{t(s, "title_line2", "Direto no inbox.")}
                         </h2>
@@ -502,7 +507,7 @@ function renderSection(s: SectionConfig) {
 }
 
 export default async function Home() {
-    const [sections, activeBook, { latest: latestNewsletter }, { all: allChapters }, siteBg] = await Promise.all([
+    const [sections, activeBook, { latest: latestNewsletter, older: olderNewsletters }, { all: allChapters }, siteBg] = await Promise.all([
         getConfig(),
         DIContainer.getActiveBookUseCase().execute().catch(() => null),
         DIContainer.getNewslettersUseCase().execute().catch(() => ({ latest: null, older: [] as never[] })),
@@ -513,21 +518,72 @@ export default async function Home() {
     const totalChapters = allChapters.length;
     const bookChaptersTotal = siteBg.bookChaptersTotal;
 
+    // Carrossel de destaques (PDF 3.7.2): livro, guia de Lisboa,
+    // 2 últimas newsletters e itens fixos.
+    const latestTwoNewsletters = [latestNewsletter, ...(olderNewsletters ?? [])]
+        .filter((n): n is Newsletter => n !== null)
+        .slice(0, 2);
+
+    const carouselSlides: HomeCarouselSlide[] = [
+        {
+            key: "livro",
+            eyebrow: "O Livro",
+            title: activeBook?.title ?? "Enquanto é Tempo",
+            description: "Um livro sobre liderança, publicado capítulo a capítulo.",
+            href: "/mini-livros",
+            color: "var(--block-livro)",
+        },
+        {
+            key: "guia-lisboa",
+            eyebrow: "Biblioteca · Viagens",
+            title: "Guia de restaurantes de Lisboa",
+            description: "Curadoria de viagens e restaurantes da Biblioteca.",
+            href: "/explorar?b=biblioteca&tema=viagens-restaurantes",
+            color: "var(--block-biblioteca)",
+        },
+        ...latestTwoNewsletters.map((n, i) => ({
+            key: `newsletter-${n.id}`,
+            eyebrow: i === 0 ? "Newsletter · Última edição" : "Newsletter",
+            title: n.title,
+            description: n.formattedDate,
+            href: n.htmlPath ?? "/explorar?b=newsletter",
+            color: "var(--block-newsletter)",
+        })),
+        {
+            key: "explorar",
+            eyebrow: "Portal",
+            title: "Explorar os 7 blocos",
+            description: "Todo o conteúdo, organizado por cor.",
+            href: "/explorar",
+            color: "var(--block-radar)",
+        },
+        {
+            key: "quem-somos",
+            eyebrow: "PP7+IAS",
+            title: "Quem somos",
+            description: "40+ anos de liderança executiva com 7 IAs.",
+            href: "/quem-somos",
+            color: "var(--block-ensinar)",
+        },
+    ];
+
     return (
-        <main className="min-h-screen bg-background text-foreground">
+        <main id="conteudo" className="min-h-screen bg-background text-foreground">
             <Navbar />
 
             {sections.map(s => {
                 if (!s.visible) return null;
                 if (s.id === "hero") return (
-                    <HeroSection
-                        key={s.id}
-                        s={s}
-                        book={activeBook}
-                        newsletter={latestNewsletter}
-                        totalChapters={totalChapters}
-                        bookChaptersTotal={bookChaptersTotal}
-                    />
+                    <div key={s.id}>
+                        <HeroSection
+                            s={s}
+                            book={activeBook}
+                            newsletter={latestNewsletter}
+                            totalChapters={totalChapters}
+                            bookChaptersTotal={bookChaptersTotal}
+                        />
+                        <HomeCarousel slides={carouselSlides} />
+                    </div>
                 );
                 return renderSection(s);
             })}
@@ -557,7 +613,7 @@ export default async function Home() {
                                     { href: "/mini-livros", color: "var(--block-livro)", label: "Enquanto é Tempo" },
                                     { href: "/biblioteca", color: "var(--block-biblioteca)", label: "Biblioteca" },
                                     { href: "/estudar", color: "var(--block-estudar)", label: "Estudar" },
-                                    { href: "#newsletter", color: "var(--block-ensinar)", label: "Ensinar" },
+                                    { href: "/explorar?b=ensinar", color: "var(--block-ensinar)", label: "Ensinar" },
                                 ].map((b) => (
                                     <li key={b.label}>
                                         <a href={b.href} className="group inline-flex items-center gap-2 text-foreground/80 transition-colors hover:text-foreground">
@@ -575,6 +631,8 @@ export default async function Home() {
                                 <li><a href="/user" className="hover:text-foreground">Cadastrar</a></li>
                                 <li><a href="/quem-somos" className="hover:text-foreground">Indicar</a></li>
                                 <li><a href="#manifesto" className="hover:text-foreground">Manifesto</a></li>
+                                <li><a href="/prompts" className="hover:text-foreground">Biblioteca de Prompts</a></li>
+                                <li><a href="/faq" className="hover:text-foreground">Perguntas Frequentes</a></li>
                                 <li><a href="/quem-somos" className="hover:text-foreground">Contato</a></li>
                             </ul>
                         </div>

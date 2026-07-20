@@ -17,7 +17,7 @@ export function ErrorBubble({ code, message, onLoginClick }: Props) {
                     <button
                         type="button"
                         onClick={onLoginClick}
-                        className="inline-flex items-center rounded-full bg-linear-to-r from-blue-600 to-purple-700 px-4 py-2 text-xs font-semibold text-white shadow-[0_3px_10px_rgba(29,78,216,0.12)] transition-all duration-200 hover:scale-[1.01] hover:shadow-[0_6px_14px_rgba(29,78,216,0.16)] focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/20"
+                        className="inline-flex items-center rounded-full bg-linear-to-r from-blue-600 to-purple-700 px-4 py-2 text-xs font-semibold text-white shadow-[0_3px_10px_rgba(29,78,216,0.12)] transition duration-200 hover:scale-[1.01] hover:shadow-[0_6px_14px_rgba(29,78,216,0.16)] focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/20"
                     >
                         Entrar
                     </button>

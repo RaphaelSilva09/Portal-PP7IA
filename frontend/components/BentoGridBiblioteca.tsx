@@ -98,7 +98,7 @@ export default function BentoGridBiblioteca() {
                         <button
                             key={slug}
                             onClick={() => setActiveTema(slug)}
-                            className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${
+                            className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-colors duration-200 border text-center w-full h-full ${
                                 activeTema === slug
                                 ? "bg-purple-700 text-white border-purple-800"
                                 : "bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-accent/50 hover:text-foreground"
@@ -116,7 +116,7 @@ export default function BentoGridBiblioteca() {
                     1 Card - col-span-3
                     ============================================ */}
                     {activeLatest ? (
-                        <div id={`item-${activeLatest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] cursor-pointer transition-all duration-500 hover:scale-[1.01]">
+                        <div id={`item-${activeLatest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] cursor-pointer transition-transform duration-500 hover:scale-[1.01]">
                         {/* Gradient Background */}
                         <div
                             className="absolute inset-0"
@@ -155,7 +155,7 @@ export default function BentoGridBiblioteca() {
                                 {activeLatest.htmlAvailable ? (
                                     <a
                                         href={activeLatest.htmlPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-700 hover:bg-purple-800 border border-purple-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-700 hover:bg-purple-800 border border-purple-800 rounded-full text-white font-medium text-sm sm:text-base transition-colors duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Ler agora</span>
@@ -172,7 +172,7 @@ export default function BentoGridBiblioteca() {
                                 {activeLatest.pdfAvailable ? (
                                     <a
                                         href={activeLatest.pdfPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-800 hover:bg-purple-900 border border-purple-900 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-800 hover:bg-purple-900 border border-purple-900 rounded-full text-white font-medium text-sm sm:text-base transition-colors duration-300 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -204,7 +204,7 @@ export default function BentoGridBiblioteca() {
                                 key={item.id}
                                 id={`item-${item.id}`}
                                 style={{ scrollMarginTop: "80px" }}
-                                className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border cursor-pointer transition-all duration-300 hover:bg-accent/40 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
+                                className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border cursor-pointer transition duration-300 hover:bg-accent/40 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
                             >
                                 <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                     {/* Biblioteca Number */}
@@ -225,7 +225,7 @@ export default function BentoGridBiblioteca() {
                                         {item.htmlAvailable ? (
                                             <a
                                                 href={item.htmlPath!}
-                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-700 hover:bg-purple-800 border border-purple-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-700 hover:bg-purple-800 border border-purple-800 rounded-full text-white text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                                             >
                                                 <Globe className="w-5 h-5" />
                                                 <span>Ler agora</span>
@@ -242,7 +242,7 @@ export default function BentoGridBiblioteca() {
                                         {item.pdfAvailable ? (
                                             <a
                                                 href={item.pdfPath!}
-                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-800 hover:bg-purple-900 border border-purple-900 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-800 hover:bg-purple-900 border border-purple-900 rounded-full text-white text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                                             >
                                                 <FileText className="w-5 h-5" />
                                                 <span>PDF</span>

@@ -1,10 +1,12 @@
 import ModalsProvider from "@/components/ModalsProvider";
+import PortalTypographyEffect from "@/components/PortalTypographyEffect";
 import Providers from "@/components/Providers";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
 import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
 import { InviteModalProvider } from "@/context/InviteModalContext";
+import ReferralCapture from "@/components/ReferralCapture";
 import { SearchModalProvider } from "@/context/SearchModalContext";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
@@ -36,6 +38,7 @@ const lora = Lora({
 
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000"),
     title: "PP7+IAS — Menos ruído. Mais clareza.",
     description: "Curadoria editorial sobre liderança, gestão de pessoas e inteligência artificial. 7 blocos, 7 IAs — para quem decide.",
     keywords: ["curadoria", "liderança", "gestão de pessoas", "inteligência artificial", "IA", "newsletter", "editorial"],
@@ -91,6 +94,8 @@ export default function RootLayout({
                                     <FirstVisitModalProvider>
                                         <InviteModalProvider>
                                             {children}
+                                            <ReferralCapture />
+                                            <PortalTypographyEffect />
                                             <Suspense fallback={null}>
                                                 <ModalsProvider />
                                             </Suspense>

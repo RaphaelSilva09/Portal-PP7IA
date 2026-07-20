@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertCircle, Check, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import { generateLocalId } from "../lib/uid";
 import { isValidEmail } from "../lib/validators";
 import Portal from "./Portal";
 
@@ -19,7 +20,7 @@ interface InviteRow {
 }
 
 function createRow(): InviteRow {
-    return { id: crypto.randomUUID(), email: "", status: "idle" };
+    return { id: generateLocalId(), email: "", status: "idle" };
 }
 
 export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
@@ -211,7 +212,7 @@ export default function InviteModal({ isOpen, onClose }: InviteModalProps) {
                             <button
                                 onClick={handleSend}
                                 disabled={isSending || validEmailCount === 0}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSending ? (
                                     <><Loader2 className="size-4 animate-spin" />Enviando…</>

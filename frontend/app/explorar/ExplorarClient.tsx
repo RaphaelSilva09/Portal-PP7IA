@@ -21,7 +21,8 @@ import {
 } from "./blocks";
 import { portalContentClass } from "@/lib/layout";
 import { cn } from "@/lib/utils";
-import { FileText, Globe } from "lucide-react";
+import UpdatedBadge from "@/components/UpdatedBadge";
+import { Clock, FileText, Globe } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
@@ -81,6 +82,8 @@ interface CardItem {
     pdfAvailable: boolean;
     formattedDate: string;
     createdAt: Date;
+    readTime?: number;
+    updatedAt?: Date | null;
 }
 
 interface ContentLike {
@@ -93,13 +96,16 @@ interface ContentLike {
     formattedDate: string;
     formattedNumber: string;
     createdAt: Date;
+    readTime?: number;
+    updatedAt?: Date | null;
 }
 
 interface Props {
     initialBlock: string | null;
+    initialTema?: string | null;
 }
 
-export default function ExplorarClient({ initialBlock }: Props) {
+export default function ExplorarClient({ initialBlock, initialTema = null }: Props) {
     const router = useRouter();
     const explorarConfig = useExplorarConfig();
     const validInitial = normalizeExplorarBlock(initialBlock) as BlockId | null;
@@ -143,6 +149,8 @@ export default function ExplorarClient({ initialBlock }: Props) {
                     pdfAvailable: item.pdfAvailable,
                     formattedDate: item.formattedDate,
                     createdAt: item.createdAt,
+                    readTime: item.readTime,
+                    updatedAt: item.updatedAt,
                 });
             }
         }
@@ -211,7 +219,7 @@ export default function ExplorarClient({ initialBlock }: Props) {
                 <div className={portalContentClass}>
                     <div
                         ref={tabsRef}
-                        className="flex items-center gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        className="scroll-fade-x flex items-center gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                         role="tablist"
                         aria-label="Filtrar por bloco"
                     >
@@ -221,7 +229,7 @@ export default function ExplorarClient({ initialBlock }: Props) {
                             aria-selected={activeBlock === null}
                             onClick={() => handleBlockChange(null)}
                             className={cn(
-                                "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
+                                "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",
                                 activeBlock === null
                                     ? "bg-ink text-background"
                                     : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -253,7 +261,7 @@ export default function ExplorarClient({ initialBlock }: Props) {
                                     aria-selected={isActive}
                                     onClick={() => handleBlockChange(block.id as BlockId)}
                                     className={cn(
-                                        "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
+                                        "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",
                                         isActive
                                             ? "text-background"
                                             : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -307,7 +315,7 @@ export default function ExplorarClient({ initialBlock }: Props) {
             ) : activeBlock === "livro" ? (
                 <BlockLivro />
             ) : activeBlock === "biblioteca" ? (
-                <BlockBiblioteca />
+                <BlockBiblioteca initialTema={initialTema} />
             ) : activeBlock === "estudar" ? (
                 <BlockEstudar />
             ) : (
@@ -368,7 +376,7 @@ function ExplorarCard({ card }: { card: CardItem }) {
     const primaryHref = card.htmlPath ?? card.pdfPath;
 
     return (
-        <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition-all hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
+        <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
             {/* Colored top bar */}
             <div className="h-1 w-full shrink-0" style={{ backgroundColor: color }} aria-hidden="true" />
 
@@ -383,6 +391,10 @@ function ExplorarCard({ card }: { card: CardItem }) {
                         {card.block.label}
                     </span>
                     <span className="font-mono text-[10px] text-muted-foreground">{card.code}</span>
+                </div>
+
+                <div className="empty:hidden">
+                    <UpdatedBadge href={card.htmlPath} updatedAt={card.updatedAt} />
                 </div>
 
                 {/* Title */}
@@ -400,7 +412,15 @@ function ExplorarCard({ card }: { card: CardItem }) {
 
                 {/* Footer */}
                 <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/50 pt-3">
-                    <span className="text-xs text-muted-foreground">{card.formattedDate}</span>
+                    <span className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                        {card.formattedDate}
+                        {card.readTime ? (
+                            <span className="inline-flex items-center gap-1">
+                                <Clock className="size-3" aria-hidden="true" />
+                                {card.readTime} min
+                            </span>
+                        ) : null}
+                    </span>
                     <div className="flex items-center gap-1.5">
                         {card.htmlAvailable && (
                             <Link

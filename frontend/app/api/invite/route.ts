@@ -1,23 +1,9 @@
 import { NextResponse } from "next/server";
 import { headers as nextHeaders } from "next/headers";
 import { auth } from "@/lib/auth";
+import DIContainer from "@/infrastructure/di/container";
+import { resolveBaseUrl } from "@/lib/baseUrl";
 import { resend, EMAIL_FROM } from "@/lib/email/resend";
-
-function resolveBaseUrl(request: Request): string {
-    const candidates = [
-        process.env.NEXT_PUBLIC_SITE_URL?.trim(),
-        process.env.NEXT_PUBLIC_APP_URL?.trim(),
-    ];
-    for (const candidate of candidates) {
-        if (!candidate) continue;
-        try {
-            return new URL(candidate).origin;
-        } catch {
-            continue;
-        }
-    }
-    return new URL(request.url).origin;
-}
 
 export async function POST(request: Request) {
     try {
@@ -39,8 +25,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Email inválido" }, { status: 400 });
         }
 
-        // 3. Enviar email com link para a plataforma (sem criar usuário no banco)
-        const platformUrl = resolveBaseUrl(request);
+        // 3. Registrar o convite (fundação de rastreamento de indicação, PDF 6.4)
+        //    e enviar email com link contendo o token — sem criar usuário no banco.
+        const { token } = await DIContainer.getReferralRepository().createInvite(session.user.id, email);
+        const platformUrl = `${resolveBaseUrl(request)}?ref=${token}`;
 
         const { error } = await resend.emails.send({
             from: EMAIL_FROM,

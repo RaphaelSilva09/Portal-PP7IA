@@ -73,6 +73,11 @@ import { UpdateExplorarConfigUseCase } from "../../application/usecases/UpdateEx
 import { SiteBgRepository } from "../repositories/SiteBgRepository";
 import { GetSiteBgUseCase } from "../../application/usecases/GetSiteBgUseCase";
 import { UpdateSiteBgUseCase } from "../../application/usecases/UpdateSiteBgUseCase";
+import { SupabasePromptLibraryRepository } from "../repositories/SupabasePromptLibraryRepository";
+import { SupabaseFaqRepository } from "../repositories/SupabaseFaqRepository";
+import { SupabaseReaderQuestionRepository } from "../repositories/SupabaseReaderQuestionRepository";
+import { SupabaseContentReactionRepository } from "../repositories/SupabaseContentReactionRepository";
+import { SupabaseReferralRepository } from "../repositories/SupabaseReferralRepository";
 
 /**
  * Container de Dependências
@@ -101,6 +106,11 @@ class DIContainer {
     private static blockColorsRepositoryInstance: BlockColorsRepository | null = null;
     private static explorarConfigRepositoryInstance: ExplorarConfigRepository | null = null;
     private static siteBgRepositoryInstance: SiteBgRepository | null = null;
+    private static promptLibraryRepositoryInstance: SupabasePromptLibraryRepository | null = null;
+    private static faqRepositoryInstance: SupabaseFaqRepository | null = null;
+    private static readerQuestionRepositoryInstance: SupabaseReaderQuestionRepository | null = null;
+    private static contentReactionRepositoryInstance: SupabaseContentReactionRepository | null = null;
+    private static referralRepositoryInstance: SupabaseReferralRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -122,6 +132,41 @@ class DIContainer {
             this.newsletterRepositoryInstance = new PostgresNewsletterRepository();
         }
         return this.newsletterRepositoryInstance;
+    }
+
+    static getPromptLibraryRepository(): SupabasePromptLibraryRepository {
+        if (!this.promptLibraryRepositoryInstance) {
+            this.promptLibraryRepositoryInstance = new SupabasePromptLibraryRepository();
+        }
+        return this.promptLibraryRepositoryInstance;
+    }
+
+    static getFaqRepository(): SupabaseFaqRepository {
+        if (!this.faqRepositoryInstance) {
+            this.faqRepositoryInstance = new SupabaseFaqRepository();
+        }
+        return this.faqRepositoryInstance;
+    }
+
+    static getReaderQuestionRepository(): SupabaseReaderQuestionRepository {
+        if (!this.readerQuestionRepositoryInstance) {
+            this.readerQuestionRepositoryInstance = new SupabaseReaderQuestionRepository();
+        }
+        return this.readerQuestionRepositoryInstance;
+    }
+
+    static getContentReactionRepository(): SupabaseContentReactionRepository {
+        if (!this.contentReactionRepositoryInstance) {
+            this.contentReactionRepositoryInstance = new SupabaseContentReactionRepository();
+        }
+        return this.contentReactionRepositoryInstance;
+    }
+
+    static getReferralRepository(): SupabaseReferralRepository {
+        if (!this.referralRepositoryInstance) {
+            this.referralRepositoryInstance = new SupabaseReferralRepository();
+        }
+        return this.referralRepositoryInstance;
     }
 
     /**

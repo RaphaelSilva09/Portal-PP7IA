@@ -100,7 +100,7 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
                     {/* Close Button */}
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-2 text-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-all duration-200 z-10"
+                        className="absolute top-4 right-4 p-2 text-text-secondary hover:text-white hover:bg-white/10 rounded-full transition duration-200 z-10"
                         aria-label="Fechar modal"
                     >
                         <X className="w-5 h-5" />
@@ -137,7 +137,7 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
                                         autoComplete="email"
                                         className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border ${
                                             errors.email ? "border-red-500" : "border-border-glass"
-                                        } rounded-xl text-white placeholder:text-text-secondary/60 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
+                                        } rounded-xl text-white placeholder:text-text-secondary/60 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition duration-200`}
                                     />
                                 </div>
                                 {errors.email && <p className="text-xs text-red-500 mt-1.5 ml-1">{errors.email}</p>}
@@ -158,7 +158,7 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
                                         autoComplete="tel"
                                         className={`w-full pl-12 pr-4 py-3.5 bg-white/5 border ${
                                             errors.celular ? "border-red-500" : "border-border-glass"
-                                        } rounded-xl text-white placeholder:text-text-secondary/60 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition-all duration-200`}
+                                        } rounded-xl text-white placeholder:text-text-secondary/60 outline-none focus:border-brand-blue focus:bg-white/[0.07] transition duration-200`}
                                     />
                                 </div>
                                 {errors.celular && (
@@ -169,7 +169,7 @@ export default function FirstVisitModal({ isOpen, onClose }: FirstVisitModalProp
                             {/* Submit Button */}
                             <button
                                 onClick={handleSubmit}
-                                className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] hover:scale-[1.02] active:scale-95 transition-all duration-200"
+                                className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(29,78,216,0.35)] hover:shadow-[0_0_30px_rgba(29,78,216,0.5)] hover:scale-[1.02] active:scale-95 transition duration-200"
                             >
                                 Continuar
                             </button>

@@ -25,7 +25,11 @@ const nextConfig: NextConfig = {
     // instead of bundling. Required because `pg` (and friends) can't run in the
     // browser. Hooks still importing DIContainer client-side will break at runtime
     // until the API-route refactor lands — see Phase 5c.
-    serverExternalPackages: ["pg", "bcrypt", "@node-rs/argon2"],
+    // puppeteer-core/@sparticuz/chromium (produção) e puppeteer (dev local, só
+    // devDependency) usados por /api/export-pdf — precisam ficar fora do bundle
+    // do webpack e ser resolvidos via require() normal em runtime, senão o
+    // binário do Chromium referenciado internamente não é encontrado.
+    serverExternalPackages: ["pg", "bcrypt", "@node-rs/argon2", "puppeteer-core", "@sparticuz/chromium", "puppeteer"],
 
     // Headers de segurança - sem Permissions-Policy para evitar warnings de features experimentais
     async headers() {

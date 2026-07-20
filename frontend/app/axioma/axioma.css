@@ -1,0 +1,39 @@
+/* Axioma IA — animações usadas pelo fluxo de questionário/relatório.
+   Escopadas a /axioma/* porque este arquivo só é importado pelo layout dessa rota. */
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes attention-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px -10px rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 20px 50px -10px rgba(255, 255, 255, 0.7);
+    }
+}
+
+.animate-in {
+    animation: slideUp 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-attention {
+    animation: attention-pulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-attention {
+        animation: none;
+    }
+}

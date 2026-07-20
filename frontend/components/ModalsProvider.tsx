@@ -56,6 +56,12 @@ export default function ModalsProvider() {
         }
 
         if (authModalParam === "login") {
+            // Rota protegida redirecionou (proxy.ts): guarda o destino para
+            // o AuthModal retornar à página que o usuário tentou abrir.
+            const next = searchParams.get("next");
+            if (next?.startsWith("/")) {
+                try { sessionStorage.setItem("pp7ias.auth-next", next); } catch { /* storage indisponível */ }
+            }
             openAuthModal({}, "login");
             router.replace("/", { scroll: false });
             processedParams.current.add(paramsKey);

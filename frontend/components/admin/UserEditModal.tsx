@@ -234,7 +234,7 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
                         <button
                             type="submit"
                             disabled={isSaving || success}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50"
                         >
                             {isSaving ? (
                                 <><Loader2 className="size-4 animate-spin" />Salvando…</>

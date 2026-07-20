@@ -16,6 +16,7 @@ import { publicFileUrl } from "@/lib/files";
 export interface NewsletterProps {
     id: number;
     createdAt: Date;
+    updatedAt?: Date | null;
     title: string;
     htmlPath: string | null;
     pdfPath: string | null;
@@ -110,6 +111,10 @@ export class Newsletter {
     /**
      * Converte para objeto plano (DTO)
      */
+    get updatedAt(): Date | null {
+        return this.props.updatedAt ?? null;
+    }
+
     toObject(): NewsletterProps {
         return { ...this.props };
     }

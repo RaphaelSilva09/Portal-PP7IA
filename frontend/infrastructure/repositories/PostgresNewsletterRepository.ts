@@ -21,6 +21,7 @@ import { INewsletterRepository } from "../../domain/repositories/INewsletterRepo
 interface PostgresNewsletterRow {
     id: number;
     created_at: string;
+    updated_at?: string | null;
     title: string;
     html_path: string | null;
     pdf_path: string | null;
@@ -112,6 +113,7 @@ export class PostgresNewsletterRepository implements INewsletterRepository {
         const props: NewsletterProps = {
             id: row.id,
             createdAt: new Date(row.created_at),
+            updatedAt: row.updated_at ? new Date(row.updated_at) : null,
             title: row.title,
             htmlPath: row.html_path,
             pdfPath: row.pdf_path,

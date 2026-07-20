@@ -12,7 +12,7 @@ export default function WelcomeBanner() {
                     <div className="mt-4 flex justify-center">
                         <a
                             href="#instructions"
-                            className="w-full max-w-xl inline-flex items-center justify-center gap-3 px-6 py-4 bg-yellow-400 text-black text-lg sm:text-xl font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition-all duration-200"
+                            className="w-full max-w-xl inline-flex items-center justify-center gap-3 px-6 py-4 bg-yellow-400 text-black text-lg sm:text-xl font-semibold rounded-2xl shadow-2xl border-2 border-yellow-500 hover:scale-105 transform-gpu transition duration-200"
                             aria-label="Abrir instruções de uso"
                         >
                             <span className="text-2xl">📋</span>

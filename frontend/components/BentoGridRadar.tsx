@@ -72,7 +72,7 @@ export default function BentoGridRadar() {
                 <div className="w-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* RADAR MAIS RECENTE - DESTAQUE */}
-                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] cursor-pointer transition-all duration-500 hover:scale-[1.01]">
+                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] cursor-pointer transition-transform duration-500 hover:scale-[1.01]">
                         <div
                             className="absolute inset-0"
                             style={{
@@ -97,7 +97,7 @@ export default function BentoGridRadar() {
                                 {latest.htmlAvailable ? (
                                     <a
                                         href={latest.htmlPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-700 hover:bg-orange-800 border border-orange-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-700 hover:bg-orange-800 border border-orange-800 rounded-full text-white font-medium text-sm sm:text-base transition-colors duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Ler agora</span>
@@ -114,7 +114,7 @@ export default function BentoGridRadar() {
                                 {latest.pdfAvailable ? (
                                     <a
                                         href={latest.pdfPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-700 hover:bg-amber-800 border border-amber-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-700 hover:bg-amber-800 border border-amber-800 rounded-full text-white font-medium text-sm sm:text-base transition-colors duration-300 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -138,7 +138,7 @@ export default function BentoGridRadar() {
                             key={item.id}
                             id={`item-${item.id}`}
                             style={{ scrollMarginTop: "80px" }}
-                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border cursor-pointer transition-all duration-300 hover:bg-accent/40 hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)]"
+                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border cursor-pointer transition duration-300 hover:bg-accent/40 hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 <p className="text-orange-700 text-base sm:text-lg font-mono mb-2">
@@ -152,7 +152,7 @@ export default function BentoGridRadar() {
                                     {item.htmlAvailable ? (
                                         <a
                                             href={item.htmlPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-700 hover:bg-orange-800 border border-orange-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-700 hover:bg-orange-800 border border-orange-800 rounded-full text-white text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                                         >
                                             <Globe className="w-5 h-5" />
                                             <span>Ler agora</span>
@@ -169,7 +169,7 @@ export default function BentoGridRadar() {
                                     {item.pdfAvailable ? (
                                         <a
                                             href={item.pdfPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-700 hover:bg-amber-800 border border-amber-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-700 hover:bg-amber-800 border border-amber-800 rounded-full text-white text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                                         >
                                             <FileText className="w-5 h-5" />
                                             <span>PDF</span>

@@ -57,7 +57,7 @@ const CARD_META: Record<
             </svg>
         ),
         audienceTitle: "Para quem acompanha o ritmo",
-        cadenceLabel: "Toda quarta",
+        cadenceLabel: "Toda semana",
         cadenceColor: "text-muted-foreground",
     },
 };
@@ -79,9 +79,14 @@ export default function HomeEditorialSection({
 }: Props) {
     const { editorials } = useEditorial();
 
-    const ordered = SLUG_ORDER.map((slug) =>
+    const ordered = (SLUG_ORDER.map((slug) =>
         editorials.find((e) => e.slug === slug),
-    ).filter(Boolean) as typeof editorials;
+    ).filter(Boolean) as typeof editorials)
+        // Placeholders "Em breve" não ocupam a segunda dobra da home:
+        // só editoriais com conteúdo real aparecem (auditoria UX-011).
+        .filter((editorial) => editorial.available);
+
+    if (ordered.length === 0) return null;
 
     return (
         <section id="novidades" className="relative overflow-hidden border-t border-border bg-primary-soft/40 py-24">
@@ -179,7 +184,7 @@ export default function HomeEditorialSection({
                                 <a
                                     key={editorial.slug}
                                     href={editorial.href}
-                                    className="group flex flex-col gap-6 rounded-3xl border border-border bg-card p-8 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
+                                    className="group flex flex-col gap-6 rounded-3xl border border-border bg-card p-8 transition hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
                                 >
                                     {inner}
                                 </a>

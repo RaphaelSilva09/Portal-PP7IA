@@ -19,6 +19,8 @@ const AUTH_ROUTES = "/user";
 function redirectToLogin(request: NextRequest): NextResponse {
     const loginUrl = new URL("/", request.url);
     loginUrl.searchParams.set("authModal", "login");
+    // Preserva o destino para retorno pós-login (lido pelo Header/AuthModal).
+    loginUrl.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
 }
 

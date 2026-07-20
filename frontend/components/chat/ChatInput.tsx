@@ -43,7 +43,7 @@ export function ChatInput({ isStreaming, onSend }: Props) {
                     onClick={submit}
                     disabled={!canSend}
                     aria-label={isStreaming ? "Assistente respondendo" : "Enviar mensagem"}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink text-background transition-all duration-200 hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-35 dark:bg-foreground dark:text-background"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink text-background transition duration-200 hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-35 dark:bg-foreground dark:text-background"
                 >
                     {isStreaming
                         ? <LoaderCircle size={16} className="animate-spin" />

@@ -240,7 +240,11 @@ export class BetterAuthRepository implements IAuthRepository {
         if (code === "USER_ALREADY_EXISTS" || msg.includes("already exists")) {
             return new UserAlreadyExistsError();
         }
-        if (code === "INVALID_CREDENTIALS" || msg.includes("invalid") && msg.includes("credentials")) {
+        if (
+            code === "INVALID_CREDENTIALS" ||
+            code === "INVALID_EMAIL_OR_PASSWORD" ||
+            (msg.includes("invalid") && (msg.includes("credentials") || msg.includes("password") || msg.includes("email")))
+        ) {
             return new InvalidCredentialsError();
         }
         if (code === "EMAIL_NOT_VERIFIED" || msg.includes("not verified")) {
@@ -252,6 +256,11 @@ export class BetterAuthRepository implements IAuthRepository {
         if (msg.includes("network") || msg.includes("fetch")) {
             return new NetworkError();
         }
-        return new UnknownAuthError(error?.message ?? "Erro desconhecido");
+        // Nunca vazar a mensagem crua (inglês) do provedor para a UI —
+        // registrar para diagnóstico e devolver o fallback pt-BR do domínio.
+        if (error?.message) {
+            console.error("[auth] erro não mapeado:", error.code ?? "", error.message);
+        }
+        return new UnknownAuthError();
     }
 }

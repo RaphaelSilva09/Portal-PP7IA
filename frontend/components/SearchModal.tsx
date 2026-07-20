@@ -151,7 +151,7 @@ function TabContent({ section, onClose }: { section: (typeof SECTIONS)[0]; onClo
                                 key={sub.id}
                                 href={sub.directUrl}
                                 onClick={onClose}
-                                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 border animate-[chipIn_200ms_ease_both]"
+                                className="px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 border animate-[chipIn_200ms_ease_both]"
                                 style={{
                                     animationDelay: `${i * 50}ms`,
                                     background: "rgba(59,130,246,0.08)",
@@ -165,7 +165,7 @@ function TabContent({ section, onClose }: { section: (typeof SECTIONS)[0]; onClo
                             <button
                                 key={sub.id}
                                 onClick={() => setActiveChip(activeChip === sub.id ? null : sub.id)}
-                                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 border animate-[chipIn_200ms_ease_both]"
+                                className="px-3 py-1.5 rounded-full text-xs font-medium transition duration-150 border animate-[chipIn_200ms_ease_both]"
                                 style={{
                                     animationDelay: `${i * 50}ms`,
                                     background: activeChip === sub.id
@@ -249,7 +249,7 @@ function SearchSidebar({
                                 setExpanded(isExpanded ? null : section.id);
                                 if (sectionFilter !== "all") onFilter(sectionFilter);
                             }}
-                            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[9px] text-left transition-all duration-150"
+                            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[9px] text-left transition duration-150"
                             style={{
                                 background: isActive
                                     ? "rgba(59,130,246,0.12)"
@@ -404,7 +404,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 >
                     {/* Input pill */}
                     <div
-                        className="flex-1 flex items-center gap-2 px-4 transition-all duration-200"
+                        className="flex-1 flex items-center gap-2 px-4 transition duration-200"
                         style={{
                             background: "rgba(255,255,255,0.04)",
                             border: "1px solid rgba(255,255,255,0.09)",
@@ -447,7 +447,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     <button
                         onClick={onClose}
                         title="Fechar (Esc)"
-                        className="flex items-center justify-center shrink-0 transition-all duration-150 group"
+                        className="flex items-center justify-center shrink-0 transition duration-150 group"
                         style={{
                             width: 30,
                             height: 30,
@@ -493,7 +493,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                         <button
                                             key={section.id}
                                             onClick={() => setActiveTab(section.id)}
-                                            className="flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap transition-all duration-150 shrink-0"
+                                            className="flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap transition duration-150 shrink-0"
                                             style={{
                                                 borderRadius: "10px 10px 0 0",
                                                 background: isActive ? "#161623" : "transparent",
@@ -626,7 +626,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                                             <Link
                                                                 href={item.viewUrl}
                                                                 onClick={onClose}
-                                                                className="block p-3 rounded-[11px] transition-all duration-150 mb-2 group"
+                                                                className="block p-3 rounded-[11px] transition duration-150 mb-2 group"
                                                                 style={{
                                                                     background: "rgba(255,255,255,0.02)",
                                                                     border: "1px solid rgba(255,255,255,0.05)",

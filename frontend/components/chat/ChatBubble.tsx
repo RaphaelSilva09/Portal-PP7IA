@@ -105,7 +105,7 @@ export default function ChatBubble() {
                         "bg-ink text-background",
                         "border border-ink/90 px-4 py-2.5",
                         "shadow-[0_4px_18px_rgba(17,17,17,0.18)] dark:shadow-[0_8px_28px_rgba(0,0,0,0.45)]",
-                        "transition-all duration-200 ease-out will-change-transform motion-reduce:transform-none motion-reduce:transition-none",
+                        "transition duration-200 ease-out will-change-transform motion-reduce:transform-none motion-reduce:transition-none",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-2",
                         "hover:-translate-y-0.5 hover:opacity-90",
                         isButtonActive ? "opacity-100 translate-y-0 scale-100" : "pointer-events-none opacity-0 translate-y-2 scale-95",

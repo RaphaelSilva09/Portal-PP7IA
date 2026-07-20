@@ -23,6 +23,14 @@ Understand the project's architecture and design principles:
 
 - Authentication uses BetterAuth backed by PostgreSQL on Railway.
 
+### 📰 Newsletter
+
+- [**Fontes da Newsletter (70 fontes)**](newsletter/FONTES.md) - Lista curada de fontes para as edições de segunda (7 IAs) e quarta (startups)
+
+### 📋 Planejamento (SDD)
+
+- [**Plano de execução PP7+IAS — julho/2026**](sdd/00-overview.md) - Specs das tarefas do plano de julho
+
 ### 💻 Frontend Development
 
 Frontend-specific documentation:

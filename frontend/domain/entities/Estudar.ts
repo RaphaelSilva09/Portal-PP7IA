@@ -16,6 +16,7 @@ import { publicFileUrl } from "@/lib/files";
 export interface EstudarProps {
     id: number;
     createdAt: Date;
+    updatedAt?: Date | null;
     title: string;
     htmlPath: string | null;
     pdfPath: string | null;
@@ -89,6 +90,10 @@ export class Estudar {
         } catch {
             return "Data indisponível";
         }
+    }
+
+    get updatedAt(): Date | null {
+        return this.props.updatedAt ?? null;
     }
 
     toObject(): EstudarProps {

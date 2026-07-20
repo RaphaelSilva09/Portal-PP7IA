@@ -44,12 +44,18 @@ function rehydrateItem(raw: unknown): BibliotecaItem {
     return BibliotecaItem.create({
         ...props,
         createdAt: props.createdAt ? new Date(props.createdAt) : new Date(0),
+        updatedAt: props.updatedAt ? new Date(props.updatedAt) : null,
     });
 }
 
-export function useBiblioteca(): UseBibliotecaResult {
+function resolveInitialTema(initialTema: string | null | undefined): BibliotecaTema | null {
+    const isValidTema = BIBLIOTECA_TEMAS.some(({ slug }) => slug === initialTema);
+    return isValidTema ? (initialTema as BibliotecaTema) : BIBLIOTECA_TEMAS[0].slug;
+}
+
+export function useBiblioteca(initialTema?: string | null): UseBibliotecaResult {
     const queryClient = useQueryClient();
-    const [activeTema, setActiveTema] = useState<BibliotecaTema | null>(BIBLIOTECA_TEMAS[0].slug);
+    const [activeTema, setActiveTema] = useState<BibliotecaTema | null>(() => resolveInitialTema(initialTema));
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["biblioteca"],

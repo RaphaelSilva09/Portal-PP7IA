@@ -10,7 +10,7 @@ export default function Equipe() {
                 EQUIPE
                 ============================================ */}
                 <div className="mb-8">
-                    <div className="group relative overflow-hidden rounded-3xl p-6 sm:p-8 transition-all duration-300 pb-0">
+                    <div className="group relative overflow-hidden rounded-3xl p-6 sm:p-8 transition duration-300 pb-0">
                         {/* Main container: flex-row with space-between */}
                         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                             {/* Left side: Icon + Title + Description */}

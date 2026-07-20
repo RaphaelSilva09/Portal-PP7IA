@@ -33,7 +33,7 @@ describe("ContentForm editorial guidance", () => {
         expect(screen.getByText(/3 a 4 textos/i)).toBeTruthy();
     });
 
-    it("reminds admins that newsletters should stay brief", () => {
+    it("reminds admins of the twice-weekly newsletter cadence", () => {
         render(
             <ContentForm
                 type="newsletter"
@@ -42,6 +42,6 @@ describe("ContentForm editorial guidance", () => {
             />,
         );
 
-        expect(screen.getByText(/7 notícias curtas por semana/i)).toBeTruthy();
+        expect(screen.getByText(/2 edições por semana com 7 notícias/i)).toBeTruthy();
     });
 });

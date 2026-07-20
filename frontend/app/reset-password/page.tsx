@@ -132,7 +132,7 @@ function ResetPasswordPageContent() {
                                         router.push("/");
                                         setTimeout(() => openForgotPasswordModal(), 300);
                                     }}
-                                    className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition flex items-center justify-center gap-2"
                                 >
                                     <span>Solicitar Novo Código</span>
                                 </button>
@@ -257,7 +257,7 @@ function ResetPasswordPageContent() {
                                         <button
                                             type="submit"
                                             disabled={isLoading}
-                                            className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            className="w-full py-3 bg-linear-to-r from-brand-blue to-blue-600 hover:from-brand-blue/90 hover:to-blue-600/90 text-white font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                         >
                                             {isLoading ? (
                                                 <>

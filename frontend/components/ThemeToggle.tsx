@@ -1,26 +1,25 @@
 "use client";
 
-import { MoonStar, SunMedium } from "lucide-react";
-import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
+import { THEME_ICONS, THEME_LABEL, useThemeCycle } from "../hooks/useThemeCycle";
 
 export default function ThemeToggle() {
-    const { theme, resolvedTheme, setTheme } = useTheme();
-    const isDark = (resolvedTheme ?? theme ?? "light") === "dark";
+    const { current, next, cycleTheme } = useThemeCycle();
+    const Icon = THEME_ICONS[current];
+    const label = `Tema atual: ${THEME_LABEL[current].toLowerCase()}. Ativar modo ${THEME_LABEL[next].toLowerCase()}`;
 
     return (
         <Button
             type="button"
             variant="outline"
             size="icon"
-            className="relative rounded-full border-border/70 bg-background/80 text-foreground shadow-sm backdrop-blur-md"
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
-            title={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+            className="relative min-h-11 min-w-11 rounded-full border-border/70 bg-background/80 text-foreground shadow-sm backdrop-blur-md"
+            onClick={cycleTheme}
+            aria-label={label}
+            title={label}
             suppressHydrationWarning
         >
-            <SunMedium className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <MoonStar className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Icon className="h-4 w-4" />
         </Button>
     );
 }

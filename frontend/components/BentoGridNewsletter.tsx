@@ -79,7 +79,7 @@ export default function BentoGridNewsletter() {
                     NEWSLETTER MAIS RECENTE - DESTAQUE
                     1 Card - col-span-3
                     ============================================ */}
-                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] transition-all duration-500 hover:scale-[1.01]">
+                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] transition-transform duration-500 hover:scale-[1.01]">
                         {/* Gradient Background */}
                         <div className="absolute inset-0 rounded-3xl card-home-newsletter" />
 
@@ -113,7 +113,7 @@ export default function BentoGridNewsletter() {
                                 {latest.htmlAvailable ? (
                                     <a
                                         href={latest.htmlPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white font-medium text-sm sm:text-base transition-colors duration-300 whitespace-nowrap"
                                     >
                                         <Globe className="w-5 h-5" />
                                         <span>Ler agora</span>
@@ -130,7 +130,7 @@ export default function BentoGridNewsletter() {
                                 {latest.pdfAvailable ? (
                                     <a
                                         href={latest.pdfPath!}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white font-medium text-sm sm:text-base transition-colors duration-300 whitespace-nowrap"
                                     >
                                         <FileText className="w-5 h-5" />
                                         <span>Baixar PDF</span>
@@ -156,7 +156,7 @@ export default function BentoGridNewsletter() {
                             key={newsletter.id}
                             id={`item-${newsletter.id}`}
                             style={{ scrollMarginTop: "80px" }}
-                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-[#f4f8ff] dark:bg-card/80 backdrop-blur-sm border border-border transition-all duration-300 hover:bg-accent/40 hover:border-brand-blue/30 hover:shadow-[0_0_30px_rgba(0,129,242,0.15)]"
+                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-[#f4f8ff] dark:bg-card/80 backdrop-blur-sm border border-border transition duration-300 hover:bg-accent/40 hover:border-brand-blue/30 hover:shadow-[0_0_30px_rgba(0,129,242,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Newsletter Number */}
@@ -177,7 +177,7 @@ export default function BentoGridNewsletter() {
                                     {newsletter.htmlAvailable ? (
                                         <a
                                             href={newsletter.htmlPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                                         >
                                             <Globe className="w-5 h-5" />
                                             <span>Ler agora</span>
@@ -194,7 +194,7 @@ export default function BentoGridNewsletter() {
                                     {newsletter.pdfAvailable ? (
                                         <a
                                             href={newsletter.pdfPath!}
-                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 border border-blue-800 rounded-full text-white text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                                         >
                                             <FileText className="w-5 h-5" />
                                             <span>PDF</span>

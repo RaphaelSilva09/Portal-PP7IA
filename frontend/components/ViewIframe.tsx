@@ -1,6 +1,32 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { applyFontScaleToDocument, buildReadingPrefsCss, loadReadingPrefs, READING_PREFS_EVENT } from "@/lib/readingPrefs";
+
+const READING_PREFS_STYLE_ID = "pp7ias-reading-prefs";
+
+function applyReadingPrefs(iframe: HTMLIFrameElement): void {
+    const contentDocument = iframe.contentDocument;
+    if (!contentDocument?.head) return;
+
+    const prefs = loadReadingPrefs();
+    const css = buildReadingPrefsCss(prefs);
+    let styleElement = contentDocument.getElementById(READING_PREFS_STYLE_ID);
+
+    if (!css) {
+        styleElement?.remove();
+    } else {
+        if (!styleElement) {
+            styleElement = contentDocument.createElement("style");
+            styleElement.id = READING_PREFS_STYLE_ID;
+            contentDocument.head.appendChild(styleElement);
+        }
+
+        styleElement.textContent = css;
+    }
+
+    applyFontScaleToDocument(contentDocument, prefs.fontScale);
+}
 
 const MIN_IFRAME_HEIGHT_PX = 720;
 const IFRAME_HEIGHT_BUFFER_PX = 24;
@@ -130,6 +156,7 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
 
         const handleLoad = () => {
             cleanupFrameObservers();
+            applyReadingPrefs(iframe);
             onBackgroundColorChange?.(getFrameBackgroundColor(iframe));
 
             const contentDocument = iframe.contentDocument;
@@ -176,6 +203,12 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
 
         iframe.addEventListener("load", handleLoad);
 
+        const handlePrefsChange = () => {
+            applyReadingPrefs(iframe);
+            scheduleHeightSync();
+        };
+        window.addEventListener(READING_PREFS_EVENT, handlePrefsChange);
+
         if (iframe.contentDocument?.readyState === "complete") {
             handleLoad();
         }
@@ -190,6 +223,7 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
 
         return () => {
             iframe.removeEventListener("load", handleLoad);
+            window.removeEventListener(READING_PREFS_EVENT, handlePrefsChange);
             cleanupFrameObservers();
             cancelScheduledSync();
             initialSyncTimeoutIds.forEach(timeoutId => window.clearTimeout(timeoutId));

@@ -17,40 +17,8 @@
  * - Headers de segurança adequados
  */
 import { promises as fs } from "node:fs";
-import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
-import { extractStoragePathFromSourcePath } from "@/constants/miniLivroSections";
-import DIContainer from "@/infrastructure/di/container";
-
-const STORAGE_ROOT = process.env.STORAGE_ROOT ?? "./data";
-
-// Mapeamento de tipos de conteúdo para bucket e pastas do storage de arquivos
-// Estrutura: Bucket único "materiais" com subpastas por tipo de conteúdo
-const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
-    newsletter: { bucket: "materiais", folder: "newsletters" },
-    "mini-livro": { bucket: "materiais", folder: "mini-livros/mini" },
-    biblioteca: { bucket: "materiais", folder: "biblioteca" },
-    "especial-semana": { bucket: "materiais", folder: "especial-da-semana" },
-    editorial: { bucket: "materiais", folder: "editoriais" },
-    radar_oportunidades: { bucket: "materiais", folder: "radar-de-oportunidades" },
-    estudar: { bucket: "materiais", folder: "estudar" },
-    "home-recomendacoes": { bucket: "materiais", folder: "home/recomendacoes" },
-    // ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
-    ebook: { bucket: "materiais", folder: "mini-livros/ebook" },
-    book: { bucket: "materiais", folder: "mini-livros/livro" },
-    "mini-livro-section": { bucket: "materiais", folder: "mini-livros/sections" },
-};
-
-// Tipos válidos de conteúdo
-const VALID_TYPES = Object.keys(STORAGE_CONFIG);
-
-/**
- * Valida slug para prevenir path traversal attacks
- * Permite apenas: letras, números, hífens, underscores
- */
-function isValidSlug(slug: string): boolean {
-    return /^[a-zA-Z0-9_-]+$/.test(slug);
-}
+import { resolveContentFilePath } from "@/lib/contentStorage";
 
 /**
  * GET /api/proxy-html/[type]/[slug]
@@ -61,55 +29,14 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     try {
         const { type, slug } = await params;
 
-        // Validação 1: Tipo válido
-        if (!VALID_TYPES.includes(type)) {
-            return NextResponse.json({ error: "Tipo de conteúdo inválido" }, { status: 400 });
-        }
-
-        // Validação 2: Slug seguro (previne path traversal)
-        if (!isValidSlug(slug)) {
-            return NextResponse.json({ error: "Slug inválido" }, { status: 400 });
-        }
-
-        const config = STORAGE_CONFIG[type];
-
-        // Resolve filename. mini-livro-section needs a DB lookup because the
-        // file path is stored on the section row (admin uploads with a UUID).
-        let fileName: string;
-        if (type === "mini-livro-section") {
-            const sectionId = Number(slug);
-            if (!Number.isInteger(sectionId) || sectionId <= 0) {
-                return NextResponse.json({ error: "Slug inválido" }, { status: 400 });
-            }
-            const section = await DIContainer.getMiniLivroSectionRepository().getById(sectionId);
-            const objectPath = extractStoragePathFromSourcePath(section?.sourceHtmlPath ?? null);
-            if (!objectPath) {
-                return NextResponse.json({ error: "Arquivo não encontrado" }, { status: 404 });
-            }
-            // objectPath comes back as `{folder}/{filename}` — trim folder to keep
-            // the join below pointed at the right disk location.
-            fileName = objectPath.startsWith(`${config.folder}/`)
-                ? objectPath.slice(config.folder.length + 1)
-                : objectPath;
-        } else if (type === "ebook") {
-            // Ebook usa subpasta por slug: mini-livros/ebook/{slug}/introducao_{slug}.html
-            fileName = `${slug}/introducao_${slug}.html`;
-        } else {
-            fileName = `${slug}.html`;
-        }
-
-        // Read directly from Railway Volume (mounted at STORAGE_ROOT)
-        // Path on disk: STORAGE_ROOT/{bucket}/{folder}/{filename}
-        const root = path.resolve(STORAGE_ROOT);
-        const target = path.resolve(root, config.bucket, config.folder, fileName);
-
-        if (target !== root && !target.startsWith(root + path.sep)) {
-            return NextResponse.json({ error: "Caminho inválido" }, { status: 400 });
+        const resolved = await resolveContentFilePath(type, slug);
+        if (!resolved.ok) {
+            return NextResponse.json({ error: resolved.error }, { status: resolved.status });
         }
 
         let htmlContent: string;
         try {
-            htmlContent = await fs.readFile(target, "utf8");
+            htmlContent = await fs.readFile(resolved.absolutePath, "utf8");
         } catch (err: unknown) {
             const code = (err as { code?: string }).code;
             if (code === "ENOENT") {
