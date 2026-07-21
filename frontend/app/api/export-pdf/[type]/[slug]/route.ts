@@ -19,16 +19,30 @@
  * quebrava com 500 em produção. `NODE_ENV === "production"` é o sinal que o
  * próprio Next.js seta em `next build`/`next start` independente da
  * plataforma de hospedagem.
+ *
+ * A navegação do Chromium para /api/proxy-html usa loopback (127.0.0.1),
+ * não o domínio público: o domínio público passa pelo Cloudflare, que
+ * reconhece o fingerprint de um navegador headless (navigator.webdriver,
+ * ausência de sinais normais de browser) como bot e devolve a página de
+ * verificação de segurança em vez do conteúdo — o Chromium então captura
+ * essa página de desafio no PDF em vez do artigo. Como o Next roda como
+ * servidor persistente no mesmo container (Railway, não serverless),
+ * `puppeteer` e o servidor HTTP convivem no mesmo processo/host, e o
+ * loopback nunca passa pelo edge/CDN.
  */
 import type { Browser } from "puppeteer-core";
 import { NextRequest, NextResponse } from "next/server";
-import { resolveBaseUrl } from "@/lib/baseUrl";
 import { resolveContentFilePath } from "@/lib/contentStorage";
 
 export const maxDuration = 60;
 
 function needsBundledChromium(): boolean {
     return process.env.NODE_ENV === "production";
+}
+
+function resolveInternalContentUrl(type: string, slug: string): string {
+    const port = process.env.PORT ?? "3000";
+    return `http://127.0.0.1:${port}/api/proxy-html/${type}/${slug}`;
 }
 
 async function launchBrowser(): Promise<Browser> {
@@ -49,7 +63,7 @@ async function launchBrowser(): Promise<Browser> {
     return puppeteer.launch({ headless: true }) as unknown as Promise<Browser>;
 }
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ type: string; slug: string }> }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ type: string; slug: string }> }) {
     const { type, slug } = await params;
 
     const resolved = await resolveContentFilePath(type, slug);
@@ -57,8 +71,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         return NextResponse.json({ error: resolved.error }, { status: resolved.status });
     }
 
-    const baseUrl = resolveBaseUrl(request);
-    const contentUrl = `${baseUrl}/api/proxy-html/${type}/${slug}`;
+    const contentUrl = resolveInternalContentUrl(type, slug);
 
     let browser: Browser | null = null;
     try {
