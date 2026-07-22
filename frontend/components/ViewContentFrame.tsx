@@ -152,20 +152,30 @@ export default function ViewContentFrame({
                     isHeaderHidden && "-translate-y-16 md:-translate-y-20",
                 )}
             >
-                <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2">
                     <Link
                         href={backHref}
-                        className="inline-flex min-w-0 items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        className="inline-flex min-w-0 items-center gap-1.5 justify-self-start text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-3.5 shrink-0" aria-hidden="true" />
                         <span className="truncate uppercase tracking-[0.18em]">{sectionLabel}</span>
                     </Link>
-                    {availability === "ok" && (
-                        <div className="flex flex-wrap items-center justify-end gap-1.5">
-                            <ShareButton title={title} />
-                            {contentType && slug && <ExportPdfButton contentType={contentType} slug={slug} />}
-                        </div>
-                    )}
+
+                    <p
+                        className="hidden max-w-[min(60vw,32rem)] truncate text-center text-sm font-medium text-foreground sm:block"
+                        title={title}
+                    >
+                        {title}
+                    </p>
+
+                    <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5 justify-self-end">
+                        {availability === "ok" && (
+                            <>
+                                <ShareButton title={title} />
+                                {contentType && slug && <ExportPdfButton contentType={contentType} slug={slug} />}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 
