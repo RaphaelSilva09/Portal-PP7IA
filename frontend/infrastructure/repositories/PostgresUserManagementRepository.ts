@@ -24,6 +24,7 @@ interface AdminUserRow {
     isAdmin: boolean;
     createdAt: string;
     lastSignInAt: string | null;
+    lastSeenAt: string | null;
     acceptEmailUpdates: boolean;
     acceptWhatsappUpdates: boolean;
     emailVerified: boolean;
@@ -34,6 +35,7 @@ function mapRow(row: AdminUserRow): UserListItem {
         ...row,
         createdAt: new Date(row.createdAt),
         lastSignInAt: row.lastSignInAt ? new Date(row.lastSignInAt) : null,
+        lastSeenAt: row.lastSeenAt ? new Date(row.lastSeenAt) : null,
     };
 }
 
@@ -45,6 +47,7 @@ export class PostgresUserManagementRepository implements IUserManagementReposito
                 pageSize: String(params.pageSize),
             });
             if (params.search?.trim()) sp.set("search", params.search.trim());
+            if (params.activeWithinDays) sp.set("activeWithinDays", String(params.activeWithinDays));
 
             const res = await fetch(`/api/admin/users?${sp.toString()}`);
             if (!res.ok) {

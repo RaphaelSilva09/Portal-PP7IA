@@ -18,6 +18,7 @@
 import type { EbookFormData } from "@/components/admin";
 import AdminBlockColors from "@/components/admin/AdminBlockColors";
 import {
+    AdminAnalytics,
     AdminBook,
     AdminEditorial,
     AdminExplorarConfig,
@@ -67,6 +68,7 @@ import {
     Sparkles,
     Star,
     ThumbsUp,
+    TrendingUp,
     Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -75,7 +77,7 @@ import { useEbook } from "@/presentation/hooks/useEbook";
 import ThemeToggle from "@/components/ThemeToggle";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar" | "site-bg" | "prompts" | "faq" | "perguntas-leitores" | "reacoes";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "analytics" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar" | "site-bg" | "prompts" | "faq" | "perguntas-leitores" | "reacoes";
 
 type ContentTab = ContentType | "livro" | "mini-livro-sections";
 
@@ -411,6 +413,7 @@ export default function PainelAdminPage() {
             items: [
                 { section: "inicio",      label: "Dashboard",       icon: Home       },
                 { section: "usuarios",    label: "Usuários",        icon: Users      },
+                { section: "analytics",   label: "Analytics",       icon: TrendingUp },
             ],
         },
         {
@@ -564,6 +567,7 @@ export default function PainelAdminPage() {
                 {mainSection === "perguntas-leitores" && <AdminReaderQuestions />}
                 {mainSection === "reacoes"       && <AdminReactions />}
                         {mainSection === "usuarios"     && <UserManager />}
+                        {mainSection === "analytics"    && <AdminAnalytics />}
                         {mainSection === "novidades"    && <AdminPortalNews />}
                         {mainSection === "editorial"    && <AdminEditorial />}
                         {mainSection === "barra-aviso"  && <AnnouncementBarTab />}

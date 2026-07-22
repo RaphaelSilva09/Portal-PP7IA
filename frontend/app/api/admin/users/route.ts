@@ -12,6 +12,7 @@ import { auth } from "@/lib/auth";
 import { pool } from "@/lib/db";
 
 const VALID_PAGE_SIZES = [10, 25, 50];
+const VALID_ACTIVE_WITHIN_DAYS = [7, 15, 30];
 
 async function isAdmin(): Promise<boolean> {
     const session = await auth.api.getSession({ headers: await nextHeaders() });
@@ -29,6 +30,7 @@ interface UserRow {
     accept_email_updates: boolean | null;
     accept_whatsapp_updates: boolean | null;
     last_sign_in_at: Date | null;
+    last_seen_at: Date | null;
 }
 
 export async function GET(request: NextRequest) {
@@ -42,6 +44,8 @@ export async function GET(request: NextRequest) {
     const pageSize = VALID_PAGE_SIZES.includes(rawPageSize) ? rawPageSize : 25;
     const search = searchParams.get("search")?.trim() ?? "";
     const dateFilter = searchParams.get("date")?.trim() ?? "";
+    const rawActiveWithinDays = parseInt(searchParams.get("activeWithinDays") ?? "", 10);
+    const activeWithinDays = VALID_ACTIVE_WITHIN_DAYS.includes(rawActiveWithinDays) ? rawActiveWithinDays : null;
     const offset = (page - 1) * pageSize;
 
     const where: string[] = [];
@@ -55,10 +59,16 @@ export async function GET(request: NextRequest) {
         const endUTC = new Date(startUTC.getTime() + 24 * 60 * 60 * 1000 - 1);
         params.push(startUTC.toISOString(), endUTC.toISOString());
         where.push(`u."createdAt" >= $${params.length - 1} AND u."createdAt" <= $${params.length}`);
-    } else if (search) {
-        const safe = search.replace(/[.,();%]/g, "");
-        params.push(`%${safe}%`);
-        where.push(`(u.nome ILIKE $${params.length} OR u.email ILIKE $${params.length})`);
+    } else {
+        if (search) {
+            const safe = search.replace(/[.,();%]/g, "");
+            params.push(`%${safe}%`);
+            where.push(`(u.nome ILIKE $${params.length} OR u.email ILIKE $${params.length})`);
+        }
+        if (activeWithinDays !== null) {
+            params.push(`${activeWithinDays} days`);
+            where.push(`u."last_seen_at" >= now() - $${params.length}::interval`);
+        }
     }
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
@@ -87,6 +97,7 @@ export async function GET(request: NextRequest) {
             u."emailVerified"        AS "emailVerified",
             u.accept_email_updates,
             u.accept_whatsapp_updates,
+            u."last_seen_at"         AS last_seen_at,
             (SELECT MAX(s."createdAt") FROM session s WHERE s."userId" = u.id) AS last_sign_in_at
         FROM "user" u
         ${whereSql}
@@ -108,6 +119,7 @@ export async function GET(request: NextRequest) {
         isAdmin: row.role === "admin",
         createdAt: row.createdAt,
         lastSignInAt: row.last_sign_in_at,
+        lastSeenAt: row.last_seen_at,
         acceptEmailUpdates: row.accept_email_updates ?? false,
         acceptWhatsappUpdates: row.accept_whatsapp_updates ?? false,
         emailVerified: row.emailVerified,

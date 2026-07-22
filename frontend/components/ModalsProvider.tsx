@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import AuthModal from "./AuthModal";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import InviteModal from "./InviteModal";
+import OnboardingModal from "./onboarding/OnboardingModal";
 import Portal from "./Portal";
 import SearchModal from "./SearchModal";
 
@@ -90,6 +91,7 @@ export default function ModalsProvider() {
                 initialData={initialData}
             />
             <InviteModal isOpen={isInviteOpen} onClose={closeInviteModal} />
+            <OnboardingModal />
         </Portal>
     );
 }

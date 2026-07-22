@@ -27,6 +27,14 @@ export interface UserStats {
     totalAdmins: number;
 }
 
+/** Contagem de leitores que abriram o portal (não login) dentro de cada janela. */
+export interface ActivityStats {
+    activeToday: number;
+    activeLast7Days: number;
+    activeLast15Days: number;
+    activeLast30Days: number;
+}
+
 export interface StorageStats {
     totalSizeMB: number;
     newslettersSizeMB: number;
@@ -38,6 +46,7 @@ export interface StorageStats {
 export interface DashboardStats {
     content: ContentStats;
     users: UserStats;
+    activity: ActivityStats;
     storage?: StorageStats; // Optional - pode não estar disponível
 }
 
@@ -55,6 +64,14 @@ export interface IAnalyticsRepository {
      * @returns UserStats com métricas de usuários
      */
     getUserStats(): Promise<UserStats>;
+
+    /**
+     * Obtém quantos leitores abriram o portal (last_seen_at) em cada janela
+     * de tempo — distinto de login. Base para "quem está realmente usando o
+     * portal", não só cadastrado.
+     * @returns ActivityStats com contagens por janela
+     */
+    getActivityStats(): Promise<ActivityStats>;
 
     /**
      * Obtém estatísticas de storage (opcional)

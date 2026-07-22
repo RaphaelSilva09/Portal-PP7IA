@@ -78,6 +78,28 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         browser = await launchBrowser();
         const page = await browser.newPage();
         await page.goto(contentUrl, { waitUntil: "networkidle0" });
+
+        // O conteúdo usa animação de "revelar ao rolar" (algo como
+        // IntersectionObserver, tipicamente opacity 0→1 quando a seção entra
+        // na tela). page.pdf() nunca rola a página de verdade — só a seção
+        // já visível no primeiro carregamento dispara a revelação, então
+        // tudo abaixo da primeira tela ficava preso no estado inicial
+        // (baixa/zero opacidade), piorando a cada página seguinte do PDF
+        // (mais longe do topo, menos seções tinham "entrado em tela"). Rolar
+        // a página inteira antes de imprimir dispara essas revelações uma a
+        // uma, como um leitor real rolando a tela.
+        await page.evaluate(async () => {
+            const stepPx = window.innerHeight;
+            const delayMs = 120;
+            const maxSteps = 200; // teto de segurança, bem acima de qualquer conteúdo real
+            for (let i = 0; i < maxSteps && window.scrollY + window.innerHeight < document.body.scrollHeight; i++) {
+                window.scrollBy(0, stepPx);
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+            }
+            window.scrollTo(0, 0);
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+        });
+
         // Garante que fundos coloridos do conteúdo (definidos em CSS) apareçam
         // no PDF em vez de serem descartados pelas configurações padrão de impressão.
         await page.addStyleTag({ content: "* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }" });
@@ -85,7 +107,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         const pdfBuffer = await page.pdf({
             format: "a4",
             printBackground: true,
-            margin: { top: "16mm", bottom: "16mm", left: "14mm", right: "14mm" },
+            margin: { top: "8mm", bottom: "8mm", left: "8mm", right: "8mm" },
         });
 
         return new NextResponse(Buffer.from(pdfBuffer), {

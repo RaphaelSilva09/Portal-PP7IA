@@ -13,6 +13,7 @@
 
 import { pool } from "../../lib/db";
 import {
+    ActivityStats,
     ContentStats,
     DashboardStats,
     IAnalyticsRepository,
@@ -111,6 +112,34 @@ export class PostgresAnalyticsRepository implements IAnalyticsRepository {
         }
     }
 
+    async getActivityStats(): Promise<ActivityStats> {
+        try {
+            const { rows } = await pool.query<{
+                active_today: string;
+                active_7d: string;
+                active_15d: string;
+                active_30d: string;
+            }>(`
+                SELECT
+                    count(*) FILTER (WHERE "last_seen_at" >= now() - interval '1 day')  AS active_today,
+                    count(*) FILTER (WHERE "last_seen_at" >= now() - interval '7 days')  AS active_7d,
+                    count(*) FILTER (WHERE "last_seen_at" >= now() - interval '15 days') AS active_15d,
+                    count(*) FILTER (WHERE "last_seen_at" >= now() - interval '30 days') AS active_30d
+                FROM "user"
+            `);
+            const row = rows[0];
+            return {
+                activeToday: Number(row?.active_today ?? 0),
+                activeLast7Days: Number(row?.active_7d ?? 0),
+                activeLast15Days: Number(row?.active_15d ?? 0),
+                activeLast30Days: Number(row?.active_30d ?? 0),
+            };
+        } catch (err) {
+            console.error("Erro ao obter estatísticas de atividade:", err);
+            return { activeToday: 0, activeLast7Days: 0, activeLast15Days: 0, activeLast30Days: 0 };
+        }
+    }
+
     async getStorageStats(): Promise<StorageStats | null> {
         // Storage stats não disponível via API pública do banco
         // Retornar null por enquanto
@@ -121,15 +150,17 @@ export class PostgresAnalyticsRepository implements IAnalyticsRepository {
 
     async getDashboardStats(): Promise<DashboardStats> {
         try {
-            const [content, users, storage] = await Promise.all([
+            const [content, users, activity, storage] = await Promise.all([
                 this.getContentStats(),
                 this.getUserStats(),
+                this.getActivityStats(),
                 this.getStorageStats(),
             ]);
 
             return {
                 content,
                 users,
+                activity,
                 storage: storage ?? undefined,
             };
         } catch (err) {
@@ -149,6 +180,12 @@ export class PostgresAnalyticsRepository implements IAnalyticsRepository {
                     totalUsers: 0,
                     newUsersLast30Days: 0,
                     totalAdmins: 0,
+                },
+                activity: {
+                    activeToday: 0,
+                    activeLast7Days: 0,
+                    activeLast15Days: 0,
+                    activeLast30Days: 0,
                 },
             };
         }

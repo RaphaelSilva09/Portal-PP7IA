@@ -4,12 +4,14 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
 import { useInviteModal } from "@/context/InviteModalContext";
+import { useOnboarding } from "@/context/OnboardingContext";
 import { portalContentClass } from "@/lib/layout";
 import {
     AlertCircle,
     ArrowLeft,
     ArrowRight,
     Check,
+    Compass,
     Eye,
     EyeOff,
     Key,
@@ -28,6 +30,7 @@ export default function UserPage() {
     const router = useRouter();
     const { user, isLoading, deleteAccount, updatePassword, updateProfile, getCurrentUser } = useAuth();
     const { openModal: openInviteModal } = useInviteModal();
+    const { openOnboarding } = useOnboarding();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -407,7 +410,7 @@ export default function UserPage() {
                         </div>
 
                         {/* ── Comunidade ────────────────────────────────────── */}
-                        <div className="mb-8">
+                        <div className="mb-8 space-y-3">
                             <SectionLabel>Comunidade</SectionLabel>
                             <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card px-6 py-5">
                                 <div>
@@ -422,6 +425,21 @@ export default function UserPage() {
                                 >
                                     <UserPlus className="size-4" />
                                     Convidar
+                                </button>
+                            </div>
+                            <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card px-6 py-5">
+                                <div>
+                                    <p className="text-sm font-medium text-foreground">Tour do portal</p>
+                                    <p className="mt-0.5 text-sm text-muted-foreground">
+                                        Reveja as seções e ferramentas principais do portal.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={openOnboarding}
+                                    className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:border-foreground/30 hover:-translate-y-0.5"
+                                >
+                                    <Compass className="size-4" />
+                                    Repetir onboarding
                                 </button>
                             </div>
                         </div>

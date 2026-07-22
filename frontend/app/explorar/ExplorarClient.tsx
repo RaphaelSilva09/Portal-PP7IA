@@ -229,7 +229,7 @@ export default function ExplorarClient({ initialBlock, initialTema = null }: Pro
                             aria-selected={activeBlock === null}
                             onClick={() => handleBlockChange(null)}
                             className={cn(
-                                "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",
+                                "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-base font-medium transition-colors",
                                 activeBlock === null
                                     ? "bg-ink text-background"
                                     : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -261,7 +261,7 @@ export default function ExplorarClient({ initialBlock, initialTema = null }: Pro
                                     aria-selected={isActive}
                                     onClick={() => handleBlockChange(block.id as BlockId)}
                                     className={cn(
-                                        "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",
+                                        "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-base font-medium transition-colors",
                                         isActive
                                             ? "text-background"
                                             : "text-muted-foreground hover:bg-accent hover:text-foreground",

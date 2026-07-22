@@ -1,11 +1,13 @@
 import ModalsProvider from "@/components/ModalsProvider";
 import PortalTypographyEffect from "@/components/PortalTypographyEffect";
 import Providers from "@/components/Providers";
+import UserActivityTracker from "@/components/UserActivityTracker";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
 import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
 import { InviteModalProvider } from "@/context/InviteModalContext";
+import { OnboardingProvider } from "@/context/OnboardingContext";
 import ReferralCapture from "@/components/ReferralCapture";
 import { SearchModalProvider } from "@/context/SearchModalContext";
 import { Analytics } from "@vercel/analytics/next";
@@ -93,12 +95,15 @@ export default function RootLayout({
                                 <ForgotPasswordModalProvider>
                                     <FirstVisitModalProvider>
                                         <InviteModalProvider>
-                                            {children}
-                                            <ReferralCapture />
-                                            <PortalTypographyEffect />
-                                            <Suspense fallback={null}>
-                                                <ModalsProvider />
-                                            </Suspense>
+                                            <OnboardingProvider>
+                                                {children}
+                                                <ReferralCapture />
+                                                <PortalTypographyEffect />
+                                                <UserActivityTracker />
+                                                <Suspense fallback={null}>
+                                                    <ModalsProvider />
+                                                </Suspense>
+                                            </OnboardingProvider>
                                         </InviteModalProvider>
                                     </FirstVisitModalProvider>
                                 </ForgotPasswordModalProvider>

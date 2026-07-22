@@ -4,6 +4,7 @@
  * Exporta componentes do módulo admin para facilitar imports.
  */
 
+export { AdminAnalytics } from "./AdminAnalytics";
 export { AdminBook } from "./AdminBook";
 export { AdminMiniLivroSections } from "./AdminMiniLivroSections";
 export { AnnouncementBarForm } from "./AnnouncementBarForm";
