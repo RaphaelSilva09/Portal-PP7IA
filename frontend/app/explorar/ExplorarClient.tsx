@@ -142,18 +142,27 @@ export default function ExplorarClient({ initialBlock, initialTema = null }: Pro
         tabsRef.current?.scrollBy({ left: direction * 240, behavior: "smooth" });
     };
 
-    // Arrastar com o mouse para rolar a barra de blocos — overflow-x-auto
-    // sozinho só rola com toque/trackpad, não com o botão do mouse segurado.
-    // Restrito a pointerType "mouse": toque já rola nativamente (com inércia
-    // e tudo) e não deve ser substituído por esta lógica manual.
-    const tabsDragRef = useRef<{ startX: number; startScrollLeft: number; dragged: boolean } | null>(null);
+    // Arrastar para rolar a barra de blocos — mouse, toque e caneta usam a
+    // mesma lógica manual (não só mouse), pra ficar consistente em qualquer
+    // dispositivo. Isso troca a rolagem nativa por toque (com inércia) por
+    // um arrasto 1:1 com o dedo — combinado com `touch-action: pan-y` na
+    // linha (deixa passar gesto vertical pra rolar a página, mas assume o
+    // horizontal por conta própria) pra não competir com o navegador.
+    //
+    // setPointerCapture só é chamado depois que o movimento passa do limiar
+    // (dentro do pointermove), nunca no pointerdown: capturar de cara faz
+    // TODO clique — mesmo sem nenhum arrasto — ser retargetado pro container
+    // em vez do botão de verdade sob o dedo/cursor, e o clique sintético
+    // (mousedown→mouseup→click) segue esse mesmo retarget. Resultado exato
+    // do bug relatado: nenhum clique chegava ao botão no desktop, e no
+    // mobile só o clique seguinte (já sem captura pendente) tinha chance de
+    // acertar o alvo certo.
+    const tabsDragRef = useRef<{ pointerId: number; startX: number; startScrollLeft: number; dragged: boolean } | null>(null);
 
     const handleTabsPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-        if (e.pointerType !== "mouse") return;
         const el = tabsRef.current;
         if (!el) return;
-        tabsDragRef.current = { startX: e.clientX, startScrollLeft: el.scrollLeft, dragged: false };
-        el.setPointerCapture(e.pointerId);
+        tabsDragRef.current = { pointerId: e.pointerId, startX: e.clientX, startScrollLeft: el.scrollLeft, dragged: false };
     };
 
     const handleTabsPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -161,24 +170,29 @@ export default function ExplorarClient({ initialBlock, initialTema = null }: Pro
         const el = tabsRef.current;
         if (!drag || !el) return;
         const delta = e.clientX - drag.startX;
-        if (Math.abs(delta) > 4) drag.dragged = true;
+        if (!drag.dragged) {
+            if (Math.abs(delta) <= 4) return;
+            drag.dragged = true;
+            el.setPointerCapture(drag.pointerId);
+        }
         el.scrollLeft = drag.startScrollLeft - delta;
     };
 
-    const handleTabsPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const handleTabsPointerUp = () => {
         const el = tabsRef.current;
         const drag = tabsDragRef.current;
         // Um arrasto de verdade não deve também disparar o clique da aba sob
-        // o cursor ao soltar — suprime só esse próximo clique.
+        // o cursor ao soltar — suprime só esse próximo clique. Cliques sem
+        // arrasto nunca chegam aqui com `dragged`, então passam direto.
         if (drag?.dragged && el) {
             const suppressClick = (ev: MouseEvent) => {
                 ev.stopPropagation();
                 ev.preventDefault();
             };
             el.addEventListener("click", suppressClick, { capture: true, once: true });
+            el.releasePointerCapture(drag.pointerId);
         }
         tabsDragRef.current = null;
-        el?.releasePointerCapture(e.pointerId);
     };
 
     const newsletters = useNewsletters();
@@ -321,7 +335,7 @@ export default function ExplorarClient({ initialBlock, initialTema = null }: Pro
                         onPointerMove={handleTabsPointerMove}
                         onPointerUp={handleTabsPointerUp}
                         onPointerCancel={handleTabsPointerUp}
-                        className="scroll-fade-x flex select-none items-center gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&:not(:active)]:cursor-grab active:cursor-grabbing"
+                        className="scroll-fade-x flex touch-pan-y select-none items-center gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&:not(:active)]:cursor-grab active:cursor-grabbing"
                         role="tablist"
                         aria-label="Filtrar por bloco"
                     >
