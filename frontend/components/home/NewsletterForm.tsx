@@ -2,16 +2,28 @@
 
 import { useState } from "react";
 import { useAuthModal } from "@/context/AuthModalContext";
+import { isValidEmail } from "@/lib/validators";
 
 export default function NewsletterForm() {
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const [validationError, setValidationError] = useState<string | null>(null);
     const { openModal } = useAuthModal();
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        if (!email || status === "loading") return;
-        openModal({ email }, "signup");
+        if (status === "loading") return;
+        const trimmed = email.trim();
+        if (!trimmed) {
+            setValidationError("Informe seu e-mail para receber a newsletter.");
+            return;
+        }
+        if (!isValidEmail(trimmed)) {
+            setValidationError("E-mail inválido. Confira e tente de novo.");
+            return;
+        }
+        setValidationError(null);
+        openModal({ email: trimmed }, "signup");
     }
 
     if (status === "success") {
@@ -38,7 +50,7 @@ export default function NewsletterForm() {
                         <path d="m9 11 3 3L22 4" />
                     </svg>
                     <p className="text-sm text-background/80">
-                        Inscrição confirmada! Você recebe na próxima quarta.
+                        Inscrição confirmada! Você recebe na próxima edição.
                     </p>
                 </div>
             </div>
@@ -46,8 +58,8 @@ export default function NewsletterForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-3">
-            <label className="block text-[11px] uppercase tracking-[0.22em] text-background/50">
+        <form onSubmit={handleSubmit} noValidate className="space-y-3">
+            <label htmlFor="newsletter-email" className="block text-[11px] uppercase tracking-[0.22em] text-background/50">
                 Seu e-mail
             </label>
             <div className="flex flex-col gap-2 rounded-2xl border border-background/15 bg-background/5 p-2 sm:flex-row focus-within:ring-0 focus-within:outline-none">
@@ -69,11 +81,18 @@ export default function NewsletterForm() {
                         <rect x="2" y="4" width="20" height="16" rx="2" />
                     </svg>
                     <input
+                        id="newsletter-email"
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="ceo@empresa.com"
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (validationError) setValidationError(null);
+                        }}
+                        placeholder="nome@email.com"
                         required
+                        autoComplete="email"
+                        aria-invalid={validationError ? true : undefined}
+                        aria-describedby={validationError ? "newsletter-email-error" : undefined}
                         className="w-full bg-transparent pt-3 pb-1 text-sm text-background placeholder:text-background/30 border-b border-transparent focus:border-white/60 transition-colors"
                         style={{ outline: "none", boxShadow: "none" }}
                     />
@@ -104,8 +123,13 @@ export default function NewsletterForm() {
                     )}
                 </button>
             </div>
+            {validationError && (
+                <p id="newsletter-email-error" role="alert" className="text-xs text-red-400">
+                    {validationError}
+                </p>
+            )}
             {status === "error" && (
-                <p className="text-xs text-red-400">Algo deu errado. Tente novamente.</p>
+                <p role="alert" className="text-xs text-red-400">Algo deu errado. Tente novamente.</p>
             )}
         </form>
     );

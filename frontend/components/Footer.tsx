@@ -21,6 +21,12 @@ const legalLinks = [
     { label: "Contato", href: "mailto:contato@pp7ias.com" },
 ];
 
+// Recursos do portal
+const resourceLinks = [
+    { label: "Biblioteca de Prompts", href: "/explorar?b=biblioteca&tema=prompts" },
+    { label: "Perguntas Frequentes", href: "/faq" },
+];
+
 export default function Footer() {
     const currentYear = new Date().getFullYear();
 
@@ -51,9 +57,9 @@ export default function Footer() {
                                         href={social.href}
                                         target={social.href.startsWith("http") ? "_blank" : undefined}
                                         rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                                        className="flex items-center gap-3 text-text-secondary hover:text-foreground transition-all duration-200"
+                                        className="flex items-center gap-3 text-text-secondary hover:text-foreground transition duration-200"
                                     >
-                                        <span className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-brand-blue/20 transition-all duration-200">
+                                        <span className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-brand-blue/20 transition duration-200">
                                             <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                                         </span>
                                         <span className="text-sm">{social.label}</span>
@@ -61,6 +67,23 @@ export default function Footer() {
                                 );
                             })}
                         </div>
+                    </div>
+
+                    {/* Recursos */}
+                    <div className="flex flex-col w-auto min-w-fit">
+                        <h4 className="text-foreground font-semibold text-base mb-6 uppercase tracking-wide">Recursos</h4>
+                        <ul className="space-y-3">
+                            {resourceLinks.map(item => (
+                                <li key={item.label}>
+                                    <Link
+                                        href={item.href}
+                                        className="text-text-secondary hover:text-foreground transition-colors duration-200 text-sm whitespace-nowrap"
+                                    >
+                                        {item.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
 
                     {/* Legal */}

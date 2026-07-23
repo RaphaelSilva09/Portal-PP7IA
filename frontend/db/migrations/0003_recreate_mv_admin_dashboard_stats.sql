@@ -1,5 +1,5 @@
 -- Phase 1: recreate mv_admin_dashboard_stats against the better-auth "user" table.
--- Original Supabase MV was dropped during data-migration test (referenced auth.users).
+-- Original materialized view was dropped during data-migration test (referenced auth.users).
 
 CREATE MATERIALIZED VIEW public.mv_admin_dashboard_stats AS
 SELECT

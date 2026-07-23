@@ -4,7 +4,7 @@
 
 O portal hoje exibe conteudos HTML por meio da rota `/view/[type]/[slug]`, renderizada em um `iframe` que consome o proxy `/api/proxy-html/[type]/[slug]`. Nessa experiencia, o usuario consegue abrir um conteudo especifico, mas nao consegue seguir linearmente para o item anterior ou proximo da mesma secao sem voltar para a listagem.
 
-Esta spec define a adicao de navegacao contextual ao final da experiencia de leitura, com botoes minimalistas e consistentes com o design system do portal, sem modificar o HTML armazenado no Supabase Storage. A navegacao deve ser resolvida pelo shell da pagina `/view`, preservando o conteudo original dos arquivos `.html` e reduzindo risco de quebra visual ou estrutural.
+Esta spec define a adicao de navegacao contextual ao final da experiencia de leitura, com botoes minimalistas e consistentes com o design system do portal, sem modificar o HTML armazenado no Postgres Storage. A navegacao deve ser resolvida pelo shell da pagina `/view`, preservando o conteudo original dos arquivos `.html` e reduzindo risco de quebra visual ou estrutural.
 
 O que resolve:
 - Permite leitura sequencial entre materiais relacionados da mesma secao.
@@ -38,7 +38,7 @@ Esta incluso:
 - Tratar `book` como sem navegacao, por ser singleton.
 
 O que nao esta incluso:
-- Alterar o conteudo interno dos arquivos HTML armazenados no Supabase.
+- Alterar o conteudo interno dos arquivos HTML armazenados no Postgres.
 - Criar ou modificar schema de banco, migrations ou colunas.
 - Reordenar conteudos existentes no admin.
 - Alterar regras editoriais de listagem publica fora da pagina `/view`.
@@ -70,7 +70,7 @@ Tecnologias ou abordagens proibidas neste escopo:
 
 Padroes arquiteturais a seguir:
 - SRP: a pagina `/view` deve orquestrar exibicao, enquanto a regra de descoberta de vizinhos deve ficar em unidade dedicada e testavel.
-- DIP: consumo via interfaces/repositorios ja existentes no container, evitando acoplamento direto a detalhes do Supabase dentro da camada de apresentacao quando houver alternativa adequada.
+- DIP: consumo via interfaces/repositorios ja existentes no container, evitando acoplamento direto a detalhes do Postgres dentro da camada de apresentacao quando houver alternativa adequada.
 - Adapter/Facade existentes devem ser respeitados, reaproveitando repositorios e entidades ja presentes.
 
 Restricoes de performance:
@@ -190,7 +190,7 @@ app/view/[type]/[slug]/page.tsx  (Server Component)
         |   IContentRepository (via DIContainer)
         |        |
         |        v
-        |   SupabaseContentRepository.getAll(type)
+        |   PostgresContentRepository.getAll(type)
         |
         |-- monta htmlPath -> /api/proxy-html/[type]/[slug]
         |
@@ -214,7 +214,7 @@ Fluxo de dados:
 Decisões de design com justificativa:
 - Escolhi manter a navegacao fora do HTML remoto porque isso preserva integralmente os arquivos armazenados e reduz o risco de quebrar estilos, scripts ou estrutura dos materiais.
 - Escolhi centralizar a regra de descoberta de vizinhos em um use case dedicado porque a ordenacao por tipo, filtro por `tema` e filtro por `part_order` e regra de negocio, nao de layout.
-- Escolhi reutilizar `SupabaseContentRepository` para os tipos navegaveis porque ele ja agrega os campos necessarios (`id`, `htmlPath`, `index`, `tema`, `partOrder`, `ebookOrder`) e evita duplicacao de consultas entre multiplos repositorios especificos.
+- Escolhi reutilizar `PostgresContentRepository` para os tipos navegaveis porque ele ja agrega os campos necessarios (`id`, `htmlPath`, `index`, `tema`, `partOrder`, `ebookOrder`) e evita duplicacao de consultas entre multiplos repositorios especificos.
 - Escolhi tratar `book` como excecao explicita na borda da pagina porque ele e singleton e nao precisa contaminar a regra geral com ramificacoes desnecessarias.
 - Escolhi ajustar o comportamento do `iframe` para permitir que o usuario alcance a navegacao no fim da leitura, porque botoes fora do HTML remoto nao seriam descobriveis se o scroll permanecesse preso ao interior de um `iframe` de altura fixa.
 

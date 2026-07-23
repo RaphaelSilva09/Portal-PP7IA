@@ -18,12 +18,6 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Supabase
-.branches/
-.temp/
-supabase/.branches
-supabase/.temp
-
 # OS
 .DS_Store
 .DS_Store?

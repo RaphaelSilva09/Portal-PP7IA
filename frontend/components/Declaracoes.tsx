@@ -56,7 +56,7 @@ export default function Declaracoes() {
                     ============================================ */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         {/* VISÃO */}
-                        <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-blue-500/30 transition-all duration-300">
+                        <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-blue-500/30 transition duration-300">
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -74,7 +74,7 @@ export default function Declaracoes() {
                         </div>
 
                         {/* O PROBLEMA */}
-                        <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-red-500/30 transition-all duration-300">
+                        <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-red-500/30 transition duration-300">
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -92,7 +92,7 @@ export default function Declaracoes() {
                         </div>
 
                         {/* A SOLUÇÃO */}
-                        <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-emerald-500/30 transition-all duration-300">
+                        <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-emerald-500/30 transition duration-300">
                             {/* Ícone */}
                             <div className="mb-4">
                                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">

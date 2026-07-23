@@ -16,6 +16,7 @@ import { publicFileUrl } from "@/lib/files";
 export interface MiniLivroProps {
     id: number;
     createdAt: Date;
+    updatedAt?: Date | null;
     title: string;
     htmlPath: string | null;
     pdfPath: string | null;
@@ -119,6 +120,10 @@ export class MiniLivro {
     /**
      * Converte para objeto plano (DTO)
      */
+    get updatedAt(): Date | null {
+        return this.props.updatedAt ?? null;
+    }
+
     toObject(): MiniLivroProps {
         return { ...this.props };
     }

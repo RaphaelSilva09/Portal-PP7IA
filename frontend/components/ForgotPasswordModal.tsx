@@ -1,9 +1,10 @@
 "use client";
 
 import { AlertCircle, Check, Eye, EyeOff, Mail, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForgotPasswordModal } from "../context/ForgotPasswordModalContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import { useDialogA11y } from "../hooks/useDialogA11y";
 import { usePasswordRecovery } from "../hooks/usePasswordRecovery";
 import { isValidEmail, isValidPassword } from "../lib/validators";
 import Portal from "./Portal";
@@ -34,6 +35,8 @@ export default function ForgotPasswordModal() {
         newPassword?: string;
         confirmPassword?: string;
     }>({});
+
+    const panelRef = useRef<HTMLDivElement>(null);
 
     useBodyScrollLock(isOpen);
 
@@ -106,6 +109,8 @@ export default function ForgotPasswordModal() {
 
     const handleClose = () => { if (!isLoading) closeModal(); };
 
+    useDialogA11y(isOpen, handleClose, panelRef);
+
     const steps = ["Email", "Código", "Nova senha"];
     const stepIndex = recoveryStatus === "idle" ? 0
         : recoveryStatus === "awaiting_code" || recoveryStatus === "verifying" ? 1
@@ -125,7 +130,7 @@ export default function ForgotPasswordModal() {
         : 3;
 
     const inputClass = (hasError: boolean) =>
-        `w-full rounded-xl border px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background outline-none transition-all focus:ring-2 focus:ring-primary/20 ${
+        `w-full rounded-xl border px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background outline-none transition focus:ring-2 focus:ring-primary/20 ${
             hasError ? "border-red-400" : "border-border focus:border-primary/40"
         }`;
 
@@ -140,6 +145,10 @@ export default function ForgotPasswordModal() {
                 <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
 
                 <div
+                    ref={panelRef}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="forgot-password-title"
                     className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--shadow-elevated)]"
                     onClick={e => e.stopPropagation()}
                 >
@@ -170,7 +179,7 @@ export default function ForgotPasswordModal() {
                                     ))}
                                 </div>
                             )}
-                            <h2 className="font-serif text-2xl text-ink">{titles[titleIndex]}</h2>
+                            <h2 id="forgot-password-title" className="font-serif text-2xl text-ink">{titles[titleIndex]}</h2>
                             <p className="mt-1 text-sm text-muted-foreground">{subtitles[titleIndex]}</p>
                         </div>
                         <button
@@ -217,7 +226,7 @@ export default function ForgotPasswordModal() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
+                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
                                     {isLoading ? (
                                         <span className="inline-flex items-center gap-2">
@@ -256,7 +265,7 @@ export default function ForgotPasswordModal() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
+                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
                                     {isLoading ? (
                                         <span className="inline-flex items-center gap-2">
@@ -335,7 +344,7 @@ export default function ForgotPasswordModal() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
+                                    className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
                                     {isLoading ? (
                                         <span className="inline-flex items-center gap-2">

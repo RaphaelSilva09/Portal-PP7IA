@@ -69,7 +69,7 @@ export function Accordion({ variant, title, id, isOpen, onToggle, children }: Ac
             className={`
                 ${styles.container}
                 border rounded-xl md:rounded-2xl overflow-hidden
-                transition-all duration-200
+                transition duration-200
                 ${variant === "level1" ? "hover:-translate-y-0.5 hover:shadow-glow-blue-md mb-4" : "mb-3"}
             `}
             style={styles.style}
@@ -104,7 +104,7 @@ export function Accordion({ variant, title, id, isOpen, onToggle, children }: Ac
             <div
                 id={`accordion-content-${id}`}
                 className={`
-                    grid transition-all duration-300 ease-in-out
+                    grid transition duration-300 ease-in-out
                     ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}
                 `}
                 aria-hidden={!isOpen}

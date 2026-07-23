@@ -18,6 +18,7 @@
 import type { EbookFormData } from "@/components/admin";
 import AdminBlockColors from "@/components/admin/AdminBlockColors";
 import {
+    AdminAnalytics,
     AdminBook,
     AdminEditorial,
     AdminExplorarConfig,
@@ -26,7 +27,11 @@ import {
     AdminHomepageConfig,
     AdminHomeRecomendacoesPaulo,
     AdminMiniLivroSections,
+    AdminFaq,
     AdminPortalNews,
+    AdminPromptLibrary,
+    AdminReaderQuestions,
+    AdminReactions,
     AnnouncementBarTab,
     ConfirmDialog,
     ContentForm,
@@ -34,6 +39,7 @@ import {
     Dashboard,
     EbookForm,
     FeedbackMessage,
+    ReadingTimeButton,
     ReindexButton,
     SortableContentTable,
     UserManager,
@@ -50,14 +56,19 @@ import {
     FileText,
     Home as HomeIcon,
     GraduationCap,
+    HelpCircle,
     Home,
     Library,
+    MessageSquare,
     Newspaper,
     NotebookPen,
     Palette,
     Plus,
     Radar,
+    Sparkles,
     Star,
+    ThumbsUp,
+    TrendingUp,
     Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -66,7 +77,7 @@ import { useEbook } from "@/presentation/hooks/useEbook";
 import ThemeToggle from "@/components/ThemeToggle";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar" | "site-bg";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "analytics" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar" | "site-bg" | "prompts" | "faq" | "perguntas-leitores" | "reacoes";
 
 type ContentTab = ContentType | "livro" | "mini-livro-sections";
 
@@ -402,6 +413,7 @@ export default function PainelAdminPage() {
             items: [
                 { section: "inicio",      label: "Dashboard",       icon: Home       },
                 { section: "usuarios",    label: "Usuários",        icon: Users      },
+                { section: "analytics",   label: "Analytics",       icon: TrendingUp },
             ],
         },
         {
@@ -427,6 +439,15 @@ export default function PainelAdminPage() {
             label: "Explorar",
             items: [
                 { section: "pagina-explorar", label: "Configuração", icon: Radar },
+            ],
+        },
+        {
+            label: "Engajamento",
+            items: [
+                { section: "prompts",             label: "Biblioteca de Prompts", icon: Sparkles     },
+                { section: "faq",                 label: "FAQ",                   icon: HelpCircle   },
+                { section: "perguntas-leitores",  label: "Perguntas dos Leitores", icon: MessageSquare },
+                { section: "reacoes",             label: "Reações",               icon: ThumbsUp     },
             ],
         },
     ];
@@ -525,6 +546,12 @@ export default function PainelAdminPage() {
                                     </p>
                                     <ReindexButton />
                                 </div>
+                                <div className="rounded-2xl border border-border bg-card p-6">
+                                    <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                                        Tempo de Leitura
+                                    </p>
+                                    <ReadingTimeButton />
+                                </div>
                                 <Dashboard />
                             </>
                         )}
@@ -535,7 +562,12 @@ export default function PainelAdminPage() {
                         {mainSection === "cores-blocos" && <AdminBlockColors />}
 {mainSection === "site-bg"      && <AdminSiteBg />}
                         {mainSection === "recomendacoes" && <AdminHomeRecomendacoesPaulo />}
+                {mainSection === "prompts"       && <AdminPromptLibrary />}
+                {mainSection === "faq"           && <AdminFaq />}
+                {mainSection === "perguntas-leitores" && <AdminReaderQuestions />}
+                {mainSection === "reacoes"       && <AdminReactions />}
                         {mainSection === "usuarios"     && <UserManager />}
+                        {mainSection === "analytics"    && <AdminAnalytics />}
                         {mainSection === "novidades"    && <AdminPortalNews />}
                         {mainSection === "editorial"    && <AdminEditorial />}
                         {mainSection === "barra-aviso"  && <AnnouncementBarTab />}
@@ -587,7 +619,7 @@ export default function PainelAdminPage() {
                                         <div className="flex justify-end">
                                             <button
                                                 onClick={handleCreate}
-                                                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80"
+                                                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80"
                                             >
                                                 <Plus className="size-4" />
                                                 Novo Material

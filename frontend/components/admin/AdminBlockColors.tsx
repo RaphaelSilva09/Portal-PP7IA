@@ -78,7 +78,7 @@ export default function AdminBlockColors() {
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {BLOCK_IDS.map(id => (
-                    <label key={id} className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-background p-4 transition-all hover:border-foreground/20">
+                    <label key={id} className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-background p-4 transition hover:border-foreground/20">
                         <div className="relative shrink-0">
                             <input
                                 type="color"

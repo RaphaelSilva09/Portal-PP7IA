@@ -1,22 +1,15 @@
 /**
  * Playwright globalSetup
  *
- * Garante que o usuário de teste tem um perfil em public.users
- * antes de qualquer spec rodar. O trigger handle_new_user só
- * dispara no signup pelo app — usuários criados manualmente no
- * dashboard ficam sem linha em public.users.
- *
- * A RLS policy "Users can insert own profile" permite INSERT
- * autenticado com auth.uid() = id, então usamos a sessão do
- * próprio usuário para criar o perfil se ele estiver faltando.
- *
- * Em ambiente local (playwright.local.config.ts) o usuário pode
- * não existir ainda — usamos a service role key para criá-lo via
- * admin API antes de prosseguir.
+ * Garante que o usuário de teste existe nas tabelas do BetterAuth antes
+ * das specs de login. O setup usa Postgres direto para evitar disparos de
+ * e-mail e manter o fluxo de teste independente de provedores externos.
  */
 
 import fs from "node:fs";
 import path from "node:path";
+import { hash as argonHash } from "@node-rs/argon2";
+import { Pool } from "pg";
 
 const TEST_EMAIL = "teste@teste.com";
 const TEST_PASSWORD = "testando123";
@@ -24,7 +17,7 @@ const TEST_PASSWORD = "testando123";
 const ENV_FILES = [".env.local", ".env"];
 
 function readEnvValue(name: string): string | undefined {
-    // process.env takes precedence — allows playwright.local.config.ts to override
+    // process.env takes precedence, allowing Playwright configs to override files.
     if (process.env[name]) return process.env[name];
 
     for (const fileName of ENV_FILES) {
@@ -36,124 +29,87 @@ function readEnvValue(name: string): string | undefined {
     return undefined;
 }
 
-async function ensureAuthUserExists(supabaseUrl: string, serviceRoleKey: string): Promise<boolean> {
-    const res = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
-        method: "POST",
-        headers: {
-            "apikey": serviceRoleKey,
-            "Authorization": `Bearer ${serviceRoleKey}`,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            email: TEST_EMAIL,
-            password: TEST_PASSWORD,
-            email_confirm: true,
-            user_metadata: {
-                nome: "Usuário Teste",
-                celular: "11999999999",
-                accept_email_updates: true,
-                accept_whatsapp_updates: false,
-            },
-        }),
-    });
-
-    if (res.ok || res.status === 201) {
-        console.log(`[globalSetup] Created auth user ${TEST_EMAIL} via admin API`);
-        return true;
-    }
-
-    const body = await res.text().catch(() => "");
-    // 422 = user already exists — that's fine
-    if (res.status === 422 || body.includes("already")) {
-        return true;
-    }
-
-    console.warn(`[globalSetup] Could not create auth user: ${res.status} ${body}`);
-    return false;
-}
-
 export default async function globalSetup() {
-    const supabaseUrl = readEnvValue("NEXT_PUBLIC_SUPABASE_URL");
-    const anonKey =
-        readEnvValue("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY") ??
-        readEnvValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
-    const serviceRoleKey = readEnvValue("SUPABASE_SERVICE_ROLE_KEY");
+    const databaseUrl = readEnvValue("DATABASE_URL");
 
-    if (!supabaseUrl || !anonKey) {
-        console.warn("[globalSetup] Supabase env vars not found — skipping test-user profile check");
+    if (!databaseUrl) {
+        console.warn("[globalSetup] DATABASE_URL not found; skipping test user seed");
         return;
     }
 
-    // 1. Authenticate
-    let signInRes = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": anonKey,
-        },
-        body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
+    const pool = new Pool({
+        connectionString: databaseUrl,
+        ssl: databaseUrl.includes("localhost") || databaseUrl.includes("127.0.0.1")
+            ? false
+            : { rejectUnauthorized: false },
     });
 
-    // If sign-in fails and we have a service role key, try creating the user (local Supabase)
-    if (!signInRes.ok && serviceRoleKey) {
-        console.log(`[globalSetup] Sign-in failed (${signInRes.status}) — attempting admin user creation`);
-        const created = await ensureAuthUserExists(supabaseUrl, serviceRoleKey);
-        if (created) {
-            signInRes = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "apikey": anonKey,
-                },
-                body: JSON.stringify({ email: TEST_EMAIL, password: TEST_PASSWORD }),
-            });
+    try {
+        const passwordHash = await argonHash(TEST_PASSWORD);
+        const { rows } = await pool.query<{ id: string }>(
+            `INSERT INTO "user" (
+                "name",
+                "email",
+                "emailVerified",
+                "nome",
+                "celular",
+                "accept_email_updates",
+                "accept_whatsapp_updates",
+                "role",
+                "updatedAt"
+            )
+            VALUES ($1, $2, true, $1, $3, true, false, 'user', now())
+            ON CONFLICT ("email") DO UPDATE
+            SET "name" = EXCLUDED."name",
+                "emailVerified" = true,
+                "nome" = EXCLUDED."nome",
+                "celular" = EXCLUDED."celular",
+                "accept_email_updates" = true,
+                "accept_whatsapp_updates" = false,
+                "role" = COALESCE("user"."role", 'user'),
+                "updatedAt" = now()
+            RETURNING "id"`,
+            ["Usuário Teste", TEST_EMAIL, "11999999999"],
+        );
+
+        const userId = rows[0]?.id;
+        if (!userId) throw new Error("User seed did not return an id");
+
+        const existingAccount = await pool.query<{ id: string }>(
+            `SELECT "id" FROM "account"
+             WHERE "accountId" = $1
+               AND "providerId" = 'credential'
+               AND "userId" = $2
+             LIMIT 1`,
+            [TEST_EMAIL, userId],
+        );
+
+        if (existingAccount.rows[0]?.id) {
+            await pool.query(
+                `UPDATE "account"
+                 SET "password" = $2,
+                     "updatedAt" = now()
+                 WHERE "id" = $1`,
+                [existingAccount.rows[0].id, passwordHash],
+            );
+        } else {
+            await pool.query(
+                `INSERT INTO "account" (
+                    "accountId",
+                    "providerId",
+                    "userId",
+                    "password",
+                    "updatedAt"
+                )
+                VALUES ($1, 'credential', $2, $3, now())`,
+                [TEST_EMAIL, userId, passwordHash],
+            );
         }
-    }
 
-    if (!signInRes.ok) {
-        console.warn(`[globalSetup] Could not sign in as ${TEST_EMAIL}: ${signInRes.status} ${signInRes.statusText}`);
-        return;
-    }
-
-    const { access_token, user } = await signInRes.json() as {
-        access_token: string;
-        user: { id: string; email: string };
-    };
-
-    if (!access_token || !user?.id) {
-        console.warn("[globalSetup] Unexpected sign-in response shape");
-        return;
-    }
-
-    // 2. Upsert profile with valid test data.
-    // The DB trigger handle_new_user() fires when the admin API creates the user, but
-    // it uses raw_user_meta_data defaults (celular='', accept_*=false) when no metadata
-    // is provided — those values fail User.validate(). Always upsert so we overwrite
-    // any trigger-created row that has invalid defaults.
-    const upsertApiKey = serviceRoleKey ?? anonKey;
-    const upsertToken = serviceRoleKey ?? access_token;
-    const insertRes = await fetch(`${supabaseUrl}/rest/v1/users`, {
-        method: "POST",
-        headers: {
-            "apikey": upsertApiKey,
-            "Authorization": `Bearer ${upsertToken}`,
-            "Content-Type": "application/json",
-            "Prefer": "resolution=merge-duplicates,return=minimal",
-        },
-        body: JSON.stringify({
-            id: user.id,
-            email: user.email,
-            nome: "Usuário Teste",
-            celular: "11999999999",
-            accept_email_updates: true,
-            accept_whatsapp_updates: false,
-        }),
-    });
-
-    if (insertRes.ok || insertRes.status === 201) {
-        console.log(`[globalSetup] Profile upserted for ${TEST_EMAIL}`);
-    } else {
-        const body = await insertRes.text().catch(() => "");
-        console.warn(`[globalSetup] Failed to create profile: ${insertRes.status} ${body}`);
+        console.log(`[globalSetup] BetterAuth test user ready: ${TEST_EMAIL}`);
+    } catch (error) {
+        console.warn("[globalSetup] Could not seed BetterAuth test user:", error);
+    } finally {
+        await pool.end();
     }
 }

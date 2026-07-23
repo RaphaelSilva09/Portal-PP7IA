@@ -30,7 +30,7 @@ function PresetSwatch({ hex, label, selected, onSelect }: {
         <button
             onClick={onSelect}
             title={label}
-            className={`relative size-9 rounded-lg border-2 transition-all ${
+            className={`relative size-9 rounded-lg border-2 transition ${
                 selected ? "border-foreground scale-110" : "border-transparent hover:border-border"
             }`}
             style={{ backgroundColor: hex }}
@@ -283,7 +283,7 @@ export default function AdminSiteBg() {
                             Curadoria Semanal
                         </p>
                         <p className="mt-1 font-serif italic text-lg leading-tight" style={{ color: bg.newsletterSidebarNumberColor }}>
-                            O melhor da IA,<br />toda quarta.
+                            O melhor da IA,<br />segunda e quarta.
                         </p>
                     </div>
                     <div className="mt-3 flex items-center justify-between">

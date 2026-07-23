@@ -12,11 +12,18 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Pool } from "pg";
+import { isRailwayPrEnvironment } from "./environment";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = join(__dirname, "migrations");
 
 async function main() {
+    const railwayEnvironmentName = process.env.RAILWAY_ENVIRONMENT_NAME;
+    if (isRailwayPrEnvironment(railwayEnvironmentName)) {
+        console.log(`[migrate] skipped in ephemeral Railway PR environment: ${railwayEnvironmentName}`);
+        return;
+    }
+
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL not set");
 

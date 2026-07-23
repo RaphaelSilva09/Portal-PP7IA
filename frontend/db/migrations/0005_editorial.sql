@@ -1,6 +1,6 @@
 -- Editorial — singleton table for the rich-text editor flow (legacy design).
--- Idempotent: safe to run after a Supabase pg_dump + restore that already
--- created the table. RLS / Supabase grants stripped — auth is enforced at
+-- Idempotent: safe to run after a Postgres dump + restore that already
+-- created the table. RLS grants stripped — auth is enforced at
 -- the HTTP route layer via better-auth.
 
 CREATE TABLE IF NOT EXISTS public.editorial (

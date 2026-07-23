@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import AuthModal from "./AuthModal";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import InviteModal from "./InviteModal";
+import OnboardingModal from "./onboarding/OnboardingModal";
 import Portal from "./Portal";
 import SearchModal from "./SearchModal";
 
@@ -56,6 +57,12 @@ export default function ModalsProvider() {
         }
 
         if (authModalParam === "login") {
+            // Rota protegida redirecionou (proxy.ts): guarda o destino para
+            // o AuthModal retornar à página que o usuário tentou abrir.
+            const next = searchParams.get("next");
+            if (next?.startsWith("/")) {
+                try { sessionStorage.setItem("pp7ias.auth-next", next); } catch { /* storage indisponível */ }
+            }
             openAuthModal({}, "login");
             router.replace("/", { scroll: false });
             processedParams.current.add(paramsKey);
@@ -84,6 +91,7 @@ export default function ModalsProvider() {
                 initialData={initialData}
             />
             <InviteModal isOpen={isInviteOpen} onClose={closeInviteModal} />
+            <OnboardingModal />
         </Portal>
     );
 }

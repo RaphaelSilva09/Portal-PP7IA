@@ -2,11 +2,13 @@
 
 import { AlertCircle, Check, Eye, EyeOff, Mail, Phone, User, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useForgotPasswordModal } from "../context/ForgotPasswordModalContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
+import { useDialogA11y } from "../hooks/useDialogA11y";
 import { formatPhone } from "../lib/formatters";
+import { attributeReferralIfPresent } from "../lib/referralCapture";
 import { isValidEmail, isValidPassword, isValidPhone } from "../lib/validators";
 import Portal from "./Portal";
 
@@ -50,16 +52,29 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     const [acceptEmailUpdates, setAcceptEmailUpdates] = useState(false);
     const [acceptWhatsAppUpdates, setAcceptWhatsAppUpdates] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [pendingNext, setPendingNext] = useState<string | null>(null);
 
     const { signUp, signIn, isLoading, error: authError, clearError } = useAuth();
     const { openModal: openForgotPasswordModal } = useForgotPasswordModal();
     const router = useRouter();
+    const panelRef = useRef<HTMLDivElement>(null);
 
     useBodyScrollLock(isOpen);
+    useDialogA11y(isOpen, onClose, panelRef);
 
     useEffect(() => {
         if (isOpen) setMode(initialMode);
     }, [isOpen, initialMode]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        try {
+            const next = sessionStorage.getItem("pp7ias.auth-next");
+            setPendingNext(next?.startsWith("/") ? next : null);
+        } catch {
+            setPendingNext(null);
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         if (isOpen) {
@@ -110,7 +125,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
             if (mode === "login") {
                 await signIn({ email: formData.email, password: formData.senha });
                 onClose();
-                router.push("/");
+                // Retorna à página que o usuário tentou acessar antes do login.
+                let next: string | null = null;
+                try {
+                    next = sessionStorage.getItem("pp7ias.auth-next");
+                    sessionStorage.removeItem("pp7ias.auth-next");
+                } catch { /* storage indisponível */ }
+                router.push(next?.startsWith("/") ? next : "/");
             } else {
                 const result = await signUp({
                     email: formData.email,
@@ -120,6 +141,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                     acceptEmailUpdates,
                     acceptWhatsAppUpdates,
                 });
+                attributeReferralIfPresent();
                 if (result.emailConfirmationRequired) {
                     setSuccessMessage("Cadastro realizado! Verifique seu email para confirmar sua conta. Se não encontrar, verifique a pasta de spam.");
                 } else {
@@ -142,7 +164,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     const passwordInputId = "auth-senha";
 
     const inputClass = (hasError: boolean) =>
-        `w-full rounded-xl border px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background outline-none transition-all focus:ring-2 focus:ring-primary/20 ${
+        `w-full rounded-xl border px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background outline-none transition focus:ring-2 focus:ring-primary/20 ${
             hasError ? "border-red-400" : "border-border focus:border-primary/40"
         }`;
 
@@ -154,6 +176,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                 <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
 
                 <div
+                    ref={panelRef}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="auth-modal-title"
                     className="relative flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--shadow-elevated)]"
                     style={{ maxHeight: "calc(100vh - 2rem)" }}
                     onClick={e => e.stopPropagation()}
@@ -164,7 +190,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                 {isLoginMode ? "Bem-vindo de volta" : "Criar conta"}
                             </div>
-                            <h2 className="mt-1 font-serif text-3xl text-ink">
+                            <h2 id="auth-modal-title" className="mt-1 font-serif text-3xl text-ink">
                                 {isLoginMode ? "Entrar." : "Cadastrar."}
                             </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
@@ -182,9 +208,22 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                         </button>
                     </div>
 
+                    {/* Contexto de redirect: usuário tentou acessar área protegida */}
+                    {isLoginMode && pendingNext && !authError && !successMessage && (
+                        <div className="mx-6 mb-2 flex items-start gap-2 rounded-xl border border-border bg-accent/60 p-3">
+                            <AlertCircle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                            <p className="text-xs text-muted-foreground">
+                                Entre para acessar a página que você tentou abrir.
+                            </p>
+                        </div>
+                    )}
+
                     {/* Auth Error */}
                     {authError && (
-                        <div className="mx-6 mb-2 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/20">
+                        <div
+                            role="alert"
+                            className="mx-6 mb-2 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/20"
+                        >
                             <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
                             <p className="text-xs text-red-700 dark:text-red-400">{authError}</p>
                         </div>
@@ -343,7 +382,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-all hover:bg-primary hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
+                                className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition hover:bg-primary hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                             >
                                 {isLoading ? (
                                     <span className="inline-flex items-center gap-2">

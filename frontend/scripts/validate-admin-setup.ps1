@@ -9,10 +9,10 @@ $errors = 0
 Write-Host "1. Variaveis de ambiente..." -ForegroundColor Yellow
 if (Test-Path ".env.local") {
     $env = Get-Content ".env.local" -Raw
-    if ($env -match "SUPABASE_SERVICE_ROLE_KEY") {
-        Write-Host "   [OK] SERVICE_ROLE_KEY configurada" -ForegroundColor Green
+    if ($env -match "DATABASE_URL") {
+        Write-Host "   [OK] DATABASE_URL configurada" -ForegroundColor Green
     } else {
-        Write-Host "   [ERRO] SERVICE_ROLE_KEY NAO configurada" -ForegroundColor Red
+        Write-Host "   [ERRO] DATABASE_URL NAO configurada" -ForegroundColor Red
         $errors++
     }
 } else {
@@ -24,7 +24,7 @@ Write-Host "
 2. Migrations..." -ForegroundColor Yellow
 $migs = @("007_especial_semana_table.sql","008_add_read_time_column.sql","009_seed_data_dev.sql","999_promote_user_to_admin.sql")
 foreach ($m in $migs) {
-    if (Test-Path "../supabase/migrations/$m") {
+    if (Test-Path "../postgres/migrations/$m") {
         Write-Host "   [OK] $m" -ForegroundColor Green
     } else {
         Write-Host "   [ERRO] $m nao encontrada" -ForegroundColor Red
@@ -46,7 +46,7 @@ foreach ($e in $ents) {
 
 Write-Host "
 4. Repositorios..." -ForegroundColor Yellow
-$repos = @("SupabaseEspecialSemanaRepository.ts","SupabaseUserManagementRepository.ts","SupabaseAnalyticsRepository.ts")
+$repos = @("PostgresEspecialSemanaRepository.ts","PostgresUserManagementRepository.ts","PostgresAnalyticsRepository.ts")
 foreach ($r in $repos) {
     if (Test-Path "infrastructure/repositories/$r") {
         Write-Host "   [OK] $r" -ForegroundColor Green

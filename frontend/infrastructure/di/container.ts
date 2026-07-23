@@ -43,25 +43,25 @@ import { SignOutUseCase } from "../../application/usecases/SignOutUseCase";
 import { SignUpUseCase } from "../../application/usecases/SignUpUseCase";
 import { UpdateContentWithFilesUseCase } from "../../application/usecases/UpdateContentWithFilesUseCase";
 import { VerifyPasswordResetOTPUseCase } from "../../application/usecases/VerifyPasswordResetOTPUseCase";
-import { SupabaseAnnouncementBarRepository } from "../repositories/SupabaseAnnouncementBarRepository";
-import { SupabaseAdminRepository } from "../repositories/SupabaseAdminRepository";
-import { SupabaseAnalyticsRepository } from "../repositories/SupabaseAnalyticsRepository";
+import { PostgresAnnouncementBarRepository } from "../repositories/PostgresAnnouncementBarRepository";
+import { PostgresAdminRepository } from "../repositories/PostgresAdminRepository";
+import { PostgresAnalyticsRepository } from "../repositories/PostgresAnalyticsRepository";
 import { BetterAuthRepository } from "../repositories/BetterAuthRepository";
-import { SupabaseBibliotecaRepository } from "../repositories/SupabaseBibliotecaRepository";
-import { SupabaseBookRepository } from "../repositories/SupabaseBookRepository";
-import { SupabaseContentRepository } from "../repositories/SupabaseContentRepository";
-import { SupabaseEbookRepository } from "../repositories/SupabaseEbookRepository";
-import { SupabaseEspecialSemanaRepository } from "../repositories/SupabaseEspecialSemanaRepository";
-import { SupabaseEstudarRepository } from "../repositories/SupabaseEstudarRepository";
-import { SupabaseHomeDatesRepository } from "../repositories/SupabaseHomeDatesRepository";
-import { SupabaseMiniLivroRepository } from "../repositories/SupabaseMiniLivroRepository";
-import { SupabaseMiniLivroSectionRepository } from "../repositories/SupabaseMiniLivroSectionRepository";
-import { SupabaseNewsletterRepository } from "../repositories/SupabaseNewsletterRepository";
-import { SupabasePortalNewsRepository } from "../repositories/SupabasePortalNewsRepository";
-import { SupabaseRadarOportunidadesRepository } from "../repositories/SupabaseRadarOportunidadesRepository";
+import { PostgresBibliotecaRepository } from "../repositories/PostgresBibliotecaRepository";
+import { PostgresBookRepository } from "../repositories/PostgresBookRepository";
+import { PostgresContentRepository } from "../repositories/PostgresContentRepository";
+import { PostgresEbookRepository } from "../repositories/PostgresEbookRepository";
+import { PostgresEspecialSemanaRepository } from "../repositories/PostgresEspecialSemanaRepository";
+import { PostgresEstudarRepository } from "../repositories/PostgresEstudarRepository";
+import { PostgresHomeDatesRepository } from "../repositories/PostgresHomeDatesRepository";
+import { PostgresMiniLivroRepository } from "../repositories/PostgresMiniLivroRepository";
+import { PostgresMiniLivroSectionRepository } from "../repositories/PostgresMiniLivroSectionRepository";
+import { PostgresNewsletterRepository } from "../repositories/PostgresNewsletterRepository";
+import { PostgresPortalNewsRepository } from "../repositories/PostgresPortalNewsRepository";
+import { PostgresRadarOportunidadesRepository } from "../repositories/PostgresRadarOportunidadesRepository";
 import { FilesystemStorageRepository } from "../repositories/FilesystemStorageRepository";
-import { SupabaseUserManagementRepository } from "../repositories/SupabaseUserManagementRepository";
-import { SupabaseHomepageConfigRepository } from "../repositories/SupabaseHomepageConfigRepository";
+import { PostgresUserManagementRepository } from "../repositories/PostgresUserManagementRepository";
+import { PostgresHomepageConfigRepository } from "../repositories/PostgresHomepageConfigRepository";
 import { GetHomepageConfigUseCase } from "../../application/usecases/GetHomepageConfigUseCase";
 import { UpdateHomepageConfigUseCase } from "../../application/usecases/UpdateHomepageConfigUseCase";
 import { BlockColorsRepository } from "../repositories/BlockColorsRepository";
@@ -73,6 +73,11 @@ import { UpdateExplorarConfigUseCase } from "../../application/usecases/UpdateEx
 import { SiteBgRepository } from "../repositories/SiteBgRepository";
 import { GetSiteBgUseCase } from "../../application/usecases/GetSiteBgUseCase";
 import { UpdateSiteBgUseCase } from "../../application/usecases/UpdateSiteBgUseCase";
+import { PostgresPromptLibraryRepository } from "../repositories/PostgresPromptLibraryRepository";
+import { SupabaseFaqRepository } from "../repositories/SupabaseFaqRepository";
+import { SupabaseReaderQuestionRepository } from "../repositories/SupabaseReaderQuestionRepository";
+import { SupabaseContentReactionRepository } from "../repositories/SupabaseContentReactionRepository";
+import { SupabaseReferralRepository } from "../repositories/SupabaseReferralRepository";
 
 /**
  * Container de Dependências
@@ -80,27 +85,32 @@ import { UpdateSiteBgUseCase } from "../../application/usecases/UpdateSiteBgUseC
  */
 class DIContainer {
     private static authRepositoryInstance: BetterAuthRepository | null = null;
-    private static newsletterRepositoryInstance: SupabaseNewsletterRepository | null = null;
-    private static miniLivroRepositoryInstance: SupabaseMiniLivroRepository | null = null;
-    private static miniLivroSectionRepositoryInstance: SupabaseMiniLivroSectionRepository | null = null;
-    private static bibliotecaRepositoryInstance: SupabaseBibliotecaRepository | null = null;
-    private static especialSemanaRepositoryInstance: SupabaseEspecialSemanaRepository | null = null;
-    private static radarOportunidadesRepositoryInstance: SupabaseRadarOportunidadesRepository | null = null;
-    private static estudarRepositoryInstance: SupabaseEstudarRepository | null = null;
-    private static bookRepositoryInstance: SupabaseBookRepository | null = null;
-    private static ebookRepositoryInstance: SupabaseEbookRepository | null = null;
-    private static adminRepositoryInstance: SupabaseAdminRepository | null = null;
-    private static contentRepositoryInstance: SupabaseContentRepository | null = null;
+    private static newsletterRepositoryInstance: PostgresNewsletterRepository | null = null;
+    private static miniLivroRepositoryInstance: PostgresMiniLivroRepository | null = null;
+    private static miniLivroSectionRepositoryInstance: PostgresMiniLivroSectionRepository | null = null;
+    private static bibliotecaRepositoryInstance: PostgresBibliotecaRepository | null = null;
+    private static especialSemanaRepositoryInstance: PostgresEspecialSemanaRepository | null = null;
+    private static radarOportunidadesRepositoryInstance: PostgresRadarOportunidadesRepository | null = null;
+    private static estudarRepositoryInstance: PostgresEstudarRepository | null = null;
+    private static bookRepositoryInstance: PostgresBookRepository | null = null;
+    private static ebookRepositoryInstance: PostgresEbookRepository | null = null;
+    private static adminRepositoryInstance: PostgresAdminRepository | null = null;
+    private static contentRepositoryInstance: PostgresContentRepository | null = null;
     private static storageRepositoryInstance: FilesystemStorageRepository | null = null;
-    private static userManagementRepositoryInstance: SupabaseUserManagementRepository | null = null;
-    private static analyticsRepositoryInstance: SupabaseAnalyticsRepository | null = null;
-    private static portalNewsRepositoryInstance: SupabasePortalNewsRepository | null = null;
-    private static homeDatesRepositoryInstance: SupabaseHomeDatesRepository | null = null;
-    private static announcementBarRepositoryInstance: SupabaseAnnouncementBarRepository | null = null;
-    private static homepageConfigRepositoryInstance: SupabaseHomepageConfigRepository | null = null;
+    private static userManagementRepositoryInstance: PostgresUserManagementRepository | null = null;
+    private static analyticsRepositoryInstance: PostgresAnalyticsRepository | null = null;
+    private static portalNewsRepositoryInstance: PostgresPortalNewsRepository | null = null;
+    private static homeDatesRepositoryInstance: PostgresHomeDatesRepository | null = null;
+    private static announcementBarRepositoryInstance: PostgresAnnouncementBarRepository | null = null;
+    private static homepageConfigRepositoryInstance: PostgresHomepageConfigRepository | null = null;
     private static blockColorsRepositoryInstance: BlockColorsRepository | null = null;
     private static explorarConfigRepositoryInstance: ExplorarConfigRepository | null = null;
     private static siteBgRepositoryInstance: SiteBgRepository | null = null;
+    private static promptLibraryRepositoryInstance: PostgresPromptLibraryRepository | null = null;
+    private static faqRepositoryInstance: SupabaseFaqRepository | null = null;
+    private static readerQuestionRepositoryInstance: SupabaseReaderQuestionRepository | null = null;
+    private static contentReactionRepositoryInstance: SupabaseContentReactionRepository | null = null;
+    private static referralRepositoryInstance: SupabaseReferralRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -117,27 +127,62 @@ class DIContainer {
      * Obtém instância do repositório de newsletters
      * Singleton Pattern
      */
-    static getNewsletterRepository(): SupabaseNewsletterRepository {
+    static getNewsletterRepository(): PostgresNewsletterRepository {
         if (!this.newsletterRepositoryInstance) {
-            this.newsletterRepositoryInstance = new SupabaseNewsletterRepository();
+            this.newsletterRepositoryInstance = new PostgresNewsletterRepository();
         }
         return this.newsletterRepositoryInstance;
+    }
+
+    static getPromptLibraryRepository(): PostgresPromptLibraryRepository {
+        if (!this.promptLibraryRepositoryInstance) {
+            this.promptLibraryRepositoryInstance = new PostgresPromptLibraryRepository();
+        }
+        return this.promptLibraryRepositoryInstance;
+    }
+
+    static getFaqRepository(): SupabaseFaqRepository {
+        if (!this.faqRepositoryInstance) {
+            this.faqRepositoryInstance = new SupabaseFaqRepository();
+        }
+        return this.faqRepositoryInstance;
+    }
+
+    static getReaderQuestionRepository(): SupabaseReaderQuestionRepository {
+        if (!this.readerQuestionRepositoryInstance) {
+            this.readerQuestionRepositoryInstance = new SupabaseReaderQuestionRepository();
+        }
+        return this.readerQuestionRepositoryInstance;
+    }
+
+    static getContentReactionRepository(): SupabaseContentReactionRepository {
+        if (!this.contentReactionRepositoryInstance) {
+            this.contentReactionRepositoryInstance = new SupabaseContentReactionRepository();
+        }
+        return this.contentReactionRepositoryInstance;
+    }
+
+    static getReferralRepository(): SupabaseReferralRepository {
+        if (!this.referralRepositoryInstance) {
+            this.referralRepositoryInstance = new SupabaseReferralRepository();
+        }
+        return this.referralRepositoryInstance;
     }
 
     /**
      * Obtém instância do repositório de mini-livros
      * Singleton Pattern
      */
-    static getMiniLivroRepository(): SupabaseMiniLivroRepository {
+    static getMiniLivroRepository(): PostgresMiniLivroRepository {
         if (!this.miniLivroRepositoryInstance) {
-            this.miniLivroRepositoryInstance = new SupabaseMiniLivroRepository();
+            this.miniLivroRepositoryInstance = new PostgresMiniLivroRepository();
         }
         return this.miniLivroRepositoryInstance;
     }
 
-    static getMiniLivroSectionRepository(): SupabaseMiniLivroSectionRepository {
+    static getMiniLivroSectionRepository(): PostgresMiniLivroSectionRepository {
         if (!this.miniLivroSectionRepositoryInstance) {
-            this.miniLivroSectionRepositoryInstance = new SupabaseMiniLivroSectionRepository();
+            this.miniLivroSectionRepositoryInstance = new PostgresMiniLivroSectionRepository();
         }
         return this.miniLivroSectionRepositoryInstance;
     }
@@ -146,9 +191,9 @@ class DIContainer {
      * Obtém instância do repositório da biblioteca
      * Singleton Pattern
      */
-    static getBibliotecaRepository(): SupabaseBibliotecaRepository {
+    static getBibliotecaRepository(): PostgresBibliotecaRepository {
         if (!this.bibliotecaRepositoryInstance) {
-            this.bibliotecaRepositoryInstance = new SupabaseBibliotecaRepository();
+            this.bibliotecaRepositoryInstance = new PostgresBibliotecaRepository();
         }
         return this.bibliotecaRepositoryInstance;
     }
@@ -157,9 +202,9 @@ class DIContainer {
      * Obtém instância do repositório de especial da semana
      * Singleton Pattern
      */
-    static getEspecialSemanaRepository(): SupabaseEspecialSemanaRepository {
+    static getEspecialSemanaRepository(): PostgresEspecialSemanaRepository {
         if (!this.especialSemanaRepositoryInstance) {
-            this.especialSemanaRepositoryInstance = new SupabaseEspecialSemanaRepository();
+            this.especialSemanaRepositoryInstance = new PostgresEspecialSemanaRepository();
         }
         return this.especialSemanaRepositoryInstance;
     }
@@ -168,9 +213,9 @@ class DIContainer {
      * Obtém instância do repositório de radar de oportunidades
      * Singleton Pattern
      */
-    static getRadarOportunidadesRepository(): SupabaseRadarOportunidadesRepository {
+    static getRadarOportunidadesRepository(): PostgresRadarOportunidadesRepository {
         if (!this.radarOportunidadesRepositoryInstance) {
-            this.radarOportunidadesRepositoryInstance = new SupabaseRadarOportunidadesRepository();
+            this.radarOportunidadesRepositoryInstance = new PostgresRadarOportunidadesRepository();
         }
         return this.radarOportunidadesRepositoryInstance;
     }
@@ -179,9 +224,9 @@ class DIContainer {
      * Obtém instância do repositório de estudar
      * Singleton Pattern
      */
-    static getEstudarRepository(): SupabaseEstudarRepository {
+    static getEstudarRepository(): PostgresEstudarRepository {
         if (!this.estudarRepositoryInstance) {
-            this.estudarRepositoryInstance = new SupabaseEstudarRepository();
+            this.estudarRepositoryInstance = new PostgresEstudarRepository();
         }
         return this.estudarRepositoryInstance;
     }
@@ -190,9 +235,9 @@ class DIContainer {
      * Obtém instância do repositório de livros principais
      * Singleton Pattern
      */
-    static getBookRepository(): SupabaseBookRepository {
+    static getBookRepository(): PostgresBookRepository {
         if (!this.bookRepositoryInstance) {
-            this.bookRepositoryInstance = new SupabaseBookRepository();
+            this.bookRepositoryInstance = new PostgresBookRepository();
         }
         return this.bookRepositoryInstance;
     }
@@ -201,9 +246,9 @@ class DIContainer {
      * Obtém instância do repositório de e-books
      * Singleton Pattern
      */
-    static getEbookRepository(): SupabaseEbookRepository {
+    static getEbookRepository(): PostgresEbookRepository {
         if (!this.ebookRepositoryInstance) {
-            this.ebookRepositoryInstance = new SupabaseEbookRepository();
+            this.ebookRepositoryInstance = new PostgresEbookRepository();
         }
         return this.ebookRepositoryInstance;
     }
@@ -212,9 +257,9 @@ class DIContainer {
      * Obtém instância do repositório de gerenciamento de usuários
      * Singleton Pattern
      */
-    static getUserManagementRepository(): SupabaseUserManagementRepository {
+    static getUserManagementRepository(): PostgresUserManagementRepository {
         if (!this.userManagementRepositoryInstance) {
-            this.userManagementRepositoryInstance = new SupabaseUserManagementRepository();
+            this.userManagementRepositoryInstance = new PostgresUserManagementRepository();
         }
         return this.userManagementRepositoryInstance;
     }
@@ -223,9 +268,9 @@ class DIContainer {
      * Obtém instância do repositório de analytics
      * Singleton Pattern
      */
-    static getAnalyticsRepository(): SupabaseAnalyticsRepository {
+    static getAnalyticsRepository(): PostgresAnalyticsRepository {
         if (!this.analyticsRepositoryInstance) {
-            this.analyticsRepositoryInstance = new SupabaseAnalyticsRepository();
+            this.analyticsRepositoryInstance = new PostgresAnalyticsRepository();
         }
         return this.analyticsRepositoryInstance;
     }
@@ -234,9 +279,9 @@ class DIContainer {
      * Obtém instância do repositório de admin
      * Singleton Pattern
      */
-    static getAdminRepository(): SupabaseAdminRepository {
+    static getAdminRepository(): PostgresAdminRepository {
         if (!this.adminRepositoryInstance) {
-            this.adminRepositoryInstance = new SupabaseAdminRepository();
+            this.adminRepositoryInstance = new PostgresAdminRepository();
         }
         return this.adminRepositoryInstance;
     }
@@ -245,9 +290,9 @@ class DIContainer {
      * Obtém instância do repositório de conteúdo genérico
      * Singleton Pattern
      */
-    static getContentRepository(): SupabaseContentRepository {
+    static getContentRepository(): PostgresContentRepository {
         if (!this.contentRepositoryInstance) {
-            this.contentRepositoryInstance = new SupabaseContentRepository();
+            this.contentRepositoryInstance = new PostgresContentRepository();
         }
         return this.contentRepositoryInstance;
     }
@@ -301,9 +346,9 @@ class DIContainer {
     }
 
 
-    static getPortalNewsRepository(): SupabasePortalNewsRepository {
+    static getPortalNewsRepository(): PostgresPortalNewsRepository {
         if (!this.portalNewsRepositoryInstance) {
-            this.portalNewsRepositoryInstance = new SupabasePortalNewsRepository();
+            this.portalNewsRepositoryInstance = new PostgresPortalNewsRepository();
         }
         return this.portalNewsRepositoryInstance;
     }
@@ -316,9 +361,9 @@ class DIContainer {
      * Obtém instância do repositório de home dates (materialized view)
      * Singleton Pattern
      */
-    static getHomeDatesRepository(): SupabaseHomeDatesRepository {
+    static getHomeDatesRepository(): PostgresHomeDatesRepository {
         if (!this.homeDatesRepositoryInstance) {
-            this.homeDatesRepositoryInstance = new SupabaseHomeDatesRepository();
+            this.homeDatesRepositoryInstance = new PostgresHomeDatesRepository();
         }
         return this.homeDatesRepositoryInstance;
     }
@@ -327,9 +372,9 @@ class DIContainer {
      * Obtém instância do repositório de barras de aviso
      * Singleton Pattern
      */
-    static getAnnouncementBarRepository(): SupabaseAnnouncementBarRepository {
+    static getAnnouncementBarRepository(): PostgresAnnouncementBarRepository {
         if (!this.announcementBarRepositoryInstance) {
-            this.announcementBarRepositoryInstance = new SupabaseAnnouncementBarRepository();
+            this.announcementBarRepositoryInstance = new PostgresAnnouncementBarRepository();
         }
         return this.announcementBarRepositoryInstance;
     }
@@ -399,9 +444,9 @@ class DIContainer {
         return new GetDashboardStatsUseCase(this.getAnalyticsRepository());
     }
 
-    static getHomepageConfigRepository(): SupabaseHomepageConfigRepository {
+    static getHomepageConfigRepository(): PostgresHomepageConfigRepository {
         if (!this.homepageConfigRepositoryInstance) {
-            this.homepageConfigRepositoryInstance = new SupabaseHomepageConfigRepository();
+            this.homepageConfigRepositoryInstance = new PostgresHomepageConfigRepository();
         }
         return this.homepageConfigRepositoryInstance;
     }

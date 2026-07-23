@@ -6,6 +6,7 @@ import capaParte2 from "@/assets/capa-parte-2.jpeg";
 import capaParte3 from "@/assets/capa-parte-3.jpeg";
 import { contrastColor } from "@/lib/colorContrast";
 
+import BibliotecaPromptsSection from "@/components/biblioteca/BibliotecaPromptsSection";
 import { BIBLIOTECA_TEMAS } from "@/domain/entities/BibliotecaItem";
 import type { Book } from "@/domain/entities/Book";
 import type { Ebook } from "@/domain/entities/Ebook";
@@ -23,7 +24,9 @@ import { useExplorarBlockConfig } from "@/presentation/hooks/useExplorarConfig";
 import type { MiniLivroSection } from "@/domain/entities/MiniLivroSection";
 import { useNewsletters } from "@/presentation/hooks/useNewsletters";
 import { useRadarOportunidades } from "@/presentation/hooks/useRadarOportunidades";
-import { ArrowUpRight, FileText, Globe } from "lucide-react";
+import UpdatedBadge from "@/components/UpdatedBadge";
+import { useBookProgress } from "@/hooks/useBookProgress";
+import { ArrowUpRight, BookOpen, Clock, FileText, Globe } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -52,6 +55,18 @@ interface Item {
     pdfAvailable: boolean;
     formattedDate: string;
     formattedNumber: string;
+    readTime?: number;
+    updatedAt?: Date | null;
+}
+
+function ReadTimeBadge({ minutes }: { minutes?: number }) {
+    if (!minutes || minutes <= 0) return null;
+    return (
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <Clock className="size-3" aria-hidden="true" />
+            {minutes} min
+        </span>
+    );
 }
 
 // ── Shared sub-components ─────────────────────────────────────────────────────
@@ -90,6 +105,8 @@ function FeaturedCard({ item, block, hideCode }: { item: Item; block: BlockCfg; 
                     </span>
                     {!hideCode && <span className="font-mono text-[10px] text-muted-foreground">{block.code}-{item.formattedNumber}</span>}
                     <span className="text-xs text-muted-foreground">{item.formattedDate}</span>
+                    <ReadTimeBadge minutes={item.readTime} />
+                    <UpdatedBadge href={item.htmlPath} updatedAt={item.updatedAt} />
                 </div>
 
                 {href ? (
@@ -108,7 +125,7 @@ function FeaturedCard({ item, block, hideCode }: { item: Item; block: BlockCfg; 
                     {item.htmlAvailable ? (
                         <Link
                             href={item.htmlPath!}
-                            className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition-all hover:bg-primary"
+                            className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
                         >
                             <Globe className="size-4" aria-hidden="true" />
                             Ler agora
@@ -128,7 +145,7 @@ function FeaturedCard({ item, block, hideCode }: { item: Item; block: BlockCfg; 
 function ItemCard({ item, block, hideCode }: { item: Item; block: BlockCfg; hideCode?: boolean }) {
     const href = item.htmlPath;
     return (
-        <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition-all hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
+        <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
             <div className="h-0.5 w-full shrink-0" style={{ backgroundColor: block.color }} aria-hidden="true" />
             <div className="flex flex-1 flex-col p-5">
                 <div className="relative z-10 flex items-center justify-between gap-2">
@@ -140,6 +157,9 @@ function ItemCard({ item, block, hideCode }: { item: Item; block: BlockCfg; hide
                         {block.label}
                     </span>
                     {!hideCode && <span className="font-mono text-[10px] text-muted-foreground">{block.code}-{item.formattedNumber}</span>}
+                </div>
+                <div className="relative z-10 mt-1.5 empty:hidden">
+                    <UpdatedBadge href={item.htmlPath} updatedAt={item.updatedAt} />
                 </div>
                 {href ? (
                     <Link href={href} className="flex-1 after:absolute after:inset-0 after:rounded-2xl">
@@ -153,7 +173,10 @@ function ItemCard({ item, block, hideCode }: { item: Item; block: BlockCfg; hide
                     </h3>
                 )}
                 <div className="relative z-10 mt-auto flex items-center justify-between border-t border-border/50 pt-3">
-                    <span className="text-xs text-muted-foreground">{item.formattedDate}</span>
+                    <span className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                        {item.formattedDate}
+                        <ReadTimeBadge minutes={item.readTime} />
+                    </span>
                     <FormatBadges item={item} />
                 </div>
             </div>
@@ -421,8 +444,12 @@ function BibliotecaBlockSkeleton({ block }: { block: BlockCfg }) {
 
 // ── Biblioteca (sidebar layout with tema nav) ─────────────────────────────────
 
-export function BlockBiblioteca() {
-    const { latest, older, activeLatest, filteredOlder, activeTema, setActiveTema, isLoading, error } = useBiblioteca();
+interface BlockBibliotecaProps {
+    initialTema?: string | null;
+}
+
+export function BlockBiblioteca({ initialTema = null }: BlockBibliotecaProps = {}) {
+    const { latest, older, activeLatest, filteredOlder, activeTema, setActiveTema, isLoading, error } = useBiblioteca(initialTema);
     const cfg = useExplorarBlockConfig("biblioteca");
     const block = C.biblioteca;
 
@@ -456,7 +483,7 @@ export function BlockBiblioteca() {
                             <button
                                 onClick={() => setActiveTema(null)}
                                 className={cn(
-                                    "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                                    "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition",
                                     activeTema === null
                                         ? "border-transparent bg-ink text-background"
                                         : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
@@ -475,7 +502,7 @@ export function BlockBiblioteca() {
                                         key={slug}
                                         onClick={() => setActiveTema(slug)}
                                         className={cn(
-                                            "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                                            "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition",
                                             isActive
                                                 ? "border-transparent text-background"
                                                 : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
@@ -559,10 +586,19 @@ export function BlockBiblioteca() {
                                     </>
                                 )}
                             </>
-                        ) : (
+                        ) : activeTema !== "prompts" ? (
                             <div className="flex min-h-[200px] items-center justify-center rounded-2xl border border-dashed border-border">
                                 <p className="text-sm text-muted-foreground">Nenhum item neste tema ainda.</p>
                             </div>
+                        ) : null}
+
+                        {/* Biblioteca de Prompts — embutida aqui, não mais uma página
+                            dedicada (/prompts). Sempre abaixo dos documentos do tema. */}
+                        {activeTema === "prompts" && (
+                            <>
+                                <Divider label="Biblioteca de Prompts" />
+                                <BibliotecaPromptsSection />
+                            </>
                         )}
                     </div>
                 </div>
@@ -665,6 +701,7 @@ function BookHeroCard({ book, block, sectionTitle, sectionDescription }: {
     const hasIntro = Boolean(book.introHtmlPath);
     const hasCoverPdf = Boolean(book.coverPdfPath);
     const [coverOpen, setCoverOpen] = useState(false);
+    const progress = useBookProgress();
     return (
         <>
         <article className="grid grid-cols-1 items-center gap-8 border-b border-border pb-8 md:grid-cols-[200px_1fr] md:gap-10">
@@ -699,8 +736,19 @@ function BookHeroCard({ book, block, sectionTitle, sectionDescription }: {
                 {sectionDescription && (
                     <p className="mt-3 max-w-xl text-muted-foreground">{sectionDescription}</p>
                 )}
-                {(hasCoverPdf || hasIntro) && (
+                {(progress || hasCoverPdf || hasIntro) && (
                     <div className="mt-5 flex flex-wrap gap-3">
+                        {progress && (
+                            <Link
+                                href={progress.href}
+                                className="group inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-background shadow-[var(--shadow-elevated)] transition-transform hover:-translate-y-0.5"
+                                style={{ backgroundColor: block.color }}
+                            >
+                                <BookOpen className="size-4" aria-hidden="true" />
+                                Continuar de onde parou
+                                <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                            </Link>
+                        )}
                         {hasCoverPdf && (
                             <a
                                 href={book.coverPdfPath!}
@@ -832,7 +880,7 @@ function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: Bl
     const displayNum = String(globalIndex).padStart(2, "0");
     return (
         <li>
-            <div className="group relative flex items-stretch gap-4 rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
+            <div className="group relative flex items-stretch gap-4 rounded-2xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
                 <div
                     className="flex w-16 shrink-0 flex-col items-center justify-center rounded-xl font-serif text-2xl"
                     style={{ backgroundColor: block.color, color: block.on }}
@@ -854,7 +902,10 @@ function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: Bl
                             {item.title}
                         </h4>
                     )}
-                    <div className="mt-1 text-[11px] text-muted-foreground">{item.formattedDate}</div>
+                    <div className="mt-1 flex items-center gap-2.5 text-[11px] text-muted-foreground">
+                        {item.formattedDate}
+                        <ReadTimeBadge minutes={item.readTime} />
+                    </div>
                     <div className="relative z-10 mt-3 flex flex-wrap gap-2 text-xs">
                         {item.htmlAvailable ? (
                             <Link
@@ -878,7 +929,7 @@ function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: Bl
 
 function MiniLivroSectionCard({ section, block }: { section: MiniLivroSection; block: BlockCfg }) {
     return (
-        <div className="group relative flex items-stretch gap-4 rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
+        <div className="group relative flex items-stretch gap-4 rounded-2xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
             <div
                 className="flex w-1 shrink-0 self-stretch rounded-full"
                 style={{ backgroundColor: block.color }}

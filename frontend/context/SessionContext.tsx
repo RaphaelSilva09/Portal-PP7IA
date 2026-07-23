@@ -10,7 +10,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, u
 /**
  * iOS Safari session-recovery handlers.
  *
- * Ported from the Supabase-era SessionContext (commit 2aad548). Two browser
+ * Ported from the legacy SessionContext (commit 2aad548). Two browser
  * events trigger a manual revalidation against the server:
  *
  *   - `visibilitychange` (tab returns to foreground): mobile Safari throttles
@@ -27,9 +27,9 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, u
  * `/api/auth/get-session`) and clear local state if the server says no
  * session but our state still has a user.
  *
- * NOT PORTED from the Supabase version:
+ * NOT PORTED from the legacy version:
  *   - The `INITIAL_SESSION` cascade (1s/3s/8s revalidation timers). That
- *     workaround targeted iOS ITP throttling Supabase's IndexedDB token
+ *     workaround targeted iOS ITP throttling legacy IndexedDB token
  *     read on first load. better-auth uses an HTTP-only cookie checked
  *     server-side via a single fetch, so the cascade solves a problem that
  *     no longer exists.

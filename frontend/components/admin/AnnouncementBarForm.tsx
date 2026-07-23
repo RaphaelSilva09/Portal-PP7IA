@@ -194,8 +194,11 @@ export function AnnouncementBarForm({ editBar, onSubmit, onCancel }: Announcemen
                                 <AlertCircle className="w-3 h-3" /> Campo obrigatório
                             </span>
                         )}
-                        <span className="ml-auto text-xs text-muted-foreground">{msgLen}/200</span>
+                        <span className={`ml-auto text-xs ${msgLen > 80 ? "text-amber-500" : "text-muted-foreground"}`}>{msgLen}/200</span>
                     </div>
+                    <p className="mt-1 text-xs text-muted-foreground/80">
+                        Ideal: até 80 caracteres, em uma linha, sem abreviações (&quot;vc&quot;) — no celular o texto corta em 2 linhas.
+                    </p>
                 </div>
 
                 {/* Link */}

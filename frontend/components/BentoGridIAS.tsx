@@ -39,7 +39,7 @@ export default function BentoGrid() {
                     <a
                         href="/newsletter"
                         id="newsletter"
-                        className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.01] block cursor-pointer"
+                        className="col-span-1 md:col-span-3 group relative overflow-hidden rounded-3xl transition duration-500 hover:scale-[1.01] block cursor-pointer"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         {/* Gradient Background */}
@@ -55,7 +55,7 @@ export default function BentoGrid() {
                         <div className="absolute inset-0 rounded-3xl border border-white/10" />
 
                         {/* Shimmer on Hover */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-700">
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition duration-700">
                             <div className="absolute inset-0 shimmer" />
                         </div>
 
@@ -86,8 +86,8 @@ export default function BentoGrid() {
                                     </span>
                                 </h3>
                                 <p className="text-gray-400 text-base sm:text-1xl leading-relaxed tracking-tight">
-                                    Publicação semanal com 7 itens: notícias de IA e startups. Mantendo você informado
-                                    sobre o que realmente importa.
+                                    2 edições por semana com 7 notícias cada — segundas: as 7 IAs; quartas: startups.
+                                    Mantendo você informado sobre o que realmente importa.
                                 </p>
                             </div>
 
@@ -103,7 +103,7 @@ export default function BentoGrid() {
                     <a
                         // href="/especial"
                         id="especial"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition duration-300 hover:bg-white/[0.07] hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
@@ -114,7 +114,7 @@ export default function BentoGrid() {
 
                             {/* Arrow Icon */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-yellow-400 group-hover:scale-125 transition-all duration-300" />
+                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-yellow-400 group-hover:scale-125 transition duration-300" />
                             </div>
 
                             {/* Content */}
@@ -136,7 +136,7 @@ export default function BentoGrid() {
                     <a
                         // href="/radar"
                         id="radar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition duration-300 hover:bg-white/[0.07] hover:border-orange-500/30 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
@@ -147,7 +147,7 @@ export default function BentoGrid() {
 
                             {/* Arrow Icon */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-orange-400 group-hover:scale-125 transition-all duration-300" />
+                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-orange-400 group-hover:scale-125 transition duration-300" />
                             </div>
 
                             {/* Content */}
@@ -169,7 +169,7 @@ export default function BentoGrid() {
                     <a
                         href="/mini-livros"
                         id="mini-livros"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition duration-300 hover:bg-white/[0.07] hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
@@ -180,7 +180,7 @@ export default function BentoGrid() {
 
                             {/* Arrow Icon */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-green-400 group-hover:scale-125 transition-all duration-300" />
+                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-green-400 group-hover:scale-125 transition duration-300" />
                             </div>
 
                             {/* Content */}
@@ -207,7 +207,7 @@ export default function BentoGrid() {
                     <a
                         href="/biblioteca"
                         id="biblioteca"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition duration-300 hover:bg-white/[0.07] hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
@@ -218,7 +218,7 @@ export default function BentoGrid() {
 
                             {/* Arrow Icon */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-purple-400 group-hover:scale-125 transition-all duration-300" />
+                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-purple-400 group-hover:scale-125 transition duration-300" />
                             </div>
 
                             {/* Content */}
@@ -240,7 +240,7 @@ export default function BentoGrid() {
                     <a
                         // href="/estudar"
                         id="estudar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition duration-300 hover:bg-white/[0.07] hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
@@ -251,7 +251,7 @@ export default function BentoGrid() {
 
                             {/* Arrow Icon */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-blue-400 group-hover:scale-125 transition-all duration-300" />
+                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-blue-400 group-hover:scale-125 transition duration-300" />
                             </div>
 
                             {/* Content */}
@@ -274,7 +274,7 @@ export default function BentoGrid() {
                     <a
                         // href="/ensinar"
                         id="ensinar"
-                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition-all duration-300 hover:bg-white/[0.07] hover:border-pink-500/30 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] block"
+                        className="col-span-1 group relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 cursor-pointer transition duration-300 hover:bg-white/[0.07] hover:border-pink-500/30 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] block"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 h-full flex flex-col p-6 sm:p-8 gap-8">
@@ -285,7 +285,7 @@ export default function BentoGrid() {
 
                             {/* Arrow Icon */}
                             <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
-                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-pink-400 group-hover:scale-125 transition-all duration-300" />
+                                <ArrowUpRight className="w-8 h-8 text-gray-400 group-hover:text-pink-400 group-hover:scale-125 transition duration-300" />
                             </div>
 
                             {/* Content */}

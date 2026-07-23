@@ -1,5 +1,5 @@
 /**
- * File serving route — replaces Supabase Storage public URLs.
+ * File serving route — replaces storage de arquivos public URLs.
  *
  * Reads files from STORAGE_ROOT (Railway Volume) and streams them.
  * Path-traversal guard via prefix check after resolution.

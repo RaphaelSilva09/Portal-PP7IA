@@ -8,20 +8,34 @@ vi.mock("next-themes", () => ({
     useTheme: vi.fn(),
 }));
 
-describe("ThemeToggle", () => {
-    const setTheme = vi.fn();
+function mockTheme(theme: string) {
+    vi.mocked(useTheme).mockReturnValue({
+        theme,
+        resolvedTheme: theme,
+        themes: ["light", "theme-sepia", "dark"],
+        setTheme,
+    } as ReturnType<typeof useTheme>);
+}
 
+const setTheme = vi.fn();
+
+describe("ThemeToggle", () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    it("switches from light to dark", () => {
-        vi.mocked(useTheme).mockReturnValue({
-            theme: "light",
-            resolvedTheme: "light",
-            themes: ["light", "dark"],
-            setTheme,
-        } as ReturnType<typeof useTheme>);
+    it("cycles from light to sepia", () => {
+        mockTheme("light");
+
+        render(<ThemeToggle />);
+
+        fireEvent.click(screen.getByRole("button", { name: /ativar modo sépia/i }));
+
+        expect(setTheme).toHaveBeenCalledWith("theme-sepia");
+    });
+
+    it("cycles from sepia to dark", () => {
+        mockTheme("theme-sepia");
 
         render(<ThemeToggle />);
 
@@ -30,18 +44,31 @@ describe("ThemeToggle", () => {
         expect(setTheme).toHaveBeenCalledWith("dark");
     });
 
-    it("switches from dark to light", () => {
-        vi.mocked(useTheme).mockReturnValue({
-            theme: "dark",
-            resolvedTheme: "dark",
-            themes: ["light", "dark"],
-            setTheme,
-        } as ReturnType<typeof useTheme>);
+    it("cycles from dark back to light", () => {
+        mockTheme("dark");
 
         render(<ThemeToggle />);
 
         fireEvent.click(screen.getByRole("button", { name: /ativar modo claro/i }));
 
         expect(setTheme).toHaveBeenCalledWith("light");
+    });
+
+    it("announces the current theme in the accessible name", () => {
+        mockTheme("theme-sepia");
+
+        render(<ThemeToggle />);
+
+        expect(screen.getByRole("button", { name: /tema atual: sépia/i })).toBeTruthy();
+    });
+
+    it("treats unknown themes as light", () => {
+        mockTheme("system");
+
+        render(<ThemeToggle />);
+
+        fireEvent.click(screen.getByRole("button", { name: /ativar modo sépia/i }));
+
+        expect(setTheme).toHaveBeenCalledWith("theme-sepia");
     });
 });

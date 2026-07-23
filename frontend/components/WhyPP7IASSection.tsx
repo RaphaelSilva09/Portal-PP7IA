@@ -25,7 +25,7 @@ export default function WhyPP7IASSection() {
                 {/* Grid de 4 Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* PP Card */}
-                    <div className="glass-card p-6 bg-card/80 border-border hover:bg-accent/40 transition-all duration-300 flex flex-col items-center text-center">
+                    <div className="glass-card p-6 bg-card/80 border-border hover:bg-accent/40 transition duration-300 flex flex-col items-center text-center">
                         <h3 className="text-4xl sm:text-5xl font-bold text-brand-blue mb-3">
                             PP
                         </h3>
@@ -38,7 +38,7 @@ export default function WhyPP7IASSection() {
                     </div>
 
                     {/* 7 Card */}
-                    <div className="glass-card p-6 bg-card/80 border-border hover:bg-accent/40 transition-all duration-300 flex flex-col items-center text-center">
+                    <div className="glass-card p-6 bg-card/80 border-border hover:bg-accent/40 transition duration-300 flex flex-col items-center text-center">
                         <h3 className="text-4xl sm:text-5xl font-bold text-brand-blue mb-3">
                             7
                         </h3>
@@ -51,7 +51,7 @@ export default function WhyPP7IASSection() {
                     </div>
 
                     {/* + Card */}
-                    <div className="glass-card p-6 bg-card/80 border-border hover:bg-accent/40 transition-all duration-300 flex flex-col items-center text-center">
+                    <div className="glass-card p-6 bg-card/80 border-border hover:bg-accent/40 transition duration-300 flex flex-col items-center text-center">
                         <h3 className="text-4xl sm:text-5xl font-bold text-brand-blue mb-3">
                             +
                         </h3>
@@ -64,7 +64,7 @@ export default function WhyPP7IASSection() {
                     </div>
 
                     {/* IAS Card */}
-                    <div className="glass-card p-6 bg-card/80 border-border hover:bg-accent/40 transition-all duration-300 flex flex-col items-center text-center">
+                    <div className="glass-card p-6 bg-card/80 border-border hover:bg-accent/40 transition duration-300 flex flex-col items-center text-center">
                         <h3 className="text-4xl sm:text-5xl font-bold text-brand-blue mb-3">
                             IAS
                         </h3>
@@ -81,7 +81,7 @@ export default function WhyPP7IASSection() {
                 <div className="mt-8 sm:mt-10 flex justify-center">
                     <Link
                         href="/por-que-7"
-                        className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold text-sm rounded-xl shadow-glow-blue-sm hover:shadow-glow-blue-md hover:scale-105 transition-all duration-200"
+                        className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-700 text-white font-semibold text-sm rounded-xl shadow-glow-blue-sm hover:shadow-glow-blue-md hover:scale-105 transition duration-200"
                     >
                         <span>Saiba mais sobre o 7</span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

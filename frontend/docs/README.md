@@ -8,22 +8,13 @@ Welcome to the frontend documentation! This index helps you navigate through all
 
 - [**Design System**](development/DESIGN_SYSTEM.md) - Colors, typography, animations, and UI components
 
-### 🏗️ Architecture
-
-- [**Architecture Diagrams**](ARCHITECTURE_DIAGRAMS.md) - Visual architecture documentation with Mermaid diagrams
-- [**Authentication System**](../../docs/architecture/AUTHENTICATION.md) - Complete authentication documentation
-
-### 💻 Code Examples
-
-- [**Usage Examples**](USAGE_EXAMPLES.md) - Practical code examples and recipes
-
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 16 + React 19
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS v4
 - **State**: React Context API
-- **Auth**: Supabase Auth
+- **Auth**: BetterAuth
 - **Forms**: Custom validation
 
 ## 📂 Frontend Structure
@@ -107,6 +98,19 @@ pnpm run start
 pnpm run lint
 ```
 
+### E2E With Postgres
+
+```bash
+DATABASE_URL=postgres://user:password@host:port/db pnpm run test:e2e:postgres
+```
+
+Safari emulado via WebKit precisa do browser Playwright instalado:
+
+```bash
+pnpm run test:e2e:ios:safari:install
+pnpm run test:e2e:ios:safari
+```
+
 ## 📝 Component Guidelines
 
 ### File Naming
@@ -169,12 +173,7 @@ Use Tailwind CSS classes:
 
 - [**Main Documentation Index**](../../docs/README.md)
 - [**Getting Started**](../../docs/00-GETTING-STARTED.md)
-- [**Quick Start**](../../docs/setup/QUICKSTART.md)
-
-### Setup
-
-- [**Supabase Setup**](../../docs/setup/SUPABASE.md)
-- [**Admin Panel Setup**](../../docs/setup/ADMIN_PANEL.md)
+- [**Weekly Digest**](../../docs/setup/WEEKLY_EMAIL_DIGEST.md)
 
 ## 🤝 Contributing
 
@@ -188,10 +187,7 @@ When contributing to the frontend:
 
 ## 📖 Detailed Documentation
 
-- [Architecture Diagrams](ARCHITECTURE_DIAGRAMS.md) - Visual architecture
-- [Usage Examples](USAGE_EXAMPLES.md) - Code recipes
 - [Design System](development/DESIGN_SYSTEM.md) - UI guidelines
-- [Authentication](../../docs/architecture/AUTHENTICATION.md) - Auth system
 
 ---
 

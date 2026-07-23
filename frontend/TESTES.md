@@ -211,22 +211,22 @@ const useCase = new SignInUseCase(mockRepo as IAuthRepository);
 
 ## 3. Infraestrutura
 
-Testes da camada mais externa: adaptadores que traduzem entre a interface de domínio e o cliente Supabase.
+Testes da camada mais externa: adaptadores que traduzem entre a interface de domínio e o cliente Postgres.
 
 ---
 
-### `__tests__/infrastructure/SupabaseAuthRepository.test.ts`
+### `__tests__/infrastructure/PostgresAuthRepository.test.ts`
 
-**Arquivo de origem:** `infrastructure/repositories/SupabaseAuthRepository.ts`
-**Tipo:** Integração com Supabase mockado
-**Estratégia de mock:** O repositório aceita um `SupabaseClient` no construtor — um objeto fake é criado por `createMockSupabaseClient()` com `vi.fn()` para cada método, evitando qualquer chamada real de rede ou variável de ambiente.
+**Arquivo de origem:** `infrastructure/repositories/PostgresAuthRepository.ts`
+**Tipo:** Integração com Postgres mockado
+**Estratégia de mock:** O repositório aceita um `PostgresClient` no construtor — um objeto fake é criado por `createMockPostgresClient()` com `vi.fn()` para cada método, evitando qualquer chamada real de rede ou variável de ambiente.
 
 ```ts
-// Mock do builder pattern: supabase.from('users').select('*').eq('id', id).single()
+// Mock do builder pattern: postgres.from('users').select('*').eq('id', id).single()
 const mockSingle = vi.fn();
 const mockEq = vi.fn(() => ({ single: mockSingle }));
 const mockSelect = vi.fn(() => ({ eq: mockEq }));
-repo = new SupabaseAuthRepository(mockClient as any);
+repo = new PostgresAuthRepository(mockClient as any);
 ```
 
 #### `signIn`
@@ -234,15 +234,15 @@ repo = new SupabaseAuthRepository(mockClient as any);
 | # | Cenário testado | Resultado esperado |
 |---|---|---|
 | 1 | `signInWithPassword` retorna user + session válidos | `AuthResult` com `user.email` correto e `session.accessToken === 'at'` |
-| 2 | Supabase retorna `{ message: 'invalid login credentials' }` | Lança `InvalidCredentialsError` |
-| 3 | Supabase retorna `{ message: 'email not confirmed' }` | Lança `EmailNotConfirmedError` |
-| 4 | Supabase retorna `{ code: 'NETWORK_ERROR' }` | Lança `NetworkError` |
+| 2 | Postgres retorna `{ message: 'invalid login credentials' }` | Lança `InvalidCredentialsError` |
+| 3 | Postgres retorna `{ message: 'email not confirmed' }` | Lança `EmailNotConfirmedError` |
+| 4 | Postgres retorna `{ code: 'NETWORK_ERROR' }` | Lança `NetworkError` |
 
 #### `signUp`
 
 | # | Cenário testado | Resultado esperado |
 |---|---|---|
-| 5 | `identities: []` no retorno (email já existe no Supabase) | Lança `UserAlreadyExistsError` — detecta o comportamento silencioso do Supabase quando `email confirmation` está habilitado |
+| 5 | `identities: []` no retorno (email já existe no Postgres) | Lança `UserAlreadyExistsError` — detecta o comportamento silencioso do Postgres quando `email confirmation` está habilitado |
 
 #### `getCurrentUser`
 
@@ -263,11 +263,11 @@ repo = new SupabaseAuthRepository(mockClient as any);
 
 **Arquivo de origem:** `infrastructure/di/container.ts`
 **Tipo:** Smoke test do container de injeção de dependências
-**Estratégia de mock:** `vi.mock('@/infrastructure/config/supabase', ...)` substitui o módulo inteiro antes de qualquer import — impede que `createSupabaseClient()` rode no boot e valide variáveis de ambiente ausentes.
+**Estratégia de mock:** `vi.mock('@/infrastructure/config/postgres', ...)` substitui o módulo inteiro antes de qualquer import — impede que `createPostgresClient()` rode no boot e valide variáveis de ambiente ausentes.
 
 | # | Cenário testado | Resultado esperado |
 |---|---|---|
-| 1 | `DIContainer.getAuthRepository()` | Retorna instância de `SupabaseAuthRepository` |
+| 1 | `DIContainer.getAuthRepository()` | Retorna instância de `PostgresAuthRepository` |
 | 2 | `DIContainer.getSignInUseCase()` | Retorna instância de `SignInUseCase` |
 | 3 | Duas chamadas a `getAuthRepository()` | Retornam **a mesma referência** (padrão Singleton) |
 | 4 | `getAuthRepository()` → `reset()` → `getAuthRepository()` | Retorna instância **diferente** da primeira (Singleton limpo) |
@@ -276,7 +276,7 @@ repo = new SupabaseAuthRepository(mockClient as any);
 
 ## 4. Context
 
-Testes do `SessionContext`, responsável por gerenciar o estado de autenticação em toda a aplicação React. Por ser um Provider que integra diretamente com o Supabase Auth e o DI Container, exige dois níveis de mock.
+Testes do `SessionContext`, responsável por gerenciar o estado de autenticação em toda a aplicação React. Por ser um Provider que integra diretamente com o Postgres Auth e o DI Container, exige dois níveis de mock.
 
 ---
 
@@ -285,7 +285,7 @@ Testes do `SessionContext`, responsável por gerenciar o estado de autenticaçã
 **Arquivo de origem:** `context/SessionContext.tsx`
 **Tipo:** Teste de integração React (renderização + estado)
 **Dependências mockadas:**
-- `@/infrastructure/config/supabase` — captura o callback registrado em `onAuthStateChange` via `vi.hoisted()` (necessário porque `vi.mock` é hoistado antes de `let`/`const`)
+- `@/infrastructure/config/postgres` — captura o callback registrado em `onAuthStateChange` via `vi.hoisted()` (necessário porque `vi.mock` é hoistado antes de `let`/`const`)
 - `@/infrastructure/di/container` — fornece mock de `getUserFromSession`, `getSignInUseCase`, etc.
 
 **Padrão de verificação:** Um componente auxiliar (`SessionConsumer`) lê o contexto e expõe `data-testid` para asserções.
@@ -295,8 +295,8 @@ Testes do `SessionContext`, responsável por gerenciar o estado de autenticaçã
 const { capturedCallback } = vi.hoisted(() => ({
     capturedCallback: { value: null },
 }));
-vi.mock('@/infrastructure/config/supabase', () => ({
-    supabase: {
+vi.mock('@/infrastructure/config/postgres', () => ({
+    postgres: {
         auth: {
             onAuthStateChange: vi.fn((cb) => { capturedCallback.value = cb; ... }),
         },
@@ -310,7 +310,7 @@ vi.mock('@/infrastructure/config/supabase', () => ({
 | 2 | `INITIAL_SESSION` disparado sem sessão (`null`) | `user` permanece `null`; `isLoading === false` |
 | 3 | `SIGNED_OUT` após usuário logado | `user` volta para `null` |
 | 4 | `TOKEN_REFRESHED` com novo dado de usuário | `user` atualizado com email do novo objeto retornado por `getUserFromSession` |
-| 5 | `visibilitychange` para `visible` (aba em foco) | `supabase.auth.getSession()` é chamado novamente (re-verificação de sessão em background) |
+| 5 | `visibilitychange` para `visible` (aba em foco) | `postgres.auth.getSession()` é chamado novamente (re-verificação de sessão em background) |
 | 6 | `signIn` lança `InvalidCredentialsError` | `isLoading` volta para `false`; `error` recebe `'Email ou senha inválidos'` |
 
 ---
@@ -370,19 +370,19 @@ vi.mock('@/infrastructure/config/supabase', () => ({
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Componentes / Context / Hooks                                  │
-│  → vi.mock() módulos inteiros (hooks, next/navigation, supabase)│
+│  → vi.mock() módulos inteiros (hooks, next/navigation, postgres)│
 ├─────────────────────────────────────────────────────────────────┤
 │  Use Cases (Application)                                        │
 │  → Mock manual via interface: { signIn: vi.fn() }               │
 │    Sem vi.mock() — não importam infraestrutura                  │
 ├─────────────────────────────────────────────────────────────────┤
 │  Repositório (Infrastructure)                                   │
-│  → Mock do SupabaseClient via construtor                        │
+│  → Mock do PostgresClient via construtor                        │
 │    Sem vi.mock() — cliente injetado diretamente                 │
 ├─────────────────────────────────────────────────────────────────┤
 │  DI Container                                                   │
-│  → vi.mock('@/infrastructure/config/supabase') obrigatório      │
-│    (módulo roda createSupabaseClient() no topo do arquivo)      │
+│  → vi.mock('@/infrastructure/config/postgres') obrigatório      │
+│    (módulo roda createPostgresClient() no topo do arquivo)      │
 ├─────────────────────────────────────────────────────────────────┤
 │  Domínio                                                        │
 │  → Sem mocks — lógica pura, sem dependências externas           │
@@ -398,8 +398,8 @@ vi.mock('@/infrastructure/config/supabase', () => ({
 const { capturedCallback } = vi.hoisted(() => ({
     capturedCallback: { value: null },
 }));
-vi.mock('@/infrastructure/config/supabase', () => ({
-    supabase: { auth: { onAuthStateChange: (cb) => { capturedCallback.value = cb; ... } } },
+vi.mock('@/infrastructure/config/postgres', () => ({
+    postgres: { auth: { onAuthStateChange: (cb) => { capturedCallback.value = cb; ... } } },
 }));
 ```
 
@@ -438,7 +438,7 @@ frontend/
     │   ├── SendPasswordResetUseCase.test.ts  # 4 testes
     │   └── ResetPasswordWithTokenUseCase.test.ts  # 5 testes
     ├── infrastructure/
-    │   ├── SupabaseAuthRepository.test.ts    # 8 testes
+    │   ├── PostgresAuthRepository.test.ts    # 8 testes
     │   └── DIContainer.test.ts               # 4 testes
     ├── context/
     │   └── SessionContext.test.tsx           # 6 testes

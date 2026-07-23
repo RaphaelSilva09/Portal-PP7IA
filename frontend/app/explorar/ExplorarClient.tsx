@@ -21,10 +21,11 @@ import {
 } from "./blocks";
 import { portalContentClass } from "@/lib/layout";
 import { cn } from "@/lib/utils";
-import { FileText, Globe } from "lucide-react";
+import UpdatedBadge from "@/components/UpdatedBadge";
+import { ChevronLeft, ChevronRight, Clock, FileText, Globe } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useExplorarConfig } from "@/presentation/hooks/useExplorarConfig";
 
 const BLOCKS = [
@@ -81,6 +82,8 @@ interface CardItem {
     pdfAvailable: boolean;
     formattedDate: string;
     createdAt: Date;
+    readTime?: number;
+    updatedAt?: Date | null;
 }
 
 interface ContentLike {
@@ -93,18 +96,104 @@ interface ContentLike {
     formattedDate: string;
     formattedNumber: string;
     createdAt: Date;
+    readTime?: number;
+    updatedAt?: Date | null;
 }
 
 interface Props {
     initialBlock: string | null;
+    initialTema?: string | null;
 }
 
-export default function ExplorarClient({ initialBlock }: Props) {
+export default function ExplorarClient({ initialBlock, initialTema = null }: Props) {
     const router = useRouter();
     const explorarConfig = useExplorarConfig();
     const validInitial = normalizeExplorarBlock(initialBlock) as BlockId | null;
     const [activeBlock, setActiveBlock] = useState<BlockId | null>(validInitial);
     const tabsRef = useRef<HTMLDivElement>(null);
+
+    // Setas de rolagem da barra de blocos: sem elas, um mouse não tem
+    // nenhuma forma óbvia de rolar essa linha (scrollbar fica escondida de
+    // propósito, e overflow-x-auto sozinho não arrasta com o mouse — só
+    // toque/trackpad). Aparecem só quando há mais conteúdo pra esse lado.
+    const [canScrollTabsLeft, setCanScrollTabsLeft] = useState(false);
+    const [canScrollTabsRight, setCanScrollTabsRight] = useState(false);
+
+    const updateTabsScrollState = useCallback(() => {
+        const el = tabsRef.current;
+        if (!el) return;
+        setCanScrollTabsLeft(el.scrollLeft > 4);
+        setCanScrollTabsRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    }, []);
+
+    useEffect(() => {
+        const el = tabsRef.current;
+        if (!el) return;
+        updateTabsScrollState();
+        el.addEventListener("scroll", updateTabsScrollState, { passive: true });
+        window.addEventListener("resize", updateTabsScrollState);
+        return () => {
+            el.removeEventListener("scroll", updateTabsScrollState);
+            window.removeEventListener("resize", updateTabsScrollState);
+        };
+    }, [updateTabsScrollState]);
+
+    const scrollTabs = (direction: 1 | -1) => {
+        tabsRef.current?.scrollBy({ left: direction * 240, behavior: "smooth" });
+    };
+
+    // Arrastar para rolar a barra de blocos — mouse, toque e caneta usam a
+    // mesma lógica manual (não só mouse), pra ficar consistente em qualquer
+    // dispositivo. Isso troca a rolagem nativa por toque (com inércia) por
+    // um arrasto 1:1 com o dedo — combinado com `touch-action: pan-y` na
+    // linha (deixa passar gesto vertical pra rolar a página, mas assume o
+    // horizontal por conta própria) pra não competir com o navegador.
+    //
+    // setPointerCapture só é chamado depois que o movimento passa do limiar
+    // (dentro do pointermove), nunca no pointerdown: capturar de cara faz
+    // TODO clique — mesmo sem nenhum arrasto — ser retargetado pro container
+    // em vez do botão de verdade sob o dedo/cursor, e o clique sintético
+    // (mousedown→mouseup→click) segue esse mesmo retarget. Resultado exato
+    // do bug relatado: nenhum clique chegava ao botão no desktop, e no
+    // mobile só o clique seguinte (já sem captura pendente) tinha chance de
+    // acertar o alvo certo.
+    const tabsDragRef = useRef<{ pointerId: number; startX: number; startScrollLeft: number; dragged: boolean } | null>(null);
+
+    const handleTabsPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+        const el = tabsRef.current;
+        if (!el) return;
+        tabsDragRef.current = { pointerId: e.pointerId, startX: e.clientX, startScrollLeft: el.scrollLeft, dragged: false };
+    };
+
+    const handleTabsPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+        const drag = tabsDragRef.current;
+        const el = tabsRef.current;
+        if (!drag || !el) return;
+        const delta = e.clientX - drag.startX;
+        if (!drag.dragged) {
+            if (Math.abs(delta) <= 4) return;
+            drag.dragged = true;
+            el.setPointerCapture(drag.pointerId);
+        }
+        el.scrollLeft = drag.startScrollLeft - delta;
+    };
+
+    const handleTabsPointerUp = () => {
+        const el = tabsRef.current;
+        const drag = tabsDragRef.current;
+        // Um arrasto de verdade não deve também disparar o clique da aba sob
+        // o cursor ao soltar — suprime só esse próximo clique. Cliques sem
+        // arrasto nunca chegam aqui com `dragged`, então passam direto.
+        if (drag?.dragged && el) {
+            const suppressClick = (ev: MouseEvent) => {
+                ev.stopPropagation();
+                ev.preventDefault();
+            };
+            el.addEventListener("click", suppressClick, { capture: true, once: true });
+            el.releasePointerCapture(drag.pointerId);
+        }
+        tabsDragRef.current = null;
+    };
 
     const newsletters = useNewsletters();
     const especial = useEspecialSemana();
@@ -143,6 +232,8 @@ export default function ExplorarClient({ initialBlock }: Props) {
                     pdfAvailable: item.pdfAvailable,
                     formattedDate: item.formattedDate,
                     createdAt: item.createdAt,
+                    readTime: item.readTime,
+                    updatedAt: item.updatedAt,
                 });
             }
         }
@@ -161,6 +252,12 @@ export default function ExplorarClient({ initialBlock }: Props) {
 
         return cards.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }, [newsletters, especial, radar, miniLivros, biblioteca, estudar]);
+
+    // Contadores só aparecem depois do carregamento — a largura de cada aba
+    // muda nesse momento, então precisa reavaliar se as setas devem aparecer.
+    useEffect(() => {
+        updateTabsScrollState();
+    }, [isLoading, allCards.length, updateTabsScrollState]);
 
     const blockCounts = useMemo(() => {
         const counts: Partial<Record<BlockId, number>> = {};
@@ -208,10 +305,37 @@ export default function ExplorarClient({ initialBlock }: Props) {
 
             {/* ─── Sticky Tab Bar ────────────────────────────────────── */}
             <div className="sticky top-16 z-30 border-b border-border/60 bg-background/95 backdrop-blur-md md:top-20">
-                <div className={portalContentClass}>
+                <div className={cn(portalContentClass, "relative")}>
+                    {/* Setas de rolagem: única forma óbvia de rolar essa linha
+                        no mouse (sem elas, só toque/trackpad conseguem). Só
+                        aparecem quando há mais abas pra revelar naquele lado. */}
+                    {canScrollTabsLeft && (
+                        <button
+                            type="button"
+                            onClick={() => scrollTabs(-1)}
+                            aria-label="Ver blocos anteriores"
+                            className="absolute left-1 top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm transition-colors hover:border-foreground/30"
+                        >
+                            <ChevronLeft className="size-4" />
+                        </button>
+                    )}
+                    {canScrollTabsRight && (
+                        <button
+                            type="button"
+                            onClick={() => scrollTabs(1)}
+                            aria-label="Ver mais blocos"
+                            className="absolute right-1 top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm transition-colors hover:border-foreground/30"
+                        >
+                            <ChevronRight className="size-4" />
+                        </button>
+                    )}
                     <div
                         ref={tabsRef}
-                        className="flex items-center gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        onPointerDown={handleTabsPointerDown}
+                        onPointerMove={handleTabsPointerMove}
+                        onPointerUp={handleTabsPointerUp}
+                        onPointerCancel={handleTabsPointerUp}
+                        className="scroll-fade-x flex touch-pan-y select-none items-center gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&:not(:active)]:cursor-grab active:cursor-grabbing"
                         role="tablist"
                         aria-label="Filtrar por bloco"
                     >
@@ -221,7 +345,7 @@ export default function ExplorarClient({ initialBlock }: Props) {
                             aria-selected={activeBlock === null}
                             onClick={() => handleBlockChange(null)}
                             className={cn(
-                                "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
+                                "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-base font-medium transition-colors",
                                 activeBlock === null
                                     ? "bg-ink text-background"
                                     : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -253,7 +377,7 @@ export default function ExplorarClient({ initialBlock }: Props) {
                                     aria-selected={isActive}
                                     onClick={() => handleBlockChange(block.id as BlockId)}
                                     className={cn(
-                                        "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
+                                        "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-base font-medium transition-colors",
                                         isActive
                                             ? "text-background"
                                             : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -307,7 +431,7 @@ export default function ExplorarClient({ initialBlock }: Props) {
             ) : activeBlock === "livro" ? (
                 <BlockLivro />
             ) : activeBlock === "biblioteca" ? (
-                <BlockBiblioteca />
+                <BlockBiblioteca initialTema={initialTema} />
             ) : activeBlock === "estudar" ? (
                 <BlockEstudar />
             ) : (
@@ -368,7 +492,7 @@ function ExplorarCard({ card }: { card: CardItem }) {
     const primaryHref = card.htmlPath ?? card.pdfPath;
 
     return (
-        <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition-all hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
+        <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
             {/* Colored top bar */}
             <div className="h-1 w-full shrink-0" style={{ backgroundColor: color }} aria-hidden="true" />
 
@@ -383,6 +507,10 @@ function ExplorarCard({ card }: { card: CardItem }) {
                         {card.block.label}
                     </span>
                     <span className="font-mono text-[10px] text-muted-foreground">{card.code}</span>
+                </div>
+
+                <div className="empty:hidden">
+                    <UpdatedBadge href={card.htmlPath} updatedAt={card.updatedAt} />
                 </div>
 
                 {/* Title */}
@@ -400,7 +528,15 @@ function ExplorarCard({ card }: { card: CardItem }) {
 
                 {/* Footer */}
                 <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/50 pt-3">
-                    <span className="text-xs text-muted-foreground">{card.formattedDate}</span>
+                    <span className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                        {card.formattedDate}
+                        {card.readTime ? (
+                            <span className="inline-flex items-center gap-1">
+                                <Clock className="size-3" aria-hidden="true" />
+                                {card.readTime} min
+                            </span>
+                        ) : null}
+                    </span>
                     <div className="flex items-center gap-1.5">
                         {card.htmlAvailable && (
                             <Link

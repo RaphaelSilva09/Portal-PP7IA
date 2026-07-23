@@ -7,7 +7,7 @@ Welcome to the Portal PP7+IA documentation! This index will help you navigate th
 **New to the project?** Start here:
 
 - [**Getting Started Guide**](00-GETTING-STARTED.md) - Complete guide for new contributors
-- [Quick Setup (5 minutes)](setup/QUICKSTART.md) - Fast track to run the project locally
+- [Weekly Digest](setup/WEEKLY_EMAIL_DIGEST.md) - Operational guide for the email digest
 
 ## 📖 Documentation Sections
 
@@ -15,22 +15,26 @@ Welcome to the Portal PP7+IA documentation! This index will help you navigate th
 
 Essential guides to configure your development environment:
 
-- [**Quick Start**](setup/QUICKSTART.md) - 5-minute setup guide
-- [**Supabase Configuration**](setup/SUPABASE.md) - Database and authentication setup
-- [**Admin Panel Setup**](setup/ADMIN_PANEL.md) - Configure admin panel and permissions
+- [**Weekly Digest**](setup/WEEKLY_EMAIL_DIGEST.md) - Railway cron and digest execution
 
 ### 🏛️ Architecture
 
 Understand the project's architecture and design principles:
 
-- [**Authentication System**](architecture/AUTHENTICATION.md) - Complete auth documentation (Clean Architecture + DDD)
+- Authentication uses BetterAuth backed by PostgreSQL on Railway.
+
+### 📰 Newsletter
+
+- [**Fontes da Newsletter (70 fontes)**](newsletter/FONTES.md) - Lista curada de fontes para as edições de segunda (7 IAs) e quarta (startups)
+
+### 📋 Planejamento (SDD)
+
+- [**Plano de execução PP7+IAS — julho/2026**](sdd/00-overview.md) - Specs das tarefas do plano de julho
 
 ### 💻 Frontend Development
 
 Frontend-specific documentation:
 
-- [**Architecture Diagrams**](../frontend/docs/ARCHITECTURE_DIAGRAMS.md) - Visual architecture documentation
-- [**Usage Examples**](../frontend/docs/USAGE_EXAMPLES.md) - Code examples and recipes
 - [**Design System**](../frontend/docs/development/DESIGN_SYSTEM.md) - Colors, typography, components
 
 ## 📂 Project Structure
@@ -51,18 +55,16 @@ Portal-PP7IA/
 │   ├── presentation/             # Hooks and UI logic
 │   └── docs/                     # Frontend-specific docs
 │
-└── supabase/                      # Database and auth
-    ├── migrations/               # SQL migrations
-    └── config.toml              # Supabase configuration
+└── frontend/db/migrations/        # SQL migrations
 ```
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 16 + React 19 + TypeScript
 - **Styling**: Tailwind CSS v4
-- **Authentication**: Supabase Auth
-- **Database**: Supabase (PostgreSQL)
-- **Deployment**: Vercel
+- **Authentication**: BetterAuth
+- **Database**: PostgreSQL on Railway
+- **Deployment**: Railway
 
 ## 🎯 Architecture Principles
 
@@ -76,8 +78,7 @@ This project follows industry best practices:
 ## Getting Help
 
 - **Issues**: Check [GitHub Issues](https://github.com/RaphaelSilva09/Portal-PP7IA/issues)
-- **Installation Problems**: See [Quick Start](setup/QUICKSTART.md#troubleshooting)
-- **Auth Issues**: See [Authentication Docs](architecture/AUTHENTICATION.md#troubleshooting)
+- **Installation Problems**: See [Getting Started](00-GETTING-STARTED.md)
 
 ## 🤝 Contributing
 
@@ -92,18 +93,14 @@ Contributions are welcome! When contributing:
 
 ### Setup Guides
 
-- [Quick Start](setup/QUICKSTART.md) - 5-minute setup
-- [Supabase Setup](setup/SUPABASE.md) - Database configuration
-- [Admin Panel Setup](setup/ADMIN_PANEL.md) - Admin configuration
+- [Weekly Digest](setup/WEEKLY_EMAIL_DIGEST.md)
 
 ### Architecture
 
-- [Authentication System](architecture/AUTHENTICATION.md) - Complete auth docs
+- BetterAuth + Railway PostgreSQL
 
 ### Frontend
 
-- [Architecture Diagrams](../frontend/docs/ARCHITECTURE_DIAGRAMS.md)
-- [Usage Examples](../frontend/docs/USAGE_EXAMPLES.md)
 - [Design System](../frontend/docs/development/DESIGN_SYSTEM.md)
 
 ---

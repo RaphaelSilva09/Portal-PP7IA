@@ -1,6 +1,6 @@
 "use client";
 
-import { GetUsersParams, UserListItem } from "@/domain/repositories/IUserManagementRepository";
+import { ActiveWithinDays, GetUsersParams, UserListItem } from "@/domain/repositories/IUserManagementRepository";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
@@ -11,12 +11,20 @@ import { UserEditModal } from "./UserEditModal";
 const PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
 type PageSize = (typeof PAGE_SIZE_OPTIONS)[number];
 
+const ACTIVITY_FILTERS: { label: string; value: ActiveWithinDays | null }[] = [
+    { label: "Todos",        value: null },
+    { label: "Últimos 7 dias",  value: 7 },
+    { label: "Últimos 15 dias", value: 15 },
+    { label: "Últimos 30 dias", value: 30 },
+];
+
 export function UserManager() {
     const [users, setUsers] = useState<UserListItem[]>([]);
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState<PageSize>(25);
     const [searchQuery, setSearchQuery] = useState("");
+    const [activeWithinDays, setActiveWithinDays] = useState<ActiveWithinDays | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,12 +55,14 @@ export function UserManager() {
             if (params.page !== undefined) qs.set("page", String(params.page));
             if (params.pageSize !== undefined) qs.set("pageSize", String(params.pageSize));
             if (params.search) qs.set("search", params.search);
+            if (params.activeWithinDays) qs.set("activeWithinDays", String(params.activeWithinDays));
             const res = await fetch(`/api/admin/users?${qs.toString()}`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const result = (await res.json()) as {
-                users: Array<Omit<UserListItem, "createdAt" | "lastSignInAt"> & {
+                users: Array<Omit<UserListItem, "createdAt" | "lastSignInAt" | "lastSeenAt"> & {
                     createdAt: string;
                     lastSignInAt: string | null;
+                    lastSeenAt: string | null;
                 }>;
                 total: number;
             };
@@ -60,6 +70,7 @@ export function UserManager() {
                 ...u,
                 createdAt: new Date(u.createdAt),
                 lastSignInAt: u.lastSignInAt ? new Date(u.lastSignInAt) : null,
+                lastSeenAt: u.lastSeenAt ? new Date(u.lastSeenAt) : null,
             })));
             setTotal(result.total);
         } catch (error) {
@@ -71,21 +82,26 @@ export function UserManager() {
     }, []);
 
     useEffect(() => {
-        loadUsers({ page, pageSize, search: searchQuery });
+        loadUsers({ page, pageSize, search: searchQuery, activeWithinDays: activeWithinDays ?? undefined });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, pageSize]);
+    }, [page, pageSize, activeWithinDays]);
 
     const handleSearchChange = (value: string) => {
         setSearchQuery(value);
         if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
         searchDebounceRef.current = setTimeout(() => {
             setPage(1);
-            loadUsers({ page: 1, pageSize, search: value });
+            loadUsers({ page: 1, pageSize, search: value, activeWithinDays: activeWithinDays ?? undefined });
         }, 400);
     };
 
     const handlePageSizeChange = (newSize: PageSize) => {
         setPageSize(newSize);
+        setPage(1);
+    };
+
+    const handleActivityFilterChange = (value: ActiveWithinDays | null) => {
+        setActiveWithinDays(value);
         setPage(1);
     };
 
@@ -156,6 +172,27 @@ export function UserManager() {
                 </div>
             </div>
 
+            {/* Filtro de atividade recente (último acesso ao portal, não login) */}
+            <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    Último acesso:
+                </span>
+                {ACTIVITY_FILTERS.map(({ label, value }) => (
+                    <button
+                        key={label}
+                        type="button"
+                        onClick={() => handleActivityFilterChange(value)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                            activeWithinDays === value
+                                ? "bg-ink text-background"
+                                : "border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+                        }`}
+                    >
+                        {label}
+                    </button>
+                ))}
+            </div>
+
             {/* Count label */}
             {total > 0 && (
                 <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
@@ -176,6 +213,25 @@ export function UserManager() {
                 </div>
             ) : (
                 <div className="space-y-2">
+                    {/* Cabeçalho: mesmas larguras/breakpoints do UserCard, pra alinhar. */}
+                    <div className="hidden items-center gap-x-4 px-4 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground/70 sm:flex">
+                        <span className="min-w-[160px] flex-1">Nome</span>
+                        <span className="min-w-[200px] flex-1">Email</span>
+                        <span className="hidden w-[110px] shrink-0 sm:block">Celular</span>
+                        <span
+                            className="hidden w-[90px] shrink-0 md:block"
+                            title="Data do último login com email e senha"
+                        >
+                            Último login
+                        </span>
+                        <span
+                            className="hidden w-[100px] shrink-0 lg:block"
+                            title="Última vez que o usuário abriu o portal já autenticado — não é necessariamente um login"
+                        >
+                            Último acesso
+                        </span>
+                        <span className="w-[172px] shrink-0 text-right">Ações</span>
+                    </div>
                     {users.map(user => (
                         <UserCard key={user.id} user={user} onDelete={handleDelete} onEdit={handleEdit} />
                     ))}

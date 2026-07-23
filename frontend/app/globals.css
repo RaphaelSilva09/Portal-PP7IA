@@ -51,7 +51,8 @@
     --secondary: #dbe7fb;
     --secondary-foreground: #162338;
     --muted: #dbe7fb;
-    --muted-foreground: #64748b;
+    /* ≥5:1 sobre --bg-primary — o antigo #64748b ficava no limite de AA em texto pequeno */
+    --muted-foreground: #56657b;
     --accent: #dbeafe;
     --accent-foreground: #162338;
     --destructive: #ef4444;
@@ -200,6 +201,63 @@
     --block-ensinar-on-soft: #f9a8d4;
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
     --shadow-elevated: 0 26px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* Tema sépia — fundo levemente amarelado para reduzir fadiga visual (PDF 5.1).
+   Classe `theme-sepia` (nunca `sepia`: colide com a utility filter do Tailwind
+   e tingiria imagens). Seletor com `html` para vencer o override de
+   --bg-primary que /api/theme-css injeta em :root com as cores do admin. */
+html.theme-sepia {
+    color-scheme: light;
+
+    --bg-primary: #f5edda;
+    --bg-secondary: #eee3c8;
+    --text-primary: #433a2a;
+    --text-secondary: #6b5f48;
+
+    --surface-glass: rgba(255, 251, 240, 0.72);
+    --border-glass: rgba(160, 130, 80, 0.2);
+    --nav-surface: rgba(250, 244, 229, 0.9);
+
+    --gradient-accordion-level1: linear-gradient(135deg, #f7f0de 0%, #ecdfc0 100%);
+    --gradient-accordion-level2: linear-gradient(135deg, #f3ead3 0%, #e6d6ae 100%);
+    --gradient-accordion-level3: linear-gradient(135deg, #efe4c8 0%, #dfcb9c 100%);
+
+    --shadow-sm: 0 1px 2px rgba(67, 58, 42, 0.08);
+    --shadow-md: 0 4px 6px rgba(67, 58, 42, 0.12);
+    --shadow-lg: 0 10px 15px rgba(67, 58, 42, 0.14);
+    --shadow-xl: 0 20px 25px rgba(67, 58, 42, 0.16);
+
+    --background: var(--bg-primary);
+    --foreground: var(--text-primary);
+    --card: rgba(255, 252, 243, 0.85);
+    --card-foreground: var(--text-primary);
+    --popover: rgba(255, 252, 243, 0.97);
+    --popover-foreground: var(--text-primary);
+    --primary: #92400e;
+    --primary-foreground: #ffffff;
+    --secondary: #eadfc3;
+    --secondary-foreground: #433a2a;
+    --muted: #eadfc3;
+    --muted-foreground: #6b5f48;
+    --accent: #f0e4c8;
+    --accent-foreground: #433a2a;
+    --border: rgba(146, 116, 66, 0.25);
+    --input: rgba(146, 116, 66, 0.28);
+    --ring: #92400e;
+
+    --ink: #2e2718;
+    --ink-soft: rgba(46, 39, 24, 0.78);
+    --primary-soft: rgba(146, 64, 14, 0.16);
+    --shadow-card: 0 20px 40px rgba(67, 58, 42, 0.1);
+    --shadow-elevated: 0 24px 60px rgba(67, 58, 42, 0.16);
+}
+
+/* Affordance de rolagem horizontal: esmaece as bordas de listas roláveis
+   (ex.: tab bar do Explorar) para indicar conteúdo além do corte. */
+.scroll-fade-x {
+    mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 28px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 28px), transparent);
 }
 
 @keyframes cover-backdrop-in {
@@ -1202,24 +1260,24 @@ body {
 }
 
 /* ============================================
-   Custom Breakpoint for Navigation (1108px)
+   Custom Breakpoint for Navigation (960px)
    ============================================ */
-@media (min-width: 1108px) {
-    .nav-desktop-1108 {
+@media (min-width: 960px) {
+    .nav-desktop-960 {
         display: flex !important;
     }
     
-    .nav-mobile-1108 {
+    .nav-mobile-960 {
         display: none !important;
     }
 }
 
-@media (max-width: 1107px) {
-    .nav-desktop-1108 {
+@media (max-width: 959px) {
+    .nav-desktop-960 {
         display: none !important;
     }
     
-    .nav-mobile-1108 {
+    .nav-mobile-960 {
         display: flex !important;
     }
 }

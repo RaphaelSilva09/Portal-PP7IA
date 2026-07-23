@@ -9,7 +9,7 @@ import { useTheme } from "next-themes";
 /**
  * BentoGridEspecialSemana Component
  * Exibe o especial da semana em destaque e edições anteriores em grid 3x3
- * Dados carregados dinamicamente do Supabase
+ * Dados carregados dinamicamente do Postgres
  */
 
 export default function BentoGridEspecialSemana() {
@@ -79,7 +79,7 @@ export default function BentoGridEspecialSemana() {
                     ESPECIAL MAIS RECENTE - DESTAQUE
                     1 Card - col-span-3
                     ============================================ */}
-                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] cursor-pointer transition-all duration-500 hover:scale-[1.01]">
+                    <div id={`item-${latest.id}`} style={{ scrollMarginTop: "80px" }} className="col-span-1 md:col-span-2 group relative overflow-hidden rounded-3xl min-h-[200px] cursor-pointer transition-transform duration-500 hover:scale-[1.01]">
                         {/* Gradient Background */}
                         <div
                             className="absolute inset-0"
@@ -116,7 +116,7 @@ export default function BentoGridEspecialSemana() {
                             {/* Action Buttons */}
                             <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-3">
                                 {latest.htmlAvailable ? (
-                                        <a href={latest.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-700 hover:bg-yellow-800 border border-yellow-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap">
+                                        <a href={latest.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-700 hover:bg-yellow-800 border border-yellow-800 rounded-full text-white font-medium text-sm sm:text-base transition-colors duration-300 whitespace-nowrap">
                                             <Globe className="w-5 h-5" />
                                             <span>Ler agora</span>
                                         </a>
@@ -130,7 +130,7 @@ export default function BentoGridEspecialSemana() {
                                     </button>
                                 )}
                                 {latest.pdfAvailable ? (
-                                        <a href={latest.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-700 hover:bg-amber-800 border border-amber-800 rounded-full text-white font-medium text-sm sm:text-base transition-all duration-300 whitespace-nowrap">
+                                        <a href={latest.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-700 hover:bg-amber-800 border border-amber-800 rounded-full text-white font-medium text-sm sm:text-base transition-colors duration-300 whitespace-nowrap">
                                             <FileText className="w-5 h-5" />
                                             <span>Baixar PDF</span>
                                         </a>
@@ -155,7 +155,7 @@ export default function BentoGridEspecialSemana() {
                             key={item.id}
                             id={`item-${item.id}`}
                             style={{ scrollMarginTop: "80px" }}
-                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border cursor-pointer transition-all duration-300 hover:bg-accent/40 hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)]"
+                            className="col-span-1 group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border cursor-pointer transition duration-300 hover:bg-accent/40 hover:border-yellow-500/30 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)]"
                         >
                             <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                 {/* Especial Number */}
@@ -174,7 +174,7 @@ export default function BentoGridEspecialSemana() {
                                 {/* Action Buttons */}
                                 <div className="flex flex-wrap md:flex-nowrap gap-3 mt-auto justify-center">
                                     {item.htmlAvailable ? (
-                                        <a href={item.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-700 hover:bg-yellow-800 border border-yellow-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap">
+                                        <a href={item.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-yellow-700 hover:bg-yellow-800 border border-yellow-800 rounded-full text-white text-sm font-medium transition-colors duration-200 whitespace-nowrap">
                                             <Globe className="w-5 h-5" />
                                             <span>Ler agora</span>
                                         </a>
@@ -188,7 +188,7 @@ export default function BentoGridEspecialSemana() {
                                         </button>
                                     )}
                                     {item.pdfAvailable ? (
-                                        <a href={item.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-700 hover:bg-amber-800 border border-amber-800 rounded-full text-white text-sm font-medium transition-all duration-200 whitespace-nowrap">
+                                        <a href={item.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-700 hover:bg-amber-800 border border-amber-800 rounded-full text-white text-sm font-medium transition-colors duration-200 whitespace-nowrap">
                                             <FileText className="w-5 h-5" />
                                             <span>PDF</span>
                                         </a>

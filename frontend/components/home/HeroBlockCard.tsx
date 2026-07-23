@@ -255,7 +255,7 @@ export default function HeroBlockCard() {
                                 key={b.slug}
                                 onClick={() => setActive(i)}
                                 aria-label={`Ver bloco ${b.label}`}
-                                className="h-1.5 cursor-pointer rounded-full transition-all"
+                                className="h-1.5 cursor-pointer rounded-full transition"
                                 style={{
                                     backgroundColor: b.color,
                                     opacity: active === i ? 1 : 0.35,

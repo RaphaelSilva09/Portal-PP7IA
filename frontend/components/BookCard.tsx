@@ -21,7 +21,7 @@ export default function BookCard() {
     const introHref = book.introHtmlPath;
 
     return (
-        <div className="group relative overflow-hidden rounded-3xl min-h-80 transition-all duration-500 hover:scale-[1.01] mb-6">
+        <div className="group relative overflow-hidden rounded-3xl min-h-80 transition duration-500 hover:scale-[1.01] mb-6">
             {/* Gradient Background — verde para o mini-livro principal */}
             <div
                 className="absolute inset-0"
@@ -85,7 +85,7 @@ export default function BookCard() {
                                 href={book.coverPdfPath}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 border border-green-800 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                className="flex items-center justify-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 border border-green-800 rounded-full text-white font-medium text-base sm:text-lg transition duration-300 w-full sm:w-auto min-w-[160px]"
                             >
                                 <FileText className="w-5 h-5" />
                                 <span>Ver Capa</span>
@@ -96,7 +96,7 @@ export default function BookCard() {
                                 href={introHref}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white font-medium text-base sm:text-lg transition-all duration-300 w-full sm:w-auto min-w-[160px]"
+                                className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white font-medium text-base sm:text-lg transition duration-300 w-full sm:w-auto min-w-[160px]"
                             >
                                 <BookOpen className="w-5 h-5" />
                                 <span>Ler Introdução</span>

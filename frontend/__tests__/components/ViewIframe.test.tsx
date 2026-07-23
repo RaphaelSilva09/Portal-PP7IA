@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import ViewIframe from "@/components/ViewIframe";
+import { useTheme } from "next-themes";
+import ViewIframe, { applySepiaToColor, SEPIA_AMOUNT } from "@/components/ViewIframe";
 
 vi.mock("next-themes", () => ({
     useTheme: vi.fn(() => ({ resolvedTheme: "dark" })),
@@ -19,6 +20,7 @@ describe("ViewIframe", () => {
             return 1;
         });
         vi.stubGlobal("cancelAnimationFrame", () => {});
+        vi.mocked(useTheme).mockReturnValue({ resolvedTheme: "dark" } as ReturnType<typeof useTheme>);
     });
 
     it("mantém o src original do iframe", () => {
@@ -26,6 +28,22 @@ describe("ViewIframe", () => {
 
         const iframe = screen.getByTitle("Newsletter") as HTMLIFrameElement;
         expect(iframe.getAttribute("src")).toBe("/api/proxy-html/newsletter/abc");
+    });
+
+    it("não aplica filtro de sépia fora do tema sépia", () => {
+        render(<ViewIframe htmlPath="/api/proxy-html/newsletter/abc" title="Newsletter" />);
+
+        const iframe = screen.getByTitle("Newsletter") as HTMLIFrameElement;
+        expect(iframe.style.filter).toBe("");
+    });
+
+    it("aplica filtro de sépia no conteúdo do iframe quando o tema sépia está ativo", () => {
+        vi.mocked(useTheme).mockReturnValue({ resolvedTheme: "theme-sepia" } as ReturnType<typeof useTheme>);
+
+        render(<ViewIframe htmlPath="/api/proxy-html/newsletter/abc" title="Newsletter" />);
+
+        const iframe = screen.getByTitle("Newsletter") as HTMLIFrameElement;
+        expect(iframe.style.filter).toContain("sepia(");
     });
 
     it("sincroniza a altura com o conteúdo carregado", async () => {
@@ -65,5 +83,57 @@ describe("ViewIframe", () => {
         await waitFor(() => {
             expect(iframe.style.height).toBe("984px");
         });
+    });
+
+    it("reporta a cor de fundo tingida de sépia quando o tema sépia está ativo, e a crua fora dele", async () => {
+        vi.mocked(useTheme).mockReturnValue({ resolvedTheme: "theme-sepia" } as ReturnType<typeof useTheme>);
+        const onBackgroundColorChange = vi.fn();
+
+        render(
+            <ViewIframe
+                htmlPath="/api/proxy-html/newsletter/abc"
+                title="Newsletter"
+                onBackgroundColorChange={onBackgroundColorChange}
+            />,
+        );
+
+        const iframe = screen.getByTitle("Newsletter") as HTMLIFrameElement;
+        const mockWindow = {
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            getComputedStyle: vi.fn(() => ({ backgroundColor: "rgb(100, 150, 200)" })),
+        } as unknown as Window;
+        const mockDocument = {
+            documentElement: { scrollHeight: 980, offsetHeight: 980, clientHeight: 980 },
+            body: { scrollHeight: 960, offsetHeight: 960, clientHeight: 960 },
+            defaultView: mockWindow,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+        } as unknown as Document;
+
+        Object.defineProperty(iframe, "contentDocument", { configurable: true, value: mockDocument });
+        Object.defineProperty(iframe, "contentWindow", { configurable: true, value: mockWindow });
+
+        fireEvent.load(iframe);
+
+        await waitFor(() => {
+            expect(onBackgroundColorChange).toHaveBeenCalledWith(applySepiaToColor("rgb(100, 150, 200)", SEPIA_AMOUNT));
+        });
+        // A mistura de sépia é visível: nunca reporta a cor crua enquanto o tema sépia está ativo.
+        expect(onBackgroundColorChange).not.toHaveBeenCalledWith("rgb(100, 150, 200)");
+    });
+});
+
+describe("applySepiaToColor", () => {
+    it("mistura o canal rgb pela matriz de sépia na proporção informada", () => {
+        expect(applySepiaToColor("rgb(100, 150, 200)", 0.55)).toBe("rgb(151, 162, 163)");
+    });
+
+    it("preserva o canal alpha em rgba", () => {
+        expect(applySepiaToColor("rgba(100, 150, 200, 0.8)", 0.55)).toBe("rgba(151, 162, 163, 0.8)");
+    });
+
+    it("devolve a cor original quando não reconhece o formato", () => {
+        expect(applySepiaToColor("transparent", 0.55)).toBe("transparent");
     });
 });

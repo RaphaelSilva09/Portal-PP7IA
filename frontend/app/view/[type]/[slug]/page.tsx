@@ -8,18 +8,18 @@ interface Props {
     params: Promise<{ type: string; slug: string }>;
 }
 
-const typeConfig: Record<string, { folder: string; title: string }> = {
-    newsletter: { folder: "newsletters", title: "Newsletter" },
-    "mini-livro": { folder: "mini-livros", title: "Mini-Livro" },
-    biblioteca: { folder: "biblioteca", title: "Biblioteca" },
-    editorial: { folder: "editoriais", title: "Editorial" },
-    "especial-semana": { folder: "especial-semana", title: "Inteligência Artificial" },
-    radar_oportunidades: { folder: "radar-de-oportunidades", title: "Editoriais e Artigos" },
-    estudar: { folder: "estudar", title: "Estudar" },
-    "home-recomendacoes": { folder: "home/recomendacoes", title: "Recomendacoes do Paulo" },
-    ebook: { folder: "mini-livros/intros", title: "E-book" },
-    book: { folder: "mini-livros/livro", title: "Livro" },
-    "mini-livro-section": { folder: "mini-livros/sections", title: "Seção de Mini-livro" },
+const typeConfig: Record<string, { folder: string; title: string; sectionLabel: string; backHref: string }> = {
+    newsletter: { folder: "newsletters", title: "Newsletter", sectionLabel: "Newsletter", backHref: "/explorar?b=newsletter" },
+    "mini-livro": { folder: "mini-livros", title: "Mini-Livro", sectionLabel: "Enquanto é Tempo", backHref: "/explorar?b=livro" },
+    biblioteca: { folder: "biblioteca", title: "Biblioteca", sectionLabel: "Biblioteca", backHref: "/explorar?b=biblioteca" },
+    editorial: { folder: "editoriais", title: "Editorial", sectionLabel: "Editoriais e Artigos", backHref: "/explorar?b=editoriais-artigos" },
+    "especial-semana": { folder: "especial-semana", title: "Inteligência Artificial", sectionLabel: "Inteligência Artificial", backHref: "/explorar?b=inteligencia-artificial" },
+    radar_oportunidades: { folder: "radar-de-oportunidades", title: "Editoriais e Artigos", sectionLabel: "Editoriais e Artigos", backHref: "/explorar?b=editoriais-artigos" },
+    estudar: { folder: "estudar", title: "Estudar", sectionLabel: "Estudar", backHref: "/explorar?b=estudar" },
+    "home-recomendacoes": { folder: "home/recomendacoes", title: "Recomendacoes do Paulo", sectionLabel: "Início", backHref: "/" },
+    ebook: { folder: "mini-livros/intros", title: "E-book", sectionLabel: "Enquanto é Tempo", backHref: "/explorar?b=livro" },
+    book: { folder: "mini-livros/livro", title: "Livro", sectionLabel: "Enquanto é Tempo", backHref: "/explorar?b=livro" },
+    "mini-livro-section": { folder: "mini-livros/sections", title: "Seção de Mini-livro", sectionLabel: "Enquanto é Tempo", backHref: "/explorar?b=livro" },
 };
 
 const NAVIGABLE_TYPES: readonly ContentViewNavigationType[] = [
@@ -43,8 +43,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const config = typeConfig[type];
 
     if (!config) {
-        return { title: "Não encontrado" };
+        return { title: "Página não encontrada · PP7+IAS" };
     }
+
+    const pageUrl = `/view/${type}/${slug}`;
 
     if (type === "mini-livro-section") {
         const sectionId = Number(slug);
@@ -53,17 +55,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             const section = await DIContainer.getMiniLivroSectionRepository().getById(sectionId);
 
             if (section) {
+                const title = `${section.title} | Portal PP7+IA`;
+                const description = section.description || `Visualização de ${config.title} do Portal PP7+IA`;
                 return {
-                    title: `${section.title} | Portal PP7+IA`,
-                    description: section.description || `Visualização de ${config.title} do Portal PP7+IA`,
+                    title,
+                    description,
+                    openGraph: { title, description, url: pageUrl, type: "article" },
                 };
             }
         }
     }
 
+    const title = `${config.title} #${slug} | Portal PP7+IA`;
+    const description = `Visualização de ${config.title} do Portal PP7+IA`;
+
     return {
-        title: `${config.title} #${slug} | Portal PP7+IA`,
-        description: `Visualização de ${config.title} do Portal PP7+IA`,
+        title,
+        description,
+        openGraph: { title, description, url: pageUrl, type: "article" },
     };
 }
 
@@ -75,7 +84,7 @@ export default async function ViewPage({ params }: Props) {
         notFound();
     }
 
-    // Usa API route proxy para servir HTML do Supabase Storage
+    // Usa API route proxy para servir HTML do storage de arquivos
     // Isso resolve problemas de X-Frame-Options e CORS
     const htmlPath = `/api/proxy-html/${type}/${slug}`;
     let previous: ContentViewNavigationLink | null = null;
@@ -105,5 +114,16 @@ export default async function ViewPage({ params }: Props) {
         }
     }
 
-    return <ViewContentFrame htmlPath={htmlPath} title={pageTitle} previous={previous} next={next} />;
+    return (
+        <ViewContentFrame
+            htmlPath={htmlPath}
+            title={pageTitle}
+            previous={previous}
+            next={next}
+            contentType={type}
+            slug={slug}
+            sectionLabel={config.sectionLabel}
+            backHref={config.backHref}
+        />
+    );
 }

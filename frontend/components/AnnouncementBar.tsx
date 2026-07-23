@@ -75,7 +75,8 @@ export default function AnnouncementBar({ bars }: AnnouncementBarProps) {
 
     return (
         <div
-            role="alert"
+            role="region"
+            aria-label="Avisos do portal"
             aria-live="polite"
             className="announcement-bar relative w-full flex items-center py-2 px-10"
             style={{ backgroundColor: bar.bgColor, color: bar.textColor }}
@@ -97,7 +98,7 @@ export default function AnnouncementBar({ bars }: AnnouncementBarProps) {
                     </button>
                 )}
 
-                <span className="leading-snug">{bar.message}</span>
+                <span className="line-clamp-2 leading-snug">{bar.message}</span>
 
                 {bar.linkUrl && (
                     <a

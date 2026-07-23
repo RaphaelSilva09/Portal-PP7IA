@@ -90,8 +90,8 @@ $$;
 
 insert into public.home_block_descriptions (slug, description)
 values
-    ('newsletter', 'Publicação semanal com 7 itens
-Notícias de IA e startups. O que realmente importa.'),
+    ('newsletter', '2 edições por semana, 7 notícias cada
+Segundas: as 7 IAs. Quartas: startups.'),
     ('especial-semana', 'Notícias e análises de IA
 Prioridade para o que importa ao Brasil.'),
     ('radar', '3 a 4 textos por publicação

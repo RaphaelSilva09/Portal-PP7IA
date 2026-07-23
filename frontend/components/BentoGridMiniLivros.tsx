@@ -40,7 +40,7 @@ function SectionReadButton({ section, label, className }: { section: MiniLivroSe
 function IntroducaoCard({ section, position, isLight, index }: { section: MiniLivroSection; position: number; isLight: boolean; index: number }) {
     return (
         <div
-            className="group relative overflow-hidden rounded-3xl min-h-[220px] bg-card/80 backdrop-blur-sm border border-border transition-all duration-300 hover:bg-accent/40 hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.12)] animate-fade-in-up"
+            className="group relative overflow-hidden rounded-3xl min-h-[220px] bg-card/80 backdrop-blur-sm border border-border transition duration-300 hover:bg-accent/40 hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.12)] animate-fade-in-up"
             style={{ animationDelay: `${0.1 + index * 0.08}s` }}
         >
             <div
@@ -73,7 +73,7 @@ function IntroducaoCard({ section, position, isLight, index }: { section: MiniLi
                     <SectionReadButton
                         section={section}
                         label={`Ler ${section.title}`}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white font-medium text-sm transition-all duration-300 whitespace-nowrap"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white font-medium text-sm transition-colors duration-300 whitespace-nowrap"
                     />
                 </div>
 
@@ -89,7 +89,7 @@ function EncerramentoCard({ section, position, index }: { section: MiniLivroSect
 
     return (
         <div
-            className="group relative overflow-hidden rounded-3xl min-h-[220px] bg-card/80 backdrop-blur-sm border border-border transition-all duration-300 hover:bg-accent/40 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(124,58,237,0.12)] animate-fade-in-up"
+            className="group relative overflow-hidden rounded-3xl min-h-[220px] bg-card/80 backdrop-blur-sm border border-border transition duration-300 hover:bg-accent/40 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(124,58,237,0.12)] animate-fade-in-up"
             style={{ animationDelay: `${0.1 + index * 0.08}s` }}
         >
             <div
@@ -122,7 +122,7 @@ function EncerramentoCard({ section, position, index }: { section: MiniLivroSect
                     <SectionReadButton
                         section={section}
                         label={`Ler ${section.title}`}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-violet-700 hover:bg-violet-800 border border-violet-800 rounded-full text-white font-medium text-sm transition-all duration-300 whitespace-nowrap"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-violet-700 hover:bg-violet-800 border border-violet-800 rounded-full text-white font-medium text-sm transition-colors duration-300 whitespace-nowrap"
                     />
                 </div>
 
@@ -164,7 +164,7 @@ function compareMiniLivrosForDisplay(left: MiniLivro, right: MiniLivro): number 
 /**
  * BentoGridMiniLivros Component
  * Exibe a hierarquia Ebooks → Mini-livros com abas por ebook
- * Dados carregados dinamicamente do Supabase
+ * Dados carregados dinamicamente do Postgres
  */
 export default function BentoGridMiniLivros() {
     const { all: allMiniLivros, isLoading, error } = useMiniLivros();
@@ -391,7 +391,7 @@ export default function BentoGridMiniLivros() {
                             <button
                                 key={slotIndex}
                                 onClick={() => setSelectedEbookIndex(slotIndex)}
-                                className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 border text-center w-full h-full ${isSelected ? theme.tabActive : (isLight ? theme.tabInactiveLight : theme.tabInactive)}`}
+                                className={`flex items-center justify-center py-4 px-4 rounded-xl font-medium text-sm sm:text-base transition-colors duration-200 border text-center w-full h-full ${isSelected ? theme.tabActive : (isLight ? theme.tabInactiveLight : theme.tabInactive)}`}
                             >
                                 <span className="break-words">{label}</span>
                             </button>
@@ -418,7 +418,7 @@ export default function BentoGridMiniLivros() {
 
                     {/* MINI-LIVRO DESTAQUE — ocupa o espaço restante */}
                     {featuredMiniLivro && (
-                        <div id={`item-${featuredMiniLivro.id}`} style={{ scrollMarginTop: "80px" }} className="flex-1 group relative overflow-hidden rounded-3xl min-h-[200px] transition-all duration-500 hover:scale-[1.01]">
+                        <div id={`item-${featuredMiniLivro.id}`} style={{ scrollMarginTop: "80px" }} className="flex-1 group relative overflow-hidden rounded-3xl min-h-[200px] transition-transform duration-500 hover:scale-[1.01]">
                             <div
                                 className="absolute inset-0"
                                 style={{
@@ -443,7 +443,7 @@ export default function BentoGridMiniLivros() {
                                 </div>
                                 <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-3 w-full">
                                     {featuredMiniLivro.htmlAvailable ? (
-                                        <a href={featuredMiniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white font-medium text-sm transition-all duration-300 whitespace-nowrap">
+                                        <a href={featuredMiniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white font-medium text-sm transition-colors duration-300 whitespace-nowrap">
                                             <Globe className="w-5 h-5 shrink-0" />
                                             <span>Ler agora</span>
                                         </a>
@@ -454,7 +454,7 @@ export default function BentoGridMiniLivros() {
                                         </button>
                                     )}
                                     {featuredMiniLivro.pdfAvailable ? (
-                                        <a href={featuredMiniLivro.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white font-medium text-sm transition-all duration-300 whitespace-nowrap">
+                                        <a href={featuredMiniLivro.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white font-medium text-sm transition-colors duration-300 whitespace-nowrap">
                                             <FileText className="w-5 h-5 shrink-0" />
                                             <span>Baixar PDF</span>
                                         </a>
@@ -478,7 +478,7 @@ export default function BentoGridMiniLivros() {
                                 key={miniLivro.id}
                                 id={`item-${miniLivro.id}`}
                                 style={{ scrollMarginTop: "80px" }}
-                                className="group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border transition-all duration-300 hover:bg-accent/40 hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
+                                className="group relative overflow-hidden rounded-3xl min-h-[200px] bg-card/80 backdrop-blur-sm border border-border transition duration-300 hover:bg-accent/40 hover:border-green-500/30 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]"
                             >
                                 <div className="relative z-10 h-full flex flex-col items-center text-center p-6 sm:p-8">
                                     <p className="text-green-700 text-base sm:text-lg font-mono mb-2">
@@ -490,7 +490,7 @@ export default function BentoGridMiniLivros() {
                                     <p className="text-text-secondary text-base sm:text-lg mb-8 md:mb-4 whitespace-nowrap">Publicado em&nbsp;{miniLivro.formattedDate}</p>
                                     <div className="flex flex-wrap md:flex-nowrap gap-3 mt-auto justify-center">
                                         {miniLivro.htmlAvailable ? (
-                                            <a href={miniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white text-sm font-medium transition-all duration-300 whitespace-nowrap">
+                                            <a href={miniLivro.htmlPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 border border-green-700 rounded-full text-white text-sm font-medium transition-colors duration-300 whitespace-nowrap">
                                                 <Globe className="w-5 h-5 shrink-0" />
                                                 <span>Ler online</span>
                                             </a>
@@ -501,7 +501,7 @@ export default function BentoGridMiniLivros() {
                                             </button>
                                         )}
                                         {miniLivro.pdfAvailable ? (
-                                            <a href={miniLivro.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white text-sm font-medium transition-all duration-300 whitespace-nowrap">
+                                            <a href={miniLivro.pdfPath!} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-800 border border-emerald-800 rounded-full text-white text-sm font-medium transition-colors duration-300 whitespace-nowrap">
                                                 <FileText className="w-5 h-5 shrink-0" />
                                                 <span>Baixar PDF</span>
                                             </a>

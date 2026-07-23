@@ -1,7 +1,7 @@
 /**
  * FilesystemStorageRepository
  *
- * Replaces SupabaseStorageRepository. Files live under STORAGE_ROOT
+ * Files live under STORAGE_ROOT
  * (Railway Volume mount, defaults to ./data locally for dev).
  * "Bucket" maps to a top-level folder under that root.
  * Public URLs are served by the /api/files/[...path] route handler.

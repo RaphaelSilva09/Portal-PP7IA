@@ -624,14 +624,14 @@ export function AdminMiniLivroSections() {
                     <button
                         type="button"
                         onClick={() => setActiveTab("introducao")}
-                        className={`rounded-lg px-5 py-3 text-base font-medium transition-all ${activeTab === "introducao" ? "bg-purple-500 text-white shadow-md" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                        className={`rounded-lg px-5 py-3 text-base font-medium transition ${activeTab === "introducao" ? "bg-purple-500 text-white shadow-md" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                     >
                         Introdução
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveTab("encerramento")}
-                        className={`rounded-lg px-5 py-3 text-base font-medium transition-all ${activeTab === "encerramento" ? "bg-purple-500 text-white shadow-md" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                        className={`rounded-lg px-5 py-3 text-base font-medium transition ${activeTab === "encerramento" ? "bg-purple-500 text-white shadow-md" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                     >
                         Encerramento
                     </button>
@@ -670,7 +670,7 @@ export function AdminMiniLivroSections() {
                                     <button
                                         type="button"
                                         onClick={() => handleSaveMeta("introducao", introducaoMeta.title, introducaoMeta.description)}
-                                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isSavingIntroducaoMeta ? "Salvando…" : "Salvar Metadados"}
                                     </button>
@@ -704,7 +704,7 @@ export function AdminMiniLivroSections() {
                                         setEditingIntroducao(null);
                                         setIntroducaoForm(EMPTY_FORM);
                                     }}
-                                    className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Novo Bloco
                                 </button>
@@ -830,7 +830,7 @@ export function AdminMiniLivroSections() {
                                         <button
                                             type="button"
                                             onClick={handleSaveIntroducao}
-                                            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isSavingIntroducao ? "Salvando…" : (editingIntroducao ? "Salvar Alterações" : "Criar Bloco")}
                                         </button>
@@ -875,7 +875,7 @@ export function AdminMiniLivroSections() {
                                     <button
                                         type="button"
                                         onClick={() => handleSaveMeta("encerramento", encerramentoMeta.title, encerramentoMeta.description)}
-                                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isSavingEncerramentoMeta ? "Salvando…" : "Salvar Metadados"}
                                     </button>
@@ -909,7 +909,7 @@ export function AdminMiniLivroSections() {
                                         setEditingEncerramento(null);
                                         setEncerramentoForm(EMPTY_FORM);
                                     }}
-                                    className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Novo Bloco
                                 </button>
@@ -1035,7 +1035,7 @@ export function AdminMiniLivroSections() {
                                         <button
                                             type="button"
                                             onClick={handleSaveEncerramento}
-                                            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isSavingEncerramento ? "Salvando…" : (editingEncerramento ? "Salvar Alterações" : "Criar Bloco")}
                                         </button>

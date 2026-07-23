@@ -3,17 +3,17 @@
 ## Project context
 
 Portal-PP7IA is a Next.js web portal for AI content (mini-livros, newsletters, biblioteca, editorial).
-Frontend-only repo with Supabase as backend/auth and Vercel for hosting.
+Next.js application backed by PostgreSQL and BetterAuth, deployed on Railway.
 Clean architecture: domain → application → infrastructure → presentation → components.
 
 ## Tech stack
 
 - Next.js 16.1.1 + React 19 + TypeScript (strict)
 - Tailwind CSS v4, Lucide React, Tiptap v3, @dnd-kit
-- Supabase (auth + PostgreSQL), @supabase/ssr
+- BetterAuth + PostgreSQL (`pg`, Drizzle ORM)
 - TanStack React Query v5
 - Resend (invite emails), Vercel Analytics
-- Vercel (deploy via GitHub Actions webhook on push/PR merge)
+- Railway (frontend, PostgreSQL and weekly digest services)
 - pnpm@10.33.0
 
 ## Important directories
@@ -25,11 +25,11 @@ All commands run from `frontend/`.
 - `frontend/context/` — React contexts (auth, modals, session)
 - `frontend/domain/` — entities, errors, repository interfaces (pure, no framework dependencies)
 - `frontend/application/` — use cases (orchestration only, no I/O)
-- `frontend/infrastructure/` — DI container, Supabase client, repositories
+- `frontend/infrastructure/` — DI container, BetterAuth integration and PostgreSQL repositories
 - `frontend/presentation/` — hooks and presentation logic
 - `frontend/__tests__/` — Vitest unit/integration tests (organized by architecture layer)
 - `frontend/e2e/` — Playwright E2E tests (auth flows)
-- `supabase/migrations/` — PostgreSQL migrations (timestamp-prefixed)
+- `frontend/db/migrations/` — PostgreSQL migrations (timestamp-prefixed)
 - `docs/` — architecture docs, setup guides, RPC integration
 
 ## Commands
@@ -76,7 +76,7 @@ application (use cases — no I/O, orchestration only)
       ↓
 domain (entities, errors, interfaces — pure TypeScript)
       ↑
-infrastructure (Supabase, DI container, repositories — implements domain interfaces)
+infrastructure (BetterAuth, PostgreSQL, DI container and repository implementations)
 ```
 
 Never import `infrastructure` directly in UI components. Use application use cases via the DI container.
@@ -94,43 +94,26 @@ Never import `infrastructure` directly in UI components. Use application use cas
 - **E2E** (Playwright): `e2e/` covering auth flows — Desktop Chrome, Android Chrome, iOS Touch.
 - Domain: pure tests, zero mocks.
 - Use cases: mock via interface (`satisfies Partial<IRepository>`), no `vi.mock()`.
-- Infrastructure: inject mock Supabase client via constructor.
+- Infrastructure: inject repository/database test doubles through the existing interfaces.
 - Components/context/hooks: `vi.mock()` for external modules only.
 - With `vi.useFakeTimers()`, use `vi.runAllTimersAsync()` inside `act()` — do not use `waitFor` (conflicts with fake timers).
 - No coverage threshold configured.
 - E2E base URL: `http://127.0.0.1:3000`; dev server starts automatically unless already running.
-- E2E globalSetup (`e2e/global-setup.ts`) cria o perfil em `public.users` para o usuário de teste se ele não existir.
-- `@example.com` e `@mailtest.dev` são rejeitados pelo Supabase como inválidos — usar `@test.com` para dominios de email de teste.
-- **Testes de confirmação de email** (`auth-email-confirmation.spec.ts`) requerem Supabase local (`supabase start` com URL `http://127.0.0.1:54321`) porque o Mailpit local (`127.0.0.1:54324`) não recebe emails do Supabase cloud. Com Supabase cloud os 4 testes são pulados automaticamente (`test.skip`).
-
-## Supabase rate limits (ambiente de desenvolvimento)
-
-Limites do projeto Supabase de desenvolvimento — respeitar em testes E2E e scripts exclusivamente para banco remoto (desconsiderar para supabase local):
-
-| Recurso | Limite |
-|---|---|
-| Envio de emails | **2 por hora** |
-| Envio de SMS | 30 por hora |
-| Refresh de tokens | 150 req / 5 min (1 800/h) |
-| Verificação de tokens | 30 req / 5 min (360/h) |
-| Usuários anônimos | 30 por hora |
-| Sign-ups e sign-ins | 30 req / 5 min (360/h) |
-| Sign-ups/ins Web3 | 30 req / 5 min |
-
-**Impacto nos testes E2E:** com Supabase remoto (informações presentes no .env.local) os testes de confirmação de email enviam 2 emails por execução completa (1 do describe E2E + 1 do beforeAll cross-context). Não rodar múltiplas vezes na mesma hora.
-
-Para testes com supabase local, tal limitação não se aplica e deve ser desconsiderada.
+- E2E globalSetup (`e2e/global-setup.ts`) cria o usuário BetterAuth de teste diretamente no PostgreSQL quando necessário.
+- `test:e2e:postgres` exige `DATABASE_URL` apontando para um banco de teste com as migrations aplicadas.
+- Não execute E2E contra development sem autorização: o setup persiste um usuário de teste.
+- Para WebKit com Playwright 1.59.1, use Node 22 ou 24; Node 26.4 trava durante a extração do browser.
 
 ## Database and migrations
 
-- Schema changes go in `supabase/migrations/` with timestamp prefix.
+- Schema changes go in `frontend/db/migrations/` with a numeric prefix.
 - Do not reset or rewrite existing migrations.
-- Auth, RLS, permissions, and `SUPABASE_SERVICE_ROLE_KEY` are high-risk — test carefully.
+- Auth, permissions, migration and production-data changes are high-risk — test carefully.
 
 ## Security
 
-- `SUPABASE_SERVICE_ROLE_KEY` and `INVITE_EMAIL_API_KEY` are server-side only — never expose in client code.
-- Admin routes (`/api/admin/*`) use the service role key — treat as high-risk.
+- `DATABASE_URL`, `BETTER_AUTH_SECRET`, `RESEND_API_KEY` and `INVITE_EMAIL_API_KEY` are server-side only.
+- Admin routes (`/api/admin/*`) and direct database access are high-risk.
 - HTML proxy route (`/api/proxy-html/*`) sanitizes HTML via `isomorphic-dompurify` — preserve sanitization.
 - Never print, commit, or log secrets.
 

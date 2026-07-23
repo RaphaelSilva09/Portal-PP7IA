@@ -4,6 +4,7 @@
  * Exporta componentes do módulo admin para facilitar imports.
  */
 
+export { AdminAnalytics } from "./AdminAnalytics";
 export { AdminBook } from "./AdminBook";
 export { AdminMiniLivroSections } from "./AdminMiniLivroSections";
 export { AnnouncementBarForm } from "./AnnouncementBarForm";
@@ -26,6 +27,11 @@ export { UserCard } from "./UserCard";
 export { UserEditModal } from "./UserEditModal";
 export { UserManager } from "./UserManager";
 export { ReindexButton } from "./ReindexButton";
+export { ReadingTimeButton } from "./ReadingTimeButton";
 export { default as AdminHomepageConfig } from "./AdminHomepageConfig";
 export { default as AdminExplorarConfig } from "./AdminExplorarConfig";
 export { default as AdminSiteBg } from "./AdminSiteBg";
+export { default as AdminPromptLibrary } from "./AdminPromptLibrary";
+export { default as AdminFaq } from "./AdminFaq";
+export { default as AdminReaderQuestions } from "./AdminReaderQuestions";
+export { default as AdminReactions } from "./AdminReactions";

@@ -17,7 +17,7 @@ export const HOME_BLOCKS: HomeBlockDefinition[] = [
     {
         slug: "newsletter",
         label: "Newsletter",
-        defaultDescription: "Publicação semanal com 7 itens\nNotícias de IA e startups. O que realmente importa.",
+        defaultDescription: "2 edições por semana, 7 notícias cada\nSegundas: as 7 IAs. Quartas: startups.",
     },
     {
         slug: "especial-semana",

@@ -52,7 +52,7 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
     };
 
     const typeGuidance: Partial<Record<ContentType, string>> = {
-        newsletter: "Diretriz: publique 7 notícias curtas por semana, com link para aprofundamento e prioridade para o que importa ao Brasil.",
+        newsletter: "Diretriz: 2 edições por semana com 7 notícias cada — segundas (as 7 IAs: versões, funções, dicas) e quartas (startups, foco em IA). Máximo de 4–5 linhas por notícia, com link para aprofundamento e prioridade para o que importa ao Brasil.",
         "especial-semana": "Diretriz: publique notícias e análises de IA importantes para o Brasil, em linguagem direta e leitura rápida.",
         radar_oportunidades: "Diretriz: mantenha editoriais e artigos curtos. Use 3 a 4 textos por publicação.",
     };
@@ -89,6 +89,10 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
                         className={inputClass}
                         placeholder="Digite o título…"
                     />
+                    <p className="text-xs text-muted-foreground/80">
+                        O título aparece nos cards e na navegação. Capitalize nomes de marcas
+                        (OpenAI, Google) e evite hífens no lugar de espaços.
+                    </p>
                 </div>
 
                 {/* Tempo de Leitura */}
@@ -185,7 +189,7 @@ export function ContentForm({ type, editItem, onSubmit, onCancel, isLoading, ebo
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50"
+                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50"
                     >
                         {isLoading ? "Salvando…" : isEditing ? "Salvar Alterações" : "Criar Material"}
                     </button>

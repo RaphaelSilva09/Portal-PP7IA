@@ -10,7 +10,27 @@ export interface UserCardProps {
 }
 
 function formatLastSignIn(date: Date | null): string {
-    if (!date) return "Nunca acessou";
+    if (!date) return "—";
+    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+}
+
+/**
+ * Tempo relativo desde a última vez que o usuário abriu o portal (não
+ * login). `null` não significa "nunca acessou o portal" — só que ainda não
+ * foi visto desde que este rastreamento (last_seen_at) entrou no ar, o que
+ * vale pra qualquer usuário já cadastrado antes dele existir. "—" comunica
+ * "sem dado" sem afirmar algo que não sabemos.
+ */
+function formatLastSeen(date: Date | null): string {
+    if (!date) return "—";
+    const diffMs = Date.now() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / 60_000);
+    if (diffMinutes < 1) return "Agora";
+    if (diffMinutes < 60) return `Há ${diffMinutes} min`;
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `Há ${diffHours}h`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 30) return `Há ${diffDays} dia${diffDays !== 1 ? "s" : ""}`;
     return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
 }
 
@@ -37,17 +57,22 @@ export function UserCard({ user, onDelete, onEdit }: UserCardProps) {
                 </span>
 
                 {/* Phone */}
-                <span className="hidden text-sm text-muted-foreground sm:block">
+                <span className="hidden w-[110px] shrink-0 text-sm text-muted-foreground sm:block">
                     {user.celular || "—"}
                 </span>
 
                 {/* Last sign-in */}
-                <span className="hidden text-sm text-muted-foreground md:block">
+                <span className="hidden w-[90px] shrink-0 text-sm text-muted-foreground md:block">
                     {formatLastSignIn(user.lastSignInAt)}
                 </span>
 
+                {/* Last seen (portal opened, not login) */}
+                <span className="hidden w-[100px] shrink-0 text-sm text-muted-foreground lg:block" title="Último acesso ao portal">
+                    {formatLastSeen(user.lastSeenAt)}
+                </span>
+
                 {/* Actions */}
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex w-[172px] shrink-0 items-center justify-end gap-2">
                     <button
                         onClick={() => onEdit(user)}
                         className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"

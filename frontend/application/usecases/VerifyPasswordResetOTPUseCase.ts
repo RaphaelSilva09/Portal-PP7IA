@@ -24,7 +24,7 @@ export interface VerifyPasswordResetOTPInput {
  * Fluxo:
  * 1. Valida formato do OTP (8 dígitos numéricos)
  * 2. Valida email
- * 3. Chama repository para verificar OTP com Supabase
+ * 3. Chama repository para verificar OTP com o provedor de auth
  * 4. Se válido: estabelece sessão temporária de recovery
  */
 export class VerifyPasswordResetOTPUseCase {

@@ -9,15 +9,15 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-    searchParams: Promise<{ b?: string }>;
+    searchParams: Promise<{ b?: string; tema?: string }>;
 }
 
 export default async function ExplorarPage({ searchParams }: Props) {
-    const { b } = await searchParams;
+    const { b, tema } = await searchParams;
     return (
-        <main className="min-h-screen bg-background text-foreground">
+        <main id="conteudo" className="min-h-screen bg-background text-foreground">
             <Navbar />
-            <ExplorarClient initialBlock={b ?? null} />
+            <ExplorarClient initialBlock={b ?? null} initialTema={tema ?? null} />
             <Footer />
         </main>
     );

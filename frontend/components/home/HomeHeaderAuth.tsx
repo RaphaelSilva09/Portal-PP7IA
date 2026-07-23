@@ -16,7 +16,7 @@ export default function HomeHeaderAuth() {
             </button>
             <button
                 onClick={() => openModal({}, "signup")}
-                className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-background transition-all hover:bg-primary"
+                className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-background transition hover:bg-primary"
             >
                 Quero fazer parte
                 <ArrowUpRight

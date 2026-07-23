@@ -6,7 +6,7 @@
  * "/api/files/<bucket>/<rest>" so the request hits our route handler that
  * reads from STORAGE_ROOT on the Railway Volume.
  *
- * Pre-migration values were full Supabase URLs (https://...) and a few
+ * Pre-migration values were full storage URLs (https://...) and a few
  * legacy rows still ship with leading slashes — both pass through.
  */
 const FILES_BASE = "/api/files";

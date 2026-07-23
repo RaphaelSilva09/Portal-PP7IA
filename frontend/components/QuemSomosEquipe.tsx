@@ -47,7 +47,7 @@ export default function QuemSomosEquipe() {
                 ============================================ */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Card: Criador */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-purple-500/40 transition-all duration-300">
+                    <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-purple-500/40 transition duration-300">
                         {/* Ícone */}
                         <div className="mb-4">
                             <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -70,7 +70,7 @@ export default function QuemSomosEquipe() {
                     </div>
 
                     {/* Card: Assistente Técnico 1 */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-blue-500/40 transition-all duration-300">
+                    <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-blue-500/40 transition duration-300">
                         {/* Ícone */}
                         <div className="mb-4">
                             <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -93,7 +93,7 @@ export default function QuemSomosEquipe() {
                     </div>
 
                     {/* Card: Assistente Técnico 2 */}
-                    <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-blue-500/40 transition-all duration-300">
+                    <div className="group relative overflow-hidden rounded-3xl bg-card/80 backdrop-blur-sm border border-border p-6 hover:bg-accent/60 hover:border-blue-500/40 transition duration-300">
                         {/* Ícone */}
                         <div className="mb-4">
                             <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">

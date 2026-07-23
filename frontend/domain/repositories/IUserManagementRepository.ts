@@ -18,10 +18,15 @@ export interface UserListItem {
     isAdmin: boolean;
     createdAt: Date;
     lastSignInAt: Date | null;
+    /** Última vez que o usuário abriu o portal já autenticado (distinto de login) — ver /api/user/activity. */
+    lastSeenAt: Date | null;
     acceptEmailUpdates: boolean;
     acceptWhatsappUpdates: boolean;
     emailVerified: boolean;
 }
+
+/** Janelas de atividade recente suportadas pelo filtro do painel admin. */
+export type ActiveWithinDays = 7 | 15 | 30;
 
 export interface UpdateUserParams {
     nome: string;
@@ -33,6 +38,8 @@ export interface GetUsersParams {
     page: number;
     pageSize: 10 | 25 | 50;
     search?: string;
+    /** Filtra a usuários com `lastSeenAt` dentro dos últimos N dias. */
+    activeWithinDays?: ActiveWithinDays;
 }
 
 export interface PaginatedUsersResult {

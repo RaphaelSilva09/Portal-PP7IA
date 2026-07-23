@@ -251,7 +251,7 @@ export function AdminEditorial() {
         type="button"
         onClick={handleSave}
         disabled={isSaving || isLoading || !hasPendingUploads}
-        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition hover:bg-foreground/80 disabled:opacity-50 disabled:cursor-not-allowed"
     >
         {isSaving ? "Enviando…" : "Salvar HTMLs"}
     </button>

@@ -118,7 +118,7 @@ export default function BentoGrid() {
                     <a
                         href="/explorar?b=newsletter"
                         id="newsletter"
-                        className="group relative block h-full overflow-hidden rounded-3xl border border-blue-500/35 bg-gradient-to-br from-blue-600/10 via-indigo-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-blue-600/15 hover:via-indigo-500/10 hover:to-card/95 hover:border-blue-500/55 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] xl:col-span-2"
+                        className="group relative block h-full overflow-hidden rounded-3xl border border-blue-500/35 bg-gradient-to-br from-blue-600/10 via-indigo-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition duration-300 hover:from-blue-600/15 hover:via-indigo-500/10 hover:to-card/95 hover:border-blue-500/55 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 flex h-full min-h-[310px] flex-col p-5 sm:p-6">
@@ -130,7 +130,7 @@ export default function BentoGrid() {
                                 }
                                 title="Newsletter"
                                 titleClassName="text-lg sm:text-xl md:text-2xl font-bold tracking-tight leading-tight text-foreground"
-                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-blue-700 group-hover:opacity-100"
+                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-blue-700 group-hover:opacity-100"
                             />
 
                             <div className="max-w-5xl flex-1">
@@ -156,7 +156,7 @@ export default function BentoGrid() {
                     <a
                         href="/explorar?b=inteligencia-artificial"
                         id="especial"
-                        className="group relative block h-full overflow-hidden rounded-3xl border border-amber-500/40 bg-gradient-to-br from-amber-700/12 via-yellow-500/8 to-card/90 backdrop-blur-sm transition-all duration-300 hover:from-amber-700/18 hover:via-yellow-500/12 hover:to-card/95 hover:border-amber-600/60 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] xl:col-span-2"
+                        className="group relative block h-full overflow-hidden rounded-3xl border border-amber-500/40 bg-gradient-to-br from-amber-700/12 via-yellow-500/8 to-card/90 backdrop-blur-sm transition duration-300 hover:from-amber-700/18 hover:via-yellow-500/12 hover:to-card/95 hover:border-amber-600/60 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 flex h-full min-h-[310px] flex-col gap-3 p-4 sm:p-5">
@@ -168,7 +168,7 @@ export default function BentoGrid() {
                                 }
                                 title="Inteligência Artificial"
                                 titleClassName="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-foreground"
-                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-amber-800 group-hover:opacity-100"
+                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-amber-800 group-hover:opacity-100"
                             />
 
                             <div className="flex-1">
@@ -194,7 +194,7 @@ export default function BentoGrid() {
                     <a
                         href="/explorar?b=editoriais-artigos"
                         id="radar"
-                        className="group relative block h-full overflow-hidden rounded-3xl border border-orange-600/40 bg-gradient-to-br from-orange-700/12 via-red-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-orange-700/18 hover:via-red-500/12 hover:to-card/95 hover:border-orange-700/60 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] xl:col-span-2"
+                        className="group relative block h-full overflow-hidden rounded-3xl border border-orange-600/40 bg-gradient-to-br from-orange-700/12 via-red-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition duration-300 hover:from-orange-700/18 hover:via-red-500/12 hover:to-card/95 hover:border-orange-700/60 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 flex h-full min-h-[310px] flex-col gap-3 p-4 sm:p-5">
@@ -206,7 +206,7 @@ export default function BentoGrid() {
                                 }
                                 title="Editoriais e Artigos"
                                 titleClassName="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-foreground"
-                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-orange-800 group-hover:opacity-100"
+                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-orange-800 group-hover:opacity-100"
                             />
 
                             <div className="flex-1">
@@ -232,7 +232,7 @@ export default function BentoGrid() {
                     <a
                         href="/explorar?b=livro"
                         id="mini-livros"
-                        className="group relative block h-full overflow-hidden rounded-3xl border border-green-500/35 bg-gradient-to-br from-green-600/10 via-emerald-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-green-600/15 hover:via-emerald-500/10 hover:to-card/95 hover:border-green-500/55 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] xl:col-span-2"
+                        className="group relative block h-full overflow-hidden rounded-3xl border border-green-500/35 bg-gradient-to-br from-green-600/10 via-emerald-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition duration-300 hover:from-green-600/15 hover:via-emerald-500/10 hover:to-card/95 hover:border-green-500/55 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 flex h-full min-h-[310px] flex-col gap-3 p-4 sm:p-5">
@@ -244,7 +244,7 @@ export default function BentoGrid() {
                                 }
                                 title="Enquanto é Tempo"
                                 titleClassName="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-foreground"
-                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-green-700 group-hover:opacity-100"
+                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-green-700 group-hover:opacity-100"
                             />
 
                             <div className="flex-1">
@@ -270,7 +270,7 @@ export default function BentoGrid() {
                     <a
                         href="/explorar?b=biblioteca"
                         id="biblioteca"
-                        className="group relative block h-full overflow-hidden rounded-3xl border border-purple-500/35 bg-gradient-to-br from-purple-600/10 via-violet-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-purple-600/15 hover:via-violet-500/10 hover:to-card/95 hover:border-purple-500/55 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] xl:col-span-2 xl:col-start-2"
+                        className="group relative block h-full overflow-hidden rounded-3xl border border-purple-500/35 bg-gradient-to-br from-purple-600/10 via-violet-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition duration-300 hover:from-purple-600/15 hover:via-violet-500/10 hover:to-card/95 hover:border-purple-500/55 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] xl:col-span-2 xl:col-start-2"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 flex h-full min-h-[310px] flex-col gap-3 p-4 sm:p-5">
@@ -282,7 +282,7 @@ export default function BentoGrid() {
                                 }
                                 title="Biblioteca"
                                 titleClassName="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-foreground"
-                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-purple-700 group-hover:opacity-100"
+                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-purple-700 group-hover:opacity-100"
                             />
 
                             <div className="flex-1">
@@ -308,7 +308,7 @@ export default function BentoGrid() {
                     <a
                         href="/explorar?b=estudar"
                         id="estudar"
-                        className="group relative block h-full overflow-hidden rounded-3xl border border-blue-500/35 bg-gradient-to-br from-blue-600/10 via-cyan-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:from-blue-600/15 hover:via-cyan-500/10 hover:to-card/95 hover:border-blue-500/55 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] xl:col-span-2"
+                        className="group relative block h-full overflow-hidden rounded-3xl border border-blue-500/35 bg-gradient-to-br from-blue-600/10 via-cyan-500/8 to-card/90 backdrop-blur-sm cursor-pointer transition duration-300 hover:from-blue-600/15 hover:via-cyan-500/10 hover:to-card/95 hover:border-blue-500/55 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 flex h-full min-h-[310px] flex-col gap-3 p-4 sm:p-5">
@@ -320,7 +320,7 @@ export default function BentoGrid() {
                                 }
                                 title="Estudar"
                                 titleClassName="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-foreground"
-                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-blue-700 group-hover:opacity-100"
+                                arrowClassName="mt-1 h-5 w-5 shrink-0 text-text-secondary opacity-60 transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-blue-700 group-hover:opacity-100"
                             />
 
                             <div className="flex-1">
@@ -345,7 +345,7 @@ export default function BentoGrid() {
 
                     <div
                         id="ensinar"
-                        className="group relative block h-full overflow-hidden rounded-3xl border border-pink-500/35 bg-gradient-to-br from-pink-600/10 via-rose-500/8 to-card/90 backdrop-blur-sm transition-all duration-300 hover:from-pink-600/15 hover:via-rose-500/10 hover:to-card/95 hover:border-pink-500/55 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] xl:col-span-2"
+                        className="group relative block h-full overflow-hidden rounded-3xl border border-pink-500/35 bg-gradient-to-br from-pink-600/10 via-rose-500/8 to-card/90 backdrop-blur-sm transition duration-300 hover:from-pink-600/15 hover:via-rose-500/10 hover:to-card/95 hover:border-pink-500/55 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] xl:col-span-2"
                         style={{ scrollMarginTop: "100px" }}
                     >
                         <div className="relative z-10 flex h-full min-h-[310px] flex-col gap-3 p-4 sm:p-5">

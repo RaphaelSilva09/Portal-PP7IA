@@ -1,7 +1,7 @@
 -- mini_livro_sections — per-volume intro/outro sections.
--- Idempotent. RLS + Supabase grants stripped (auth at route layer).
+-- Idempotent. RLS grants stripped (auth at route layer).
 --
--- NOTE: original Supabase migration constrained kind to ('prefacio','encerramento'),
+-- NOTE: original migration constrained kind to ('prefacio','encerramento'),
 -- but the application code uses ('introducao','encerramento'). The CHECK below
 -- accepts all three to remain compatible w/ pg_dump'd prod data while the
 -- frontend reads/writes 'introducao'. A follow-up cleanup migration should
