@@ -1,14 +1,17 @@
 /**
- * Conteúdo do tour de onboarding (primeiro login). Curto de propósito — 6
- * passos contextuais, cada um mostrando uma seção/ferramenta central do
- * portal, com opção de pular a qualquer momento. Ver OnboardingModal.tsx.
+ * Conteúdo do tour de onboarding (primeiro login). Visual antes de textual:
+ * cada passo é ancorado por um ícone grande (ver ICON_BY_STEP em
+ * OnboardingModal.tsx), com só uma frase curta de apoio — parte do público
+ * do portal é mais idoso, então prioriza reconhecimento visual e textos
+ * curtos sobre parágrafos explicativos. 7 passos, sempre com opção de pular.
  */
 
 export interface OnboardingStep {
     id: string;
     eyebrow: string;
     title: string;
-    description: string;
+    /** Uma frase curta — não um parágrafo. O ícone carrega o resto do significado. */
+    caption: string;
 }
 
 export const ONBOARDING_STEPS: OnboardingStep[] = [
@@ -16,37 +19,43 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
         id: "welcome",
         eyebrow: "Bem-vindo",
         title: "Vamos te mostrar o portal.",
-        description: "Um tour rápido pelas seções principais e pelas ferramentas de leitura — leva menos de um minuto, e dá pra pular quando quiser.",
+        caption: "Poucos passos. Pule quando quiser.",
     },
     {
         id: "blocks",
         eyebrow: "Os 7 blocos",
-        title: "Todo o conteúdo, organizado por cor.",
-        description: "Newsletter, Inteligência Artificial, Editoriais e Artigos, Enquanto é Tempo, Biblioteca, Estudar e Ensinar — cada um com sua cor, sempre no mesmo lugar: o menu Explorar.",
+        title: "Todo o conteúdo, por cor.",
+        caption: "Clique em \"7 Blocos\", fixo no topo da tela.",
     },
     {
         id: "reading",
         eyebrow: "Leitura sob medida",
-        title: "Ajuste o texto do seu jeito.",
-        description: "Nos artigos, o botão flutuante no canto da tela controla tamanho da fonte, peso e espaçamento entre linhas. No menu de perfil, dá pra ajustar a tipografia do portal inteiro — e ativar o tema sépia.",
+        title: "Aumente a letra à vontade.",
+        caption: "No artigo, o botão flutuante. No perfil, o mesmo ajuste para o portal todo.",
     },
     {
         id: "assistant",
         eyebrow: "Assistente de IA",
         title: "Pergunte, em vez de procurar.",
-        description: "O balão de conversa no canto da tela responde dúvidas sobre o conteúdo do portal e ajuda a encontrar o que você precisa, sem precisar navegar por tudo.",
+        caption: "Só na página principal, no canto da tela.",
     },
     {
         id: "community",
         eyebrow: "Continue de onde parou",
-        title: "O portal lembra o que você já leu.",
-        description: "Na home e em Explorar, um atalho leva direto ao último capítulo aberto do livro. E se conhece alguém que se beneficiaria do portal, dá pra indicar pelo seu perfil.",
+        title: "O portal lembra sua leitura do livro.",
+        caption: "Na página principal e em Enquanto é Tempo.",
+    },
+    {
+        id: "theme",
+        eyebrow: "Tema do portal",
+        title: "Claro, sépia ou escuro.",
+        caption: "Alterne quando quiser, no cabeçalho.",
     },
     {
         id: "finish",
         eyebrow: "Pronto",
         title: "Hora de explorar.",
-        description: "Você pode repetir este tour quando quiser, pelo seu perfil. Bom proveito!",
+        caption: "Seu perfil fica no canto superior direito — repita o tour quando quiser.",
     },
 ];
 

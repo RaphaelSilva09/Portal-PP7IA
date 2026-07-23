@@ -23,7 +23,7 @@ const legalLinks = [
 
 // Recursos do portal
 const resourceLinks = [
-    { label: "Biblioteca de Prompts", href: "/prompts" },
+    { label: "Biblioteca de Prompts", href: "/explorar?b=biblioteca&tema=prompts" },
     { label: "Perguntas Frequentes", href: "/faq" },
 ];
 

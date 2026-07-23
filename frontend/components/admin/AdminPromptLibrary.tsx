@@ -7,8 +7,8 @@
  */
 
 import { ConfirmDialog, FeedbackMessage } from "@/components/admin";
-import { AI_TOOLS } from "@/domain/entities/PromptLibraryItem";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { AI_TOOLS, SUGGESTED_PROMPT_TAGS } from "@/domain/entities/PromptLibraryItem";
+import { Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 interface PromptRow {
@@ -19,6 +19,7 @@ interface PromptRow {
     useCase: string;
     isGated: boolean;
     sortOrder: number;
+    tags: string[];
 }
 
 interface FormState {
@@ -28,10 +29,11 @@ interface FormState {
     useCase: string;
     isGated: boolean;
     sortOrder: number;
+    tags: string[];
 }
 
 function emptyFormState(): FormState {
-    return { aiTool: AI_TOOLS[0], title: "", promptBody: "", useCase: "", isGated: true, sortOrder: 0 };
+    return { aiTool: AI_TOOLS[0], title: "", promptBody: "", useCase: "", isGated: true, sortOrder: 0, tags: [] };
 }
 
 function rowToFormState(row: PromptRow): FormState {
@@ -42,6 +44,7 @@ function rowToFormState(row: PromptRow): FormState {
         useCase: row.useCase,
         isGated: row.isGated,
         sortOrder: row.sortOrder,
+        tags: row.tags,
     };
 }
 
@@ -56,6 +59,7 @@ export default function AdminPromptLibrary() {
     const [showForm, setShowForm] = useState(false);
     const [editRow, setEditRow] = useState<PromptRow | null>(null);
     const [form, setForm] = useState<FormState>(emptyFormState());
+    const [customTagInput, setCustomTagInput] = useState("");
     const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; row: PromptRow | null }>({ show: false, row: null });
     const [feedback, setFeedback] = useState<{ show: boolean; message: string; type: "success" | "error" | "warning" }>({
         show: false,
@@ -86,13 +90,29 @@ export default function AdminPromptLibrary() {
     const handleOpenCreate = () => {
         setEditRow(null);
         setForm(emptyFormState());
+        setCustomTagInput("");
         setShowForm(true);
     };
 
     const handleOpenEdit = (row: PromptRow) => {
         setEditRow(row);
         setForm(rowToFormState(row));
+        setCustomTagInput("");
         setShowForm(true);
+    };
+
+    const toggleTag = (tag: string) => {
+        setForm(f => ({
+            ...f,
+            tags: f.tags.includes(tag) ? f.tags.filter(t => t !== tag) : [...f.tags, tag],
+        }));
+    };
+
+    const addCustomTag = () => {
+        const tag = customTagInput.trim();
+        if (!tag || form.tags.includes(tag)) return;
+        setForm(f => ({ ...f, tags: [...f.tags, tag] }));
+        setCustomTagInput("");
     };
 
     const handleSubmit = async () => {
@@ -186,6 +206,57 @@ export default function AdminPromptLibrary() {
                             />
                         </div>
                         <div>
+                            <label className={LABEL_CLASS}>Tags de uso (ajudam o leitor a filtrar)</label>
+                            <div className="flex flex-wrap gap-2">
+                                {SUGGESTED_PROMPT_TAGS.map(tag => {
+                                    const isActive = form.tags.includes(tag);
+                                    return (
+                                        <button
+                                            key={tag}
+                                            type="button"
+                                            onClick={() => toggleTag(tag)}
+                                            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                                                isActive
+                                                    ? "border-foreground bg-foreground text-background"
+                                                    : "border-border bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                                            }`}
+                                        >
+                                            {tag}
+                                        </button>
+                                    );
+                                })}
+                                {form.tags.filter(t => !(SUGGESTED_PROMPT_TAGS as readonly string[]).includes(t)).map(tag => (
+                                    <button
+                                        key={tag}
+                                        type="button"
+                                        onClick={() => toggleTag(tag)}
+                                        className="inline-flex items-center gap-1 rounded-full border border-foreground bg-foreground px-3 py-1.5 text-xs font-medium text-background"
+                                    >
+                                        {tag}
+                                        <X className="size-3" />
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="mt-2 flex gap-2">
+                                <input
+                                    className={`${INPUT_CLASS} py-2 text-sm`}
+                                    value={customTagInput}
+                                    onChange={e => setCustomTagInput(e.target.value)}
+                                    onKeyDown={e => {
+                                        if (e.key === "Enter") { e.preventDefault(); addCustomTag(); }
+                                    }}
+                                    placeholder="Adicionar tag personalizada"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={addCustomTag}
+                                    className="shrink-0 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-foreground/40"
+                                >
+                                    Adicionar
+                                </button>
+                            </div>
+                        </div>
+                        <div>
                             <label className={LABEL_CLASS}>Corpo do prompt</label>
                             <textarea
                                 className={`${INPUT_CLASS} resize-y min-h-[140px] font-mono text-xs`}
@@ -242,6 +313,7 @@ export default function AdminPromptLibrary() {
                                 <tr>
                                     <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium">IA</th>
                                     <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium">Título</th>
+                                    <th className="px-4 py-3 text-left text-muted-foreground text-sm font-medium">Tags</th>
                                     <th className="px-4 py-3 text-center text-muted-foreground text-sm font-medium w-24">Restrito</th>
                                     <th className="px-4 py-3 text-center text-muted-foreground text-sm font-medium w-28">Ações</th>
                                 </tr>
@@ -253,6 +325,19 @@ export default function AdminPromptLibrary() {
                                         <td className="px-4 py-3">
                                             <p className="text-sm font-medium text-foreground">{row.title}</p>
                                             {row.useCase && <p className="text-xs text-muted-foreground truncate max-w-xs">{row.useCase}</p>}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {row.tags.length > 0 ? (
+                                                <div className="flex flex-wrap gap-1 max-w-xs">
+                                                    {row.tags.map(tag => (
+                                                        <span key={tag} className="rounded-full bg-accent px-2 py-0.5 text-[11px] text-muted-foreground">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-muted-foreground/60">—</span>
+                                            )}
                                         </td>
                                         <td className="px-4 py-3 text-center text-sm text-muted-foreground">{row.isGated ? "Sim" : "Não"}</td>
                                         <td className="px-4 py-3">

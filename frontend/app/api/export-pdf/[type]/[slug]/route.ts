@@ -101,8 +101,37 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         });
 
         // Garante que fundos coloridos do conteúdo (definidos em CSS) apareçam
-        // no PDF em vez de serem descartados pelas configurações padrão de impressão.
-        await page.addStyleTag({ content: "* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }" });
+        // no PDF em vez de serem descartados pelas configurações padrão de
+        // impressão, e evita que seções sejam cortadas ao meio entre páginas.
+        //
+        // Duas camadas: regras genéricas por tag semântica (cobrem qualquer
+        // conteúdo, seja qual for o template) + classes do "PP7+IAS Design
+        // System" observado nos HTMLs de mini-livro (.card, .hero, .manifesto
+        // etc. — blocos de conteúdo, não containers gigantes como .section,
+        // que podem ser mais altos que uma página e forçariam um vão em
+        // branco se travados inteiros). Um seletor que não casa com nada no
+        // documento é inofensivo, então é seguro manter os dois grupos juntos
+        // mesmo quando um tipo de conteúdo não usa essas classes.
+        await page.addStyleTag({
+            content: `
+                * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+                h1, h2, h3, h4, h5, h6, p, li, blockquote, img, figure, tr, pre {
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                }
+                h1, h2, h3, h4, h5, h6 {
+                    break-after: avoid;
+                    page-break-after: avoid;
+                }
+
+                .card, .hero, .manifesto, .cit, .test-box, .prompt-box,
+                .list-item, .tb-item, .num-item, .nums {
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                }
+            `,
+        });
 
         const pdfBuffer = await page.pdf({
             format: "a4",

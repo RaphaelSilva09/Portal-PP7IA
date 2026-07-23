@@ -6,6 +6,7 @@ import capaParte2 from "@/assets/capa-parte-2.jpeg";
 import capaParte3 from "@/assets/capa-parte-3.jpeg";
 import { contrastColor } from "@/lib/colorContrast";
 
+import BibliotecaPromptsSection from "@/components/biblioteca/BibliotecaPromptsSection";
 import { BIBLIOTECA_TEMAS } from "@/domain/entities/BibliotecaItem";
 import type { Book } from "@/domain/entities/Book";
 import type { Ebook } from "@/domain/entities/Ebook";
@@ -585,10 +586,19 @@ export function BlockBiblioteca({ initialTema = null }: BlockBibliotecaProps = {
                                     </>
                                 )}
                             </>
-                        ) : (
+                        ) : activeTema !== "prompts" ? (
                             <div className="flex min-h-[200px] items-center justify-center rounded-2xl border border-dashed border-border">
                                 <p className="text-sm text-muted-foreground">Nenhum item neste tema ainda.</p>
                             </div>
+                        ) : null}
+
+                        {/* Biblioteca de Prompts — embutida aqui, não mais uma página
+                            dedicada (/prompts). Sempre abaixo dos documentos do tema. */}
+                        {activeTema === "prompts" && (
+                            <>
+                                <Divider label="Biblioteca de Prompts" />
+                                <BibliotecaPromptsSection />
+                            </>
                         )}
                     </div>
                 </div>

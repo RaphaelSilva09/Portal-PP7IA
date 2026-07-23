@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { aiTool, title, promptBody, useCase, isGated, sortOrder } = body ?? {};
+    const { aiTool, title, promptBody, useCase, isGated, sortOrder, tags } = body ?? {};
 
     if (typeof aiTool !== "string" || !aiTool.trim() || typeof title !== "string" || !title.trim() || typeof promptBody !== "string" || !promptBody.trim()) {
         return NextResponse.json({ error: "Campos obrigatórios: aiTool, title, promptBody" }, { status: 400 });
@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
         useCase: typeof useCase === "string" ? useCase.trim() : "",
         isGated: isGated !== false,
         sortOrder: typeof sortOrder === "number" ? sortOrder : 0,
+        tags: Array.isArray(tags) ? tags.filter((t): t is string => typeof t === "string" && t.trim().length > 0) : [],
     });
 
     return NextResponse.json(created.toObject(), { status: 201 });

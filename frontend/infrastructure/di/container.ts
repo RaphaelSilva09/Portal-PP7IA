@@ -73,7 +73,7 @@ import { UpdateExplorarConfigUseCase } from "../../application/usecases/UpdateEx
 import { SiteBgRepository } from "../repositories/SiteBgRepository";
 import { GetSiteBgUseCase } from "../../application/usecases/GetSiteBgUseCase";
 import { UpdateSiteBgUseCase } from "../../application/usecases/UpdateSiteBgUseCase";
-import { SupabasePromptLibraryRepository } from "../repositories/SupabasePromptLibraryRepository";
+import { PostgresPromptLibraryRepository } from "../repositories/PostgresPromptLibraryRepository";
 import { SupabaseFaqRepository } from "../repositories/SupabaseFaqRepository";
 import { SupabaseReaderQuestionRepository } from "../repositories/SupabaseReaderQuestionRepository";
 import { SupabaseContentReactionRepository } from "../repositories/SupabaseContentReactionRepository";
@@ -106,7 +106,7 @@ class DIContainer {
     private static blockColorsRepositoryInstance: BlockColorsRepository | null = null;
     private static explorarConfigRepositoryInstance: ExplorarConfigRepository | null = null;
     private static siteBgRepositoryInstance: SiteBgRepository | null = null;
-    private static promptLibraryRepositoryInstance: SupabasePromptLibraryRepository | null = null;
+    private static promptLibraryRepositoryInstance: PostgresPromptLibraryRepository | null = null;
     private static faqRepositoryInstance: SupabaseFaqRepository | null = null;
     private static readerQuestionRepositoryInstance: SupabaseReaderQuestionRepository | null = null;
     private static contentReactionRepositoryInstance: SupabaseContentReactionRepository | null = null;
@@ -134,9 +134,9 @@ class DIContainer {
         return this.newsletterRepositoryInstance;
     }
 
-    static getPromptLibraryRepository(): SupabasePromptLibraryRepository {
+    static getPromptLibraryRepository(): PostgresPromptLibraryRepository {
         if (!this.promptLibraryRepositoryInstance) {
-            this.promptLibraryRepositoryInstance = new SupabasePromptLibraryRepository();
+            this.promptLibraryRepositoryInstance = new PostgresPromptLibraryRepository();
         }
         return this.promptLibraryRepositoryInstance;
     }

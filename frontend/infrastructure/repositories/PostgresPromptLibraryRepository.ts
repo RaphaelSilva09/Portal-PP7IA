@@ -16,9 +16,10 @@ interface PromptLibraryRow {
     use_case: string;
     is_gated: boolean;
     sort_order: number;
+    tags: string[] | null;
 }
 
-export class SupabasePromptLibraryRepository implements IPromptLibraryRepository {
+export class PostgresPromptLibraryRepository implements IPromptLibraryRepository {
     async getAll(): Promise<PromptLibraryItem[]> {
         try {
             const { rows } = await pool.query(
@@ -44,10 +45,10 @@ export class SupabasePromptLibraryRepository implements IPromptLibraryRepository
 
     async create(input: CreatePromptLibraryItemInput): Promise<PromptLibraryItem> {
         const { rows } = await pool.query(
-            `INSERT INTO prompt_library (ai_tool, title, prompt_body, use_case, is_gated, sort_order)
-             VALUES ($1, $2, $3, $4, $5, $6)
+            `INSERT INTO prompt_library (ai_tool, title, prompt_body, use_case, is_gated, sort_order, tags)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
              RETURNING *`,
-            [input.aiTool, input.title, input.promptBody, input.useCase, input.isGated, input.sortOrder ?? 0],
+            [input.aiTool, input.title, input.promptBody, input.useCase, input.isGated, input.sortOrder ?? 0, input.tags ?? []],
         );
         return this.mapToEntity(rows[0] as PromptLibraryRow);
     }
@@ -64,6 +65,7 @@ export class SupabasePromptLibraryRepository implements IPromptLibraryRepository
             useCase: "use_case",
             isGated: "is_gated",
             sortOrder: "sort_order",
+            tags: "tags",
         };
 
         for (const [key, column] of Object.entries(columnByKey)) {
@@ -104,6 +106,7 @@ export class SupabasePromptLibraryRepository implements IPromptLibraryRepository
             useCase: row.use_case,
             isGated: row.is_gated,
             sortOrder: row.sort_order,
+            tags: row.tags ?? [],
         };
         return PromptLibraryItem.create(props);
     }

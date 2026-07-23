@@ -7,6 +7,7 @@ export interface CreatePromptLibraryItemInput {
     useCase: string;
     isGated: boolean;
     sortOrder?: number;
+    tags?: string[];
 }
 
 export interface UpdatePromptLibraryItemInput {
@@ -16,6 +17,7 @@ export interface UpdatePromptLibraryItemInput {
     useCase?: string;
     isGated?: boolean;
     sortOrder?: number;
+    tags?: string[];
 }
 
 export interface IPromptLibraryRepository {

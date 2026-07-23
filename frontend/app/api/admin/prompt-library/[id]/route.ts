@@ -25,7 +25,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     const body = await req.json();
-    const { aiTool, title, promptBody, useCase, isGated, sortOrder } = body ?? {};
+    const { aiTool, title, promptBody, useCase, isGated, sortOrder, tags } = body ?? {};
 
     const updated = await DIContainer.getPromptLibraryRepository().update(id, {
         aiTool: typeof aiTool === "string" ? aiTool.trim() : undefined,
@@ -34,6 +34,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         useCase: typeof useCase === "string" ? useCase.trim() : undefined,
         isGated: typeof isGated === "boolean" ? isGated : undefined,
         sortOrder: typeof sortOrder === "number" ? sortOrder : undefined,
+        tags: Array.isArray(tags) ? tags.filter((t): t is string => typeof t === "string" && t.trim().length > 0) : undefined,
     });
 
     if (!updated) {

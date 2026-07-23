@@ -22,10 +22,10 @@ import {
 import { portalContentClass } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import UpdatedBadge from "@/components/UpdatedBadge";
-import { Clock, FileText, Globe } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, FileText, Globe } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useExplorarConfig } from "@/presentation/hooks/useExplorarConfig";
 
 const BLOCKS = [
@@ -112,6 +112,75 @@ export default function ExplorarClient({ initialBlock, initialTema = null }: Pro
     const [activeBlock, setActiveBlock] = useState<BlockId | null>(validInitial);
     const tabsRef = useRef<HTMLDivElement>(null);
 
+    // Setas de rolagem da barra de blocos: sem elas, um mouse não tem
+    // nenhuma forma óbvia de rolar essa linha (scrollbar fica escondida de
+    // propósito, e overflow-x-auto sozinho não arrasta com o mouse — só
+    // toque/trackpad). Aparecem só quando há mais conteúdo pra esse lado.
+    const [canScrollTabsLeft, setCanScrollTabsLeft] = useState(false);
+    const [canScrollTabsRight, setCanScrollTabsRight] = useState(false);
+
+    const updateTabsScrollState = useCallback(() => {
+        const el = tabsRef.current;
+        if (!el) return;
+        setCanScrollTabsLeft(el.scrollLeft > 4);
+        setCanScrollTabsRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    }, []);
+
+    useEffect(() => {
+        const el = tabsRef.current;
+        if (!el) return;
+        updateTabsScrollState();
+        el.addEventListener("scroll", updateTabsScrollState, { passive: true });
+        window.addEventListener("resize", updateTabsScrollState);
+        return () => {
+            el.removeEventListener("scroll", updateTabsScrollState);
+            window.removeEventListener("resize", updateTabsScrollState);
+        };
+    }, [updateTabsScrollState]);
+
+    const scrollTabs = (direction: 1 | -1) => {
+        tabsRef.current?.scrollBy({ left: direction * 240, behavior: "smooth" });
+    };
+
+    // Arrastar com o mouse para rolar a barra de blocos — overflow-x-auto
+    // sozinho só rola com toque/trackpad, não com o botão do mouse segurado.
+    // Restrito a pointerType "mouse": toque já rola nativamente (com inércia
+    // e tudo) e não deve ser substituído por esta lógica manual.
+    const tabsDragRef = useRef<{ startX: number; startScrollLeft: number; dragged: boolean } | null>(null);
+
+    const handleTabsPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (e.pointerType !== "mouse") return;
+        const el = tabsRef.current;
+        if (!el) return;
+        tabsDragRef.current = { startX: e.clientX, startScrollLeft: el.scrollLeft, dragged: false };
+        el.setPointerCapture(e.pointerId);
+    };
+
+    const handleTabsPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+        const drag = tabsDragRef.current;
+        const el = tabsRef.current;
+        if (!drag || !el) return;
+        const delta = e.clientX - drag.startX;
+        if (Math.abs(delta) > 4) drag.dragged = true;
+        el.scrollLeft = drag.startScrollLeft - delta;
+    };
+
+    const handleTabsPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+        const el = tabsRef.current;
+        const drag = tabsDragRef.current;
+        // Um arrasto de verdade não deve também disparar o clique da aba sob
+        // o cursor ao soltar — suprime só esse próximo clique.
+        if (drag?.dragged && el) {
+            const suppressClick = (ev: MouseEvent) => {
+                ev.stopPropagation();
+                ev.preventDefault();
+            };
+            el.addEventListener("click", suppressClick, { capture: true, once: true });
+        }
+        tabsDragRef.current = null;
+        el?.releasePointerCapture(e.pointerId);
+    };
+
     const newsletters = useNewsletters();
     const especial = useEspecialSemana();
     const radar = useRadarOportunidades();
@@ -170,6 +239,12 @@ export default function ExplorarClient({ initialBlock, initialTema = null }: Pro
         return cards.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }, [newsletters, especial, radar, miniLivros, biblioteca, estudar]);
 
+    // Contadores só aparecem depois do carregamento — a largura de cada aba
+    // muda nesse momento, então precisa reavaliar se as setas devem aparecer.
+    useEffect(() => {
+        updateTabsScrollState();
+    }, [isLoading, allCards.length, updateTabsScrollState]);
+
     const blockCounts = useMemo(() => {
         const counts: Partial<Record<BlockId, number>> = {};
         for (const c of allCards) {
@@ -216,10 +291,37 @@ export default function ExplorarClient({ initialBlock, initialTema = null }: Pro
 
             {/* ─── Sticky Tab Bar ────────────────────────────────────── */}
             <div className="sticky top-16 z-30 border-b border-border/60 bg-background/95 backdrop-blur-md md:top-20">
-                <div className={portalContentClass}>
+                <div className={cn(portalContentClass, "relative")}>
+                    {/* Setas de rolagem: única forma óbvia de rolar essa linha
+                        no mouse (sem elas, só toque/trackpad conseguem). Só
+                        aparecem quando há mais abas pra revelar naquele lado. */}
+                    {canScrollTabsLeft && (
+                        <button
+                            type="button"
+                            onClick={() => scrollTabs(-1)}
+                            aria-label="Ver blocos anteriores"
+                            className="absolute left-1 top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm transition-colors hover:border-foreground/30"
+                        >
+                            <ChevronLeft className="size-4" />
+                        </button>
+                    )}
+                    {canScrollTabsRight && (
+                        <button
+                            type="button"
+                            onClick={() => scrollTabs(1)}
+                            aria-label="Ver mais blocos"
+                            className="absolute right-1 top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-sm transition-colors hover:border-foreground/30"
+                        >
+                            <ChevronRight className="size-4" />
+                        </button>
+                    )}
                     <div
                         ref={tabsRef}
-                        className="scroll-fade-x flex items-center gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        onPointerDown={handleTabsPointerDown}
+                        onPointerMove={handleTabsPointerMove}
+                        onPointerUp={handleTabsPointerUp}
+                        onPointerCancel={handleTabsPointerUp}
+                        className="scroll-fade-x flex select-none items-center gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&:not(:active)]:cursor-grab active:cursor-grabbing"
                         role="tablist"
                         aria-label="Filtrar por bloco"
                     >

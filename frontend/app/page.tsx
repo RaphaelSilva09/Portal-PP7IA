@@ -198,7 +198,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                                     </span>
                                     <span className="self-center text-sm font-medium transition-opacity group-hover:opacity-80"
                                         style={{ color: "var(--hero-newsletter-sidebar-number)" }}>
-                                        {t(s, "newsletterCard_cta", "Assinar →")}
+                                        {t(s, "newsletterCard_cta", "Acessar →")}
                                     </span>
                                 </div>
                             </div>
@@ -627,7 +627,7 @@ export default async function Home() {
                                 <li><a href="/user" className="hover:text-foreground">Cadastrar</a></li>
                                 <li><a href="/quem-somos" className="hover:text-foreground">Indicar</a></li>
                                 <li><a href="#manifesto" className="hover:text-foreground">Manifesto</a></li>
-                                <li><a href="/prompts" className="hover:text-foreground">Biblioteca de Prompts</a></li>
+                                <li><a href="/explorar?b=biblioteca&tema=prompts" className="hover:text-foreground">Biblioteca de Prompts</a></li>
                                 <li><a href="/faq" className="hover:text-foreground">Perguntas Frequentes</a></li>
                                 <li><a href="/quem-somos" className="hover:text-foreground">Contato</a></li>
                             </ul>
