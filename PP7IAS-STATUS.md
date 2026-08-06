@@ -52,14 +52,14 @@ Ao contrário da premissa do documento ("blocos 2 e 3 hoje sem conteúdo"), o c�
 ## 3. Newsletter (3.2) — 🟡 Parcial
 
 O que existe:
-- Entidade `frontend/domain/entities/Newsletter.ts`, repositório `SupabaseNewsletterRepository.ts`, tabela `public.newsletters`.
+- Entidade `frontend/domain/entities/Newsletter.ts`, repositório `PostgresNewsletterRepository.ts`, tabela `public.newsletters`.
 - CRUD via admin (`ContentForm.tsx`) — cada edição é **um título + um arquivo HTML + um PDF**, igual a todos os outros tipos de conteúdo.
 - Existe um texto de orientação mostrado ao admin ao criar: *"publique 7 notícias curtas por semana, com link para aprofundamento e prioridade para o que importa ao Brasil"* — mas isso é só um texto de ajuda, **nada valida quantidade, tamanho de linha ou formato**.
 
 O que falta:
 - **Cadência 2x/semana**: hoje a cópia do site diz *"Publicação semanal com 7 itens"* / *"toda quarta"* (`frontend/app/page.tsx:186`, `homeBlocks.ts:20`) — é 1x/semana, não a segunda (7 IAs) + quarta (startups) pedida no novo plano.
 - **Lista de fontes** (50–70, curadoria, consulta aleatória semanal) — não existe em lugar nenhum do repo (nem `docs/`, nem `frontend/data/`, nem tabela no banco). O anexo do PDF é a primeira entrega dessa lista — precisa ser persistido em algum lugar (arquivo em `docs/` ou tabela) para a Luiza manter.
-- **Automação (agente da Luiza)**: não existe nenhum script, cron, GitHub Action ou Supabase Function que gere rascunho de newsletter e entregue por e-mail às quartas/sextas. Os únicos scripts em `frontend/scripts/` são do RAG/chat (`ingest-rag.ts`, `generate-meta-chunks.ts` etc.), sem relação.
+- **Automação (agente da Luiza)**: não existe nenhum script, cron, GitHub Action ou função serverless dedicada que gere rascunho de newsletter e entregue por e-mail às quartas/sextas. Os únicos scripts em `frontend/scripts/` são do RAG/chat (`ingest-rag.ts`, `generate-meta-chunks.ts` etc.), sem relação.
 - Limite de 4–5 linhas por notícia: não há validação de tamanho de texto em nenhuma camada.
 
 ---
@@ -80,7 +80,7 @@ Mesma estrutura genérica de conteúdo (`RadarOportunidades`), sem agrupamento d
 ## 6. Publicação e automação de e-mail (3.5)
 
 - **3.5.2 (publicar diariamente, não esperar quarta)** — ✅ Já é assim hoje por natureza: o CRUD de conteúdo permite publicar a qualquer momento (não há processo em lote nem trava semanal). Nenhuma mudança de código necessária aqui, é mais um combinado de processo com a equipe.
-- **3.5.1 (e-mail semanal de quarta, responsável Raphael)** — ❌ Não automatizado. O Resend (`frontend/lib/email/resend.ts`) hoje só é usado para convites, recuperação de senha e verificação de e-mail (confirmado em `AGENTS.md`: *"Resend (invite emails)"*). Não há cron configurado (`frontend/vercel.json` só tem build/dev/install; não há `.github/workflows` nem `supabase/functions`). Esse aviso semanal, se está saindo, está sendo feito manualmente pelo Raphael fora do sistema.
+- **3.5.1 (e-mail semanal de quarta, responsável Raphael)** — ❌ Não automatizado. O Resend (`frontend/lib/email/resend.ts`) hoje só é usado para convites, recuperação de senha e verificação de e-mail (confirmado em `AGENTS.md`: *"Resend (invite emails)"*). Não há cron configurado (`frontend/vercel.json` só tem build/dev/install; não há `.github/workflows` nem função dedicada). Esse aviso semanal, se está saindo, está sendo feito manualmente pelo Raphael fora do sistema.
 
 ---
 

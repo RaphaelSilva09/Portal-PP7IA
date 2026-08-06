@@ -12,7 +12,7 @@ interface ReaderQuestionRow {
     status: ReaderQuestionStatus;
 }
 
-export class SupabaseReaderQuestionRepository implements IReaderQuestionRepository {
+export class PostgresReaderQuestionRepository implements IReaderQuestionRepository {
     async getAll(): Promise<ReaderQuestion[]> {
         try {
             const { rows } = await pool.query(

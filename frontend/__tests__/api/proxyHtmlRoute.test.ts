@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "next/server";
 
 const { mockResolveContentFilePath } = vi.hoisted(() => ({
     mockResolveContentFilePath: vi.fn(),
@@ -21,7 +22,7 @@ describe("proxy HTML route HEAD", () => {
             absolutePath: "/storage/materiais/radar-de-oportunidades/001.html",
         });
 
-        const response = await HEAD({} as Request, {
+        const response = await HEAD(new NextRequest("http://localhost/api/proxy-html/radar_oportunidades/001"), {
             params: Promise.resolve({ type: "radar_oportunidades", slug: "001" }),
         });
 
@@ -35,7 +36,7 @@ describe("proxy HTML route HEAD", () => {
             error: "Arquivo não encontrado",
         });
 
-        const response = await HEAD({} as Request, {
+        const response = await HEAD(new NextRequest("http://localhost/api/proxy-html/radar_oportunidades/001"), {
             params: Promise.resolve({ type: "radar_oportunidades", slug: "001" }),
         });
 

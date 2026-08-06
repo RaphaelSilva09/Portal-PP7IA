@@ -74,10 +74,10 @@ import { SiteBgRepository } from "../repositories/SiteBgRepository";
 import { GetSiteBgUseCase } from "../../application/usecases/GetSiteBgUseCase";
 import { UpdateSiteBgUseCase } from "../../application/usecases/UpdateSiteBgUseCase";
 import { PostgresPromptLibraryRepository } from "../repositories/PostgresPromptLibraryRepository";
-import { SupabaseFaqRepository } from "../repositories/SupabaseFaqRepository";
-import { SupabaseReaderQuestionRepository } from "../repositories/SupabaseReaderQuestionRepository";
-import { SupabaseContentReactionRepository } from "../repositories/SupabaseContentReactionRepository";
-import { SupabaseReferralRepository } from "../repositories/SupabaseReferralRepository";
+import { PostgresFaqRepository } from "../repositories/PostgresFaqRepository";
+import { PostgresReaderQuestionRepository } from "../repositories/PostgresReaderQuestionRepository";
+import { PostgresContentReactionRepository } from "../repositories/PostgresContentReactionRepository";
+import { PostgresReferralRepository } from "../repositories/PostgresReferralRepository";
 
 /**
  * Container de Dependências
@@ -107,10 +107,10 @@ class DIContainer {
     private static explorarConfigRepositoryInstance: ExplorarConfigRepository | null = null;
     private static siteBgRepositoryInstance: SiteBgRepository | null = null;
     private static promptLibraryRepositoryInstance: PostgresPromptLibraryRepository | null = null;
-    private static faqRepositoryInstance: SupabaseFaqRepository | null = null;
-    private static readerQuestionRepositoryInstance: SupabaseReaderQuestionRepository | null = null;
-    private static contentReactionRepositoryInstance: SupabaseContentReactionRepository | null = null;
-    private static referralRepositoryInstance: SupabaseReferralRepository | null = null;
+    private static faqRepositoryInstance: PostgresFaqRepository | null = null;
+    private static readerQuestionRepositoryInstance: PostgresReaderQuestionRepository | null = null;
+    private static contentReactionRepositoryInstance: PostgresContentReactionRepository | null = null;
+    private static referralRepositoryInstance: PostgresReferralRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -141,30 +141,30 @@ class DIContainer {
         return this.promptLibraryRepositoryInstance;
     }
 
-    static getFaqRepository(): SupabaseFaqRepository {
+    static getFaqRepository(): PostgresFaqRepository {
         if (!this.faqRepositoryInstance) {
-            this.faqRepositoryInstance = new SupabaseFaqRepository();
+            this.faqRepositoryInstance = new PostgresFaqRepository();
         }
         return this.faqRepositoryInstance;
     }
 
-    static getReaderQuestionRepository(): SupabaseReaderQuestionRepository {
+    static getReaderQuestionRepository(): PostgresReaderQuestionRepository {
         if (!this.readerQuestionRepositoryInstance) {
-            this.readerQuestionRepositoryInstance = new SupabaseReaderQuestionRepository();
+            this.readerQuestionRepositoryInstance = new PostgresReaderQuestionRepository();
         }
         return this.readerQuestionRepositoryInstance;
     }
 
-    static getContentReactionRepository(): SupabaseContentReactionRepository {
+    static getContentReactionRepository(): PostgresContentReactionRepository {
         if (!this.contentReactionRepositoryInstance) {
-            this.contentReactionRepositoryInstance = new SupabaseContentReactionRepository();
+            this.contentReactionRepositoryInstance = new PostgresContentReactionRepository();
         }
         return this.contentReactionRepositoryInstance;
     }
 
-    static getReferralRepository(): SupabaseReferralRepository {
+    static getReferralRepository(): PostgresReferralRepository {
         if (!this.referralRepositoryInstance) {
-            this.referralRepositoryInstance = new SupabaseReferralRepository();
+            this.referralRepositoryInstance = new PostgresReferralRepository();
         }
         return this.referralRepositoryInstance;
     }

@@ -12,7 +12,7 @@ interface FaqRow {
     sort_order: number;
 }
 
-export class SupabaseFaqRepository implements IFaqRepository {
+export class PostgresFaqRepository implements IFaqRepository {
     async getAll(): Promise<FaqItem[]> {
         try {
             const { rows } = await pool.query(`SELECT * FROM faq_items ORDER BY sort_order ASC, created_at ASC`);

@@ -2,7 +2,7 @@ import { pool } from "../../lib/db";
 import { emptyReactionCounts, ReactionCounts, ReactionType } from "../../domain/entities/ContentReaction";
 import { IContentReactionRepository, TopReactedContent } from "../../domain/repositories/IContentReactionRepository";
 
-export class SupabaseContentReactionRepository implements IContentReactionRepository {
+export class PostgresContentReactionRepository implements IContentReactionRepository {
     async toggle(userId: string, contentType: string, contentId: string, reaction: ReactionType): Promise<ReactionType | null> {
         const { rows: existingRows } = await pool.query(
             `SELECT reaction FROM content_reactions WHERE user_id = $1 AND content_type = $2 AND content_id = $3`,
