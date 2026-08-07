@@ -184,8 +184,11 @@ export class PostgresEspecialSemanaRepository implements IEspecialSemanaReposito
     private isValidRow(row: unknown): row is PostgresEspecialSemanaRow {
         if (!row || typeof row !== "object") return false;
         const r = row as Record<string, unknown>;
+        // id vem como bigint do Postgres — o driver `pg` retorna bigint como string
+        // (evita perda de precisão), então aceitar string numérica além de number.
+        const idOk = typeof r.id === "number" || (typeof r.id === "string" && r.id !== "" && !isNaN(Number(r.id)));
         return (
-            typeof r.id === "number" &&
+            idOk &&
             (typeof r.created_at === "string" || r.created_at instanceof Date) &&
             typeof r.title === "string" &&
             typeof r.read_time === "number"
@@ -197,7 +200,7 @@ export class PostgresEspecialSemanaRepository implements IEspecialSemanaReposito
      */
     private mapToEntity(row: PostgresEspecialSemanaRow): EspecialSemana {
         const props: EspecialSemanaProps = {
-            id: row.id,
+            id: Number(row.id),
             createdAt: new Date(row.created_at),
             updatedAt: row.updated_at ? new Date(row.updated_at) : null,
             title: row.title,

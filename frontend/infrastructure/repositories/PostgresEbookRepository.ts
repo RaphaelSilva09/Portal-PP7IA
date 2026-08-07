@@ -77,12 +77,15 @@ export class PostgresEbookRepository implements IEbookRepository {
     private isValidRow(row: unknown): row is PostgresEbookRow {
         if (!row || typeof row !== "object") return false;
         const r = row as Record<string, unknown>;
-        return typeof r.id === "number" && typeof r.title === "string";
+        // id vem como bigint do Postgres — o driver `pg` retorna bigint como string
+        // (evita perda de precisão), então aceitar string numérica além de number.
+        const idOk = typeof r.id === "number" || (typeof r.id === "string" && r.id !== "" && !isNaN(Number(r.id)));
+        return idOk && typeof r.title === "string";
     }
 
     private mapToEntity(row: PostgresEbookRow): Ebook {
         const props: EbookProps = {
-            id: row.id,
+            id: Number(row.id),
             createdAt: new Date(row.created_at),
             title: row.title,
             subtitle: row.subtitle ?? null,
