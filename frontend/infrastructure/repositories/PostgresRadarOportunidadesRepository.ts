@@ -68,12 +68,15 @@ export class PostgresRadarOportunidadesRepository implements IRadarOportunidades
     private isValidRow(row: unknown): row is PostgresRadarRow {
         if (!row || typeof row !== "object") return false;
         const r = row as Record<string, unknown>;
-        return typeof r.id === "number" && typeof r.title === "string";
+        // id vem como bigint do Postgres — o driver `pg` retorna bigint como string
+        // (evita perda de precisão), então aceitar string numérica além de number.
+        const idOk = typeof r.id === "number" || (typeof r.id === "string" && r.id !== "" && !isNaN(Number(r.id)));
+        return idOk && typeof r.title === "string";
     }
 
     private mapToEntity(row: PostgresRadarRow): RadarOportunidades {
         const props: RadarOportunidadesProps = {
-            id: row.id,
+            id: Number(row.id),
             createdAt: new Date(row.created_at),
             updatedAt: row.updated_at ? new Date(row.updated_at) : null,
             title: row.title,

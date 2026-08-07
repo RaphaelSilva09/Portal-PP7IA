@@ -13,8 +13,8 @@ import DIContainer from "@/infrastructure/di/container";
 
 const STORAGE_ROOT = process.env.STORAGE_ROOT ?? "./data";
 
-// Mapeamento de tipos de conteúdo para bucket e pastas do Supabase Storage
-// Estrutura: Bucket único "materiais" com subpastas por tipo de conteúdo
+// Mapeamento de tipos de conteúdo para bucket e pastas do storage de arquivos
+// Estrutura: bucket único "materiais" com subpastas por tipo de conteúdo
 export const STORAGE_CONFIG: Record<string, { bucket: string; folder: string }> = {
     newsletter: { bucket: "materiais", folder: "newsletters" },
     "mini-livro": { bucket: "materiais", folder: "mini-livros/mini" },

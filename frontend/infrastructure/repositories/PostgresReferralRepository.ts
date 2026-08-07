@@ -24,7 +24,7 @@ function generateInviteToken(): string {
     return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
 }
 
-export class SupabaseReferralRepository implements IReferralRepository {
+export class PostgresReferralRepository implements IReferralRepository {
     async createInvite(referrerUserId: string, invitedEmail: string): Promise<{ token: string }> {
         const token = generateInviteToken();
         await pool.query(

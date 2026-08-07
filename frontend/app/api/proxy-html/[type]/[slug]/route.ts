@@ -64,3 +64,28 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
     }
 }
+
+export async function HEAD(_request: NextRequest, { params }: { params: Promise<{ type: string; slug: string }> }) {
+    try {
+        const { type, slug } = await params;
+
+        const resolved = await resolveContentFilePath(type, slug);
+        if (!resolved.ok) {
+            return new Response(null, { status: resolved.status });
+        }
+
+        return new Response(null, {
+            status: 200,
+            headers: {
+                "Content-Type": "text/html; charset=utf-8",
+                "X-Frame-Options": "SAMEORIGIN",
+                "X-Content-Type-Options": "nosniff",
+                "X-XSS-Protection": "1; mode=block",
+                "Cache-Control": "no-store",
+            },
+        });
+    } catch (error) {
+        console.error("Erro no HEAD do proxy de HTML:", error);
+        return new Response(null, { status: 500 });
+    }
+}

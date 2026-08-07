@@ -8,11 +8,11 @@
 
 - Todas as tabelas de conteúdo (`newsletters`, `especial_semana`, `radar_oportunidades`, `mini_livros`, `biblioteca`, `estudar`, `ebooks`) têm coluna `updated_at DEFAULT now()`.
 - Porém **apenas `newsletters` tem trigger** de auto-atualização (`trg_newsletters_updated_at`). Para os demais tipos, `updated_at` não muda em UPDATE hoje.
-- Correção app-level (sem migração): `SupabaseContentRepository.update()` passa a incluir `updated_at = NOW()` no SET — cobre todos os tipos daqui em diante.
+- Correção app-level (sem migração): `PostgresContentRepository.update()` passa a incluir `updated_at = NOW()` no SET — cobre todos os tipos daqui em diante.
 
 ## Critérios de aceite
 
-1. `SupabaseContentRepository.update()` seta `updated_at = NOW()` em todo update de conteúdo.
+1. `PostgresContentRepository.update()` seta `updated_at = NOW()` em todo update de conteúdo.
 2. Entidades de conteúdo listadas no explorar expõem `updatedAt` (props + getter), fluindo do banco até o card.
 3. Abrir um conteúdo em `/view/...` registra a visita localmente (mapa `pathname → timestamp`).
 4. Card no explorar exibe marcação discreta ("Atualizado") quando `updatedAt` do item > timestamp da última visita registrada.
