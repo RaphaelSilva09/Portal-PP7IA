@@ -19,7 +19,7 @@ import {
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { FileText, GripVertical, Pencil, Trash2 } from "lucide-react";
+import { ArrowRightLeft, FileText, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const MINI_LIVRO_EBOOK_TABS = [
@@ -31,6 +31,7 @@ const MINI_LIVRO_EBOOK_TABS = [
 interface SortableContentTableProps {
     items: ContentItem[];
     onEdit: (item: ContentItem) => void;
+    onMove?: (item: ContentItem) => void;
     onDelete: (item: ContentItem) => void;
     onReorder: (reorderedItems: ContentItem[]) => Promise<void>;
     lastUpdated?: Date | null;
@@ -43,6 +44,7 @@ interface SortableRowProps {
     item: ContentItem;
     position: number;
     onEdit: (item: ContentItem) => void;
+    onMove?: (item: ContentItem) => void;
     onDelete: (item: ContentItem) => void;
     isBiblioteca: boolean;
     isReordering: boolean;
@@ -53,7 +55,7 @@ function getTemaLabel(tema: string | null | undefined): string {
     return BIBLIOTECA_TEMAS.find(t => t.slug === tema)?.label ?? tema;
 }
 
-function SortableRow({ item, position, onEdit, onDelete, isBiblioteca, isReordering }: SortableRowProps) {
+function SortableRow({ item, position, onEdit, onMove, onDelete, isBiblioteca, isReordering }: SortableRowProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
 
     const style = {
@@ -101,6 +103,15 @@ function SortableRow({ item, position, onEdit, onDelete, isBiblioteca, isReorder
                     >
                         <Pencil className="size-3.5" />
                     </button>
+                    {onMove && (
+                        <button
+                            onClick={() => onMove(item)}
+                            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                            aria-label="Mover para outro bloco"
+                        >
+                            <ArrowRightLeft className="size-3.5" />
+                        </button>
+                    )}
                     <button
                         onClick={() => onDelete(item)}
                         className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-500"
@@ -114,7 +125,7 @@ function SortableRow({ item, position, onEdit, onDelete, isBiblioteca, isReorder
     );
 }
 
-export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastUpdated, type, selectedEbookIndex = 0, onEbookChange }: SortableContentTableProps) {
+export function SortableContentTable({ items, onEdit, onMove, onDelete, onReorder, lastUpdated, type, selectedEbookIndex = 0, onEbookChange }: SortableContentTableProps) {
     const [localItems, setLocalItems] = useState<ContentItem[]>(items);
     const [isReordering, setIsReordering] = useState(false);
     const isBiblioteca = type === "biblioteca";
@@ -204,6 +215,7 @@ export function SortableContentTable({ items, onEdit, onDelete, onReorder, lastU
                                         item={item}
                                         position={i + 1}
                                         onEdit={onEdit}
+                                        onMove={onMove}
                                         onDelete={onDelete}
                                         isBiblioteca={isBiblioteca}
                                         isReordering={isReordering}
