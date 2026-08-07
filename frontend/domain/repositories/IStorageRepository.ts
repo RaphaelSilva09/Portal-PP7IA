@@ -27,6 +27,16 @@ export interface IStorageRepository {
     upload(bucket: string, fileName: string, file: File): Promise<UploadResult>;
 
     /**
+     * Copia um arquivo já existente no storage para um novo caminho.
+     * Não apaga o arquivo de origem — quem chama decide quando limpar.
+     * @param bucket - Nome do bucket
+     * @param fromPath - Caminho de origem, relativo ao bucket
+     * @param toPath - Caminho de destino, relativo ao bucket
+     * @returns Resultado com path e URL pública do novo arquivo
+     */
+    copy(bucket: string, fromPath: string, toPath: string): Promise<UploadResult>;
+
+    /**
      * Remove um arquivo do storage
      * @param bucket - Nome do bucket
      * @param filePath - Caminho do arquivo no bucket
