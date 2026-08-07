@@ -17,6 +17,7 @@ import { ToggleAnnouncementBarUseCase } from "../../application/usecases/ToggleA
 import { UpdateAnnouncementBarUseCase } from "../../application/usecases/UpdateAnnouncementBarUseCase";
 import { CreateContentWithUploadUseCase } from "../../application/usecases/CreateContentWithUploadUseCase";
 import { DeleteContentWithFilesUseCase } from "../../application/usecases/DeleteContentWithFilesUseCase";
+import { MoveContentWithFilesUseCase } from "../../application/usecases/MoveContentWithFilesUseCase";
 import { DeleteUserAndDataUseCase } from "../../application/usecases/DeleteUserAndDataUseCase";
 import { DemoteUserFromAdminUseCase } from "../../application/usecases/DemoteUserFromAdminUseCase";
 import { GetActiveBookUseCase } from "../../application/usecases/GetActiveBookUseCase";
@@ -412,6 +413,10 @@ class DIContainer {
 
     static getDeleteContentWithFilesUseCase(): DeleteContentWithFilesUseCase {
         return new DeleteContentWithFilesUseCase(this.getContentRepository(), this.getStorageRepository());
+    }
+
+    static getMoveContentWithFilesUseCase(): MoveContentWithFilesUseCase {
+        return new MoveContentWithFilesUseCase(this.getContentRepository(), this.getStorageRepository());
     }
 
     /**

@@ -18,6 +18,8 @@ export { AdminPortalNews } from "./AdminPortalNews";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { ContentForm } from "./ContentForm";
 export { ContentTable } from "./ContentTable";
+export { MoveContentModal } from "./MoveContentModal";
+export type { MoveContentInput } from "./MoveContentModal";
 export { SortableContentTable } from "./SortableContentTable";
 export { Dashboard } from "./Dashboard";
 export { EbookForm } from "./EbookForm";

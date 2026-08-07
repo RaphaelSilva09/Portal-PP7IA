@@ -121,7 +121,7 @@ export class PostgresContentRepository implements IContentRepository {
         // Ebook tem colunas extras no banco — montar objeto de insert apropriado.
         // Ebooks: created_at tem DEFAULT now() no banco, não é necessário enviar.
         // Demais tabelas: created_at é NOT NULL sem DEFAULT, deve ser enviado explicitamente.
-        const now = new Date().toISOString();
+        const now = (input.createdAt ?? new Date()).toISOString();
         const rawInsertData: Record<string, unknown> =
             type === "ebook"
                 ? {
@@ -267,5 +267,19 @@ export class PostgresContentRepository implements IContentRepository {
                 pool.query(`UPDATE ${table} SET "index" = $1 WHERE id = $2`, [i + 1, id]),
             ),
         );
+    }
+
+    async suppressDigestNotification(type: ContentType, id: number): Promise<void> {
+        const table = TABLE_MAP[type];
+        try {
+            await pool.query(
+                `UPDATE public.content_digest_queue
+                 SET sent_at = now()
+                 WHERE table_name = $1 AND record_id = $2 AND sent_at IS NULL`,
+                [table, String(id)],
+            );
+        } catch (error) {
+            console.error(`Falha ao suprimir notificação de digest para ${type}#${id}:`, error);
+        }
     }
 }

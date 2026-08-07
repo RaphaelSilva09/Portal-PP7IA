@@ -55,6 +55,27 @@ export class FilesystemStorageRepository implements IStorageRepository {
         };
     }
 
+    async copy(bucket: string, fromPath: string, toPath: string): Promise<UploadResult> {
+        const safeBucket = sanitizeSegment(bucket);
+        const safeFrom = sanitizeSegment(fromPath);
+        const safeTo = sanitizeSegment(toPath);
+        if (!safeBucket || !safeFrom || !safeTo) {
+            throw new Error("Bucket ou caminho inválido");
+        }
+
+        const relPath = path.posix.join(safeBucket, safeTo);
+        const absFrom = safeJoin(safeBucket, safeFrom);
+        const absTo = safeJoin(safeBucket, safeTo);
+
+        await fs.mkdir(path.dirname(absTo), { recursive: true });
+        await fs.copyFile(absFrom, absTo);
+
+        return {
+            path: relPath,
+            publicUrl: `${PUBLIC_BASE}/${relPath}`,
+        };
+    }
+
     async delete(bucket: string, filePath: string): Promise<void> {
         const safeBucket = sanitizeSegment(bucket);
         const safeRel = sanitizeSegment(filePath);

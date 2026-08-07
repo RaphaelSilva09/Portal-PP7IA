@@ -2,17 +2,18 @@
 
 import { ContentItem, ContentType } from "@/domain/entities/ContentItem";
 import { BIBLIOTECA_TEMAS } from "@/domain/entities/BibliotecaItem";
-import { FileText, Pencil, Trash2 } from "lucide-react";
+import { ArrowRightLeft, FileText, Pencil, Trash2 } from "lucide-react";
 
 interface ContentTableProps {
     items: ContentItem[];
     onEdit: (item: ContentItem) => void;
+    onMove?: (item: ContentItem) => void;
     onDelete: (item: ContentItem) => void;
     lastUpdated?: Date | null;
     type?: ContentType;
 }
 
-export function ContentTable({ items, onEdit, onDelete, lastUpdated, type }: ContentTableProps) {
+export function ContentTable({ items, onEdit, onMove, onDelete, lastUpdated, type }: ContentTableProps) {
     const isBiblioteca = type === "biblioteca";
 
     const getTemaLabel = (tema: string | null | undefined): string => {
@@ -69,6 +70,15 @@ export function ContentTable({ items, onEdit, onDelete, lastUpdated, type }: Con
                                         >
                                             <Pencil className="size-3.5" />
                                         </button>
+                                        {onMove && (
+                                            <button
+                                                onClick={() => onMove(item)}
+                                                className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                                                aria-label="Mover para outro bloco"
+                                            >
+                                                <ArrowRightLeft className="size-3.5" />
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => onDelete(item)}
                                             className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-500"

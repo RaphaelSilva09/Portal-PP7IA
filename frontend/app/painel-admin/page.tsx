@@ -15,7 +15,7 @@
  * - DI: Obtém use cases via DIContainer
  */
 
-import type { EbookFormData } from "@/components/admin";
+import type { EbookFormData, MoveContentInput } from "@/components/admin";
 import AdminBlockColors from "@/components/admin/AdminBlockColors";
 import {
     AdminAnalytics,
@@ -39,6 +39,7 @@ import {
     Dashboard,
     EbookForm,
     FeedbackMessage,
+    MoveContentModal,
     ReadingTimeButton,
     ReindexButton,
     SortableContentTable,
@@ -169,6 +170,7 @@ export default function PainelAdminPage() {
     const [showForm, setShowForm] = useState(false);
     const [editItem, setEditItem] = useState<ContentItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [movingItem, setMovingItem] = useState<ContentItem | null>(null);
     const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
 
     const { all: allEbooks } = useEbook();
@@ -328,6 +330,41 @@ export default function PainelAdminPage() {
             setFeedback({
                 show: true,
                 message: error instanceof Error ? error.message : "Erro ao salvar material. Tente novamente.",
+                type: "error",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleMoveSubmit = async (input: MoveContentInput) => {
+        if (!movingItem) return;
+        setIsSubmitting(true);
+        try {
+            const res = await fetch(
+                `/api/admin/content/${encodeURIComponent(contentTab)}/${movingItem.id}/move`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(input),
+                },
+            );
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error ?? `HTTP ${res.status}`);
+            }
+            setMovingItem(null);
+            await loadItems();
+            setFeedback({
+                show: true,
+                message: "Conteúdo movido com sucesso!",
+                type: "success",
+            });
+        } catch (error) {
+            console.error("Erro ao mover conteúdo:", error);
+            setFeedback({
+                show: true,
+                message: error instanceof Error ? error.message : "Erro ao mover conteúdo. Tente novamente.",
                 type: "error",
             });
         } finally {
@@ -640,6 +677,7 @@ export default function PainelAdminPage() {
                                                     ? items.filter(ml => ml.partOrder === selectedEbookIndex + 1)
                                                     : items}
                                                 onEdit={handleEdit}
+                                                onMove={setMovingItem}
                                                 onDelete={handleDelete}
                                                 onReorder={handleReorder}
                                                 lastUpdated={lastUpdated}
@@ -651,6 +689,7 @@ export default function PainelAdminPage() {
                                             <ContentTable
                                                 items={items}
                                                 onEdit={handleEdit}
+                                                onMove={contentTab === "ebook" ? undefined : setMovingItem}
                                                 onDelete={handleDelete}
                                                 lastUpdated={lastUpdated}
                                                 type={contentTab as ContentType}
@@ -671,6 +710,14 @@ export default function PainelAdminPage() {
                 message={confirmDialog.message}
                 onConfirm={confirmDialog.onConfirm}
                 onCancel={() => setConfirmDialog({ ...confirmDialog, show: false })}
+            />
+            <MoveContentModal
+                isOpen={movingItem !== null}
+                item={movingItem}
+                sourceType={contentTab as ContentType}
+                onMove={handleMoveSubmit}
+                onCancel={() => setMovingItem(null)}
+                isLoading={isSubmitting}
             />
             <FeedbackMessage
                 isVisible={feedback.show}
