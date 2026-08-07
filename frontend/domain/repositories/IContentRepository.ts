@@ -15,6 +15,8 @@ import { ContentItem, ContentType } from "../entities/ContentItem";
 export interface CreateContentInput {
     title: string;
     readTime?: number;
+    /** Preserva a data de criação original ao mover conteúdo entre blocos. Ausente = usa now(). */
+    createdAt?: Date;
     // Campos específicos de mini-livro
     /** ID do ebook ao qual este mini-livro pertence (FK para ebooks.id) */
     ebookId?: number | null;
@@ -101,4 +103,15 @@ export interface IContentRepository {
      * @param orderedIds - IDs na nova ordem desejada
      */
     reorderItems(type: ContentType, orderedIds: number[]): Promise<void>;
+
+    /**
+     * Marca como já processada a entrada que o trigger de digest semanal
+     * acabou de criar em `content_digest_queue` para este registro — usado
+     * ao mover conteúdo entre blocos, para que a reorganização não gere
+     * e-mail de "conteúdo novo". Nunca lança erro: é um efeito colateral
+     * não-crítico, uma falha aqui não deve reverter um move que já deu certo.
+     * @param type - Tipo de conteúdo
+     * @param id - ID do item recém-criado
+     */
+    suppressDigestNotification(type: ContentType, id: number): Promise<void>;
 }
