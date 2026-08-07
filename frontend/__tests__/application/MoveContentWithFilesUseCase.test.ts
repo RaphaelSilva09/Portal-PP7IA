@@ -150,6 +150,15 @@ describe("MoveContentWithFilesUseCase", () => {
         expect(mocks.contentRepository.create).not.toHaveBeenCalled();
     });
 
+    it("rejeita ebook como origem", async () => {
+        await expect(
+            useCase.execute({ sourceType: "ebook", id: 7, targetType: "estudar" }),
+        ).rejects.toThrow();
+
+        expect(mocks.contentRepository.getById).not.toHaveBeenCalled();
+        expect(mocks.contentRepository.create).not.toHaveBeenCalled();
+    });
+
     it("lança erro quando o item de origem não existe", async () => {
         mocks.contentRepository.getById.mockResolvedValueOnce(null);
 

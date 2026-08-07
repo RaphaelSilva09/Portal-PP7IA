@@ -43,6 +43,9 @@ export class MoveContentWithFilesUseCase {
         if (!MOVABLE_CONTENT_TYPES.has(input.targetType)) {
             throw new Error(`Bloco de destino inválido: ${input.targetType}`);
         }
+        if (!MOVABLE_CONTENT_TYPES.has(input.sourceType)) {
+            throw new Error(`Bloco de origem inválido: ${input.sourceType}`);
+        }
         if (input.targetType === input.sourceType) {
             throw new Error("O bloco de destino precisa ser diferente do bloco atual");
         }
