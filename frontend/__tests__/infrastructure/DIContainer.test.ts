@@ -12,6 +12,7 @@ vi.mock('@/lib/auth-client', () => ({
 import DIContainer from '@/infrastructure/di/container';
 import { BetterAuthRepository } from '@/infrastructure/repositories/BetterAuthRepository';
 import { SignInUseCase } from '@/application/usecases/SignInUseCase';
+import { MoveContentWithFilesUseCase } from '@/application/usecases/MoveContentWithFilesUseCase';
 
 describe('DIContainer', () => {
     beforeEach(() => {
@@ -21,6 +22,11 @@ describe('DIContainer', () => {
     it('getAuthRepository() retorna instância de BetterAuthRepository', () => {
         const repo = DIContainer.getAuthRepository();
         expect(repo).toBeInstanceOf(BetterAuthRepository);
+    });
+
+    it('getMoveContentWithFilesUseCase() retorna instância de MoveContentWithFilesUseCase', () => {
+        const useCase = DIContainer.getMoveContentWithFilesUseCase();
+        expect(useCase).toBeInstanceOf(MoveContentWithFilesUseCase);
     });
 
     it('getSignInUseCase() retorna instância de SignInUseCase', () => {
