@@ -30,6 +30,17 @@ describe("ViewIframe", () => {
         expect(iframe.getAttribute("src")).toBe("/api/proxy-html/newsletter/abc");
     });
 
+    it("permite navegação de topo e escape de popups para não bloquear links do conteúdo", () => {
+        render(<ViewIframe htmlPath="/api/proxy-html/editorial/apple" title="Editorial" />);
+
+        const iframe = screen.getByTitle("Editorial") as HTMLIFrameElement;
+        const sandbox = iframe.getAttribute("sandbox") ?? "";
+
+        expect(sandbox).toContain("allow-top-navigation-by-user-activation");
+        expect(sandbox).toContain("allow-popups-to-escape-sandbox");
+        expect(sandbox).toContain("allow-popups");
+    });
+
     it("não aplica filtro de sépia fora do tema sépia", () => {
         render(<ViewIframe htmlPath="/api/proxy-html/newsletter/abc" title="Newsletter" />);
 

@@ -293,7 +293,13 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
             className="block w-full overflow-hidden border-0 transition-[filter] duration-300 ease-out"
             style={{ height: `${iframeHeight}px`, filter: isSepia ? SEPIA_FILTER : undefined }}
             title={title}
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            // allow-top-navigation-by-user-activation: links com target="_top"/"_parent"
+            //   (comuns em HTML exportado/newsletter) navegam a aba ao serem clicados —
+            //   sem isso o browser bloqueia silenciosamente a navegação do ancestral.
+            // allow-popups-to-escape-sandbox: popups de target="_blank" abrem sem herdar
+            //   o sandbox (origem opaca), senão o destino carrega quebrado/em branco.
+            // Conteúdo é HTML curado pelo admin (confiável), então afrouxar aqui é seguro.
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
             scrolling="no"
         />
     );
