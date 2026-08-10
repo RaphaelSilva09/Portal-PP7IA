@@ -44,6 +44,36 @@ export function applySepiaToColor(color: string, amount: number): string {
 
 const READING_PREFS_STYLE_ID = "pp7ias-reading-prefs";
 
+/**
+ * Faz links externos do conteúdo abrirem em nova aba.
+ *
+ * O HTML é exibido dentro de um <iframe>. Sem isso, um link sem `target`
+ * navega o próprio iframe para o site externo — que costuma recusar ser
+ * embedado (X-Frame-Options: DENY / frame-ancestors), resultando na tela
+ * "another site has embedded it" no lugar do conteúdo. Abrir em nova aba
+ * (target="_blank", já permitido por allow-popups) evita o embed e leva o
+ * usuário direto ao destino. Âncoras internas (#...) e links relativos
+ * ficam intactos.
+ */
+function openExternalLinksInNewTab(iframe: HTMLIFrameElement): void {
+    const contentDocument = iframe.contentDocument;
+    if (!contentDocument || typeof contentDocument.querySelectorAll !== "function") return;
+
+    const anchors = contentDocument.querySelectorAll<HTMLAnchorElement>("a[href]");
+    anchors.forEach(anchor => {
+        const href = anchor.getAttribute("href")?.trim();
+        if (!href) return;
+
+        // Só links externos absolutos (http(s):// ou //). Ignora #âncora,
+        // relativos, mailto:, tel: etc.
+        const isExternal = /^(https?:)?\/\//i.test(href);
+        if (!isExternal) return;
+
+        anchor.setAttribute("target", "_blank");
+        anchor.setAttribute("rel", "noopener noreferrer");
+    });
+}
+
 function applyReadingPrefs(iframe: HTMLIFrameElement): void {
     const contentDocument = iframe.contentDocument;
     if (!contentDocument?.head) return;
@@ -213,6 +243,7 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
         const handleLoad = () => {
             cleanupFrameObservers();
             applyReadingPrefs(iframe);
+            openExternalLinksInNewTab(iframe);
             setRawBackgroundColor(getFrameBackgroundColor(iframe));
 
             const contentDocument = iframe.contentDocument;
@@ -293,13 +324,12 @@ export default function ViewIframe({ htmlPath, title, onBackgroundColorChange }:
             className="block w-full overflow-hidden border-0 transition-[filter] duration-300 ease-out"
             style={{ height: `${iframeHeight}px`, filter: isSepia ? SEPIA_FILTER : undefined }}
             title={title}
-            // allow-top-navigation-by-user-activation: links com target="_top"/"_parent"
-            //   (comuns em HTML exportado/newsletter) navegam a aba ao serem clicados —
-            //   sem isso o browser bloqueia silenciosamente a navegação do ancestral.
-            // allow-popups-to-escape-sandbox: popups de target="_blank" abrem sem herdar
-            //   o sandbox (origem opaca), senão o destino carrega quebrado/em branco.
+            // Links externos são reescritos para target="_blank" (openExternalLinksInNewTab),
+            // abrindo em nova aba em vez de navegar o iframe — que quebraria em sites que
+            // recusam embed (X-Frame-Options). allow-popups-to-escape-sandbox faz o destino
+            // abrir fora do sandbox (origem real), senão carregaria quebrado.
             // Conteúdo é HTML curado pelo admin (confiável), então afrouxar aqui é seguro.
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-popups-to-escape-sandbox"
             scrolling="no"
         />
     );
