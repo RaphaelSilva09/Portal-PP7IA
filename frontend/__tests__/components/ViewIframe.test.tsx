@@ -30,6 +30,56 @@ describe("ViewIframe", () => {
         expect(iframe.getAttribute("src")).toBe("/api/proxy-html/newsletter/abc");
     });
 
+    it("permite popups escaparem do sandbox para os links abrirem em nova aba", () => {
+        render(<ViewIframe htmlPath="/api/proxy-html/editorial/apple" title="Editorial" />);
+
+        const iframe = screen.getByTitle("Editorial") as HTMLIFrameElement;
+        const sandbox = iframe.getAttribute("sandbox") ?? "";
+
+        expect(sandbox).toContain("allow-popups");
+        expect(sandbox).toContain("allow-popups-to-escape-sandbox");
+    });
+
+    it("reescreve links externos para abrir em nova aba, preservando âncoras e relativos", () => {
+        render(<ViewIframe htmlPath="/api/proxy-html/editorial/apple" title="Editorial" />);
+
+        const iframe = screen.getByTitle("Editorial") as HTMLIFrameElement;
+
+        const externalAnchor = document.createElement("a");
+        externalAnchor.setAttribute("href", "https://medium.com/artigo");
+        const protocolRelativeAnchor = document.createElement("a");
+        protocolRelativeAnchor.setAttribute("href", "//example.com/x");
+        const hashAnchor = document.createElement("a");
+        hashAnchor.setAttribute("href", "#secao");
+        const relativeAnchor = document.createElement("a");
+        relativeAnchor.setAttribute("href", "/interno");
+
+        const anchors = [externalAnchor, protocolRelativeAnchor, hashAnchor, relativeAnchor];
+        const mockDocument = {
+            head: document.createElement("head"),
+            body: document.createElement("body"),
+            documentElement: document.createElement("html"),
+            querySelectorAll: (selector: string) =>
+                selector === "a[href]" ? (anchors as unknown as NodeListOf<HTMLAnchorElement>) : [],
+            getElementById: () => null,
+            createElement: (tag: string) => document.createElement(tag),
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+        } as unknown as Document;
+        const mockWindow = { addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as Window;
+
+        Object.defineProperty(iframe, "contentDocument", { configurable: true, value: mockDocument });
+        Object.defineProperty(iframe, "contentWindow", { configurable: true, value: mockWindow });
+
+        fireEvent.load(iframe);
+
+        expect(externalAnchor.getAttribute("target")).toBe("_blank");
+        expect(externalAnchor.getAttribute("rel")).toBe("noopener noreferrer");
+        expect(protocolRelativeAnchor.getAttribute("target")).toBe("_blank");
+        expect(hashAnchor.getAttribute("target")).toBeNull();
+        expect(relativeAnchor.getAttribute("target")).toBeNull();
+    });
+
     it("não aplica filtro de sépia fora do tema sépia", () => {
         render(<ViewIframe htmlPath="/api/proxy-html/newsletter/abc" title="Newsletter" />);
 
