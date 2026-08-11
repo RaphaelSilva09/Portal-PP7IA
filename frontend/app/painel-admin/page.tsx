@@ -32,6 +32,7 @@ import {
     AdminPromptLibrary,
     AdminReaderQuestions,
     AdminReactions,
+    AdminReadingTrails,
     AnnouncementBarTab,
     ConfirmDialog,
     ContentForm,
@@ -66,6 +67,7 @@ import {
     Palette,
     Plus,
     Radar,
+    Route,
     Sparkles,
     Star,
     ThumbsUp,
@@ -78,7 +80,7 @@ import { useEbook } from "@/presentation/hooks/useEbook";
 import ThemeToggle from "@/components/ThemeToggle";
 
 // Seções principais do painel (navegação de alto nível)
-type MainSection = "inicio" | "conteudo" | "usuarios" | "analytics" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar" | "site-bg" | "prompts" | "faq" | "perguntas-leitores" | "reacoes";
+type MainSection = "inicio" | "conteudo" | "usuarios" | "analytics" | "novidades" | "editorial" | "barra-aviso" | "home" | "recomendacoes" | "pagina-home" | "cores-blocos" | "pagina-explorar" | "site-bg" | "prompts" | "faq" | "perguntas-leitores" | "reacoes" | "trilhas";
 
 type ContentTab = ContentType | "livro" | "mini-livro-sections";
 
@@ -485,6 +487,7 @@ export default function PainelAdminPage() {
                 { section: "faq",                 label: "FAQ",                   icon: HelpCircle   },
                 { section: "perguntas-leitores",  label: "Perguntas dos Leitores", icon: MessageSquare },
                 { section: "reacoes",             label: "Reações",               icon: ThumbsUp     },
+                { section: "trilhas",             label: "Trilhas de Leitura",    icon: Route        },
             ],
         },
     ];
@@ -603,6 +606,7 @@ export default function PainelAdminPage() {
                 {mainSection === "faq"           && <AdminFaq />}
                 {mainSection === "perguntas-leitores" && <AdminReaderQuestions />}
                 {mainSection === "reacoes"       && <AdminReactions />}
+                {mainSection === "trilhas"       && <AdminReadingTrails />}
                         {mainSection === "usuarios"     && <UserManager />}
                         {mainSection === "analytics"    && <AdminAnalytics />}
                         {mainSection === "novidades"    && <AdminPortalNews />}

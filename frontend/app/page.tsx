@@ -101,7 +101,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                                     <path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
                                 </svg>
-                                {t(s, "btn1", "Explorar os 7 blocos")}
+                                {t(s, "btn1", "Índice do conteúdo publicado")}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">
                                     <path d="M7 7h10v10" /><path d="M7 17 17 7" />
                                 </svg>
@@ -110,7 +110,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
                                     <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" />
                                 </svg>
-                                {t(s, "btn2", "Receber a newsletter")}
+                                {t(s, "btn2", "Assinar o portal")}
                             </a>
                         </div>
                     </div>
@@ -198,7 +198,7 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                                     </span>
                                     <span className="self-center text-sm font-medium transition-opacity group-hover:opacity-80"
                                         style={{ color: "var(--hero-newsletter-sidebar-number)" }}>
-                                        {t(s, "newsletterCard_cta", "Acessar →")}
+                                        {t(s, "newsletterCard_cta", "Ler →")}
                                     </span>
                                 </div>
                             </div>
@@ -550,7 +550,7 @@ export default async function Home() {
         {
             key: "explorar",
             eyebrow: "Portal",
-            title: "Explorar os 7 blocos",
+            title: "Índice do conteúdo publicado",
             description: "Todo o conteúdo, organizado por cor.",
             href: "/explorar",
             color: "var(--block-radar)",

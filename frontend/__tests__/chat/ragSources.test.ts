@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { RAG_SOURCES, isCitable } from "@/lib/chat/ragSources";
+import { RAG_SOURCES, articleContextSourceType, isCitable } from "@/lib/chat/ragSources";
 
 describe("RAG_SOURCES", () => {
     it("has no duplicate sourceTypes", () => {
@@ -36,5 +36,26 @@ describe("isCitable", () => {
 
     it("defaults to true for unknown source types", () => {
         expect(isCitable("unknown_source")).toBe(true);
+    });
+});
+
+describe("articleContextSourceType", () => {
+    it("maps view page types with hyphens to their underscored RAG source_type", () => {
+        expect(articleContextSourceType("mini-livro")).toBe("mini_livro");
+        expect(articleContextSourceType("especial-semana")).toBe("especial_semana");
+    });
+
+    it("maps view page types that already match their RAG source_type", () => {
+        expect(articleContextSourceType("newsletter")).toBe("newsletter");
+        expect(articleContextSourceType("biblioteca")).toBe("biblioteca");
+        expect(articleContextSourceType("radar_oportunidades")).toBe("radar_oportunidades");
+        expect(articleContextSourceType("estudar")).toBe("estudar");
+    });
+
+    it("returns null for view types with no ingested RAG source", () => {
+        expect(articleContextSourceType("editorial")).toBeNull();
+        expect(articleContextSourceType("ebook")).toBeNull();
+        expect(articleContextSourceType("book")).toBeNull();
+        expect(articleContextSourceType("mini-livro-section")).toBeNull();
     });
 });

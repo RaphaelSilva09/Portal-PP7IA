@@ -9,8 +9,9 @@ import { encodeSseEvent, sseResponse } from "@/lib/chat/sse";
 import { buildPrompt } from "@/lib/chat/promptBuilder";
 import { answerWithMarkers } from "@/lib/chat/answerWithMarkers";
 import { citationFromMetadata } from "@/domain/chat/RagAnswer";
-import { RAG_SOURCES } from "@/lib/chat/ragSources";
-import { selectRagContext } from "@/lib/chat/ragSelection";
+import { RAG_SOURCES, articleContextSourceType } from "@/lib/chat/ragSources";
+import { selectRagContext, mergeArticleChunks } from "@/lib/chat/ragSelection";
+import { toSourceId } from "@/infrastructure/chat/contentSourceUtils";
 import type { Message } from "@/domain/chat/Message";
 import type { SseEvent } from "@/domain/chat/RagAnswer";
 import type { RetrievedChunk } from "@/domain/chat/Chunk";
@@ -27,8 +28,13 @@ const MessageSchema = z.object({
     role: z.enum(["user", "assistant"]),
     content: z.string().min(1).max(4000),
 });
+const ArticleContextSchema = z.object({
+    contentType: z.string().min(1),
+    contentId: z.string().min(1),
+});
 const BodySchema = z.object({
     messages: z.array(MessageSchema).min(1).max(20),
+    articleContext: ArticleContextSchema.optional(),
 });
 
 function singleEventStream(event: SseEvent): ReadableStream<Uint8Array> {
@@ -42,7 +48,7 @@ function singleEventStream(event: SseEvent): ReadableStream<Uint8Array> {
 
 export async function POST(request: NextRequest) {
     // Parse and validate body
-    let body: { messages: Message[] };
+    let body: { messages: Message[]; articleContext?: { contentType: string; contentId: string } };
     try {
         const json = await request.json();
         body = BodySchema.parse(json);
@@ -104,6 +110,23 @@ export async function POST(request: NextRequest) {
             ),
         );
         allChunks = results.flat();
+    }
+
+    // 4b. Chat contextual: se o leitor está numa página de conteúdo, funde os
+    //     chunks daquele artigo específico (similarity forçada 1.0) com os da
+    //     busca acima, para que perguntas genéricas ("resuma isso") priorizem
+    //     o conteúdo aberto sem precisar bater por similaridade textual.
+    let articleTitle: string | undefined;
+    if (body.articleContext) {
+        const ragSourceType = articleContextSourceType(body.articleContext.contentType);
+        const numericId = Number(body.articleContext.contentId);
+        if (ragSourceType && Number.isInteger(numericId) && numericId >= 0 && numericId <= 0xffffffffffff) {
+            const articleChunks = await chunkRepo.findBySourceId(ragSourceType, toSourceId(numericId));
+            if (articleChunks.length > 0) {
+                allChunks = mergeArticleChunks(allChunks, articleChunks);
+                articleTitle = articleChunks[0].metadata.title || articleChunks[0].metadata.parent_title;
+            }
+        }
     }
 
     // 5. Split: citable (→ citations + [N] markers) vs uncited (→ [Contexto adicional]).
@@ -172,6 +195,7 @@ export async function POST(request: NextRequest) {
         chunks: usedChunks,
         chunkToCitationIdx: usedIdx,
         uncitedChunks,
+        articleTitle,
     });
 
     // 8. Generate with 1-retry on missing [N] markers

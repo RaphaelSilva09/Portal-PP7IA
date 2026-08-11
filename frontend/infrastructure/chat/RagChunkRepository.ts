@@ -139,6 +139,28 @@ export class RagChunkRepository {
         }));
     }
 
+    /** Fetch all chunks for a given source by source_id (e.g. the article currently open in the reader). */
+    async findBySourceId(sourceType: string, sourceId: string): Promise<RetrievedChunk[]> {
+        const { rows } = await pool.query<ChunkRow>(
+            `
+            SELECT source_type, source_id, chunk_index, content, metadata
+            FROM public.rag_chunks
+            WHERE source_type = $1
+              AND source_id = $2
+            ORDER BY chunk_index ASC
+            `,
+            [sourceType, sourceId],
+        );
+        return rows.map(r => ({
+            source_type: r.source_type,
+            source_id: r.source_id,
+            chunk_index: r.chunk_index,
+            content: r.content,
+            metadata: r.metadata as unknown as RetrievedChunk["metadata"],
+            similarity: 1.0,
+        }));
+    }
+
     async findAllContentBySourceType(sourceType: string): Promise<{ content: string; title: string }[]> {
         const { rows } = await pool.query<{ content: string; metadata: Record<string, unknown> }>(
             `SELECT content, metadata FROM public.rag_chunks

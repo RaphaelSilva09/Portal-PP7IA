@@ -20,3 +20,22 @@ export const RAG_SOURCES: RagSourceConfig[] = [
 export function isCitable(sourceType: string): boolean {
     return RAG_SOURCES.find(s => s.sourceType === sourceType)?.citable ?? true;
 }
+
+/**
+ * Mapeia o `type` usado nas páginas `/view/[type]/[slug]` para o `source_type`
+ * do RAG (chat contextual). Tipos ausentes daqui não têm chunks ingeridos
+ * (ex.: editorial, ebook, book, mini-livro-section) — o chat contextual é
+ * ignorado nesses casos, sem quebrar o restante da conversa.
+ */
+const VIEW_TYPE_TO_RAG_SOURCE: Record<string, string> = {
+    newsletter: "newsletter",
+    "mini-livro": "mini_livro",
+    biblioteca: "biblioteca",
+    "especial-semana": "especial_semana",
+    radar_oportunidades: "radar_oportunidades",
+    estudar: "estudar",
+};
+
+export function articleContextSourceType(viewType: string): string | null {
+    return VIEW_TYPE_TO_RAG_SOURCE[viewType] ?? null;
+}

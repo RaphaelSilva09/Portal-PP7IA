@@ -7,7 +7,7 @@ import { THEME_ICONS, THEME_LABEL, useThemeCycle } from "@/hooks/useThemeCycle";
 import { usePortalFontScale } from "@/hooks/usePortalFontScale";
 import { portalContentClass } from "@/lib/layout";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, ChevronDown, LogOut, Menu, Plus, Search, Type, User, UserPlus, X } from "lucide-react";
+import { ArrowUpRight, Bookmark, ChevronDown, LogOut, Menu, Plus, Search, Type, User, UserPlus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -378,6 +378,15 @@ export default function Navbar({ autoHideOnScroll = false, onAutoHiddenChange }:
                                                 <User className="size-4 text-muted-foreground" aria-hidden="true" />
                                                 Meu Perfil
                                             </Link>
+                                            <Link
+                                                role="menuitem"
+                                                href="/salvos"
+                                                onClick={() => setIsDesktopProfileMenuOpen(false)}
+                                                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent/50"
+                                            >
+                                                <Bookmark className="size-4 text-muted-foreground" aria-hidden="true" />
+                                                Salvos
+                                            </Link>
                                             <button
                                                 role="menuitem"
                                                 onClick={() => { setIsDesktopProfileMenuOpen(false); openInviteModal(); }}
@@ -457,6 +466,15 @@ export default function Navbar({ autoHideOnScroll = false, onAutoHiddenChange }:
                                             >
                                                 <User className="size-4 text-muted-foreground" aria-hidden="true" />
                                                 Meu Perfil
+                                            </Link>
+                                            <Link
+                                                role="menuitem"
+                                                href="/salvos"
+                                                onClick={() => setIsProfileMenuOpen(false)}
+                                                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent/50"
+                                            >
+                                                <Bookmark className="size-4 text-muted-foreground" aria-hidden="true" />
+                                                Salvos
                                             </Link>
                                             <button
                                                 role="menuitem"

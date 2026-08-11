@@ -108,13 +108,13 @@ export const DEFAULT_HOMEPAGE_CONFIG: HomepageConfig = {
                 line3: "Leia Enquanto é Tempo",
                 description:
                     "Curadoria editorial independente sobre liderança, gestão de pessoas e IA — para quem quer decidir melhor com menos ruído.",
-                btn1: "Explorar os 7 blocos",
-                btn2: "Receber a newsletter",
+                btn1: "Índice do conteúdo publicado",
+                btn2: "Assinar o portal",
                 newsletterCard_label: "Curadoria Semanal",
                 newsletterCard_headline1: "7 notícias de IA,",
                 newsletterCard_headline2: "segunda e quarta.",
                 newsletterCard_tagline: "Curto · com links · foco Brasil",
-                newsletterCard_cta: "Assinar →",
+                newsletterCard_cta: "Ler →",
             },
         },
         {

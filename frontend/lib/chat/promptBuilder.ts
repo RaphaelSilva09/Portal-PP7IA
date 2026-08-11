@@ -66,6 +66,8 @@ export interface PromptInputs {
     chunks: RetrievedChunk[];
     chunkToCitationIdx: number[];
     uncitedChunks?: RetrievedChunk[];
+    /** Título do conteúdo que o leitor tem aberto no momento, se houver (chat contextual). */
+    articleTitle?: string;
 }
 
 export interface BuiltPrompt {
@@ -81,8 +83,11 @@ export function buildPrompt(input: PromptInputs): BuiltPrompt {
     const last = messages[messages.length - 1];
     if (last.role !== "user") throw new Error("buildPrompt: last message must be from user");
     const history = messages.slice(0, -1).slice(-MAX_HISTORY);
+    const system = input.articleTitle
+        ? `${SYSTEM_PROMPT}\n\nCONTEXTO ATUAL: o leitor está com o conteúdo "${input.articleTitle}" aberto agora. Se a pergunta for genérica (ex: "resuma isso", "do que se trata", "o que esse texto diz sobre X"), priorize esse conteúdo específico antes de buscar em outras fontes.`
+        : SYSTEM_PROMPT;
     return {
-        system: SYSTEM_PROMPT,
+        system,
         context: buildContext(input.chunks, input.chunkToCitationIdx, input.uncitedChunks ?? []),
         history,
         question: last.content,

@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from "react";
 import type { ContentViewNavigationLink } from "@/application/usecases/GetContentViewNavigationUseCase";
+import ChatBubble from "@/components/chat/ChatBubble";
 import ContentReactions from "@/components/ContentReactions";
 import ContentViewTracker from "@/components/ContentViewTracker";
 import ExportPdfButton from "@/components/ExportPdfButton";
 import Navbar from "@/components/Header";
 import ReadingPrefsControl from "@/components/ReadingPrefsControl";
+import SaveForLaterButton from "@/components/SaveForLaterButton";
 import ShareButton from "@/components/ShareButton";
 import ViewContentNavigation from "@/components/ViewContentNavigation";
 import ViewIframe from "@/components/ViewIframe";
+import { isSavableContentType } from "@/domain/entities/SavedContent";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Compass, RotateCcw, SearchX } from "lucide-react";
 import Link from "next/link";
@@ -134,7 +137,7 @@ export default function ViewContentFrame({
             style={shellBackgroundColor ? { backgroundColor: shellBackgroundColor } : undefined}
         >
             <Navbar autoHideOnScroll onAutoHiddenChange={setIsHeaderHidden} />
-            {contentType && availability === "ok" && <ContentViewTracker contentType={contentType} title={title} />}
+            {contentType && availability === "ok" && <ContentViewTracker contentType={contentType} title={title} contentId={slug} />}
 
             {/* Barra de contexto: voltar à seção + compartilhar/exportar PDF.
                 Sticky a top-16/20 (altura do header) — quando o header some por
@@ -173,6 +176,9 @@ export default function ViewContentFrame({
                             <>
                                 <ShareButton title={title} />
                                 {contentType && slug && <ExportPdfButton contentType={contentType} slug={slug} />}
+                                {contentType && slug && isSavableContentType(contentType) && (
+                                    <SaveForLaterButton contentType={contentType} contentId={slug} />
+                                )}
                             </>
                         )}
                     </div>
@@ -198,6 +204,10 @@ export default function ViewContentFrame({
 
             {availability === "ok" && contentType && slug && <ContentReactions contentType={contentType} contentId={slug} />}
             {availability === "ok" && <ViewContentNavigation previous={previous} next={next} />}
+
+            {availability === "ok" && contentType && slug && process.env.NEXT_PUBLIC_CHAT_ENABLED !== "false" && (
+                <ChatBubble articleContext={{ contentType, contentId: slug }} />
+            )}
         </div>
     );
 }

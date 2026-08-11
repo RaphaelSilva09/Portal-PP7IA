@@ -124,6 +124,27 @@ describe("buildPrompt", () => {
             chunkToCitationIdx: [],
         })).toThrow();
     });
+
+    it("appends an article-context hint to the system prompt when articleTitle is set", () => {
+        const prompt = buildPrompt({
+            messages: [{ role: "user", content: "resuma isso" }],
+            chunks: [chunk],
+            chunkToCitationIdx: [1],
+            articleTitle: "Enquanto é Tempo — Capítulo 3",
+        });
+        expect(prompt.system).toContain(SYSTEM_PROMPT);
+        expect(prompt.system).toContain("CONTEXTO ATUAL");
+        expect(prompt.system).toContain("Enquanto é Tempo — Capítulo 3");
+    });
+
+    it("keeps the system prompt unchanged (no article context) when articleTitle is absent", () => {
+        const prompt = buildPrompt({
+            messages: [{ role: "user", content: "oi" }],
+            chunks: [chunk],
+            chunkToCitationIdx: [1],
+        });
+        expect(prompt.system).toBe(SYSTEM_PROMPT);
+    });
 });
 
 describe("SYSTEM_PROMPT", () => {
