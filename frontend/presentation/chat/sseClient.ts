@@ -3,17 +3,23 @@ import type { Message } from "@/domain/chat/Message";
 import type { SseEvent } from "@/domain/chat/RagAnswer";
 import { parseSseChunk } from "@/lib/chat/sse";
 
+export interface ArticleContext {
+    contentType: string;
+    contentId: string;
+}
+
 export interface SendMessageInput {
     messages: Message[];
+    articleContext?: ArticleContext;
     signal?: AbortSignal;
     onEvent: (event: SseEvent) => void;
 }
 
-export async function sendMessage({ messages, signal, onEvent }: SendMessageInput): Promise<void> {
+export async function sendMessage({ messages, articleContext, signal, onEvent }: SendMessageInput): Promise<void> {
     const response = await fetch("/api/chat/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages, articleContext }),
         signal,
     });
     if (!response.body) throw new Error("No response body");

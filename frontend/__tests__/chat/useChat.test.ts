@@ -50,4 +50,22 @@ describe("useChat", () => {
         // user message stays, placeholder bot removed
         expect(result.current.messages.length).toBe(before + 1);
     });
+
+    it("shows a different greeting when opened with an article context", () => {
+        const withoutContext = renderHook(() => useChat());
+        const withContext = renderHook(() => useChat({ contentType: "mini-livro", contentId: "3" }));
+        expect(withContext.result.current.messages[0].content).not.toBe(withoutContext.result.current.messages[0].content);
+    });
+
+    it("sends the article context through to the request body", async () => {
+        const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(mockSseResponse([
+            'data: {"type":"token","content":"ok"}\n\n',
+            'data: {"type":"done","citations":[]}\n\n',
+        ]));
+        const { result } = renderHook(() => useChat({ contentType: "mini-livro", contentId: "3" }));
+        await act(async () => { await result.current.send("resuma isso"); });
+        const [, init] = fetchSpy.mock.calls[0];
+        const body = JSON.parse(init!.body as string);
+        expect(body.articleContext).toEqual({ contentType: "mini-livro", contentId: "3" });
+    });
 });

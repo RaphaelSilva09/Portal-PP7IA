@@ -33,7 +33,7 @@ export default function NotFound() {
                         className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition hover:bg-primary"
                     >
                         <Compass className="size-4" aria-hidden="true" />
-                        Explorar os 7 blocos
+                        Índice do conteúdo publicado
                     </Link>
                     <Link
                         href="/"

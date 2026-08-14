@@ -1,10 +1,10 @@
 // frontend/presentation/chat/useChat.ts
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { Message } from "@/domain/chat/Message";
 import type { Citation, ErrorCode } from "@/domain/chat/RagAnswer";
-import { sendMessage } from "./sseClient";
+import { sendMessage, type ArticleContext } from "./sseClient";
 
 export interface ChatMessage extends Message {
     citations: Citation[];
@@ -16,12 +16,17 @@ export interface ChatError {
     message: string;
 }
 
-const GREETING: ChatMessage = {
-    role: "assistant",
-    content: "Olá! Posso responder perguntas sobre os conteúdos do portal — mini-livros, newsletters, radar de oportunidades e mais. O que quer saber?",
-    citations: [],
-    streaming: false,
-};
+const DEFAULT_GREETING = "Olá! Posso responder perguntas sobre os conteúdos do portal — mini-livros, newsletters, radar de oportunidades e mais. O que quer saber?";
+const ARTICLE_GREETING = "Olá! Posso responder perguntas sobre este conteúdo específico ou sobre qualquer outro conteúdo do portal. O que quer saber?";
+
+function greetingFor(articleContext: ArticleContext | undefined): ChatMessage {
+    return {
+        role: "assistant",
+        content: articleContext ? ARTICLE_GREETING : DEFAULT_GREETING,
+        citations: [],
+        streaming: false,
+    };
+}
 
 const HISTORY_LIMIT = 6;
 
@@ -37,8 +42,9 @@ export interface UseChatResult {
     reset: () => void;
 }
 
-export function useChat(): UseChatResult {
-    const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
+export function useChat(articleContext?: ArticleContext): UseChatResult {
+    const greeting = useMemo(() => greetingFor(articleContext), [articleContext]);
+    const [messages, setMessages] = useState<ChatMessage[]>([greeting]);
     const [isStreaming, setIsStreaming] = useState(false);
     const [error, setError] = useState<ChatError | null>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -50,10 +56,10 @@ export function useChat(): UseChatResult {
 
     const reset = useCallback(() => {
         abortRef.current?.abort();
-        setMessages([GREETING]);
+        setMessages([greeting]);
         setError(null);
         setIsStreaming(false);
-    }, []);
+    }, [greeting]);
 
     const send = useCallback(async (text: string) => {
         const trimmed = text.trim();
@@ -77,6 +83,7 @@ export function useChat(): UseChatResult {
         try {
             await sendMessage({
                 messages: historyForRequest,
+                articleContext,
                 signal: controller.signal,
                 onEvent: (ev) => {
                     if (ev.type === "token") {
@@ -109,7 +116,7 @@ export function useChat(): UseChatResult {
             setIsStreaming(false);
             abortRef.current = null;
         }
-    }, [messages]);
+    }, [messages, articleContext]);
 
     return { messages, isStreaming, error, isOpen, toggle, open, close, send, reset };
 }

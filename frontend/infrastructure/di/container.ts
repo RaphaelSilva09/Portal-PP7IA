@@ -78,6 +78,9 @@ import { PostgresPromptLibraryRepository } from "../repositories/PostgresPromptL
 import { PostgresFaqRepository } from "../repositories/PostgresFaqRepository";
 import { PostgresReaderQuestionRepository } from "../repositories/PostgresReaderQuestionRepository";
 import { PostgresContentReactionRepository } from "../repositories/PostgresContentReactionRepository";
+import { PostgresSavedContentRepository } from "../repositories/PostgresSavedContentRepository";
+import { PostgresReadingTrailRepository } from "../repositories/PostgresReadingTrailRepository";
+import { GetReadingTrailUseCase } from "../../application/usecases/GetReadingTrailUseCase";
 import { PostgresReferralRepository } from "../repositories/PostgresReferralRepository";
 
 /**
@@ -111,6 +114,8 @@ class DIContainer {
     private static faqRepositoryInstance: PostgresFaqRepository | null = null;
     private static readerQuestionRepositoryInstance: PostgresReaderQuestionRepository | null = null;
     private static contentReactionRepositoryInstance: PostgresContentReactionRepository | null = null;
+    private static savedContentRepositoryInstance: PostgresSavedContentRepository | null = null;
+    private static readingTrailRepositoryInstance: PostgresReadingTrailRepository | null = null;
     private static referralRepositoryInstance: PostgresReferralRepository | null = null;
 
     /**
@@ -161,6 +166,24 @@ class DIContainer {
             this.contentReactionRepositoryInstance = new PostgresContentReactionRepository();
         }
         return this.contentReactionRepositoryInstance;
+    }
+
+    static getSavedContentRepository(): PostgresSavedContentRepository {
+        if (!this.savedContentRepositoryInstance) {
+            this.savedContentRepositoryInstance = new PostgresSavedContentRepository();
+        }
+        return this.savedContentRepositoryInstance;
+    }
+
+    static getReadingTrailRepository(): PostgresReadingTrailRepository {
+        if (!this.readingTrailRepositoryInstance) {
+            this.readingTrailRepositoryInstance = new PostgresReadingTrailRepository();
+        }
+        return this.readingTrailRepositoryInstance;
+    }
+
+    static getReadingTrailUseCase(): GetReadingTrailUseCase {
+        return new GetReadingTrailUseCase(this.getReadingTrailRepository(), this.getContentRepository());
     }
 
     static getReferralRepository(): PostgresReferralRepository {

@@ -3,14 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { useChat } from "@/presentation/chat/useChat";
+import type { ArticleContext } from "@/presentation/chat/sseClient";
 import { ChatPanel } from "./ChatPanel";
 import { useAuthModal } from "@/context/AuthModalContext";
 
 const DAILY_LIMIT = 30;
 const TRANSITION_MS = 180;
 
-export default function ChatBubble() {
-    const chat = useChat();
+interface ChatBubbleProps {
+    /** Conteúdo aberto no momento (páginas /view/[type]/[slug]) — o chat prioriza esse artigo nas respostas. */
+    articleContext?: ArticleContext;
+}
+
+export default function ChatBubble({ articleContext }: ChatBubbleProps = {}) {
+    const chat = useChat(articleContext);
     const { openModal } = useAuthModal();
     const [isPanelMounted, setIsPanelMounted] = useState(chat.isOpen);
     const [isPanelActive, setIsPanelActive] = useState(chat.isOpen);

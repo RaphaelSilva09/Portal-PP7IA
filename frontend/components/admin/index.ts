@@ -34,6 +34,7 @@ export { default as AdminHomepageConfig } from "./AdminHomepageConfig";
 export { default as AdminExplorarConfig } from "./AdminExplorarConfig";
 export { default as AdminSiteBg } from "./AdminSiteBg";
 export { default as AdminPromptLibrary } from "./AdminPromptLibrary";
+export { default as AdminReadingTrails } from "./AdminReadingTrails";
 export { default as AdminFaq } from "./AdminFaq";
 export { default as AdminReaderQuestions } from "./AdminReaderQuestions";
 export { default as AdminReactions } from "./AdminReactions";

@@ -2,14 +2,19 @@
 
 import { useEffect, useState } from "react";
 import type { ContentViewNavigationLink } from "@/application/usecases/GetContentViewNavigationUseCase";
+import ChatBubble from "@/components/chat/ChatBubble";
 import ContentReactions from "@/components/ContentReactions";
 import ContentViewTracker from "@/components/ContentViewTracker";
 import ExportPdfButton from "@/components/ExportPdfButton";
 import Navbar from "@/components/Header";
 import ReadingPrefsControl from "@/components/ReadingPrefsControl";
+import SaveForLaterButton from "@/components/SaveForLaterButton";
 import ShareButton from "@/components/ShareButton";
+import TrailStepNavigation from "@/components/TrailStepNavigation";
 import ViewContentNavigation from "@/components/ViewContentNavigation";
 import ViewIframe from "@/components/ViewIframe";
+import type { TrailStepNavigation as TrailStepNavigationData } from "@/domain/entities/ReadingTrail";
+import { isSavableContentType } from "@/domain/entities/SavedContent";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Compass, RotateCcw, SearchX } from "lucide-react";
 import Link from "next/link";
@@ -26,6 +31,8 @@ interface ViewContentFrameProps {
     sectionLabel?: string;
     /** Destino do link de voltar (ex.: /explorar?b=newsletter). */
     backHref?: string;
+    /** Navegação anterior/próximo dentro de uma trilha, quando o leitor chegou via ?trilha=slug. */
+    trailNavigation?: TrailStepNavigationData | null;
 }
 
 type Availability = "checking" | "ok" | "missing" | "error";
@@ -106,11 +113,17 @@ export default function ViewContentFrame({
     slug,
     sectionLabel = "o portal",
     backHref = "/explorar",
+    trailNavigation,
 }: ViewContentFrameProps) {
     const [shellBackgroundColor, setShellBackgroundColor] = useState<string | null>(null);
     const [availability, setAvailability] = useState<Availability>("checking");
     const [retryToken, setRetryToken] = useState(0);
     const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+
+    // Dentro de uma trilha, "voltar" leva sempre para a trilha (não para a
+    // seção do bloco) — vale em qualquer passo, não só no primeiro.
+    const effectiveBackHref = trailNavigation ? `/trilhas/${trailNavigation.trailSlug}` : backHref;
+    const effectiveSectionLabel = trailNavigation ? trailNavigation.trailTitle : sectionLabel;
 
     useEffect(() => {
         let cancelled = false;
@@ -134,7 +147,7 @@ export default function ViewContentFrame({
             style={shellBackgroundColor ? { backgroundColor: shellBackgroundColor } : undefined}
         >
             <Navbar autoHideOnScroll onAutoHiddenChange={setIsHeaderHidden} />
-            {contentType && availability === "ok" && <ContentViewTracker contentType={contentType} title={title} />}
+            {contentType && availability === "ok" && <ContentViewTracker contentType={contentType} title={title} contentId={slug} />}
 
             {/* Barra de contexto: voltar à seção + compartilhar/exportar PDF.
                 Sticky a top-16/20 (altura do header) — quando o header some por
@@ -154,11 +167,11 @@ export default function ViewContentFrame({
             >
                 <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2">
                     <Link
-                        href={backHref}
+                        href={effectiveBackHref}
                         className="inline-flex min-w-0 items-center gap-1.5 justify-self-start text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="size-3.5 shrink-0" aria-hidden="true" />
-                        <span className="truncate uppercase tracking-[0.18em]">{sectionLabel}</span>
+                        <span className="truncate uppercase tracking-[0.18em]">{effectiveSectionLabel}</span>
                     </Link>
 
                     <p
@@ -173,6 +186,9 @@ export default function ViewContentFrame({
                             <>
                                 <ShareButton title={title} />
                                 {contentType && slug && <ExportPdfButton contentType={contentType} slug={slug} />}
+                                {contentType && slug && isSavableContentType(contentType) && (
+                                    <SaveForLaterButton contentType={contentType} contentId={slug} />
+                                )}
                             </>
                         )}
                     </div>
@@ -189,15 +205,23 @@ export default function ViewContentFrame({
                 {(availability === "missing" || availability === "error") && (
                     <ContentError
                         kind={availability}
-                        backHref={backHref}
-                        sectionLabel={sectionLabel}
+                        backHref={effectiveBackHref}
+                        sectionLabel={effectiveSectionLabel}
                         onRetry={() => setRetryToken(t => t + 1)}
                     />
                 )}
             </main>
 
+            {availability === "ok" && trailNavigation && <TrailStepNavigation trail={trailNavigation} />}
             {availability === "ok" && contentType && slug && <ContentReactions contentType={contentType} contentId={slug} />}
-            {availability === "ok" && <ViewContentNavigation previous={previous} next={next} />}
+            {/* Dentro de uma trilha, só a navegação da trilha aparece — mostrar também o
+                "próximo" do bloco (ex.: próximo item da Biblioteca) confunde qual "próximo"
+                seguir. */}
+            {availability === "ok" && !trailNavigation && <ViewContentNavigation previous={previous} next={next} />}
+
+            {availability === "ok" && contentType && slug && process.env.NEXT_PUBLIC_CHAT_ENABLED !== "false" && (
+                <ChatBubble articleContext={{ contentType, contentId: slug }} />
+            )}
         </div>
     );
 }

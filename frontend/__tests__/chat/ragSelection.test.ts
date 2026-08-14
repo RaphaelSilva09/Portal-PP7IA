@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { selectRagContext } from "@/lib/chat/ragSelection";
+import { mergeArticleChunks, selectRagContext } from "@/lib/chat/ragSelection";
 import type { RetrievedChunk } from "@/domain/chat/Chunk";
 
 function chunk(source_type: string, similarity: number, slug = source_type): RetrievedChunk {
@@ -63,5 +63,29 @@ describe("selectRagContext", () => {
 
         expect(result.usedMetaFallback).toBe(false);
         expect(result.citableCandidates).toEqual([]);
+    });
+});
+
+describe("mergeArticleChunks", () => {
+    it("returns the original chunks unchanged when there is no article context", () => {
+        const chunks = [chunk("mini_livro", 0.72)];
+        expect(mergeArticleChunks(chunks, [])).toBe(chunks);
+    });
+
+    it("prepends article chunks ahead of general search results", () => {
+        const general = [chunk("newsletter", 0.6, "nl-1")];
+        const article = [chunk("mini_livro", 1.0, "003")];
+        const merged = mergeArticleChunks(general, article);
+        expect(merged.map(c => c.source_type)).toEqual(["mini_livro", "newsletter"]);
+    });
+
+    it("does not duplicate a chunk already returned by the general search", () => {
+        const shared = chunk("mini_livro", 0.7, "003");
+        const article = [{ ...shared, similarity: 1.0 }];
+        const merged = mergeArticleChunks([shared, chunk("newsletter", 0.6, "nl-1")], article);
+        expect(merged).toHaveLength(2);
+        expect(merged[0].source_type).toBe("mini_livro");
+        expect(merged[0].similarity).toBe(1.0);
+        expect(merged[1].source_type).toBe("newsletter");
     });
 });

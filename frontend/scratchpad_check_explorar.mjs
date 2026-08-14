@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch();
+const page = await browser.newPage();
+await page.goto('http://localhost:3000/explorar?b=newsletter', { waitUntil: 'networkidle' });
+await page.waitForTimeout(1500);
+const allHrefs = await page.locator('a').evaluateAll(as => as.map(a => a.getAttribute('href')));
+console.log('ALL HREFS:', JSON.stringify([...new Set(allHrefs)], null, 2));
+const bodyText = await page.locator('body').innerText();
+console.log('BODY SNIPPET:', bodyText.slice(0, 800));
+await browser.close();

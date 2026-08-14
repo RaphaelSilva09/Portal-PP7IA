@@ -115,6 +115,27 @@ export class PostgresContentRepository implements IContentRepository {
         }
     }
 
+    async getBySlug(type: ContentType, slug: string): Promise<ContentItem | null> {
+        try {
+            const table = TABLE_MAP[type];
+            const pathColumn = type === "ebook" ? "intro_html_path" : "html_path";
+            const { rows } = await pool.query<Record<string, unknown>>(
+                `SELECT * FROM ${table} WHERE ${pathColumn} LIKE '%/' || $1 || '.html'`,
+                [slug],
+            );
+            // Revalida com a mesma regex usada nos getters de domínio (Newsletter.htmlPath etc.)
+            // — o LIKE acima é só um filtro grosseiro, evita falso positivo com "_" (curinga do LIKE).
+            const row = rows.find(r => {
+                const raw = (r[pathColumn] as string | null)?.trim();
+                const match = raw?.match(/\/([^/]+)\.html$/);
+                return match?.[1] === slug;
+            });
+            return row ? mapRow(type, row) : null;
+        } catch {
+            return null;
+        }
+    }
+
     async create(type: ContentType, input: CreateContentInput): Promise<ContentItem> {
         const table = TABLE_MAP[type];
 
