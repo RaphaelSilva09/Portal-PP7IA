@@ -5,7 +5,7 @@ import { itemKey } from "@/domain/repositories/IReadingTrailRepository";
 import type { IContentRepository } from "@/domain/repositories/IContentRepository";
 
 type TrailRepoDeps = Pick<IReadingTrailRepository, "getBySlug" | "getCompletedKeys">;
-type ContentRepoDeps = Pick<IContentRepository, "getById">;
+type ContentRepoDeps = Pick<IContentRepository, "getBySlug">;
 
 export class GetReadingTrailUseCase {
     constructor(
@@ -26,10 +26,8 @@ export class GetReadingTrailUseCase {
 
         const steps = await Promise.all(orderedItems.map(async (item): Promise<ReadingTrailStep | null> => {
             if (!isSavableContentType(item.contentType)) return null;
-            const numericId = Number(item.contentId);
-            if (!Number.isInteger(numericId)) return null;
 
-            const content = await this.contentRepo.getById(item.contentType, numericId).catch(() => null);
+            const content = await this.contentRepo.getBySlug(item.contentType, item.contentId).catch(() => null);
             if (!content) return null;
 
             return {

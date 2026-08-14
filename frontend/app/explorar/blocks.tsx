@@ -7,8 +7,10 @@ import capaParte3 from "@/assets/capa-parte-3.jpeg";
 import { contrastColor } from "@/lib/colorContrast";
 
 import BibliotecaPromptsSection from "@/components/biblioteca/BibliotecaPromptsSection";
+import SaveForLaterButton from "@/components/SaveForLaterButton";
 import { BIBLIOTECA_TEMAS } from "@/domain/entities/BibliotecaItem";
 import type { Book } from "@/domain/entities/Book";
+import type { ContentType } from "@/domain/entities/ContentItem";
 import type { Ebook } from "@/domain/entities/Ebook";
 import { portalContentClass } from "@/lib/layout";
 import { cn } from "@/lib/utils";
@@ -59,6 +61,12 @@ interface Item {
     updatedAt?: Date | null;
 }
 
+/** Extrai o slug de um href "/view/{type}/{slug}" — mesmo identificador usado em saved_content. */
+function slugFromHref(href: string | null): string | null {
+    if (!href) return null;
+    return href.split("/").pop() || null;
+}
+
 function ReadTimeBadge({ minutes }: { minutes?: number }) {
     if (!minutes || minutes <= 0) return null;
     return (
@@ -89,8 +97,9 @@ function FormatBadges({ item }: { item: Item }) {
     );
 }
 
-function FeaturedCard({ item, block, hideCode }: { item: Item; block: BlockCfg; hideCode?: boolean }) {
+function FeaturedCard({ item, block, contentType, hideCode }: { item: Item; block: BlockCfg; contentType: ContentType; hideCode?: boolean }) {
     const href = item.htmlPath;
+    const slug = slugFromHref(href);
     return (
         <article className="relative mb-8 overflow-hidden rounded-2xl border border-border bg-background transition-shadow hover:shadow-[var(--shadow-card)]">
             <div className="h-1.5 w-full" style={{ backgroundColor: block.color }} aria-hidden="true" />
@@ -136,14 +145,16 @@ function FeaturedCard({ item, block, hideCode }: { item: Item; block: BlockCfg; 
                             Em breve
                         </span>
                     )}
+                    {slug && <SaveForLaterButton contentType={contentType} contentId={slug} />}
                 </div>
             </div>
         </article>
     );
 }
 
-function ItemCard({ item, block, hideCode }: { item: Item; block: BlockCfg; hideCode?: boolean }) {
+function ItemCard({ item, block, contentType, hideCode }: { item: Item; block: BlockCfg; contentType: ContentType; hideCode?: boolean }) {
     const href = item.htmlPath;
+    const slug = slugFromHref(href);
     return (
         <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
             <div className="h-0.5 w-full shrink-0" style={{ backgroundColor: block.color }} aria-hidden="true" />
@@ -177,7 +188,10 @@ function ItemCard({ item, block, hideCode }: { item: Item; block: BlockCfg; hide
                         {item.formattedDate}
                         <ReadTimeBadge minutes={item.readTime} />
                     </span>
-                    <FormatBadges item={item} />
+                    <span className="flex items-center gap-1.5">
+                        <FormatBadges item={item} />
+                        {slug && <SaveForLaterButton contentType={contentType} contentId={slug} />}
+                    </span>
                 </div>
             </div>
         </article>
@@ -321,8 +335,9 @@ function Divider({ label }: { label: string }) {
 
 // ── Simple layout (Newsletter, IA, Editoriais, Estudar) ───────────────────────
 
-function SimpleBlock({ block, title, description, latest, older, isLoading, error }: {
+function SimpleBlock({ block, contentType, title, description, latest, older, isLoading, error }: {
     block: BlockCfg;
+    contentType: ContentType;
     title: string;
     description: string;
     latest: Item | null;
@@ -337,12 +352,12 @@ function SimpleBlock({ block, title, description, latest, older, isLoading, erro
         <section className="py-12">
             <div className={portalContentClass}>
                 <BlockHeader block={block} title={title} description={description} />
-                <FeaturedCard item={latest} block={block} />
+                <FeaturedCard item={latest} block={block} contentType={contentType} />
                 {older.length > 0 && (
                     <>
                         <Divider label="Edições anteriores" />
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {older.map(item => <ItemCard key={item.id} item={item} block={block} />)}
+                            {older.map(item => <ItemCard key={item.id} item={item} block={block} contentType={contentType} />)}
                         </div>
                     </>
                 )}
@@ -357,6 +372,7 @@ export function BlockNewsletter() {
     return (
         <SimpleBlock
             block={C.newsletter}
+            contentType="newsletter"
             title={cfg.title}
             description={cfg.description}
             latest={latest} older={older} isLoading={isLoading} error={error}
@@ -370,6 +386,7 @@ export function BlockReportagem() {
     return (
         <SimpleBlock
             block={C.reportagem}
+            contentType="especial-semana"
             title={cfg.title}
             description={cfg.description}
             latest={latest} older={older} isLoading={isLoading} error={error}
@@ -383,6 +400,7 @@ export function BlockRadar() {
     return (
         <SimpleBlock
             block={C.radar}
+            contentType="radar_oportunidades"
             title={cfg.title}
             description={cfg.description}
             latest={latest} older={older} isLoading={isLoading} error={error}
@@ -396,6 +414,7 @@ export function BlockEstudar() {
     return (
         <SimpleBlock
             block={C.estudar}
+            contentType="estudar"
             title={cfg.title}
             description={cfg.description}
             latest={latest} older={older} isLoading={isLoading} error={error}
@@ -576,12 +595,12 @@ export function BlockBiblioteca({ initialTema = null }: BlockBibliotecaProps = {
                     <div>
                         {activeLatest ? (
                             <>
-                                <FeaturedCard item={activeLatest} block={block} hideCode />
+                                <FeaturedCard item={activeLatest} block={block} contentType="biblioteca" hideCode />
                                 {filteredOlder.length > 0 && (
                                     <>
                                         <Divider label={activeTema ? "Outros neste tema" : "Edições anteriores"} />
                                         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                                            {filteredOlder.map(item => <ItemCard key={item.id} item={item} block={block} hideCode />)}
+                                            {filteredOlder.map(item => <ItemCard key={item.id} item={item} block={block} contentType="biblioteca" hideCode />)}
                                         </div>
                                     </>
                                 )}
@@ -877,6 +896,7 @@ function PartEbookCard({ ebook, block, partOrder, partColor, partSoft }: { ebook
 
 function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: BlockColors; globalIndex: number }) {
     const href = item.htmlPath;
+    const slug = slugFromHref(href);
     const displayNum = String(globalIndex).padStart(2, "0");
     return (
         <li>
@@ -920,6 +940,7 @@ function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: Bl
                                 Em breve
                             </span>
                         )}
+                        {slug && <SaveForLaterButton contentType="mini-livro" contentId={slug} />}
                     </div>
                 </div>
             </div>

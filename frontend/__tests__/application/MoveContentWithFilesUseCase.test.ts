@@ -19,6 +19,7 @@ function makeMocks() {
     const contentRepository = {
         getAll: vi.fn(),
         getById: vi.fn(),
+        getBySlug: vi.fn(),
         create: vi.fn(),
         update: vi.fn(),
         delete: vi.fn(),

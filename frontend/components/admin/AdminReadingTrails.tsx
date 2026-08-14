@@ -5,8 +5,11 @@
  *
  * CRUD das trilhas de leitura guiadas (PP7I-260811-1800, item 3.2). Os itens
  * são referenciados por content_type + content_id (mesmo par usado em
- * saved_content/content_reactions) — o admin informa o ID numérico do
- * conteúdo já publicado (visível na tela de Materiais), sem duplicar dados.
+ * saved_content/content_reactions) — o content_id é o SLUG do arquivo, não o
+ * id numérico da linha no banco (os dois divergem: arquivos podem ter offset
+ * de numeração ou nome totalmente descritivo, ex. especial-semana/radar).
+ * O admin encontra o slug na própria URL do conteúdo publicado, em
+ * /view/{tipo}/{slug} — ex.: /view/newsletter/011 → slug "011".
  */
 
 import { ConfirmDialog, FeedbackMessage } from "@/components/admin";
@@ -229,6 +232,9 @@ export default function AdminReadingTrails() {
                                     + Adicionar passo
                                 </button>
                             </div>
+                            <p className="mb-2 text-xs text-muted-foreground">
+                                O identificador é o slug da URL do conteúdo publicado, não o ID numérico — ex.: em <code>/view/newsletter/011</code>, o slug é <code>011</code>.
+                            </p>
                             {form.items.length === 0 && (
                                 <p className="text-sm text-muted-foreground">Nenhum passo adicionado ainda.</p>
                             )}
@@ -249,7 +255,7 @@ export default function AdminReadingTrails() {
                                             className={INPUT_CLASS}
                                             value={item.contentId}
                                             onChange={e => updateItem(idx, { contentId: e.target.value })}
-                                            placeholder="ID do conteúdo (ex: 42)"
+                                            placeholder="Slug do conteúdo (ex: 011)"
                                         />
                                         <button type="button" onClick={() => moveItem(idx, -1)} disabled={idx === 0} className="p-2 rounded-lg hover:bg-accent transition-colors disabled:opacity-30" title="Mover para cima">
                                             <ArrowUp className="w-4 h-4" />

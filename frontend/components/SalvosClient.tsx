@@ -5,9 +5,12 @@ import { Bookmark, Lock, X } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthModal } from "@/context/AuthModalContext";
+import { BLOCK_LABELS } from "@/domain/entities/BlockColors";
+import type { ContentType } from "@/domain/entities/ContentItem";
+import { blockIdForContentType } from "@/lib/explorarBlocks";
 
 interface SavedContentItem {
-    contentType: string;
+    contentType: ContentType;
     contentId: string;
     title: string;
     href: string;
@@ -76,23 +79,38 @@ export default function SalvosClient() {
     };
 
     return (
-        <ul className="divide-y divide-border/60">
-            {items.map(item => (
-                <li key={`${item.contentType}-${item.contentId}`} className="flex items-center justify-between gap-4 py-4">
-                    <Link href={item.href} className="min-w-0 flex-1 text-sm font-medium text-foreground hover:underline">
-                        {item.title}
-                    </Link>
-                    <button
-                        type="button"
-                        onClick={() => handleRemove(item)}
-                        aria-label="Remover dos salvos"
-                        title="Remover dos salvos"
-                        className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
-                    >
-                        <X className="size-4" aria-hidden="true" />
-                    </button>
-                </li>
-            ))}
+        <ul className="grid gap-3 sm:grid-cols-2">
+            {items.map(item => {
+                const blockId = blockIdForContentType(item.contentType);
+                return (
+                    <li key={`${item.contentType}-${item.contentId}`}>
+                        <article className="group relative flex items-center gap-3 rounded-2xl border border-border bg-background p-4 transition hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
+                            <div className="min-w-0 flex-1">
+                                <span
+                                    className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                                    style={{ backgroundColor: `var(--block-${blockId})`, color: `var(--block-${blockId}-on)` }}
+                                >
+                                    {BLOCK_LABELS[blockId]}
+                                </span>
+                                <Link href={item.href} className="mt-1.5 block after:absolute after:inset-0 after:rounded-2xl">
+                                    <h3 className="line-clamp-2 font-serif text-base leading-[1.35] text-ink transition-colors group-hover:text-primary">
+                                        {item.title}
+                                    </h3>
+                                </Link>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => handleRemove(item)}
+                                aria-label="Remover dos salvos"
+                                title="Remover dos salvos"
+                                className="relative z-10 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+                            >
+                                <X className="size-4" aria-hidden="true" />
+                            </button>
+                        </article>
+                    </li>
+                );
+            })}
         </ul>
     );
 }

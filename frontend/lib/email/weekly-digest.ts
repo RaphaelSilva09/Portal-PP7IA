@@ -15,14 +15,14 @@ const MAX_DIGEST_RATE_LIMIT_RETRIES = 3;
 const PRODUCTION_ENVIRONMENT_NAMES = new Set(["production", "prod"]);
 const PRODUCTION_BRANCH_NAMES = new Set(["main", "master"]);
 
-const TABLE_CONFIG: Record<string, { label: string; viewType: string; fallbackPath: string }> = {
-    newsletters: { label: "Newsletter", viewType: "newsletter", fallbackPath: "/explorar?b=newsletter" },
-    mini_livros: { label: "Mini-livros", viewType: "mini-livro", fallbackPath: "/explorar?b=livro" },
-    biblioteca: { label: "Biblioteca", viewType: "biblioteca", fallbackPath: "/explorar?b=biblioteca" },
-    especial_semana: { label: "Especial da Semana", viewType: "especial-semana", fallbackPath: "/explorar?b=reportagem" },
-    estudar: { label: "Estudar", viewType: "estudar", fallbackPath: "/explorar?b=estudar" },
-    radar_oportunidades: { label: "Radar de Oportunidades", viewType: "radar_oportunidades", fallbackPath: "/explorar?b=radar" },
-    ebooks: { label: "E-books", viewType: "ebook", fallbackPath: "/mini-livros" },
+const TABLE_CONFIG: Record<string, { label: string; viewType: string; fallbackPath: string; accentLight: string; accentDark: string }> = {
+    newsletters: { label: "Newsletter", viewType: "newsletter", fallbackPath: "/explorar?b=newsletter", accentLight: "#3b82f6", accentDark: "#60a5fa" },
+    mini_livros: { label: "Mini-livros", viewType: "mini-livro", fallbackPath: "/explorar?b=livro", accentLight: "#f59e0b", accentDark: "#fbbf24" },
+    biblioteca: { label: "Biblioteca", viewType: "biblioteca", fallbackPath: "/explorar?b=biblioteca", accentLight: "#14b8a6", accentDark: "#2dd4bf" },
+    especial_semana: { label: "Especial da Semana", viewType: "especial-semana", fallbackPath: "/explorar?b=reportagem", accentLight: "#f97316", accentDark: "#fb923c" },
+    estudar: { label: "Estudar", viewType: "estudar", fallbackPath: "/explorar?b=estudar", accentLight: "#6366f1", accentDark: "#818cf8" },
+    radar_oportunidades: { label: "Radar de Oportunidades", viewType: "radar_oportunidades", fallbackPath: "/explorar?b=radar", accentLight: "#06b6d4", accentDark: "#22d3ee" },
+    ebooks: { label: "E-books", viewType: "ebook", fallbackPath: "/mini-livros", accentLight: "#ec4899", accentDark: "#f472b6" },
 };
 const SUPPORTED_TABLE_NAMES = Object.keys(TABLE_CONFIG);
 
@@ -137,9 +137,19 @@ export function buildWeeklyDigestEmail({
     siteUrl?: string;
 }): WeeklyDigestEmail {
     const grouped = groupByTable(items);
+    const usedTableNames = Array.from(grouped.keys());
+    const sectionDarkRules = usedTableNames
+        .map((tableName) => {
+            const accentDark = TABLE_CONFIG[tableName]?.accentDark ?? "#60a5fa";
+            return `.eb-sec-${tableName}{color:${accentDark} !important}.eb-dot-${tableName}{background-color:${accentDark} !important}`;
+        })
+        .join("");
+
     const sectionsHtml = Array.from(grouped.entries())
         .map(([tableName, groupItems]) => {
-            const label = TABLE_CONFIG[tableName]?.label ?? tableName;
+            const config = TABLE_CONFIG[tableName];
+            const label = config?.label ?? tableName;
+            const accentLight = config?.accentLight ?? "#3b82f6";
             const rows = groupItems
                 .map((item) => {
                     const meta = item.readTime ? `${item.readTime} min de leitura` : "Novo conteúdo";
@@ -147,9 +157,9 @@ export function buildWeeklyDigestEmail({
                     const href = item.href ?? absoluteUrl("/", siteUrl);
                     return `
                       <tr>
-                        <td style="padding:14px 0;border-bottom:1px solid #2a2a2a;">
-                          <a href="${escapeAttribute(href)}" style="color:#ffffff;text-decoration:none;font-size:17px;font-weight:bold;">${title}</a>
-                          <div style="color:#9ca3af;font-size:13px;margin-top:4px;">${escapeHtml(meta)}</div>
+                        <td class="eb-row" style="padding:16px 0;border-bottom:1px solid rgba(99,132,181,0.2);">
+                          <a href="${escapeAttribute(href)}" class="eb-title" style="color:#162338;text-decoration:none;font-size:16px;font-weight:600;font-family:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">${title}</a>
+                          <div class="eb-muted" style="color:#56657b;font-size:13px;margin-top:4px;font-family:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">${escapeHtml(meta)}</div>
                         </td>
                       </tr>`;
                 })
@@ -157,9 +167,15 @@ export function buildWeeklyDigestEmail({
 
             return `
               <tr>
-                <td style="padding-top:24px;">
-                  <div style="color:#3b9eff;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;">${escapeHtml(label)}</div>
-                  <table width="100%" cellpadding="0" cellspacing="0">${rows}</table>
+                <td style="padding-top:28px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" style="padding-bottom:10px;">
+                    <tr>
+                      <td class="eb-dot-${tableName}" style="width:8px;height:8px;border-radius:9999px;background-color:${accentLight};font-size:0;line-height:0;">&nbsp;</td>
+                      <td style="width:8px;"></td>
+                      <td class="eb-sec-${tableName}" style="color:${accentLight};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">${escapeHtml(label)}</td>
+                    </tr>
+                  </table>
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>
                 </td>
               </tr>`;
         })
@@ -176,29 +192,75 @@ export function buildWeeklyDigestEmail({
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
   <title>PP7+IAS: novidades da semana</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&display=swap');
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    @media (prefers-color-scheme: dark) {
+      .eb-body { background-color: #111111 !important; }
+      .eb-card { background-color: #1a1a1a !important; border-color: rgba(255,255,255,0.1) !important; }
+      .eb-title { color: #dadada !important; }
+      .eb-text { color: #acacac !important; }
+      .eb-muted { color: #acacac !important; }
+      .eb-row { border-color: rgba(255,255,255,0.08) !important; }
+      .eb-link { color: #3b9eff !important; }
+      .eb-plus { color: #3b9eff !important; }
+      .eb-bar-ias { background-color: #3b9eff !important; }
+      ${sectionDarkRules}
+    }
+  </style>
 </head>
-<body style="margin:0;padding:0;background-color:#111111;font-family:Arial,Helvetica,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#111111;padding:24px 0;">
+<body class="eb-body" style="margin:0;padding:0;background-color:#eef4ff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="eb-body" style="background-color:#eef4ff;padding:32px 16px;">
     <tr>
       <td align="center">
-        <table width="640" cellpadding="0" cellspacing="0" style="background-color:#1a1a1a;border-radius:10px;padding:28px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" class="eb-card" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid rgba(99,132,181,0.2);border-radius:20px;padding:36px 32px;">
+
           <tr>
-            <td style="color:#ffffff;font-size:24px;font-weight:bold;">Novidades da semana</td>
+            <td style="padding-bottom:26px;">
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="eb-title" style="color:#162338;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:28px;font-weight:600;letter-spacing:-0.02em;">PP7</td>
+                  <td class="eb-plus" style="color:#1d4ed8;font-family:'Inter',sans-serif;font-size:22px;font-weight:700;padding:0 4px;">+</td>
+                  <td class="eb-title" style="color:#162338;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:28px;font-weight:600;letter-spacing:0.04em;">IAS</td>
+                </tr>
+                <tr>
+                  <td style="height:3px;background-color:#d97706;border-radius:9999px;line-height:3px;font-size:0;">&nbsp;</td>
+                  <td></td>
+                  <td class="eb-bar-ias" style="height:3px;background-color:#1d4ed8;border-radius:9999px;line-height:3px;font-size:0;">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="eb-title" style="color:#162338;font-size:24px;font-weight:700;font-family:'Inter',sans-serif;padding-bottom:8px;">Novidades da semana</td>
           </tr>
           <tr>
-            <td style="color:#dadada;font-size:16px;line-height:1.6;padding-top:12px;">
+            <td class="eb-text" style="color:#334155;font-size:15px;line-height:1.6;font-family:'Inter',sans-serif;">
               Uma curadoria direta do Portal PP7+IAS para você acompanhar o que entrou de novo.
             </td>
           </tr>
+
           ${sectionsHtml}
+
           <tr>
-            <td style="padding-top:30px;color:#9ca3af;font-size:13px;line-height:1.6;">
-              Você recebeu este email porque optou por receber atualizações do Portal PP7+IAS.
-              Para alterar suas preferências, acesse
-              <a href="${escapeAttribute(absoluteUrl("/user", siteUrl))}" style="color:#3b9eff;">seu perfil</a>.
+            <td style="padding-top:32px;">
+              <div class="eb-row" style="height:1px;background-color:rgba(99,132,181,0.2);margin:0 0 20px;font-size:0;line-height:0;">&nbsp;</div>
             </td>
           </tr>
+          <tr>
+            <td class="eb-muted" style="color:#56657b;font-size:12px;line-height:1.6;font-family:'Inter',sans-serif;">
+              Você recebeu este email porque optou por receber atualizações do Portal PP7+IAS.
+              Para alterar suas preferências, acesse
+              <a href="${escapeAttribute(absoluteUrl("/user", siteUrl))}" class="eb-link" style="color:#1d4ed8;text-decoration:none;font-weight:600;">seu perfil</a>.
+            </td>
+          </tr>
+
         </table>
       </td>
     </tr>

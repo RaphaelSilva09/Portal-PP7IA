@@ -29,7 +29,7 @@ function contentItem(title: string) {
 describe("GetReadingTrailUseCase", () => {
     it("returns null when the trail does not exist", async () => {
         const trailRepo = { getBySlug: vi.fn().mockResolvedValue(null), getCompletedKeys: vi.fn() } satisfies Partial<IReadingTrailRepository>;
-        const contentRepo = { getById: vi.fn() } satisfies Partial<IContentRepository>;
+        const contentRepo = { getBySlug: vi.fn() } satisfies Partial<IContentRepository>;
         const useCase = new GetReadingTrailUseCase(trailRepo as unknown as IReadingTrailRepository, contentRepo as unknown as IContentRepository);
 
         expect(await useCase.execute("missing", null)).toBeNull();
@@ -40,7 +40,7 @@ describe("GetReadingTrailUseCase", () => {
             getBySlug: vi.fn().mockResolvedValue(trail({ published: false })),
             getCompletedKeys: vi.fn(),
         } satisfies Partial<IReadingTrailRepository>;
-        const contentRepo = { getById: vi.fn() } satisfies Partial<IContentRepository>;
+        const contentRepo = { getBySlug: vi.fn() } satisfies Partial<IContentRepository>;
         const useCase = new GetReadingTrailUseCase(trailRepo as unknown as IReadingTrailRepository, contentRepo as unknown as IContentRepository);
 
         expect(await useCase.execute("entenda-ia", null)).toBeNull();
@@ -52,7 +52,7 @@ describe("GetReadingTrailUseCase", () => {
             getCompletedKeys: vi.fn(),
         } satisfies Partial<IReadingTrailRepository>;
         const contentRepo = {
-            getById: vi.fn()
+            getBySlug: vi.fn()
                 .mockResolvedValueOnce(contentItem("Newsletter 10"))
                 .mockResolvedValueOnce(contentItem("Mini-Livro 3")),
         } satisfies Partial<IContentRepository>;
@@ -73,7 +73,7 @@ describe("GetReadingTrailUseCase", () => {
             getCompletedKeys: vi.fn().mockResolvedValue(new Set(["newsletter|10"])),
         } satisfies Partial<IReadingTrailRepository>;
         const contentRepo = {
-            getById: vi.fn()
+            getBySlug: vi.fn()
                 .mockResolvedValueOnce(contentItem("Newsletter 10"))
                 .mockResolvedValueOnce(contentItem("Mini-Livro 3")),
         } satisfies Partial<IContentRepository>;
@@ -91,7 +91,7 @@ describe("GetReadingTrailUseCase", () => {
             getCompletedKeys: vi.fn().mockResolvedValue(new Set()),
         } satisfies Partial<IReadingTrailRepository>;
         const contentRepo = {
-            getById: vi.fn()
+            getBySlug: vi.fn()
                 .mockResolvedValueOnce(null)
                 .mockResolvedValueOnce(contentItem("Mini-Livro 3")),
         } satisfies Partial<IContentRepository>;

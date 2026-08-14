@@ -66,6 +66,19 @@ export interface IContentRepository {
     getById(type: ContentType, id: number): Promise<ContentItem | null>;
 
     /**
+     * Busca um item pelo slug do arquivo HTML (ex.: "011", "brasil-no-radar") — o
+     * identificador usado nas URLs `/view/[type]/[slug]` e em tabelas que
+     * referenciam conteúdo por content_type/content_id (saved_content,
+     * reading_trail_items, content_reactions). Não é o `id` numérico: o nome do
+     * arquivo nem sempre corresponde ao `id` da linha (pode ter offset ou ser
+     * totalmente descritivo, ex. especial_semana/radar_oportunidades).
+     * @param type - Tipo de conteúdo
+     * @param slug - Slug do arquivo (sem extensão)
+     * @returns ContentItem ou null se não encontrado
+     */
+    getBySlug(type: ContentType, slug: string): Promise<ContentItem | null>;
+
+    /**
      * Cria um novo item de conteúdo
      * @param type - Tipo de conteúdo
      * @param input - Dados do novo item

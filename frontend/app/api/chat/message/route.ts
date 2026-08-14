@@ -11,7 +11,6 @@ import { answerWithMarkers } from "@/lib/chat/answerWithMarkers";
 import { citationFromMetadata } from "@/domain/chat/RagAnswer";
 import { RAG_SOURCES, articleContextSourceType } from "@/lib/chat/ragSources";
 import { selectRagContext, mergeArticleChunks } from "@/lib/chat/ragSelection";
-import { toSourceId } from "@/infrastructure/chat/contentSourceUtils";
 import type { Message } from "@/domain/chat/Message";
 import type { SseEvent } from "@/domain/chat/RagAnswer";
 import type { RetrievedChunk } from "@/domain/chat/Chunk";
@@ -119,9 +118,10 @@ export async function POST(request: NextRequest) {
     let articleTitle: string | undefined;
     if (body.articleContext) {
         const ragSourceType = articleContextSourceType(body.articleContext.contentType);
-        const numericId = Number(body.articleContext.contentId);
-        if (ragSourceType && Number.isInteger(numericId) && numericId >= 0 && numericId <= 0xffffffffffff) {
-            const articleChunks = await chunkRepo.findBySourceId(ragSourceType, toSourceId(numericId));
+        if (ragSourceType) {
+            // contentId é o slug do arquivo (ex.: "011"), o mesmo identificador usado em
+            // metadata.slug na ingestão do RAG — não é o id numérico da linha no banco.
+            const articleChunks = await chunkRepo.findBySlug(ragSourceType, body.articleContext.contentId);
             if (articleChunks.length > 0) {
                 allChunks = mergeArticleChunks(allChunks, articleChunks);
                 articleTitle = articleChunks[0].metadata.title || articleChunks[0].metadata.parent_title;

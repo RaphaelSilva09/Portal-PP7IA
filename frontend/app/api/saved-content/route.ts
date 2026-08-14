@@ -36,9 +36,7 @@ export async function GET() {
     const contentRepo = DIContainer.getContentRepository();
     const items = await hydrateSavedContent(entries, async (contentType, contentId) => {
         if (!isSavableContentType(contentType)) return null;
-        const numericId = Number(contentId);
-        if (!Number.isInteger(numericId)) return null;
-        const item = await contentRepo.getById(contentType, numericId);
+        const item = await contentRepo.getBySlug(contentType, contentId);
         return item ? { title: item.title } : null;
     });
 
