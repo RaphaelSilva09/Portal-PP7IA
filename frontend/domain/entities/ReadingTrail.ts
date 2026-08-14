@@ -56,3 +56,48 @@ export function nextUnreadStepIndex(steps: ReadingTrailStep[]): number | null {
 export function completedStepCount(steps: ReadingTrailStep[]): number {
     return steps.filter(s => s.completed).length;
 }
+
+export interface TrailStepLink {
+    href: string;
+    title: string;
+}
+
+/** Navegação anterior/próximo dentro de uma trilha — mesma ideia do "próximo capítulo" do mini-livro, mas por trilha. */
+export interface TrailStepNavigation {
+    trailSlug: string;
+    trailTitle: string;
+    /** Posição do passo atual, 1-baseada. */
+    position: number;
+    total: number;
+    previous: TrailStepLink | null;
+    next: TrailStepLink | null;
+}
+
+/**
+ * Localiza o passo atual (por content_type/content_id) numa trilha já hidratada
+ * e monta a navegação anterior/próximo — os links carregam `?trilha={slug}`
+ * para preservar o contexto ao longo de toda a leitura sequencial.
+ * Retorna null se o conteúdo atual não pertence a essa trilha.
+ */
+export function findTrailStepNavigation(
+    trail: Pick<ReadingTrailDetail, "slug" | "title" | "steps">,
+    contentType: string,
+    contentId: string,
+): TrailStepNavigation | null {
+    const idx = trail.steps.findIndex(s => s.contentType === contentType && s.contentId === contentId);
+    if (idx === -1) return null;
+
+    const withTrailParam = (step: ReadingTrailStep): TrailStepLink => ({
+        href: `${step.href}?trilha=${trail.slug}`,
+        title: step.title,
+    });
+
+    return {
+        trailSlug: trail.slug,
+        trailTitle: trail.title,
+        position: idx + 1,
+        total: trail.steps.length,
+        previous: idx > 0 ? withTrailParam(trail.steps[idx - 1]) : null,
+        next: idx < trail.steps.length - 1 ? withTrailParam(trail.steps[idx + 1]) : null,
+    };
+}

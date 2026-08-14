@@ -50,7 +50,7 @@ export default function TrilhaDetailClient({ slug }: TrilhaDetailClientProps) {
 
             {nextIdx !== null && (
                 <Link
-                    href={data.steps[nextIdx].href}
+                    href={`${data.steps[nextIdx].href}?trilha=${slug}`}
                     className="mb-8 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-primary"
                 >
                     {done === 0 ? "Começar trilha" : "Continuar trilha"}
@@ -61,7 +61,7 @@ export default function TrilhaDetailClient({ slug }: TrilhaDetailClientProps) {
                 {data.steps.map((step, i) => (
                     <li key={`${step.contentType}-${step.contentId}`}>
                         <Link
-                            href={step.href}
+                            href={`${step.href}?trilha=${slug}`}
                             className={[
                                 "flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors",
                                 step.completed

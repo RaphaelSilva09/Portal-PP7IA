@@ -1,11 +1,14 @@
 import DIContainer from "@/infrastructure/di/container";
 import type { ContentViewNavigationLink, ContentViewNavigationType } from "@/application/usecases/GetContentViewNavigationUseCase";
+import { findTrailStepNavigation, type TrailStepNavigation } from "@/domain/entities/ReadingTrail";
+import { getUser } from "@/infrastructure/auth/getUser";
 import ViewContentFrame from "@/components/ViewContentFrame";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 interface Props {
     params: Promise<{ type: string; slug: string }>;
+    searchParams: Promise<{ trilha?: string }>;
 }
 
 const typeConfig: Record<string, { folder: string; title: string; sectionLabel: string; backHref: string }> = {
@@ -76,8 +79,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-export default async function ViewPage({ params }: Props) {
+export default async function ViewPage({ params, searchParams }: Props) {
     const { type, slug } = await params;
+    const { trilha } = await searchParams;
 
     const config = typeConfig[type];
     if (!config) {
@@ -90,6 +94,15 @@ export default async function ViewPage({ params }: Props) {
     let previous: ContentViewNavigationLink | null = null;
     let next: ContentViewNavigationLink | null = null;
     let pageTitle = `${config.title} - ${slug}`;
+    let trailNavigation: TrailStepNavigation | null = null;
+
+    if (trilha) {
+        const user = await getUser();
+        const trail = await DIContainer.getReadingTrailUseCase().execute(trilha, user?.id ?? null).catch(() => null);
+        if (trail) {
+            trailNavigation = findTrailStepNavigation(trail, type, slug);
+        }
+    }
 
     if (type === "mini-livro-section") {
         const sectionId = Number(slug);
@@ -124,6 +137,7 @@ export default async function ViewPage({ params }: Props) {
             slug={slug}
             sectionLabel={config.sectionLabel}
             backHref={config.backHref}
+            trailNavigation={trailNavigation}
         />
     );
 }

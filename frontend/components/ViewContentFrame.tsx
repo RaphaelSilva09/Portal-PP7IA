@@ -10,8 +10,10 @@ import Navbar from "@/components/Header";
 import ReadingPrefsControl from "@/components/ReadingPrefsControl";
 import SaveForLaterButton from "@/components/SaveForLaterButton";
 import ShareButton from "@/components/ShareButton";
+import TrailStepNavigation from "@/components/TrailStepNavigation";
 import ViewContentNavigation from "@/components/ViewContentNavigation";
 import ViewIframe from "@/components/ViewIframe";
+import type { TrailStepNavigation as TrailStepNavigationData } from "@/domain/entities/ReadingTrail";
 import { isSavableContentType } from "@/domain/entities/SavedContent";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Compass, RotateCcw, SearchX } from "lucide-react";
@@ -29,6 +31,8 @@ interface ViewContentFrameProps {
     sectionLabel?: string;
     /** Destino do link de voltar (ex.: /explorar?b=newsletter). */
     backHref?: string;
+    /** Navegação anterior/próximo dentro de uma trilha, quando o leitor chegou via ?trilha=slug. */
+    trailNavigation?: TrailStepNavigationData | null;
 }
 
 type Availability = "checking" | "ok" | "missing" | "error";
@@ -109,6 +113,7 @@ export default function ViewContentFrame({
     slug,
     sectionLabel = "o portal",
     backHref = "/explorar",
+    trailNavigation,
 }: ViewContentFrameProps) {
     const [shellBackgroundColor, setShellBackgroundColor] = useState<string | null>(null);
     const [availability, setAvailability] = useState<Availability>("checking");
@@ -202,6 +207,7 @@ export default function ViewContentFrame({
                 )}
             </main>
 
+            {availability === "ok" && trailNavigation && <TrailStepNavigation trail={trailNavigation} />}
             {availability === "ok" && contentType && slug && <ContentReactions contentType={contentType} contentId={slug} />}
             {availability === "ok" && <ViewContentNavigation previous={previous} next={next} />}
 

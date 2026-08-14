@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { BOOK_CONTENT_TYPES, saveBookProgress } from "@/lib/bookProgress";
 import { markSeen } from "@/lib/seenContent";
@@ -27,6 +28,7 @@ interface ContentViewTrackerProps {
 export default function ContentViewTracker({ contentType, title, contentId }: ContentViewTrackerProps) {
     const pathname = usePathname();
     const { user } = useAuth();
+    const queryClient = useQueryClient();
     const hasReportedView = useRef(false);
     const hasReportedProgress = useRef(false);
 
@@ -51,8 +53,12 @@ export default function ContentViewTracker({ contentType, title, contentId }: Co
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ contentType, contentId }),
-        }).catch(() => {});
-    }, [user, contentType, contentId]);
+        })
+            // Invalida qualquer trilha em cache — sem isso, o check só aparece quando
+            // o staleTime (30s) expirar ou a aba ganhar foco de novo (Providers.tsx).
+            .then(res => { if (res.ok) queryClient.invalidateQueries({ queryKey: ["reading-trail"] }); })
+            .catch(() => {});
+    }, [user, contentType, contentId, queryClient]);
 
     return null;
 }
