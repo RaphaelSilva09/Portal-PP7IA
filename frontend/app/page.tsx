@@ -6,6 +6,7 @@ import HeroAnimatedWord from "@/components/home/HeroAnimatedWord";
 import HomeCarousel from "@/components/home/HomeCarousel";
 import type { HomeCarouselSlide } from "@/components/home/HomeCarousel";
 import HomeFaqSection from "@/components/home/HomeFaqSection";
+import HomeTrilhasSection from "@/components/home/HomeTrilhasSection";
 import NewsletterForm from "@/components/home/NewsletterForm";
 import HomeRecomendacoesPaulo from "@/components/HomeRecomendacoesPaulo";
 import DIContainer from "@/infrastructure/di/container";
@@ -490,7 +491,12 @@ function renderSection(s: SectionConfig) {
         // Seção "Editoriais e Artigos" desabilitada — a curadoria pessoal do
         // Paulo ocupa esse mesmo lugar na ordem de seções da home agora.
         case "editorial":   return <HomeRecomendacoesPaulo key={s.id} />;
-        case "ias":         return <IAsSection key={s.id} s={s} />;
+        case "ias":         return (
+            <div key={s.id}>
+                <IAsSection s={s} />
+                <HomeTrilhasSection />
+            </div>
+        );
         // FAQ não é uma seção configurável no HomepageConfig — fica sempre
         // colada logo abaixo do Manifesto, na ordem em que ele for renderizado.
         case "manifesto":   return (

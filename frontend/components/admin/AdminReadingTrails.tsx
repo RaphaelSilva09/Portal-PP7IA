@@ -8,14 +8,20 @@
  * saved_content/content_reactions) — o content_id é o SLUG do arquivo, não o
  * id numérico da linha no banco (os dois divergem: arquivos podem ter offset
  * de numeração ou nome totalmente descritivo, ex. especial-semana/radar).
- * O admin encontra o slug na própria URL do conteúdo publicado, em
- * /view/{tipo}/{slug} — ex.: /view/newsletter/011 → slug "011".
+ * Por isso o admin nunca digita o slug: escolhe o conteúdo pelo título num
+ * seletor (/api/admin/content-picker/[type]), que resolve o slug certo.
  */
 
 import { ConfirmDialog, FeedbackMessage } from "@/components/admin";
 import { SAVABLE_CONTENT_TYPES } from "@/domain/entities/SavedContent";
 import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+
+interface ContentOption {
+    id: number;
+    title: string;
+    slug: string;
+}
 
 interface TrailItem {
     contentType: string;
@@ -74,8 +80,23 @@ export default function AdminReadingTrails() {
         message: "",
         type: "success",
     });
+    const [contentOptions, setContentOptions] = useState<Record<string, ContentOption[]>>({});
+    const [loadingTypes, setLoadingTypes] = useState<Set<string>>(new Set());
 
     const showFeedback = (message: string, type: "success" | "error" | "warning") => setFeedback({ show: true, message, type });
+
+    const ensureContentOptions = useCallback((contentType: string) => {
+        setContentOptions(prev => {
+            if (contentType in prev) return prev;
+            setLoadingTypes(s => new Set(s).add(contentType));
+            fetch(`/api/admin/content-picker/${contentType}`)
+                .then(res => (res.ok ? res.json() : { items: [] }))
+                .then(json => setContentOptions(p => ({ ...p, [contentType]: json.items as ContentOption[] })))
+                .catch(() => setContentOptions(p => ({ ...p, [contentType]: [] })))
+                .finally(() => setLoadingTypes(s => { const next = new Set(s); next.delete(contentType); return next; }));
+            return prev;
+        });
+    }, []);
 
     const loadRows = useCallback(async () => {
         setIsLoading(true);
@@ -106,9 +127,14 @@ export default function AdminReadingTrails() {
         setEditRow(row);
         setForm(rowToFormState(row));
         setShowForm(true);
+        for (const item of row.items) ensureContentOptions(item.contentType);
     };
 
-    const addItem = () => setForm(f => ({ ...f, items: [...f.items, { contentType: SAVABLE_CONTENT_TYPES[0], contentId: "" }] }));
+    const addItem = () => {
+        const contentType = SAVABLE_CONTENT_TYPES[0];
+        ensureContentOptions(contentType);
+        setForm(f => ({ ...f, items: [...f.items, { contentType, contentId: "" }] }));
+    };
     const removeItem = (idx: number) => setForm(f => ({ ...f, items: f.items.filter((_, i) => i !== idx) }));
     const moveItem = (idx: number, dir: -1 | 1) => setForm(f => {
         const target = idx + dir;
@@ -117,8 +143,13 @@ export default function AdminReadingTrails() {
         [items[idx], items[target]] = [items[target], items[idx]];
         return { ...f, items };
     });
-    const updateItem = (idx: number, patch: Partial<{ contentType: string; contentId: string }>) =>
-        setForm(f => ({ ...f, items: f.items.map((it, i) => (i === idx ? { ...it, ...patch } : it)) }));
+    const updateItem = (idx: number, patch: Partial<{ contentType: string; contentId: string }>) => {
+        if (patch.contentType) ensureContentOptions(patch.contentType);
+        setForm(f => ({
+            ...f,
+            items: f.items.map((it, i) => (i === idx ? { ...it, ...patch, ...(patch.contentType ? { contentId: "" } : {}) } : it)),
+        }));
+    };
 
     const handleSubmit = async () => {
         if (!form.slug.trim() || !form.title.trim() || form.items.some(i => !i.contentId.trim())) return;
@@ -233,7 +264,7 @@ export default function AdminReadingTrails() {
                                 </button>
                             </div>
                             <p className="mb-2 text-xs text-muted-foreground">
-                                O identificador é o slug da URL do conteúdo publicado, não o ID numérico — ex.: em <code>/view/newsletter/011</code>, o slug é <code>011</code>.
+                                Escolha o tipo e depois o conteúdo pelo título — já publicado no portal.
                             </p>
                             {form.items.length === 0 && (
                                 <p className="text-sm text-muted-foreground">Nenhum passo adicionado ainda.</p>
@@ -251,12 +282,29 @@ export default function AdminReadingTrails() {
                                                 <option key={type} value={type}>{type}</option>
                                             ))}
                                         </select>
-                                        <input
-                                            className={INPUT_CLASS}
-                                            value={item.contentId}
-                                            onChange={e => updateItem(idx, { contentId: e.target.value })}
-                                            placeholder="Slug do conteúdo (ex: 011)"
-                                        />
+                                        {(() => {
+                                            const options = contentOptions[item.contentType] ?? [];
+                                            const isLoading = loadingTypes.has(item.contentType);
+                                            const currentMissing = item.contentId && !options.some(o => o.slug === item.contentId);
+                                            return (
+                                                <select
+                                                    className={INPUT_CLASS}
+                                                    value={item.contentId}
+                                                    disabled={isLoading}
+                                                    onChange={e => updateItem(idx, { contentId: e.target.value })}
+                                                >
+                                                    <option value="" disabled>
+                                                        {isLoading ? "Carregando conteúdo…" : "Selecione o conteúdo…"}
+                                                    </option>
+                                                    {currentMissing && (
+                                                        <option value={item.contentId}>{item.contentId} (não encontrado na lista atual)</option>
+                                                    )}
+                                                    {options.map(o => (
+                                                        <option key={o.slug} value={o.slug}>{o.title}</option>
+                                                    ))}
+                                                </select>
+                                            );
+                                        })()}
                                         <button type="button" onClick={() => moveItem(idx, -1)} disabled={idx === 0} className="p-2 rounded-lg hover:bg-accent transition-colors disabled:opacity-30" title="Mover para cima">
                                             <ArrowUp className="w-4 h-4" />
                                         </button>
