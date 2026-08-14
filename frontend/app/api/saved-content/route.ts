@@ -37,7 +37,16 @@ export async function GET() {
     const items = await hydrateSavedContent(entries, async (contentType, contentId) => {
         if (!isSavableContentType(contentType)) return null;
         const item = await contentRepo.getBySlug(contentType, contentId);
-        return item ? { title: item.title } : null;
+        if (!item) return null;
+        return {
+            id: item.id,
+            title: item.title,
+            formattedDate: item.formattedDate,
+            formattedNumber: item.formattedNumber,
+            htmlAvailable: item.htmlAvailable,
+            pdfAvailable: item.pdfAvailable,
+            readTime: item.readTime,
+        };
     });
 
     return NextResponse.json({ items });

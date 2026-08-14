@@ -1,5 +1,4 @@
 import type { BlockId } from "@/domain/entities/BlockColors";
-import type { ContentType } from "@/domain/entities/ContentItem";
 
 export const PUBLIC_BLOCK_LABELS: Record<BlockId, string> = {
     newsletter: "Newsletter",
@@ -42,19 +41,4 @@ export function normalizeExplorarBlock(input: string | null | undefined): BlockI
 export function publicExplorarBlockSlug(block: BlockId | null): string | null {
     if (!block) return null;
     return INTERNAL_TO_PUBLIC[block] ?? null;
-}
-
-/** Mapeia o `ContentType` (domínio/API) para o bloco editorial correspondente (cor + label). */
-export const CONTENT_TYPE_TO_BLOCK_ID: Record<ContentType, BlockId> = {
-    newsletter: "newsletter",
-    "mini-livro": "livro",
-    ebook: "livro",
-    biblioteca: "biblioteca",
-    "especial-semana": "reportagem",
-    radar_oportunidades: "radar",
-    estudar: "estudar",
-};
-
-export function blockIdForContentType(type: ContentType): BlockId {
-    return CONTENT_TYPE_TO_BLOCK_ID[type];
 }

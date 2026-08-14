@@ -23,11 +23,22 @@ export interface SavedContentEntry {
     createdAt: Date;
 }
 
-/** Item salvo já hidratado com os dados do conteúdo, para a página /salvos. */
+/**
+ * Item salvo já hidratado com os dados do conteúdo, para a página /salvos.
+ * Carrega os mesmos campos usados pelo card de /explorar (`Item` em
+ * components/explorar/ContentCards.tsx) para que o card renderize idêntico
+ * nos dois lugares.
+ */
 export interface SavedContentView {
     contentType: string;
     contentId: string;
     title: string;
     href: string;
     createdAt: Date;
+    id: number;
+    formattedDate: string;
+    formattedNumber: string;
+    htmlAvailable: boolean;
+    pdfAvailable: boolean;
+    readTime: number;
 }

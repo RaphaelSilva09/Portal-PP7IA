@@ -8,15 +8,20 @@ import { useAuthModal } from "@/context/AuthModalContext";
 interface SaveForLaterButtonProps {
     contentType: string;
     contentId: string;
+    /** Quando já se sabe o estado salvo (ex.: renderizado a partir de /api/saved-content), pula a checagem no mount. */
+    initialSaved?: boolean;
+    /** Chamado após um toggle bem-sucedido — usado em /salvos para remover o card da lista ao desmarcar. */
+    onToggle?: (saved: boolean) => void;
 }
 
-export default function SaveForLaterButton({ contentType, contentId }: SaveForLaterButtonProps) {
+export default function SaveForLaterButton({ contentType, contentId, initialSaved, onToggle }: SaveForLaterButtonProps) {
     const { user } = useAuth();
     const { openModal } = useAuthModal();
-    const [isSaved, setIsSaved] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isSaved, setIsSaved] = useState(initialSaved ?? false);
+    const [isLoading, setIsLoading] = useState(initialSaved === undefined);
 
     useEffect(() => {
+        if (initialSaved !== undefined) return;
         if (!user) {
             setIsLoading(false);
             return;
@@ -31,7 +36,7 @@ export default function SaveForLaterButton({ contentType, contentId }: SaveForLa
             .catch(() => {})
             .finally(() => !cancelled && setIsLoading(false));
         return () => { cancelled = true; };
-    }, [contentType, contentId, user]);
+    }, [contentType, contentId, user, initialSaved]);
 
     const handleClick = async () => {
         if (!user) {
@@ -49,7 +54,9 @@ export default function SaveForLaterButton({ contentType, contentId }: SaveForLa
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
-            setIsSaved(Boolean(data.saved));
+            const saved = Boolean(data.saved);
+            setIsSaved(saved);
+            onToggle?.(saved);
         } catch {
             setIsSaved(wasSaved);
         }

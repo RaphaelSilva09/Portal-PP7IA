@@ -1,13 +1,11 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bookmark, Lock, X } from "lucide-react";
-import Link from "next/link";
+import { Bookmark, Lock } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthModal } from "@/context/AuthModalContext";
-import { BLOCK_LABELS } from "@/domain/entities/BlockColors";
 import type { ContentType } from "@/domain/entities/ContentItem";
-import { blockIdForContentType } from "@/lib/explorarBlocks";
+import { cardConfigForContentType, ItemCard, type Item } from "@/components/explorar/ContentCards";
 
 interface SavedContentItem {
     contentType: ContentType;
@@ -15,6 +13,12 @@ interface SavedContentItem {
     title: string;
     href: string;
     createdAt: string;
+    id: number;
+    formattedDate: string;
+    formattedNumber: string;
+    htmlAvailable: boolean;
+    pdfAvailable: boolean;
+    readTime: number;
 }
 
 export default function SalvosClient() {
@@ -68,49 +72,36 @@ export default function SalvosClient() {
         );
     }
 
-    const handleRemove = async (item: SavedContentItem) => {
-        await fetch("/api/saved-content", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contentType: item.contentType, contentId: item.contentId }),
-        });
+    const handleUnsave = (removed: SavedContentItem) => {
         queryClient.setQueryData<SavedContentItem[]>(["saved-content"], prev =>
-            (prev ?? []).filter(i => !(i.contentType === item.contentType && i.contentId === item.contentId)));
+            (prev ?? []).filter(i => !(i.contentType === removed.contentType && i.contentId === removed.contentId)));
     };
 
     return (
-        <ul className="grid gap-3 sm:grid-cols-2">
-            {items.map(item => {
-                const blockId = blockIdForContentType(item.contentType);
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map(saved => {
+                const item: Item = {
+                    id: saved.id,
+                    title: saved.title,
+                    htmlPath: saved.href,
+                    pdfPath: null,
+                    htmlAvailable: saved.htmlAvailable,
+                    pdfAvailable: saved.pdfAvailable,
+                    formattedDate: saved.formattedDate,
+                    formattedNumber: saved.formattedNumber,
+                    readTime: saved.readTime,
+                };
                 return (
-                    <li key={`${item.contentType}-${item.contentId}`}>
-                        <article className="group relative flex items-center gap-3 rounded-2xl border border-border bg-background p-4 transition hover:border-foreground/20 hover:shadow-[var(--shadow-card)]">
-                            <div className="min-w-0 flex-1">
-                                <span
-                                    className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                                    style={{ backgroundColor: `var(--block-${blockId})`, color: `var(--block-${blockId}-on)` }}
-                                >
-                                    {BLOCK_LABELS[blockId]}
-                                </span>
-                                <Link href={item.href} className="mt-1.5 block after:absolute after:inset-0 after:rounded-2xl">
-                                    <h3 className="line-clamp-2 font-serif text-base leading-[1.35] text-ink transition-colors group-hover:text-primary">
-                                        {item.title}
-                                    </h3>
-                                </Link>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => handleRemove(item)}
-                                aria-label="Remover dos salvos"
-                                title="Remover dos salvos"
-                                className="relative z-10 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
-                            >
-                                <X className="size-4" aria-hidden="true" />
-                            </button>
-                        </article>
-                    </li>
+                    <ItemCard
+                        key={`${saved.contentType}-${saved.contentId}`}
+                        item={item}
+                        block={cardConfigForContentType(saved.contentType)}
+                        contentType={saved.contentType}
+                        initialSaved
+                        onToggleSaved={savedNow => { if (!savedNow) handleUnsave(saved); }}
+                    />
                 );
             })}
-        </ul>
+        </div>
     );
 }

@@ -37,9 +37,7 @@ export default function SalvosPage() {
                     </p>
                 </div>
 
-                <div className="max-w-3xl">
-                    <SalvosClient />
-                </div>
+                <SalvosClient />
             </main>
 
             <Footer />
