@@ -770,7 +770,7 @@ function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: Bl
                         <ReadTimeBadge minutes={item.readTime} />
                     </div>
                     <div className="relative z-10 mt-3 flex flex-wrap gap-2 text-xs">
-                        {item.htmlAvailable ? (
+                        {item.htmlAvailable && (
                             <Link
                                 href={item.htmlPath!}
                                 className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 font-medium text-foreground hover:bg-muted"
@@ -778,7 +778,23 @@ function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: Bl
                                 <ArrowUpRight className="size-3" aria-hidden="true" />
                                 Ler agora
                             </Link>
-                        ) : (
+                        )}
+                        {item.pdfAvailable && (
+                            <a
+                                href={item.pdfPath!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={
+                                    item.htmlAvailable
+                                        ? "inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 font-medium text-foreground hover:bg-muted"
+                                        : "inline-flex items-center gap-1 rounded-full bg-ink px-2.5 py-1 font-medium text-background transition hover:bg-primary"
+                                }
+                            >
+                                <FileText className="size-3" aria-hidden="true" />
+                                Baixar PDF
+                            </a>
+                        )}
+                        {!item.htmlAvailable && !item.pdfAvailable && (
                             <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-muted-foreground">
                                 Em breve
                             </span>

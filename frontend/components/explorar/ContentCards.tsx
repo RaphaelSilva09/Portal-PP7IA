@@ -8,7 +8,7 @@
 import SaveForLaterButton from "@/components/SaveForLaterButton";
 import UpdatedBadge from "@/components/UpdatedBadge";
 import type { ContentType } from "@/domain/entities/ContentItem";
-import { ArrowUpRight, Clock, Globe } from "lucide-react";
+import { ArrowUpRight, Clock, FileText, Globe } from "lucide-react";
 import Link from "next/link";
 
 // ── Design config per block ───────────────────────────────────────────────────
@@ -74,7 +74,7 @@ export function ReadTimeBadge({ minutes }: { minutes?: number }) {
 // ── Shared sub-components ─────────────────────────────────────────────────────
 
 export function FormatBadges({ item }: { item: Item }) {
-    if (!item.htmlAvailable) {
+    if (!item.htmlAvailable && !item.pdfAvailable) {
         return (
             <span className="rounded-full border border-dashed border-border/60 px-2 py-0.5 text-[10px] text-muted-foreground/70">
                 Em breve
@@ -82,12 +82,31 @@ export function FormatBadges({ item }: { item: Item }) {
         );
     }
     return (
-        <Link
-            href={item.htmlPath!}
-            className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
-        >
-            <Globe className="size-2.5" aria-hidden="true" />Online
-        </Link>
+        <>
+            {item.htmlAvailable && (
+                <Link
+                    href={item.htmlPath!}
+                    className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                >
+                    <Globe className="size-2.5" aria-hidden="true" />Online
+                </Link>
+            )}
+            {item.pdfAvailable && (
+                <a
+                    href={item.pdfPath!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={
+                        item.htmlAvailable
+                            ? "inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                            : "inline-flex items-center gap-1 rounded-full bg-ink px-2 py-0.5 text-[10px] font-medium text-background transition hover:bg-primary"
+                    }
+                >
+                    <FileText className="size-2.5" aria-hidden="true" />
+                    {item.htmlAvailable ? "PDF" : "Baixar PDF"}
+                </a>
+            )}
+        </>
     );
 }
 
@@ -125,7 +144,7 @@ export function FeaturedCard({ item, block, contentType, hideCode }: { item: Ite
                 )}
 
                 <div className="relative z-10 mt-6 flex flex-wrap items-center gap-3">
-                    {item.htmlAvailable ? (
+                    {item.htmlAvailable && (
                         <Link
                             href={item.htmlPath!}
                             className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
@@ -134,7 +153,23 @@ export function FeaturedCard({ item, block, contentType, hideCode }: { item: Ite
                             Ler agora
                             <ArrowUpRight className="size-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
                         </Link>
-                    ) : (
+                    )}
+                    {item.pdfAvailable && (
+                        <a
+                            href={item.pdfPath!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={
+                                item.htmlAvailable
+                                    ? "inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                                    : "group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
+                            }
+                        >
+                            <FileText className="size-4" aria-hidden="true" />
+                            Baixar PDF
+                        </a>
+                    )}
+                    {!item.htmlAvailable && !item.pdfAvailable && (
                         <span className="rounded-full border border-dashed border-border/60 px-4 py-2 text-sm text-muted-foreground/70">
                             Em breve
                         </span>

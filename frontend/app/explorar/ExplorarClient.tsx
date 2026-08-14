@@ -552,10 +552,14 @@ function ExplorarCard({ card }: { card: CardItem }) {
                                 href={card.pdfPath!}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                                className={
+                                    card.htmlAvailable
+                                        ? "inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                                        : "inline-flex items-center gap-1 rounded-full bg-ink px-2 py-0.5 text-[10px] font-medium text-background transition hover:bg-primary"
+                                }
                             >
                                 <FileText className="size-2.5" aria-hidden="true" />
-                                PDF
+                                {card.htmlAvailable ? "PDF" : "Baixar PDF"}
                             </a>
                         )}
                         {!card.htmlAvailable && !card.pdfAvailable && (
