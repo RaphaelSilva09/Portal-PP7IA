@@ -114,6 +114,14 @@ export class PostgresAnalyticsRepository implements IAnalyticsRepository {
 
     async getActivityStats(): Promise<ActivityStats> {
         try {
+            // "last_seen_at" is written by a best-effort client-side beacon
+            // (UserActivityTracker → POST /api/user/activity) that silently no-ops
+            // on any failure (ad blockers, closed tab before the fetch lands, etc.)
+            // and in practice almost never fires for real users. better-auth already
+            // bumps session."updatedAt" server-side on every getSession() call once a
+            // session is older than `updateAge` (see lib/auth.ts) — that happens on
+            // ordinary page loads regardless of client-side JS, so it's folded in via
+            // GREATEST() as the reliable half of the "last active" signal.
             const { rows } = await pool.query<{
                 active_today: string;
                 active_7d: string;
@@ -121,11 +129,16 @@ export class PostgresAnalyticsRepository implements IAnalyticsRepository {
                 active_30d: string;
             }>(`
                 SELECT
-                    count(*) FILTER (WHERE "last_seen_at" >= now() - interval '1 day')  AS active_today,
-                    count(*) FILTER (WHERE "last_seen_at" >= now() - interval '7 days')  AS active_7d,
-                    count(*) FILTER (WHERE "last_seen_at" >= now() - interval '15 days') AS active_15d,
-                    count(*) FILTER (WHERE "last_seen_at" >= now() - interval '30 days') AS active_30d
-                FROM "user"
+                    count(*) FILTER (WHERE GREATEST(u."last_seen_at", s.last_session_activity) >= now() - interval '1 day')  AS active_today,
+                    count(*) FILTER (WHERE GREATEST(u."last_seen_at", s.last_session_activity) >= now() - interval '7 days')  AS active_7d,
+                    count(*) FILTER (WHERE GREATEST(u."last_seen_at", s.last_session_activity) >= now() - interval '15 days') AS active_15d,
+                    count(*) FILTER (WHERE GREATEST(u."last_seen_at", s.last_session_activity) >= now() - interval '30 days') AS active_30d
+                FROM "user" u
+                LEFT JOIN (
+                    SELECT "userId", MAX("updatedAt") AS last_session_activity
+                    FROM session
+                    GROUP BY "userId"
+                ) s ON s."userId" = u.id
             `);
             const row = rows[0];
             return {

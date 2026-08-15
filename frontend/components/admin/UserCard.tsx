@@ -16,10 +16,11 @@ function formatLastSignIn(date: Date | null): string {
 
 /**
  * Tempo relativo desde a última vez que o usuário abriu o portal (não
- * login). `null` não significa "nunca acessou o portal" — só que ainda não
- * foi visto desde que este rastreamento (last_seen_at) entrou no ar, o que
- * vale pra qualquer usuário já cadastrado antes dele existir. "—" comunica
- * "sem dado" sem afirmar algo que não sabemos.
+ * login) — combina o beacon de UserActivityTracker.tsx com o refresh
+ * server-side de session.updatedAt do better-auth (ver getActivityStats em
+ * PostgresAnalyticsRepository.ts). `null` não significa "nunca acessou o
+ * portal" — só que nenhum dos dois sinais teve uma leitura ainda. "—"
+ * comunica "sem dado" sem afirmar algo que não sabemos.
  */
 function formatLastSeen(date: Date | null): string {
     if (!date) return "—";

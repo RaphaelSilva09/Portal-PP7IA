@@ -67,7 +67,9 @@ export async function GET(request: NextRequest) {
         }
         if (activeWithinDays !== null) {
             params.push(`${activeWithinDays} days`);
-            where.push(`u."last_seen_at" >= now() - $${params.length}::interval`);
+            where.push(
+                `GREATEST(u."last_seen_at", (SELECT MAX(s."updatedAt") FROM session s WHERE s."userId" = u.id)) >= now() - $${params.length}::interval`,
+            );
         }
     }
 
@@ -97,7 +99,7 @@ export async function GET(request: NextRequest) {
             u."emailVerified"        AS "emailVerified",
             u.accept_email_updates,
             u.accept_whatsapp_updates,
-            u."last_seen_at"         AS last_seen_at,
+            GREATEST(u."last_seen_at", (SELECT MAX(s."updatedAt") FROM session s WHERE s."userId" = u.id)) AS last_seen_at,
             (SELECT MAX(s."createdAt") FROM session s WHERE s."userId" = u.id) AS last_sign_in_at
         FROM "user" u
         ${whereSql}
