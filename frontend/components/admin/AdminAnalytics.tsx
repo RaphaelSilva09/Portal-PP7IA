@@ -39,9 +39,10 @@ const CONTENT_BREAKDOWN: { key: keyof AnalyticsData["content"]; label: string; i
 
 /**
  * Painel de Analytics do portal — atividade de leitores (não só cadastro) e
- * composição do conteúdo. "Ativo" aqui é `last_seen_at` (abriu o portal já
- * logado), distinto de login: ver /api/user/activity e
- * UserActivityTracker.tsx.
+ * composição do conteúdo. "Ativo" combina `last_seen_at` (beacon best-effort
+ * de UserActivityTracker.tsx) com `session.updatedAt` do better-auth (sinal
+ * server-side, confiável mesmo se o beacon falhar) — ver getActivityStats em
+ * PostgresAnalyticsRepository.ts.
  */
 export function AdminAnalytics() {
     const [data, setData] = useState<AnalyticsData | null>(null);
