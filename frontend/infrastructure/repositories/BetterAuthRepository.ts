@@ -13,7 +13,9 @@ import { User } from "../../domain/entities/User";
 import {
     EmailNotConfirmedError,
     InvalidCredentialsError,
+    InvalidOTPError,
     NetworkError,
+    OTPExpiredError,
     UnknownAuthError,
     UserAlreadyExistsError,
     WeakPasswordError,
@@ -131,11 +133,17 @@ export class BetterAuthRepository implements IAuthRepository {
     }
 
     async verifyPasswordResetOTP(params: { email: string; token: string }): Promise<void> {
-        // emailOTP plugin verifies + caches verification; resetPasswordWithOTP uses it.
-        // Storing verified email/code locally in repository instance for the subsequent reset call.
+        // check-verification-otp validates without consuming the code, so resetPasswordWithOTP
+        // can still redeem it afterwards via authClient.emailOtp.resetPassword.
+        const { error } = await authClient.emailOtp.checkVerificationOtp({
+            email: params.email,
+            otp: params.token,
+            type: "forget-password",
+        });
+        if (error) throw this.mapError(error);
+
         this.pendingResetEmail = params.email;
         this.pendingResetOtp = params.token;
-        // Verify-only step is implicit in resetPassword; we'll surface invalid-OTP errors there.
     }
 
     async resetPasswordWithToken(_newPassword: string): Promise<void> {
@@ -249,6 +257,12 @@ export class BetterAuthRepository implements IAuthRepository {
         }
         if (code === "EMAIL_NOT_VERIFIED" || msg.includes("not verified")) {
             return new EmailNotConfirmedError();
+        }
+        if (code === "INVALID_OTP" || msg.includes("invalid otp")) {
+            return new InvalidOTPError();
+        }
+        if (code === "OTP_EXPIRED" || msg.includes("otp expired")) {
+            return new OTPExpiredError();
         }
         if (code === "WEAK_PASSWORD" || msg.includes("password") && (msg.includes("weak") || msg.includes("short"))) {
             return new WeakPasswordError();
