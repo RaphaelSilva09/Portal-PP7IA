@@ -5,6 +5,7 @@ import ContinueReadingLink from "@/components/home/ContinueReadingLink";
 import HeroAnimatedWord from "@/components/home/HeroAnimatedWord";
 import HomeCarousel from "@/components/home/HomeCarousel";
 import type { HomeCarouselSlide } from "@/components/home/HomeCarousel";
+import HomeEditorialSection from "@/components/home/HomeEditorialSection";
 import HomeFaqSection from "@/components/home/HomeFaqSection";
 import HomeTrilhasSection from "@/components/home/HomeTrilhasSection";
 import NewsletterForm from "@/components/home/NewsletterForm";
@@ -487,7 +488,12 @@ function NewsletterSection({ s }: { s: SectionConfig }) {
 function renderSection(s: SectionConfig) {
     if (!s.visible) return null;
     switch (s.id) {
-        case "sete-cores":  return <SetesCoresSection key={s.id} s={s} />;
+        case "sete-cores":  return (
+            <div key={s.id}>
+                <SetesCoresSection s={s} />
+                <HomeEditorialSection />
+            </div>
+        );
         // Seção "Editoriais e Artigos" desabilitada — a curadoria pessoal do
         // Paulo ocupa esse mesmo lugar na ordem de seções da home agora.
         case "editorial":   return <HomeRecomendacoesPaulo key={s.id} />;

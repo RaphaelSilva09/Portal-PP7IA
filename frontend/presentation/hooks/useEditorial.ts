@@ -9,6 +9,8 @@
 import {
     EDITORIAL_ITEMS,
     getEditorialFileName,
+    getEditorialPdfFileName,
+    getEditorialPdfPublicUrl,
     getEditorialViewPath,
     type EditorialSlug,
 } from "@/constants/editorials";
@@ -21,7 +23,10 @@ export interface EditorialLink {
     audienceLabel: string;
     ctaLabel: string;
     href: string;
+    /** HTML disponível para leitura online. */
     available: boolean;
+    pdfAvailable: boolean;
+    pdfHref: string;
 }
 
 interface UseEditorialResult {
@@ -43,13 +48,21 @@ export function useEditorial(): UseEditorialResult {
                 ...item,
                 href: getEditorialViewPath(item.slug),
                 available: availableFiles.has(getEditorialFileName(item.slug)),
+                pdfAvailable: availableFiles.has(getEditorialPdfFileName(item.slug)),
+                pdfHref: getEditorialPdfPublicUrl(item.slug),
             }));
         },
         staleTime: 5 * 60 * 1000,
     });
 
     return {
-        editorials: data ?? EDITORIAL_ITEMS.map(item => ({ ...item, href: getEditorialViewPath(item.slug), available: false })),
+        editorials: data ?? EDITORIAL_ITEMS.map(item => ({
+            ...item,
+            href: getEditorialViewPath(item.slug),
+            available: false,
+            pdfAvailable: false,
+            pdfHref: getEditorialPdfPublicUrl(item.slug),
+        })),
         isLoading,
         error: error ? "Erro ao carregar editoriais." : null,
     };
