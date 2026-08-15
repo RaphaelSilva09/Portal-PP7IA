@@ -64,3 +64,15 @@ export class InvalidResetTokenError extends AuthError {
         super("Link de recuperação inválido ou expirado. Solicite um novo link");
     }
 }
+
+export class InvalidOTPError extends AuthError {
+    constructor() {
+        super("Código inválido. Verifique e tente novamente");
+    }
+}
+
+export class OTPExpiredError extends AuthError {
+    constructor() {
+        super("Código expirado. Solicite um novo código");
+    }
+}
