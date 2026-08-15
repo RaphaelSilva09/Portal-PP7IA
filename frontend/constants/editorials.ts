@@ -36,6 +36,19 @@ export function getEditorialFileName(slug: EditorialSlug): string {
     return `${slug}.html`;
 }
 
+export function getEditorialPdfFileName(slug: EditorialSlug): string {
+    return `${slug}.pdf`;
+}
+
+export function getEditorialPdfStoragePath(slug: EditorialSlug): string {
+    return `${EDITORIAL_STORAGE_FOLDER}/${getEditorialPdfFileName(slug)}`;
+}
+
+/** URL pública servida por /api/files — mesma convenção do pdfPath dos outros tipos de conteúdo. */
+export function getEditorialPdfPublicUrl(slug: EditorialSlug): string {
+    return `/api/files/${EDITORIAL_STORAGE_BUCKET}/${getEditorialPdfStoragePath(slug)}`;
+}
+
 export function getEditorialViewPath(slug: EditorialSlug): string {
     return `/view/editorial/${slug}`;
 }

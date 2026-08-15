@@ -1,9 +1,9 @@
 /**
  * POST /api/admin/editorials/upload
  *
- * Multipart upload of a single editorial HTML file. Admin-gated.
- * Body fields: slug (EditorialSlug), file (File). Stores at
- * {bucket}/{folder}/{slug}.html on the Railway Volume.
+ * Multipart upload of a single editorial file (HTML or PDF). Admin-gated.
+ * Body fields: slug (EditorialSlug), format ("html" | "pdf", default "html"), file (File).
+ * Stores at {bucket}/{folder}/{slug}.{html|pdf} on the Railway Volume.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { headers as nextHeaders } from "next/headers";
@@ -14,6 +14,7 @@ import {
     EDITORIAL_STORAGE_BUCKET,
     EDITORIAL_STORAGE_FOLDER,
     getEditorialFileName,
+    getEditorialPdfFileName,
     type EditorialSlug,
 } from "@/constants/editorials";
 
@@ -31,20 +32,28 @@ export async function POST(request: NextRequest) {
 
     const form = await request.formData();
     const slug = form.get("slug");
+    const format = form.get("format");
     const file = form.get("file");
 
     if (typeof slug !== "string" || !VALID_SLUGS.has(slug as EditorialSlug)) {
         return NextResponse.json({ error: "Slug inválido" }, { status: 400 });
     }
+    if (format !== null && format !== "html" && format !== "pdf") {
+        return NextResponse.json({ error: "Formato inválido" }, { status: 400 });
+    }
     if (!(file instanceof File)) {
         return NextResponse.json({ error: "Arquivo ausente" }, { status: 400 });
     }
+
+    const fileName = format === "pdf"
+        ? getEditorialPdfFileName(slug as EditorialSlug)
+        : getEditorialFileName(slug as EditorialSlug);
 
     try {
         const storage = DIContainer.getStorageRepository();
         const result = await storage.upload(
             EDITORIAL_STORAGE_BUCKET,
-            `${EDITORIAL_STORAGE_FOLDER}/${getEditorialFileName(slug as EditorialSlug)}`,
+            `${EDITORIAL_STORAGE_FOLDER}/${fileName}`,
             file,
         );
         return NextResponse.json({ success: true, ...result });

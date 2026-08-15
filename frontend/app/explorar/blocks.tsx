@@ -21,7 +21,6 @@ import SaveForLaterButton from "@/components/SaveForLaterButton";
 import { BIBLIOTECA_TEMAS } from "@/domain/entities/BibliotecaItem";
 import type { Book } from "@/domain/entities/Book";
 import type { ContentType } from "@/domain/entities/ContentItem";
-import type { Ebook } from "@/domain/entities/Ebook";
 import { portalContentClass } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { useBiblioteca } from "@/presentation/hooks/useBiblioteca";
@@ -684,59 +683,6 @@ function CoverModal({ src, alt, onClose }: { src: string; alt: string; onClose: 
 
 const PART_COVERS = [capaParte1.src, capaParte3.src, capaParte2.src];
 
-function PartEbookCard({ ebook, block, partOrder, partColor, partSoft }: { ebook: Ebook; block: BlockCfg; partOrder: number; partColor: string; partSoft: string }) {
-    const hasIntro = ebook.htmlAvailable;
-    const hasCoverPdf = ebook.coverPdfAvailable;
-    const coverSrc = PART_COVERS[partOrder - 1] ?? capaParte1.src;
-    return (
-        <div className="grid grid-cols-1 items-center gap-6 border-b border-border pb-6 md:grid-cols-[140px_1fr] md:gap-8">
-            <div className="relative mx-auto w-[120px] md:w-full">
-                <div
-                    className="absolute inset-0 translate-x-1.5 translate-y-2 rounded-md opacity-25 blur-lg"
-                    style={{ backgroundColor: partColor }}
-                    aria-hidden="true"
-                />
-                <img
-                    src={coverSrc}
-                    alt={`Capa ${ebook.title}`}
-                    className="relative w-full rounded-md shadow-xl"
-                    loading="lazy"
-                />
-            </div>
-            <div>
-                {ebook.description && (
-                    <p className="max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
-                        {ebook.description}
-                    </p>
-                )}
-                <div className="mt-5 flex flex-wrap gap-3">
-                    {hasCoverPdf && (
-                        <a
-                            href={ebook.coverPdfPath!}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted"
-                        >
-                            <FileText className="size-3.5" aria-hidden="true" />
-                            Ver capa
-                        </a>
-                    )}
-                    {hasIntro && (
-                        <Link
-                            href={ebook.introHtmlPath!}
-                            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-background"
-                            style={{ backgroundColor: partColor }}
-                        >
-                            <ArrowUpRight className="size-3.5" aria-hidden="true" />
-                            Ler introdução
-                        </Link>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-}
-
 function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: BlockColors; globalIndex: number }) {
     const href = item.htmlPath;
     const slug = slugFromHref(href);
@@ -927,7 +873,7 @@ export function BlockLivro() {
 
                             return (
                                 <section key={part.order} id={part.anchorId} className="scroll-mt-32 space-y-6">
-                                    {/* Part header */}
+                                    {/* Part header — capa, descrição do e-book e ações, tudo em um único bloco */}
                                     <div className="grid grid-cols-1 items-center gap-6 border-b border-border pb-8 md:grid-cols-[160px_1fr] md:gap-10">
                                         <button
                                             className="relative mx-auto w-[140px] cursor-zoom-in md:mx-0 md:w-full"
@@ -958,11 +904,38 @@ export function BlockLivro() {
                                             <h3 className="mt-1 font-serif text-3xl leading-[1.15] tracking-[-0.01em] text-ink md:text-4xl">
                                                 {part.subtitle}
                                             </h3>
+                                            {ebook?.description && (
+                                                <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
+                                                    {ebook.description}
+                                                </p>
+                                            )}
+                                            {ebook && (ebook.coverPdfAvailable || ebook.htmlAvailable) && (
+                                                <div className="mt-5 flex flex-wrap gap-3">
+                                                    {ebook.coverPdfAvailable && (
+                                                        <a
+                                                            href={ebook.coverPdfPath!}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted"
+                                                        >
+                                                            <FileText className="size-3.5" aria-hidden="true" />
+                                                            Ver capa
+                                                        </a>
+                                                    )}
+                                                    {ebook.htmlAvailable && (
+                                                        <Link
+                                                            href={ebook.introHtmlPath!}
+                                                            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-background"
+                                                            style={{ backgroundColor: part.color }}
+                                                        >
+                                                            <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                                                            Ler introdução
+                                                        </Link>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-
-                                    {/* E-book compilado da parte */}
-                                    {ebook && <PartEbookCard ebook={ebook} block={block} partOrder={part.order} partColor={part.color} partSoft={part.soft} />}
 
                                     {/* Mini-livros da parte */}
                                     {partItems.length > 0 ? (
