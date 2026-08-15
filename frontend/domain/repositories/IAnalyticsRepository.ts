@@ -66,9 +66,10 @@ export interface IAnalyticsRepository {
     getUserStats(): Promise<UserStats>;
 
     /**
-     * Obtém quantos leitores abriram o portal (last_seen_at) em cada janela
-     * de tempo — distinto de login. Base para "quem está realmente usando o
-     * portal", não só cadastrado.
+     * Obtém quantos leitores abriram o portal em cada janela de tempo —
+     * distinto de login. Combina last_seen_at (beacon client-side) com o
+     * refresh server-side de session.updatedAt do better-auth. Base para
+     * "quem está realmente usando o portal", não só cadastrado.
      * @returns ActivityStats com contagens por janela
      */
     getActivityStats(): Promise<ActivityStats>;
