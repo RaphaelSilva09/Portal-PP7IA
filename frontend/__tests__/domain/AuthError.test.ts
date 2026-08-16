@@ -6,6 +6,8 @@ import {
     InvalidResetTokenError,
     NetworkError,
     PasswordResetRequestError,
+    RateLimitError,
+    TooManyOTPAttemptsError,
     UnknownAuthError,
     UserAlreadyExistsError,
     WeakPasswordError,
@@ -76,6 +78,24 @@ describe('AuthError subtypes', () => {
 
     it('InvalidResetTokenError tem mensagem sobre link inválido', () => {
         expect(new InvalidResetTokenError().message).toMatch(/inválido|expirado/i);
+    });
+
+    it('TooManyOTPAttemptsError é instanceof AuthError', () => {
+        expect(new TooManyOTPAttemptsError()).toBeInstanceOf(AuthError);
+    });
+
+    it('TooManyOTPAttemptsError orienta o usuário a solicitar um novo código', () => {
+        expect(new TooManyOTPAttemptsError().message).toMatch(/novo código/i);
+    });
+
+    it('RateLimitError é instanceof AuthError e carrega retryAfterSeconds', () => {
+        const err = new RateLimitError(30);
+        expect(err).toBeInstanceOf(AuthError);
+        expect(err.retryAfterSeconds).toBe(30);
+    });
+
+    it('RateLimitError sem retryAfterSeconds informado é null (não inventa um tempo)', () => {
+        expect(new RateLimitError().retryAfterSeconds).toBeNull();
     });
 
     it('cada subtipo tem name igual ao nome da classe', () => {
