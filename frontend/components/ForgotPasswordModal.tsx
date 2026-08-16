@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, Check, Eye, EyeOff, Mail, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useForgotPasswordModal } from "../context/ForgotPasswordModalContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { useDialogA11y } from "../hooks/useDialogA11y";
@@ -12,15 +12,13 @@ import Portal from "./Portal";
 export default function ForgotPasswordModal() {
     const { isOpen, closeModal } = useForgotPasswordModal();
     const {
-        recoveryStatus,
-        recoveryError,
-        userEmail,
-        isLoading,
+        state,
         cooldownRemaining,
         requestReset,
         verifyCode,
         resendCode,
         resetPassword,
+        restartRecovery,
     } = usePasswordRecovery();
 
     const [email, setEmail] = useState("");
@@ -29,105 +27,118 @@ export default function ForgotPasswordModal() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [errors, setErrors] = useState<{
-        email?: string;
-        otp?: string;
-        newPassword?: string;
-        confirmPassword?: string;
-    }>({});
+    const [emailFormatError, setEmailFormatError] = useState<string | undefined>();
+    const [otpFormatError, setOtpFormatError] = useState<string | undefined>();
+    const [passwordFormatErrors, setPasswordFormatErrors] = useState<{ newPassword?: string; confirmPassword?: string }>({});
 
     const panelRef = useRef<HTMLDivElement>(null);
+    const otpFormatErrorId = useId();
+    const otpServerErrorId = useId();
+    const passwordErrorId = useId();
+    const confirmPasswordErrorId = useId();
 
     useBodyScrollLock(isOpen);
 
     useEffect(() => {
         if (isOpen) {
-            setEmail(userEmail || "");
+            setEmail(state.phase === "code" || state.phase === "password" ? state.email : "");
             setOtp("");
             setNewPassword("");
             setConfirmPassword("");
-            setErrors({});
+            setEmailFormatError(undefined);
+            setOtpFormatError(undefined);
+            setPasswordFormatErrors({});
             setShowPassword(false);
             setShowConfirmPassword(false);
         }
-    }, [isOpen, userEmail]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
-    useEffect(() => {
-        if (recoveryStatus === "success") {
-            const timer = setTimeout(() => closeModal(), 2000);
-            return () => clearTimeout(timer);
-        }
-    }, [recoveryStatus, closeModal]);
-
-    const validateEmail = () => {
-        const e: typeof errors = {};
-        if (!email.trim()) e.email = "Email é obrigatório";
-        else if (!isValidEmail(email)) e.email = "Email inválido";
-        setErrors(e);
-        return !e.email;
+    const validateEmailFormat = () => {
+        if (!email.trim()) { setEmailFormatError("Email é obrigatório"); return false; }
+        if (!isValidEmail(email)) { setEmailFormatError("Email inválido"); return false; }
+        setEmailFormatError(undefined);
+        return true;
     };
 
-    const validateOTP = () => {
-        const e: typeof errors = {};
-        if (!otp.trim()) e.otp = "Código é obrigatório";
-        else if (!/^\d{8}$/.test(otp)) e.otp = "Código deve ter 8 dígitos";
-        setErrors(e);
-        return !e.otp;
+    const validateOtpFormat = () => {
+        if (!otp.trim()) { setOtpFormatError("Código é obrigatório"); return false; }
+        if (!/^\d{8}$/.test(otp)) { setOtpFormatError("Código deve ter 8 dígitos"); return false; }
+        setOtpFormatError(undefined);
+        return true;
     };
 
-    const validatePassword = () => {
-        const e: typeof errors = {};
+    const validatePasswordFormat = () => {
+        const e: typeof passwordFormatErrors = {};
         if (!newPassword.trim()) e.newPassword = "Nova senha é obrigatória";
         else if (!isValidPassword(newPassword, 6)) e.newPassword = "Senha deve ter no mínimo 6 caracteres";
         if (!confirmPassword.trim()) e.confirmPassword = "Confirmação é obrigatória";
         else if (newPassword !== confirmPassword) e.confirmPassword = "As senhas não coincidem";
-        setErrors(e);
+        setPasswordFormatErrors(e);
         return !e.newPassword && !e.confirmPassword;
     };
 
     const handleRequestCode = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (validateEmail()) await requestReset(email);
+        if (validateEmailFormat()) await requestReset(email);
     };
 
     const handleVerifyCode = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (validateOTP()) await verifyCode(otp);
+        if (state.phase === "code" && state.locked) return;
+        if (validateOtpFormat()) await verifyCode(otp);
     };
 
     const handleResendCode = async () => {
         if (cooldownRemaining > 0) return;
         setOtp("");
-        setErrors({});
+        setOtpFormatError(undefined);
         await resendCode();
     };
 
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (validatePassword()) await resetPassword(newPassword);
+        if (validatePasswordFormat()) await resetPassword(newPassword, confirmPassword);
     };
 
-    const handleClose = () => { if (!isLoading) closeModal(); };
+    const handleClose = () => {
+        const isBusy =
+            (state.phase === "email" && state.isSubmitting) ||
+            (state.phase === "code" && (state.isSubmitting || state.isResending)) ||
+            (state.phase === "password" && state.isSubmitting);
+        if (isBusy) return;
+        closeModal();
+        // Garante que reabrir o modal comece limpo — sem sucesso/erro de uma sessão anterior.
+        restartRecovery();
+    };
 
     useDialogA11y(isOpen, handleClose, panelRef);
 
-    const steps = ["Email", "Código", "Nova senha"];
-    const stepIndex = recoveryStatus === "idle" ? 0
-        : recoveryStatus === "awaiting_code" || recoveryStatus === "verifying" ? 1
-        : recoveryStatus === "ready" ? 2
-        : 2;
+    useEffect(() => {
+        if (state.phase === "success") {
+            // Passa por handleClose (não closeModal direto) para que restartRecovery também
+            // rode aqui — senão reabrir o modal mostraria a tela de sucesso de novo.
+            const timer = setTimeout(() => handleClose(), 2000);
+            return () => clearTimeout(timer);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state.phase]);
 
-    const titles = ["Recuperar senha.", "Verificar código.", "Nova senha.", "Tudo certo!"];
-    const subtitles = [
-        "Insira seu email para receber um código de recuperação.",
-        `Digite o código de 8 dígitos enviado para ${userEmail}.`,
-        "Crie uma nova senha para sua conta.",
-        "Sua senha foi redefinida com sucesso.",
-    ];
-    const titleIndex = recoveryStatus === "idle" ? 0
-        : recoveryStatus === "awaiting_code" || recoveryStatus === "verifying" ? 1
-        : recoveryStatus === "ready" ? 2
-        : 3;
+    const steps = ["Email", "Código", "Nova senha"];
+    const stepIndex = state.phase === "email" ? 0 : state.phase === "code" ? 1 : 2;
+
+    const titles: Record<typeof state.phase, string> = {
+        email: "Recuperar senha.",
+        code: "Verificar código.",
+        password: "Nova senha.",
+        success: "Tudo certo!",
+    };
+    const subtitles: Record<typeof state.phase, string> = {
+        email: "Insira seu email para receber um código de recuperação.",
+        code: "Se houver uma conta vinculada a este email, enviamos um código de 8 dígitos para ele.",
+        password: "Crie uma nova senha para sua conta.",
+        success: "Senha redefinida com sucesso. Entre novamente usando sua nova senha.",
+    };
 
     const inputClass = (hasError: boolean) =>
         `w-full rounded-xl border px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground bg-background outline-none transition focus:ring-2 focus:ring-primary/20 ${
@@ -135,6 +146,10 @@ export default function ForgotPasswordModal() {
         }`;
 
     if (!isOpen) return null;
+
+    const isCodeBusy = state.phase === "code" && (state.isSubmitting || state.isResending);
+    const isPasswordBusy = state.phase === "password" && state.isSubmitting;
+    const isEmailBusy = state.phase === "email" && state.isSubmitting;
 
     return (
         <Portal>
@@ -156,7 +171,7 @@ export default function ForgotPasswordModal() {
                     <div className="flex items-start justify-between p-6 pb-4">
                         <div className="flex-1">
                             {/* Step indicator */}
-                            {recoveryStatus !== "success" && (
+                            {state.phase !== "success" && (
                                 <div className="mb-3 flex items-center gap-2">
                                     {steps.map((step, i) => (
                                         <div key={step} className="flex items-center gap-2">
@@ -179,12 +194,12 @@ export default function ForgotPasswordModal() {
                                     ))}
                                 </div>
                             )}
-                            <h2 id="forgot-password-title" className="font-serif text-2xl text-ink">{titles[titleIndex]}</h2>
-                            <p className="mt-1 text-sm text-muted-foreground">{subtitles[titleIndex]}</p>
+                            <h2 id="forgot-password-title" className="font-serif text-2xl text-ink">{titles[state.phase]}</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">{subtitles[state.phase]}</p>
                         </div>
                         <button
                             onClick={handleClose}
-                            disabled={isLoading}
+                            disabled={isEmailBusy || isCodeBusy || isPasswordBusy}
                             className="ml-4 mt-1 shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
                             aria-label="Fechar modal"
                         >
@@ -193,42 +208,43 @@ export default function ForgotPasswordModal() {
                     </div>
 
                     <div className="px-6 pb-6">
-                        {/* Error */}
-                        {recoveryError && (
-                            <div className="mb-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/20">
-                                <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
-                                <p className="text-xs text-red-700 dark:text-red-400">{recoveryError}</p>
-                            </div>
-                        )}
-
                         {/* Step 1: Email */}
-                        {recoveryStatus === "idle" && (
+                        {state.phase === "email" && (
                             <form onSubmit={handleRequestCode} className="space-y-4">
+                                {state.error && (
+                                    <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/20">
+                                        <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
+                                        <p className="text-xs text-red-700 dark:text-red-400">{state.error}</p>
+                                    </div>
+                                )}
                                 <div className="space-y-1.5">
-                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                    <label htmlFor="forgot-password-email" className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                         Email
                                     </label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                         <input
+                                            id="forgot-password-email"
                                             type="email"
                                             value={email}
-                                            onChange={e => { setEmail(e.target.value); if (errors.email) setErrors(p => ({ ...p, email: undefined })); }}
+                                            onChange={e => { setEmail(e.target.value); if (emailFormatError) setEmailFormatError(undefined); }}
                                             placeholder="seu@email.com"
-                                            className={`${inputClass(!!errors.email)} pl-10`}
-                                            disabled={isLoading}
+                                            className={`${inputClass(!!emailFormatError)} pl-10`}
+                                            disabled={isEmailBusy}
+                                            aria-invalid={!!emailFormatError}
+                                            aria-describedby={emailFormatError ? "forgot-password-email-error" : undefined}
                                             autoComplete="email"
                                             autoFocus
                                         />
                                     </div>
-                                    {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+                                    {emailFormatError && <p id="forgot-password-email-error" className="text-xs text-red-500">{emailFormatError}</p>}
                                 </div>
                                 <button
                                     type="submit"
-                                    disabled={isLoading}
+                                    disabled={isEmailBusy}
                                     className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
-                                    {isLoading ? (
+                                    {isEmailBusy ? (
                                         <span className="inline-flex items-center gap-2">
                                             <span className="size-4 animate-spin rounded-full border-2 border-background/30 border-t-background" />
                                             Enviando…
@@ -241,33 +257,52 @@ export default function ForgotPasswordModal() {
                         )}
 
                         {/* Step 2: OTP */}
-                        {(recoveryStatus === "awaiting_code" || recoveryStatus === "verifying") && (
+                        {state.phase === "code" && (
                             <form onSubmit={handleVerifyCode} className="space-y-4">
+                                {state.error && (
+                                    <div
+                                        role="alert"
+                                        id={otpServerErrorId}
+                                        className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/20"
+                                    >
+                                        <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
+                                        <p className="text-xs text-red-700 dark:text-red-400">{state.error.message}</p>
+                                    </div>
+                                )}
+                                {!state.error && state.resendNotice && (
+                                    <div role="status" className="flex items-start gap-2 rounded-xl border border-border bg-accent/60 p-3">
+                                        <Check className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                                        <p className="text-xs text-muted-foreground">{state.resendNotice}</p>
+                                    </div>
+                                )}
                                 <div className="space-y-1.5">
-                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                    <label htmlFor="forgot-password-otp" className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                         Código de verificação
                                     </label>
                                     <input
+                                        id="forgot-password-otp"
                                         type="text"
                                         inputMode="numeric"
                                         maxLength={8}
                                         pattern="[0-9]{8}"
                                         value={otp}
-                                        onChange={e => { const v = e.target.value.replace(/\D/g, ""); setOtp(v); if (errors.otp) setErrors(p => ({ ...p, otp: undefined })); }}
+                                        onChange={e => { const v = e.target.value.replace(/\D/g, ""); setOtp(v); if (otpFormatError) setOtpFormatError(undefined); }}
                                         placeholder="00000000"
-                                        className={`${inputClass(!!errors.otp)} text-center font-mono text-2xl tracking-[0.5em]`}
-                                        disabled={isLoading}
+                                        className={`${inputClass(!!otpFormatError || !!state.error)} text-center font-mono text-2xl tracking-[0.5em]`}
+                                        disabled={isCodeBusy || state.locked}
+                                        aria-invalid={!!otpFormatError || !!state.error}
+                                        aria-describedby={[otpFormatError && otpFormatErrorId, state.error && otpServerErrorId].filter(Boolean).join(" ") || undefined}
                                         autoComplete="one-time-code"
                                         autoFocus
                                     />
-                                    {errors.otp && <p className="text-xs text-red-500">{errors.otp}</p>}
+                                    {otpFormatError && <p id={otpFormatErrorId} className="text-xs text-red-500">{otpFormatError}</p>}
                                 </div>
                                 <button
                                     type="submit"
-                                    disabled={isLoading}
+                                    disabled={isCodeBusy || state.locked}
                                     className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
-                                    {isLoading ? (
+                                    {state.isSubmitting ? (
                                         <span className="inline-flex items-center gap-2">
                                             <span className="size-4 animate-spin rounded-full border-2 border-background/30 border-t-background" />
                                             Verificando…
@@ -279,29 +314,42 @@ export default function ForgotPasswordModal() {
                                 <button
                                     type="button"
                                     onClick={handleResendCode}
-                                    disabled={cooldownRemaining > 0}
+                                    disabled={cooldownRemaining > 0 || state.isResending}
                                     className="w-full text-center text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {cooldownRemaining > 0 ? `Reenviar em ${cooldownRemaining}s` : "Reenviar código"}
+                                    {state.isResending
+                                        ? "Reenviando…"
+                                        : cooldownRemaining > 0
+                                        ? `Reenviar em ${cooldownRemaining}s`
+                                        : "Reenviar código"}
                                 </button>
                             </form>
                         )}
 
                         {/* Step 3: Nova senha */}
-                        {recoveryStatus === "ready" && (
+                        {state.phase === "password" && (
                             <form onSubmit={handleResetPassword} className="space-y-4">
+                                {state.error && (
+                                    <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/20">
+                                        <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
+                                        <p className="text-xs text-red-700 dark:text-red-400">{state.error.message}</p>
+                                    </div>
+                                )}
                                 <div className="space-y-1.5">
-                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                    <label htmlFor="forgot-password-new" className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                         Nova senha
                                     </label>
                                     <div className="relative">
                                         <input
+                                            id="forgot-password-new"
                                             type={showPassword ? "text" : "password"}
                                             value={newPassword}
-                                            onChange={e => { setNewPassword(e.target.value); if (errors.newPassword) setErrors(p => ({ ...p, newPassword: undefined })); }}
+                                            onChange={e => { setNewPassword(e.target.value); if (passwordFormatErrors.newPassword) setPasswordFormatErrors(p => ({ ...p, newPassword: undefined })); }}
                                             placeholder="Mínimo 6 caracteres"
-                                            className={`${inputClass(!!errors.newPassword)} pr-10`}
-                                            disabled={isLoading}
+                                            className={`${inputClass(!!passwordFormatErrors.newPassword)} pr-10`}
+                                            disabled={isPasswordBusy}
+                                            aria-invalid={!!passwordFormatErrors.newPassword}
+                                            aria-describedby={passwordFormatErrors.newPassword ? passwordErrorId : undefined}
                                             autoComplete="new-password"
                                             autoFocus
                                         />
@@ -313,21 +361,24 @@ export default function ForgotPasswordModal() {
                                             {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                                         </button>
                                     </div>
-                                    {errors.newPassword && <p className="text-xs text-red-500">{errors.newPassword}</p>}
+                                    {passwordFormatErrors.newPassword && <p id={passwordErrorId} className="text-xs text-red-500">{passwordFormatErrors.newPassword}</p>}
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                                    <label htmlFor="forgot-password-confirm" className="block text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                                         Confirmar nova senha
                                     </label>
                                     <div className="relative">
                                         <input
+                                            id="forgot-password-confirm"
                                             type={showConfirmPassword ? "text" : "password"}
                                             value={confirmPassword}
-                                            onChange={e => { setConfirmPassword(e.target.value); if (errors.confirmPassword) setErrors(p => ({ ...p, confirmPassword: undefined })); }}
+                                            onChange={e => { setConfirmPassword(e.target.value); if (passwordFormatErrors.confirmPassword) setPasswordFormatErrors(p => ({ ...p, confirmPassword: undefined })); }}
                                             placeholder="Repita a senha"
-                                            className={`${inputClass(!!errors.confirmPassword)} pr-10`}
-                                            disabled={isLoading}
+                                            className={`${inputClass(!!passwordFormatErrors.confirmPassword)} pr-10`}
+                                            disabled={isPasswordBusy}
+                                            aria-invalid={!!passwordFormatErrors.confirmPassword}
+                                            aria-describedby={passwordFormatErrors.confirmPassword ? confirmPasswordErrorId : undefined}
                                             autoComplete="new-password"
                                         />
                                         <button
@@ -338,15 +389,15 @@ export default function ForgotPasswordModal() {
                                             {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                                         </button>
                                     </div>
-                                    {errors.confirmPassword && <p className="text-xs text-red-500">{errors.confirmPassword}</p>}
+                                    {passwordFormatErrors.confirmPassword && <p id={confirmPasswordErrorId} className="text-xs text-red-500">{passwordFormatErrors.confirmPassword}</p>}
                                 </div>
 
                                 <button
                                     type="submit"
-                                    disabled={isLoading}
+                                    disabled={isPasswordBusy}
                                     className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-background transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]"
                                 >
-                                    {isLoading ? (
+                                    {isPasswordBusy ? (
                                         <span className="inline-flex items-center gap-2">
                                             <span className="size-4 animate-spin rounded-full border-2 border-background/30 border-t-background" />
                                             Redefinindo…
@@ -359,7 +410,7 @@ export default function ForgotPasswordModal() {
                         )}
 
                         {/* Step 4: Sucesso */}
-                        {recoveryStatus === "success" && (
+                        {state.phase === "success" && (
                             <div className="flex flex-col items-center gap-4 py-6 text-center">
                                 <div className="flex size-14 items-center justify-center rounded-full border-2 border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/20">
                                     <Check className="size-7 text-emerald-600 dark:text-emerald-400" />

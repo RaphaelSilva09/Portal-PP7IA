@@ -7,6 +7,7 @@ import { hash as argonHash, verify as argonVerify } from "@node-rs/argon2";
 import { assertEmailConfigured, resend, EMAIL_FROM } from "./email/resend";
 import { renderResetPasswordOtpEmail } from "./email/templates/reset-password-otp";
 import { renderEmailVerificationLinkEmail } from "./email/templates/email-verification-link";
+import { createPostgresRecoveryAttemptStore, passwordRecoveryThrottlePlugin } from "./passwordRecoveryThrottle";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -113,6 +114,32 @@ export const auth = betterAuth({
     emailOTP({
       otpLength: 8,
       expiresIn: 60 * 10,
+      // Per-challenge attempt counter, stored per email+type in the `verification` row (not
+      // per-IP) — survives client refresh/localStorage tampering, but is scoped to a single
+      // OTP challenge, not cumulative across the whole recovery process. Frontend mirrors this
+      // count for UX only; see MAX_OTP_ATTEMPTS in hooks/usePasswordRecovery.ts.
+      allowedAttempts: 10,
+      // "reuse" keeps the same OTP (and its accumulated attempt count) alive across a resend
+      // WHILE that challenge hasn't hit allowedAttempts yet. It does NOT close the loophole
+      // where a challenge that already hit allowedAttempts (but was never redeemed with the
+      // one extra call that crosses TOO_MANY_ATTEMPTS and deletes the row) gets a fresh
+      // 0-attempt budget on resend — proven empirically in
+      // __tests__/integration/passwordRecoverySecurity.test.ts (Contract 1, Scenario B). The
+      // actual cross-challenge cap lives in the password-recovery-throttle plugin below, keyed
+      // by email and independent of any single OTP's lifecycle.
+      resendStrategy: "reuse",
+      // The plugin also registers its own per-IP rate limit for every OTP endpoint (default
+      // 3 req/60s). Raised to match allowedAttempts so a legitimate user can actually use all
+      // 10 attempts inside one window instead of being IP-throttled after 3 typos.
+      rateLimit: { window: 60, max: 10 },
+      // storeOTP defaults to "plain" when unset — proven via integration test to persist the
+      // literal OTP digits in the `verification` row. "encrypted" uses better-auth's own
+      // symmetricEncrypt/decrypt (AES via ctx.context.secretConfig, derived from
+      // BETTER_AUTH_SECRET) so the code is never at rest in plaintext, while staying
+      // "recoverable" — required for resendStrategy:"reuse" to keep working (a "hashed" OTP
+      // can't be re-sent as itself, so reuse would silently fall back to "rotate", making
+      // EVERY resend mint a fresh 0-attempt challenge).
+      storeOTP: "encrypted",
       // Signup verification handled by top-level emailVerification (magic link).
       // This plugin only fires for forget-password and any future OTP-based flows.
       sendVerificationOnSignUp: false,
@@ -137,6 +164,12 @@ export const auth = betterAuth({
         }
       },
     }),
+    // Cross-challenge brute-force throttle — see lib/passwordRecoveryThrottle.ts. Must be
+    // registered as its own plugin (not folded into emailOTP's own options) because it needs
+    // `hooks.before`/`hooks.after`, which built-in plugins don't expose for external
+    // configuration; this is the officially-supported extension point for adding cross-cutting
+    // request gating without forking the library.
+    passwordRecoveryThrottlePlugin(createPostgresRecoveryAttemptStore(pool)),
   ],
 });
 

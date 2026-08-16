@@ -18,7 +18,11 @@ function ResetPasswordPageContent() {
     const searchParams = useSearchParams();
     const { user } = useAuth();
     const { openModal: openForgotPasswordModal } = useForgotPasswordModal();
-    const { recoveryError, isLoading, resetPassword } = usePasswordRecovery();
+    const { state, resetPassword } = usePasswordRecovery();
+    // Página legada (ver TODO de remoção abaixo) — nunca passa pelas etapas email/código deste
+    // hook, então só existe erro/loading relevantes quando (e se) a fase já é "password".
+    const isLoading = state.phase === "password" && state.isSubmitting;
+    const recoveryError = state.phase === "password" ? state.error?.message ?? null : null;
 
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
