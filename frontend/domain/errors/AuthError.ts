@@ -76,3 +76,18 @@ export class OTPExpiredError extends AuthError {
         super("Código expirado. Solicite um novo código");
     }
 }
+
+export class TooManyOTPAttemptsError extends AuthError {
+    constructor() {
+        super("Limite de tentativas atingido. Solicite um novo código para continuar");
+    }
+}
+
+export class RateLimitError extends AuthError {
+    readonly retryAfterSeconds: number | null;
+
+    constructor(retryAfterSeconds: number | null = null) {
+        super("Muitas tentativas em pouco tempo. Aguarde e tente novamente");
+        this.retryAfterSeconds = retryAfterSeconds;
+    }
+}

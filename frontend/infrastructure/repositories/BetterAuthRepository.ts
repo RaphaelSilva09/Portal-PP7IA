@@ -16,6 +16,8 @@ import {
     InvalidOTPError,
     NetworkError,
     OTPExpiredError,
+    RateLimitError,
+    TooManyOTPAttemptsError,
     UnknownAuthError,
     UserAlreadyExistsError,
     WeakPasswordError,
@@ -125,22 +127,23 @@ export class BetterAuthRepository implements IAuthRepository {
     }
 
     async sendPasswordReset(email: string): Promise<void> {
-        const { error } = await authClient.emailOtp.sendVerificationOtp({
-            email,
-            type: "forget-password",
-        });
-        if (error) throw this.mapError(error);
+        let retryAfterSeconds: number | null = null;
+        const { error } = await authClient.emailOtp.sendVerificationOtp(
+            { email, type: "forget-password" },
+            { onError: ctx => { retryAfterSeconds = this.extractRetryAfter(ctx.response); } },
+        );
+        if (error) throw this.mapError(error, retryAfterSeconds);
     }
 
     async verifyPasswordResetOTP(params: { email: string; token: string }): Promise<void> {
         // check-verification-otp validates without consuming the code, so resetPasswordWithOTP
         // can still redeem it afterwards via authClient.emailOtp.resetPassword.
-        const { error } = await authClient.emailOtp.checkVerificationOtp({
-            email: params.email,
-            otp: params.token,
-            type: "forget-password",
-        });
-        if (error) throw this.mapError(error);
+        let retryAfterSeconds: number | null = null;
+        const { error } = await authClient.emailOtp.checkVerificationOtp(
+            { email: params.email, otp: params.token, type: "forget-password" },
+            { onError: ctx => { retryAfterSeconds = this.extractRetryAfter(ctx.response); } },
+        );
+        if (error) throw this.mapError(error, retryAfterSeconds);
 
         this.pendingResetEmail = params.email;
         this.pendingResetOtp = params.token;
@@ -154,14 +157,14 @@ export class BetterAuthRepository implements IAuthRepository {
         if (!this.pendingResetEmail || !this.pendingResetOtp) {
             throw new UnknownAuthError("Verifique o código antes de redefinir a senha");
         }
-        const { error } = await authClient.emailOtp.resetPassword({
-            email: this.pendingResetEmail,
-            otp: this.pendingResetOtp,
-            password: newPassword,
-        });
+        let retryAfterSeconds: number | null = null;
+        const { error } = await authClient.emailOtp.resetPassword(
+            { email: this.pendingResetEmail, otp: this.pendingResetOtp, password: newPassword },
+            { onError: ctx => { retryAfterSeconds = this.extractRetryAfter(ctx.response); } },
+        );
         this.pendingResetEmail = null;
         this.pendingResetOtp = null;
-        if (error) throw this.mapError(error);
+        if (error) throw this.mapError(error, retryAfterSeconds);
     }
 
     async updateEmail(params: UpdateEmailParams): Promise<void> {
@@ -241,10 +244,31 @@ export class BetterAuthRepository implements IAuthRepository {
         });
     }
 
-    private mapError(error: { message?: string; status?: number; code?: string }): Error {
+    /** Reads the rate-limiter's real Retry-After header instead of inventing a countdown. */
+    private extractRetryAfter(response?: Response | null): number | null {
+        const header = response?.headers?.get("X-Retry-After");
+        const parsed = header ? parseInt(header, 10) : NaN;
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    private mapError(
+        error: { message?: string; status?: number; code?: string; retryAfterSeconds?: number | null },
+        headerRetryAfterSeconds: number | null = null,
+    ): Error {
         const msg = error?.message?.toLowerCase() ?? "";
         const code = error?.code ?? "";
+        // Our own password-recovery-throttle plugin puts retryAfterSeconds directly in the
+        // error body (available with zero header plumbing); better-auth's generic built-in
+        // rate limiter only sets the X-Retry-After header. Prefer the body field when present.
+        const retryAfterSeconds =
+            typeof error?.retryAfterSeconds === "number" ? error.retryAfterSeconds : headerRetryAfterSeconds;
 
+        // Structured HTTP status — better-auth's generic rate limiter returns a plain 429
+        // with no JSON `code` field, so status is the only structured signal available here.
+        // RECOVERY_THROTTLED (our own plugin) also uses 429 and is covered by this branch.
+        if (error?.status === 429) {
+            return new RateLimitError(retryAfterSeconds);
+        }
         if (code === "USER_ALREADY_EXISTS" || msg.includes("already exists")) {
             return new UserAlreadyExistsError();
         }
@@ -258,13 +282,22 @@ export class BetterAuthRepository implements IAuthRepository {
         if (code === "EMAIL_NOT_VERIFIED" || msg.includes("not verified")) {
             return new EmailNotConfirmedError();
         }
+        if (code === "TOO_MANY_ATTEMPTS") {
+            return new TooManyOTPAttemptsError();
+        }
         if (code === "INVALID_OTP" || msg.includes("invalid otp")) {
             return new InvalidOTPError();
         }
         if (code === "OTP_EXPIRED" || msg.includes("otp expired")) {
             return new OTPExpiredError();
         }
-        if (code === "WEAK_PASSWORD" || msg.includes("password") && (msg.includes("weak") || msg.includes("short"))) {
+        if (code === "PASSWORD_TOO_SHORT") {
+            return new WeakPasswordError("A senha deve ter no mínimo 6 caracteres");
+        }
+        if (code === "PASSWORD_TOO_LONG") {
+            return new WeakPasswordError("A senha excede o tamanho máximo permitido");
+        }
+        if (code === "WEAK_PASSWORD") {
             return new WeakPasswordError();
         }
         if (msg.includes("network") || msg.includes("fetch")) {
