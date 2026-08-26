@@ -24,7 +24,7 @@ import {
     UserPlus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function UserPage() {
     const router = useRouter();
@@ -51,11 +51,54 @@ export default function UserPage() {
     const [passwordData, setPasswordData] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
     const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
 
+    // Weekly news preference
+    const [weeklyNewsEnabled, setWeeklyNewsEnabled] = useState(false);
+    const [weeklyNewsLoaded, setWeeklyNewsLoaded] = useState(false);
+    const [weeklyNewsSaving, setWeeklyNewsSaving] = useState(false);
+    const [weeklyNewsError, setWeeklyNewsError] = useState<string | null>(null);
+
     const isAdmin = user?.isAdmin ?? false;
 
     useEffect(() => {
         if (!isLoading) setHasLoaded(true);
     }, [isLoading]);
+
+    useEffect(() => {
+        if (!user) return;
+        let cancelled = false;
+        fetch("/api/user/preferences/weekly-news")
+            .then(res => (res.ok ? res.json() : Promise.reject(res)))
+            .then((data: { enabled: boolean }) => {
+                if (!cancelled) setWeeklyNewsEnabled(data.enabled);
+            })
+            .catch(() => {
+                // Falha ao carregar preferência: mantém o padrão seguro (não inscrito).
+            })
+            .finally(() => {
+                if (!cancelled) setWeeklyNewsLoaded(true);
+            });
+        return () => { cancelled = true; };
+    }, [user]);
+
+    const handleToggleWeeklyNews = useCallback(async () => {
+        const next = !weeklyNewsEnabled;
+        setWeeklyNewsEnabled(next);
+        setWeeklyNewsSaving(true);
+        setWeeklyNewsError(null);
+        try {
+            const res = await fetch("/api/user/preferences/weekly-news", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ enabled: next }),
+            });
+            if (!res.ok) throw new Error();
+        } catch {
+            setWeeklyNewsEnabled(!next);
+            setWeeklyNewsError("Não foi possível salvar agora. Tente novamente.");
+        } finally {
+            setWeeklyNewsSaving(false);
+        }
+    }, [weeklyNewsEnabled]);
 
     useEffect(() => {
         if (hasLoaded && !isLoading && !user) router.push("/");
@@ -405,6 +448,48 @@ export default function UserPage() {
                                             </button>
                                         </div>
                                     </form>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* ── Comunicações por e-mail ──────────────────────── */}
+                        <div className="mb-8">
+                            <SectionLabel>Comunicações por e-mail</SectionLabel>
+                            <div className="rounded-2xl border border-border bg-card px-6 py-5">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-foreground">Novidades da semana</p>
+                                        <p className="mt-0.5 text-sm text-muted-foreground">
+                                            Receba por e-mail um resumo dos novos conteúdos publicados na plataforma.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        aria-checked={weeklyNewsEnabled}
+                                        aria-label="Novidades da semana"
+                                        onClick={handleToggleWeeklyNews}
+                                        disabled={!weeklyNewsLoaded || weeklyNewsSaving}
+                                        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 disabled:opacity-50 ${
+                                            weeklyNewsEnabled ? "bg-foreground" : "bg-accent border border-border"
+                                        }`}
+                                    >
+                                        <span
+                                            className={`inline-block size-5 rounded-full bg-background shadow-md transition-transform ${
+                                                weeklyNewsEnabled ? "translate-x-6" : "translate-x-1"
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                                <p className="mt-3 text-xs text-muted-foreground">
+                                    {weeklyNewsLoaded && (weeklyNewsEnabled ? "Inscrito" : "Não inscrito")}
+                                    {" · "}Essa preferência afeta apenas o e-mail Novidades da semana. Mensagens
+                                    essenciais sobre sua conta continuarão sendo enviadas.
+                                </p>
+                                {weeklyNewsError && (
+                                    <div className="mt-3">
+                                        <Feedback ok={false} message={weeklyNewsError} />
+                                    </div>
                                 )}
                             </div>
                         </div>
