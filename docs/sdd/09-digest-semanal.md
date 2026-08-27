@@ -1,5 +1,13 @@
 # T9 — Digest semanal por e-mail (quartas)
 
+> **Superseded (2026-08-26)**: a implementação descrita abaixo (rota `GET /api/cron/weekly-digest`,
+> cron da Vercel, lista estática `WEEKLY_DIGEST_RECIPIENTS`) foi removida — não havia mais projeto
+> Vercel ativo consumindo esse cron. O job real em produção é o serviço Railway dedicado descrito em
+> `docs/setup/WEEKLY_EMAIL_DIGEST.md` (`pnpm run digest:send`, `frontend/lib/email/weekly-digest.ts`),
+> que envia para inscritos reais via `communication_preferences` (ver
+> `docs/setup/WEEKLY_NEWS_UNSUBSCRIBE.md`). Mantido aqui apenas como registro histórico do desenho
+> original (v1, lista curada manualmente, sem inscrição pública).
+
 ## Requisito (PDF 3.5.1 / 3.8.4)
 
 "Aviso semanal por e-mail às quartas-feiras, consolidando tudo que subiu na semana (responsável: Raphael)." O PDF classifica como prioridade MÉDIA e nota que o e-mail deve sair até as 19h (após a newsletter das 16h da Luiza).

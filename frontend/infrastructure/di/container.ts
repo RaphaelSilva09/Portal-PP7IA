@@ -82,6 +82,7 @@ import { PostgresSavedContentRepository } from "../repositories/PostgresSavedCon
 import { PostgresReadingTrailRepository } from "../repositories/PostgresReadingTrailRepository";
 import { GetReadingTrailUseCase } from "../../application/usecases/GetReadingTrailUseCase";
 import { PostgresReferralRepository } from "../repositories/PostgresReferralRepository";
+import { PostgresCommunicationPreferenceRepository } from "../repositories/PostgresCommunicationPreferenceRepository";
 
 /**
  * Container de Dependências
@@ -117,6 +118,7 @@ class DIContainer {
     private static savedContentRepositoryInstance: PostgresSavedContentRepository | null = null;
     private static readingTrailRepositoryInstance: PostgresReadingTrailRepository | null = null;
     private static referralRepositoryInstance: PostgresReferralRepository | null = null;
+    private static communicationPreferenceRepositoryInstance: PostgresCommunicationPreferenceRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -191,6 +193,13 @@ class DIContainer {
             this.referralRepositoryInstance = new PostgresReferralRepository();
         }
         return this.referralRepositoryInstance;
+    }
+
+    static getCommunicationPreferenceRepository(): PostgresCommunicationPreferenceRepository {
+        if (!this.communicationPreferenceRepositoryInstance) {
+            this.communicationPreferenceRepositoryInstance = new PostgresCommunicationPreferenceRepository();
+        }
+        return this.communicationPreferenceRepositoryInstance;
     }
 
     /**

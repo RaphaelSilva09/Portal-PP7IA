@@ -2,6 +2,7 @@ import type { PoolClient } from "pg";
 
 import { pool as defaultPool } from "../db";
 import { EMAIL_FROM, assertEmailConfigured, resend as defaultResend } from "./resend";
+import { signUnsubscribeToken } from "./unsubscribeToken";
 
 const DEFAULT_SITE_URL = "https://pp7ias-portal.com.br";
 const DIGEST_TIME_ZONE = "America/Sao_Paulo";
@@ -14,6 +15,18 @@ const DEFAULT_DIGEST_RATE_LIMIT_RETRY_MS = 1_200;
 const MAX_DIGEST_RATE_LIMIT_RETRIES = 3;
 const PRODUCTION_ENVIRONMENT_NAMES = new Set(["production", "prod"]);
 const PRODUCTION_BRANCH_NAMES = new Set(["main", "master"]);
+
+/**
+ * A recipient who unsubscribes between run-start and their own send-time
+ * (caught by isStillSubscribed's recheck) is not an operational failure —
+ * it's the feature working as intended, and far more likely now that every
+ * digest carries a one-click unsubscribe link. It's recorded as `status =
+ * 'failed'` (the schema has no separate terminal status for this — see
+ * docs/setup/WEEKLY_NEWS_UNSUBSCRIBE.md) but must be excluded from
+ * failedCount: counting it as a real failure would block markQueueSent and
+ * cause this week's already-sent content to be resent to everyone next week.
+ */
+const CANCELLED_BEFORE_SEND_ERROR = "Cancelado antes do envio";
 
 const TABLE_CONFIG: Record<string, { label: string; viewType: string; fallbackPath: string; accentLight: string; accentDark: string }> = {
     newsletters: { label: "Newsletter", viewType: "newsletter", fallbackPath: "/explorar?b=newsletter", accentLight: "#3b82f6", accentDark: "#60a5fa" },
@@ -132,9 +145,11 @@ export function normalizeDigestItem(row: DigestQueueRow, siteUrl = DEFAULT_SITE_
 export function buildWeeklyDigestEmail({
     items,
     siteUrl = DEFAULT_SITE_URL,
+    unsubscribeUrl,
 }: {
     items: DigestItem[];
     siteUrl?: string;
+    unsubscribeUrl: string;
 }): WeeklyDigestEmail {
     const grouped = groupByTable(items);
     const usedTableNames = Array.from(grouped.keys());
@@ -254,10 +269,13 @@ export function buildWeeklyDigestEmail({
             </td>
           </tr>
           <tr>
-            <td class="eb-muted" style="color:#56657b;font-size:12px;line-height:1.6;font-family:'Inter',sans-serif;">
+            <td class="eb-muted" style="color:#56657b;font-size:12px;line-height:1.6;text-align:center;font-family:'Inter',sans-serif;">
               Você recebeu este email porque optou por receber atualizações do Portal PP7+IAS.
               Para alterar suas preferências, acesse
               <a href="${escapeAttribute(absoluteUrl("/user", siteUrl))}" class="eb-link" style="color:#1d4ed8;text-decoration:none;font-weight:600;">seu perfil</a>.
+              <br><br>
+              Não quer mais receber as Novidades da semana?
+              <a href="${escapeAttribute(unsubscribeUrl)}" class="eb-link" style="color:#1d4ed8;text-decoration:none;font-weight:600;">Cancelar inscrição</a>.
             </td>
           </tr>
 
@@ -275,6 +293,7 @@ export function buildWeeklyDigestEmail({
             ...textLines,
             "",
             `Preferências: ${absoluteUrl("/user", siteUrl)}`,
+            `Não quer mais receber as Novidades da semana? Cancelar inscrição: ${unsubscribeUrl}`,
         ].join("\n"),
     };
 }
@@ -312,6 +331,10 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
 
     if (!options.dryRun && !options.resendClient) {
         assertEmailConfigured();
+    }
+
+    if (!options.dryRun && !process.env.UNSUBSCRIBE_TOKEN_SECRET?.trim()) {
+        throw new Error("UNSUBSCRIBE_TOKEN_SECRET não configurado");
     }
 
     const client = await dbPool.connect();
@@ -360,14 +383,30 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
 
         await ensureDeliveries(client, runId, recipients);
         const pendingRecipients = await loadPendingRecipients(client, runId);
-        const email = buildWeeklyDigestEmail({ items, siteUrl });
 
         for (const recipient of pendingRecipients) {
             try {
+                if (!(await isStillSubscribed(client, recipient.id))) {
+                    await markDeliveryFailed(client, runId, recipient.id, CANCELLED_BEFORE_SEND_ERROR);
+                    continue;
+                }
+
+                const token = signUnsubscribeToken(recipient.id, "weekly_news");
+                const email = buildWeeklyDigestEmail({
+                    items,
+                    siteUrl,
+                    unsubscribeUrl: absoluteUrl(`/unsubscribe/weekly-news?token=${encodeURIComponent(token)}`, siteUrl),
+                });
+                const headerUnsubscribeUrl = absoluteUrl(
+                    `/api/email/unsubscribe/weekly-news?token=${encodeURIComponent(token)}`,
+                    siteUrl,
+                );
+
                 const providerMessageId = await sendDigestEmail({
                     resendClient,
                     recipient,
                     email,
+                    unsubscribeUrl: headerUnsubscribeUrl,
                     paceProviderSend,
                     rateLimitRetryDelayMs,
                     logger,
@@ -536,13 +575,24 @@ async function loadPendingDigestRows(client: PoolClient, maxItems: number): Prom
 
 async function loadRecipients(client: PoolClient): Promise<DigestRecipient[]> {
     const { rows } = await client.query<DigestRecipient>(
-        `SELECT id::text, email, nome
-         FROM "user"
-         WHERE COALESCE(accept_email_updates, false) = true
-           AND "emailVerified" = true
-         ORDER BY "createdAt" ASC`,
+        `SELECT u.id::text, u.email, u.nome
+         FROM "user" u
+         JOIN public.communication_preferences cp
+           ON cp.user_id = u.id AND cp.communication_type = 'weekly_news' AND cp.enabled = true
+         WHERE u."emailVerified" = true
+         ORDER BY u."createdAt" ASC`,
     );
     return rows;
+}
+
+/** Re-checks the preference right before actually sending — narrows the window for a just-cancelled user to still receive the email. */
+async function isStillSubscribed(client: PoolClient, userId: string): Promise<boolean> {
+    const { rows } = await client.query<{ enabled: boolean }>(
+        `SELECT enabled FROM public.communication_preferences
+         WHERE user_id = $1 AND communication_type = 'weekly_news'`,
+        [userId],
+    );
+    return rows[0]?.enabled === true;
 }
 
 async function updateRunCounts(client: PoolClient, runId: string, contentCount: number, recipientCount: number): Promise<void> {
@@ -595,18 +645,23 @@ async function markDeliveryFailed(client: PoolClient, runId: string, userId: str
     );
 }
 
-async function loadDeliveryTotals(client: PoolClient, runId: string): Promise<{ sentCount: number; failedCount: number }> {
-    const { rows } = await client.query<{ sent_count: string; failed_count: string }>(
+async function loadDeliveryTotals(
+    client: PoolClient,
+    runId: string,
+): Promise<{ sentCount: number; failedCount: number; cancelledCount: number }> {
+    const { rows } = await client.query<{ sent_count: string; failed_count: string; cancelled_count: string }>(
         `SELECT
            COUNT(*) FILTER (WHERE status = 'sent')::text AS sent_count,
-           COUNT(*) FILTER (WHERE status = 'failed')::text AS failed_count
+           COUNT(*) FILTER (WHERE status = 'failed' AND error IS DISTINCT FROM $2)::text AS failed_count,
+           COUNT(*) FILTER (WHERE status = 'failed' AND error = $2)::text AS cancelled_count
          FROM public.email_digest_deliveries
          WHERE run_id = $1`,
-        [runId],
+        [runId, CANCELLED_BEFORE_SEND_ERROR],
     );
     return {
         sentCount: Number(rows[0]?.sent_count ?? 0),
         failedCount: Number(rows[0]?.failed_count ?? 0),
+        cancelledCount: Number(rows[0]?.cancelled_count ?? 0),
     };
 }
 
@@ -624,6 +679,7 @@ async function sendDigestEmail({
     resendClient,
     recipient,
     email,
+    unsubscribeUrl,
     paceProviderSend,
     rateLimitRetryDelayMs,
     logger,
@@ -631,6 +687,7 @@ async function sendDigestEmail({
     resendClient: typeof defaultResend;
     recipient: DigestRecipient;
     email: WeeklyDigestEmail;
+    unsubscribeUrl: string;
     paceProviderSend: () => Promise<void>;
     rateLimitRetryDelayMs: number;
     logger: Logger;
@@ -643,6 +700,10 @@ async function sendDigestEmail({
             subject: email.subject,
             html: email.html,
             text: email.text,
+            headers: {
+                "List-Unsubscribe": `<${unsubscribeUrl}>`,
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            },
         });
 
         if (!error) return stringValue((data as { id?: unknown } | null)?.id);
