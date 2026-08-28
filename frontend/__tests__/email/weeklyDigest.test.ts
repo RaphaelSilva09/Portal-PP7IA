@@ -82,7 +82,7 @@ describe("weekly digest email", () => {
             ],
         });
 
-        expect(email.subject).toBe("PP7+IAS: novidades da semana");
+        expect(email.subject).toBe("PP7+IAS · 2 novidades nos blocos");
         expect(email.html).toContain("Newsletter da semana");
         expect(email.html).toContain("Biblioteca");
         expect(email.html).toContain("https://pp7ias-portal.com.br/user");
