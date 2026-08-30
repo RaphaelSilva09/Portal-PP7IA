@@ -382,7 +382,7 @@ const LOCATION_MOCK_BY_STEP: Record<string, ReactNode> = {
                         <div className="h-1.5 w-full rounded-full bg-accent" />
                         <div className="h-1.5 w-4/5 rounded-full bg-accent" />
                         <div className="mt-1.5 flex gap-1">
-                            <span className="relative inline-flex items-center rounded-full px-2 py-1 text-background" style={{ backgroundColor: "var(--block-livro)" }}>
+                            <span className="relative inline-flex items-center rounded-full px-2 py-1" style={{ backgroundColor: "var(--block-livro)", color: "var(--block-livro-on)" }}>
                                 <BookOpen className="size-2.5" />
                                 <PingDot color="var(--block-livro)" className="-right-1 -top-1 size-2.5" />
                             </span>
