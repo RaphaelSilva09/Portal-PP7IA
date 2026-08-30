@@ -2,6 +2,7 @@ import ModalsProvider from "@/components/ModalsProvider";
 import PortalTypographyEffect from "@/components/PortalTypographyEffect";
 import Providers from "@/components/Providers";
 import UserActivityTracker from "@/components/UserActivityTracker";
+import VLibrasWidget from "@/components/VLibrasWidget";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
@@ -112,6 +113,7 @@ export default function RootLayout({
                     </AuthProvider>
                 </Providers>
                 {showAnalytics && <Analytics />}
+                <VLibrasWidget />
             </body>
         </html>
     );
