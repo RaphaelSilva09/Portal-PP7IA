@@ -10,7 +10,6 @@ import { useDialogA11y } from "../hooks/useDialogA11y";
 import { formatPhone } from "../lib/formatters";
 import { attributeReferralIfPresent } from "../lib/referralCapture";
 import { isValidEmail, isValidPassword, isValidPhone } from "../lib/validators";
-import Portal from "./Portal";
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -171,7 +170,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
     const iconInputClass = (hasError: boolean) => `${inputClass(hasError)} pl-10`;
 
     return (
-        <Portal>
             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" onClick={onClose}>
                 <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
 
@@ -422,6 +420,5 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", ini
                     </div>
                 </div>
             </div>
-        </Portal>
     );
 }

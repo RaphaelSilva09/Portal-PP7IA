@@ -89,27 +89,64 @@
     --ink: #111111;
     --ink-soft: rgba(17, 17, 17, 0.78);
     --primary-soft: rgba(29, 78, 216, 0.18);
+    /*
+     * Contraste dos 7 blocos (axe color-contrast, achados C01-C10):
+     * - `*-on` é o texto sobre o preenchimento SÓLIDO do bloco (badges, pílulas,
+     *   dígitos grandes). Antes era branco fixo; sobre acentos claros/saturados
+     *   (laranja, âmbar, ciano, turquesa) o branco não alcança 4.5:1. Preto puro
+     *   passa em todas as 7 cores nos temas claro e escuro (pior caso medido:
+     *   ~4.7:1 em --block-estudar no tema claro) — ver
+     *   frontend/__tests__/design/blockColorContrast.test.ts.
+     * - `*-on-surface` é o texto usando a cor do bloco DIRETAMENTE sobre o fundo
+     *   da página/cartão (ex.: palavra animada do hero, rótulo do carrossel).
+     *   No tema claro, laranja/âmbar/ciano/turquesa/rosa/roxo/azul originais
+     *   ficam abaixo de 3:1 (texto grande) ou 4.5:1 (texto pequeno) sobre
+     *   --bg-primary; os valores abaixo são versões escurecidas calculadas para
+     *   ≥4.5:1 contra --bg-primary claro e contra o fundo sépia. No tema escuro
+     *   a cor crua do bloco já é seguro (calculado ≥4.5:1), por isso reaponta
+     *   para a própria variável em `.dark`.
+     * - `*-on-soft` é o mesmo texto sobre o preenchimento "soft" (tint 16-18%)
+     *   do bloco; reaproveita o valor de `-on-surface` (superfície soft é mais
+     *   clara que --bg-primary, logo o contraste medido é sempre maior).
+     *   Antes só existia em `.dark`; em claro/sépia a var ficava indefinida e
+     *   o texto caía para a cor herdada por acidente (ver HeroBlockCard.tsx,
+     *   app/user/page.tsx).
+     */
     --block-newsletter: #3b82f6;
     --block-newsletter-soft: rgba(59, 130, 246, 0.18);
-    --block-newsletter-on: #ffffff;
+    --block-newsletter-on: #000000;
+    --block-newsletter-on-surface: #2f68c5;
+    --block-newsletter-on-soft: #2f68c5;
     --block-reportagem: #f97316;
     --block-reportagem-soft: rgba(249, 115, 22, 0.16);
-    --block-reportagem-on: #ffffff;
+    --block-reportagem-on: #000000;
+    --block-reportagem-on-surface: #ac4f0f;
+    --block-reportagem-on-soft: #ac4f0f;
     --block-radar: #06b6d4;
     --block-radar-soft: rgba(6, 182, 212, 0.16);
-    --block-radar-on: #ffffff;
+    --block-radar-on: #000000;
+    --block-radar-on-surface: #047488;
+    --block-radar-on-soft: #047488;
     --block-livro: #f59e0b;
     --block-livro-soft: rgba(245, 158, 11, 0.16);
-    --block-livro-on: #ffffff;
+    --block-livro-on: #000000;
+    --block-livro-on-surface: #935f07;
+    --block-livro-on-soft: #935f07;
     --block-biblioteca: #14b8a6;
     --block-biblioteca-soft: rgba(20, 184, 166, 0.16);
-    --block-biblioteca-on: #ffffff;
+    --block-biblioteca-on: #000000;
+    --block-biblioteca-on-surface: #0d766a;
+    --block-biblioteca-on-soft: #0d766a;
     --block-estudar: #6366f1;
     --block-estudar-soft: rgba(99, 102, 241, 0.16);
-    --block-estudar-on: #ffffff;
+    --block-estudar-on: #000000;
+    --block-estudar-on-surface: #585bd6;
+    --block-estudar-on-soft: #585bd6;
     --block-ensinar: #ec4899;
     --block-ensinar-soft: rgba(236, 72, 153, 0.16);
-    --block-ensinar-on: #ffffff;
+    --block-ensinar-on: #000000;
+    --block-ensinar-on-surface: #b83877;
+    --block-ensinar-on-soft: #b83877;
     --shadow-card: 0 20px 40px rgba(15, 23, 42, 0.08);
     --shadow-elevated: 0 24px 60px rgba(15, 23, 42, 0.14);
 }
@@ -173,31 +210,38 @@
     --primary-soft: rgba(59, 130, 246, 0.2);
     --block-newsletter: #60a5fa;
     --block-newsletter-soft: rgba(96, 165, 250, 0.18);
-    --block-newsletter-on: #ffffff;
+    --block-newsletter-on: #000000;
+    --block-newsletter-on-surface: var(--block-newsletter);
     --block-newsletter-on-soft: #93c5fd;
     --block-reportagem: #fb923c;
     --block-reportagem-soft: rgba(251, 146, 60, 0.16);
-    --block-reportagem-on: #ffffff;
+    --block-reportagem-on: #000000;
+    --block-reportagem-on-surface: var(--block-reportagem);
     --block-reportagem-on-soft: #fdba74;
     --block-radar: #22d3ee;
     --block-radar-soft: rgba(34, 211, 238, 0.16);
-    --block-radar-on: #ffffff;
+    --block-radar-on: #000000;
+    --block-radar-on-surface: var(--block-radar);
     --block-radar-on-soft: #67e8f9;
     --block-livro: #fbbf24;
     --block-livro-soft: rgba(251, 191, 36, 0.16);
-    --block-livro-on: #ffffff;
+    --block-livro-on: #000000;
+    --block-livro-on-surface: var(--block-livro);
     --block-livro-on-soft: #fcd34d;
     --block-biblioteca: #2dd4bf;
     --block-biblioteca-soft: rgba(45, 212, 191, 0.16);
-    --block-biblioteca-on: #ffffff;
+    --block-biblioteca-on: #000000;
+    --block-biblioteca-on-surface: var(--block-biblioteca);
     --block-biblioteca-on-soft: #5eead4;
     --block-estudar: #818cf8;
     --block-estudar-soft: rgba(129, 140, 248, 0.16);
-    --block-estudar-on: #ffffff;
+    --block-estudar-on: #000000;
+    --block-estudar-on-surface: var(--block-estudar);
     --block-estudar-on-soft: #a5b4fc;
     --block-ensinar: #f472b6;
     --block-ensinar-soft: rgba(244, 114, 182, 0.16);
-    --block-ensinar-on: #ffffff;
+    --block-ensinar-on: #000000;
+    --block-ensinar-on-surface: var(--block-ensinar);
     --block-ensinar-on-soft: #f9a8d4;
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
     --shadow-elevated: 0 26px 60px rgba(0, 0, 0, 0.45);
