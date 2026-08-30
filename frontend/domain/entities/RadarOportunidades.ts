@@ -12,6 +12,7 @@
  */
 
 import { publicFileUrl } from "@/lib/files";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 
 export interface RadarOportunidadesProps {
     id: number;
@@ -22,6 +23,8 @@ export interface RadarOportunidadesProps {
     pdfPath: string | null;
     readTime: number;
     index: number;
+    /** Regra de bloqueio deste item, se houver (anexada na listagem — ver GetContentAccessRulesForListingUseCase). */
+    accessRule?: AccessRuleView | null;
 }
 
 export class RadarOportunidades {
@@ -94,6 +97,10 @@ export class RadarOportunidades {
 
     get updatedAt(): Date | null {
         return this.props.updatedAt ?? null;
+    }
+
+    get accessRule(): AccessRuleView | null {
+        return this.props.accessRule ?? null;
     }
 
     toObject(): RadarOportunidadesProps {

@@ -12,6 +12,7 @@
  */
 
 import { publicFileUrl } from "@/lib/files";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 
 export type BibliotecaTema =
     | "biblioteca-dos-7"
@@ -42,6 +43,8 @@ export interface BibliotecaItemProps {
     readTime: number;
     tema: BibliotecaTema;
     index: number;
+    /** Regra de bloqueio deste item, se houver (anexada na listagem — ver GetContentAccessRulesForListingUseCase). */
+    accessRule?: AccessRuleView | null;
 }
 
 export class BibliotecaItem {
@@ -134,6 +137,10 @@ export class BibliotecaItem {
      */
     get updatedAt(): Date | null {
         return this.props.updatedAt ?? null;
+    }
+
+    get accessRule(): AccessRuleView | null {
+        return this.props.accessRule ?? null;
     }
 
     toObject(): BibliotecaItemProps {

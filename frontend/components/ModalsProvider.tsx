@@ -6,6 +6,7 @@ import { useSearchModal } from "@/context/SearchModalContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import AuthModal from "./AuthModal";
+import ContentLockedModal from "./ContentLockedModal";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import InviteModal from "./InviteModal";
 import OnboardingModal from "./onboarding/OnboardingModal";
@@ -92,6 +93,7 @@ export default function ModalsProvider() {
             />
             <InviteModal isOpen={isInviteOpen} onClose={closeInviteModal} />
             <OnboardingModal />
+            <ContentLockedModal />
         </Portal>
     );
 }

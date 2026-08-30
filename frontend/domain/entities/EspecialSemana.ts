@@ -12,6 +12,7 @@
  */
 
 import { publicFileUrl } from "@/lib/files";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 
 export interface EspecialSemanaProps {
     id: number;
@@ -22,6 +23,8 @@ export interface EspecialSemanaProps {
     pdfPath: string | null;
     readTime: number;
     index: number;
+    /** Regra de bloqueio deste item, se houver (anexada na listagem — ver GetContentAccessRulesForListingUseCase). */
+    accessRule?: AccessRuleView | null;
 }
 
 export class EspecialSemana {
@@ -107,6 +110,15 @@ export class EspecialSemana {
 
     get updatedAt(): Date | null {
         return this.props.updatedAt ?? null;
+    }
+
+    get accessRule(): AccessRuleView | null {
+        return this.props.accessRule ?? null;
+    }
+
+    /** Props cruas (mesmo padrão de Newsletter/MiniLivro/etc.) — usado para reconstruir a entidade, ex. ao anexar accessRule na listagem. */
+    toObject(): EspecialSemanaProps {
+        return { ...this.props };
     }
 
     /**

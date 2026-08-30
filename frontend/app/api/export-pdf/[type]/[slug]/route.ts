@@ -33,6 +33,8 @@
 import type { Browser } from "puppeteer-core";
 import { NextRequest, NextResponse } from "next/server";
 import { resolveContentFilePath } from "@/lib/contentStorage";
+import { getUser } from "@/infrastructure/auth/getUser";
+import DIContainer from "@/infrastructure/di/container";
 
 export const maxDuration = 60;
 
@@ -63,8 +65,19 @@ async function launchBrowser(): Promise<Browser> {
     return puppeteer.launch({ headless: true }) as unknown as Promise<Browser>;
 }
 
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ type: string; slug: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ type: string; slug: string }> }) {
     const { type, slug } = await params;
+
+    const user = await getUser();
+    const access = await DIContainer.getEvaluateContentAccessUseCase().execute({
+        contentType: type,
+        slug,
+        userId: user?.id ?? null,
+        role: user?.role ?? null,
+    });
+    if (!access.allowed) {
+        return NextResponse.json({ error: "Acesso restrito", accessRule: access.view }, { status: 403 });
+    }
 
     const resolved = await resolveContentFilePath(type, slug);
     if (!resolved.ok) {
@@ -72,11 +85,22 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     const contentUrl = resolveInternalContentUrl(type, slug);
+    // A navegação abaixo é do Chromium headless (Puppeteer), não do navegador
+    // do leitor — sem repassar o cookie de sessão da requisição original,
+    // /api/proxy-html sempre veria um visitante anônimo e bloquearia
+    // qualquer conteúdo restrito, mesmo para quem está logado e tem acesso
+    // liberado na própria aba (a checagem acima já confirmou que este leitor
+    // pode ver o conteúdo; sem o cookie, a navegação interna não saberia
+    // disso).
+    const cookieHeader = request.headers.get("cookie");
 
     let browser: Browser | null = null;
     try {
         browser = await launchBrowser();
         const page = await browser.newPage();
+        if (cookieHeader) {
+            await page.setExtraHTTPHeaders({ cookie: cookieHeader });
+        }
         await page.goto(contentUrl, { waitUntil: "networkidle0" });
 
         // O conteúdo usa animação de "revelar ao rolar" (algo como

@@ -12,6 +12,7 @@
  */
 
 import { publicFileUrl } from "@/lib/files";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 
 export interface MiniLivroProps {
     id: number;
@@ -26,6 +27,8 @@ export interface MiniLivroProps {
     index: number;
     /** Parte à qual o mini-livro pertence (1=Parte I, 2=Parte II, 3=Parte III) */
     partOrder: number;
+    /** Regra de bloqueio deste item, se houver (anexada na listagem — ver GetContentAccessRulesForListingUseCase). */
+    accessRule?: AccessRuleView | null;
 }
 
 export class MiniLivro {
@@ -122,6 +125,10 @@ export class MiniLivro {
      */
     get updatedAt(): Date | null {
         return this.props.updatedAt ?? null;
+    }
+
+    get accessRule(): AccessRuleView | null {
+        return this.props.accessRule ?? null;
     }
 
     toObject(): MiniLivroProps {

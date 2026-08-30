@@ -12,6 +12,7 @@
  */
 
 import { publicFileUrl } from "@/lib/files";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 
 export type ContentType =
     | "newsletter"
@@ -45,6 +46,8 @@ export interface ContentItemProps {
     coverPdfPath?: string | null;
     /** Parte do ebook (1, 2 ou 3). Apenas para type === "ebook". */
     ebookOrder?: number | null;
+    /** Regra de bloqueio deste item, se houver (anexada na listagem — ver GetContentAccessRulesForListingUseCase). */
+    accessRule?: AccessRuleView | null;
 }
 
 export class ContentItem {
@@ -136,6 +139,10 @@ export class ContentItem {
 
     get partOrder(): number {
         return this.props.partOrder ?? 1;
+    }
+
+    get accessRule(): AccessRuleView | null {
+        return this.props.accessRule ?? null;
     }
 
     /**

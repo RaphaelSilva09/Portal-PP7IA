@@ -6,10 +6,14 @@
  */
 
 import SaveForLaterButton from "@/components/SaveForLaterButton";
+import UnlockActionButton from "@/components/UnlockActionButton";
 import UpdatedBadge from "@/components/UpdatedBadge";
+import { useContentLockedModal } from "@/context/ContentLockedModalContext";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 import type { ContentType } from "@/domain/entities/ContentItem";
-import { ArrowUpRight, Clock, FileText, Globe } from "lucide-react";
+import { ArrowUpRight, Clock, FileText, Globe, Lock } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 // ── Design config per block ───────────────────────────────────────────────────
 
@@ -53,12 +57,47 @@ export interface Item {
     formattedNumber: string;
     readTime?: number;
     updatedAt?: Date | null;
+    /** Presente quando este conteúdo está bloqueado (ex.: exige login) — ver EvaluateContentAccessUseCase/GetContentAccessRulesForListingUseCase. */
+    accessRule?: AccessRuleView | null;
 }
 
 /** Extrai o slug de um href "/view/{type}/{slug}" — mesmo identificador usado em saved_content. */
 export function slugFromHref(href: string | null): string | null {
     if (!href) return null;
     return href.split("/").pop() || null;
+}
+
+/** Ícone + texto de bloqueio no card — o texto varia por tipo de regra, vem pronto do DTO, nunca hardcoded aqui. */
+export function AccessRuleBadge({ accessRule }: { accessRule: AccessRuleView | null | undefined }) {
+    if (!accessRule) return null;
+    return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+            <Lock className="size-2.5" aria-hidden="true" />
+            {accessRule.cardLabel}
+        </span>
+    );
+}
+
+/**
+ * Título do card quando o conteúdo está bloqueado — abre o pop-up de
+ * bloqueio em vez de navegar. Mesma área clicável (`after:absolute
+ * after:inset-0`) que o `<Link>` normal ocuparia.
+ */
+function LockedCardTitle({ accessRule, className, children }: {
+    accessRule: AccessRuleView;
+    className: string;
+    children: ReactNode;
+}) {
+    const { openModal } = useContentLockedModal();
+    return (
+        <button
+            type="button"
+            onClick={() => openModal(accessRule)}
+            className={`${className} text-left after:absolute after:inset-0 after:rounded-2xl`}
+        >
+            {children}
+        </button>
+    );
 }
 
 export function ReadTimeBadge({ minutes }: { minutes?: number }) {
@@ -74,6 +113,10 @@ export function ReadTimeBadge({ minutes }: { minutes?: number }) {
 // ── Shared sub-components ─────────────────────────────────────────────────────
 
 export function FormatBadges({ item }: { item: Item }) {
+    // Conteúdo bloqueado: os links de "Online"/PDF navegariam direto,
+    // contornando o pop-up de bloqueio que o título do card já abre.
+    if (item.accessRule) return <AccessRuleBadge accessRule={item.accessRule} />;
+
     if (!item.htmlAvailable && !item.pdfAvailable) {
         return (
             <span className="rounded-full border border-dashed border-border/60 px-2 py-0.5 text-[10px] text-muted-foreground/70">
@@ -129,9 +172,16 @@ export function FeaturedCard({ item, block, contentType, hideCode }: { item: Ite
                     <span className="text-xs text-muted-foreground">{item.formattedDate}</span>
                     <ReadTimeBadge minutes={item.readTime} />
                     <UpdatedBadge href={item.htmlPath} updatedAt={item.updatedAt} />
+                    <AccessRuleBadge accessRule={item.accessRule} />
                 </div>
 
-                {href ? (
+                {item.accessRule ? (
+                    <LockedCardTitle accessRule={item.accessRule} className="group block mt-4">
+                        <h2 className="font-serif text-3xl leading-[1.15] tracking-[-0.01em] text-ink transition-colors group-hover:text-primary md:text-4xl line-clamp-3">
+                            {item.title}
+                        </h2>
+                    </LockedCardTitle>
+                ) : href ? (
                     <Link href={href} className="group block mt-4 after:absolute after:inset-0 after:rounded-2xl">
                         <h2 className="font-serif text-3xl leading-[1.15] tracking-[-0.01em] text-ink transition-colors group-hover:text-primary md:text-4xl line-clamp-3">
                             {item.title}
@@ -144,35 +194,44 @@ export function FeaturedCard({ item, block, contentType, hideCode }: { item: Ite
                 )}
 
                 <div className="relative z-10 mt-6 flex flex-wrap items-center gap-3">
-                    {item.htmlAvailable && (
-                        <Link
-                            href={item.htmlPath!}
+                    {item.accessRule ? (
+                        <UnlockActionButton
+                            view={item.accessRule}
                             className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
-                        >
-                            <Globe className="size-4" aria-hidden="true" />
-                            Ler agora
-                            <ArrowUpRight className="size-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
-                        </Link>
-                    )}
-                    {item.pdfAvailable && (
-                        <a
-                            href={item.pdfPath!}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={
-                                item.htmlAvailable
-                                    ? "inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                                    : "group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
-                            }
-                        >
-                            <FileText className="size-4" aria-hidden="true" />
-                            Baixar PDF
-                        </a>
-                    )}
-                    {!item.htmlAvailable && !item.pdfAvailable && (
-                        <span className="rounded-full border border-dashed border-border/60 px-4 py-2 text-sm text-muted-foreground/70">
-                            Em breve
-                        </span>
+                        />
+                    ) : (
+                        <>
+                            {item.htmlAvailable && (
+                                <Link
+                                    href={item.htmlPath!}
+                                    className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
+                                >
+                                    <Globe className="size-4" aria-hidden="true" />
+                                    Ler agora
+                                    <ArrowUpRight className="size-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+                                </Link>
+                            )}
+                            {item.pdfAvailable && (
+                                <a
+                                    href={item.pdfPath!}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={
+                                        item.htmlAvailable
+                                            ? "inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                                            : "group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
+                                    }
+                                >
+                                    <FileText className="size-4" aria-hidden="true" />
+                                    Baixar PDF
+                                </a>
+                            )}
+                            {!item.htmlAvailable && !item.pdfAvailable && (
+                                <span className="rounded-full border border-dashed border-border/60 px-4 py-2 text-sm text-muted-foreground/70">
+                                    Em breve
+                                </span>
+                            )}
+                        </>
                     )}
                     {slug && <SaveForLaterButton contentType={contentType} contentId={slug} />}
                 </div>
@@ -210,7 +269,13 @@ export function ItemCard({ item, block, contentType, hideCode, initialSaved, onT
                 <div className="relative z-10 mt-1.5 empty:hidden">
                     <UpdatedBadge href={item.htmlPath} updatedAt={item.updatedAt} />
                 </div>
-                {href ? (
+                {item.accessRule ? (
+                    <LockedCardTitle accessRule={item.accessRule} className="flex-1">
+                        <h3 className="mt-2 line-clamp-3 font-serif text-lg leading-[1.45] tracking-[0.01em] text-ink transition-colors group-hover:text-primary">
+                            {item.title}
+                        </h3>
+                    </LockedCardTitle>
+                ) : href ? (
                     <Link href={href} className="flex-1 after:absolute after:inset-0 after:rounded-2xl">
                         <h3 className="mt-2 line-clamp-3 font-serif text-lg leading-[1.45] tracking-[0.01em] text-ink transition-colors group-hover:text-primary">
                             {item.title}

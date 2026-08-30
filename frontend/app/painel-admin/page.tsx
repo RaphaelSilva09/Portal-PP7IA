@@ -35,6 +35,7 @@ import {
     AdminReadingTrails,
     AnnouncementBarTab,
     ConfirmDialog,
+    ContentAccessRuleModal,
     ContentForm,
     ContentTable,
     Dashboard,
@@ -124,6 +125,7 @@ function rehydrateContentItem(raw: unknown): ContentItem {
         coverImagePath: (src.coverImagePath as string | null | undefined) ?? null,
         coverPdfPath: (src.coverPdfPath as string | null | undefined) ?? null,
         ebookOrder: (src.ebookOrder as number | null | undefined) ?? null,
+        accessRule: (src.accessRule as ContentItemProps["accessRule"]) ?? null,
     };
     return ContentItem.create(props);
 }
@@ -173,6 +175,7 @@ export default function PainelAdminPage() {
     const [editItem, setEditItem] = useState<ContentItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [movingItem, setMovingItem] = useState<ContentItem | null>(null);
+    const [lockingItem, setLockingItem] = useState<ContentItem | null>(null);
     const [selectedEbookIndex, setSelectedEbookIndex] = useState(0);
 
     const { all: allEbooks } = useEbook();
@@ -213,7 +216,7 @@ export default function PainelAdminPage() {
 
         setIsLoading(true);
         try {
-            const res = await fetch(`/api/content/${encodeURIComponent(contentTab)}`);
+            const res = await fetch(`/api/content/${encodeURIComponent(contentTab)}?scope=admin`);
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
                 throw new Error(err.error ?? `HTTP ${res.status}`);
@@ -682,6 +685,7 @@ export default function PainelAdminPage() {
                                                     : items}
                                                 onEdit={handleEdit}
                                                 onMove={setMovingItem}
+                                                onConfigureAccess={setLockingItem}
                                                 onDelete={handleDelete}
                                                 onReorder={handleReorder}
                                                 lastUpdated={lastUpdated}
@@ -722,6 +726,17 @@ export default function PainelAdminPage() {
                 onMove={handleMoveSubmit}
                 onCancel={() => setMovingItem(null)}
                 isLoading={isSubmitting}
+            />
+            <ContentAccessRuleModal
+                isOpen={lockingItem !== null}
+                item={lockingItem}
+                contentType={contentTab as ContentType}
+                onCancel={() => setLockingItem(null)}
+                onSaved={() => {
+                    setLockingItem(null);
+                    setFeedback({ show: true, message: "Acesso ao conteúdo atualizado.", type: "success" });
+                    loadItems();
+                }}
             />
             <FeedbackMessage
                 isVisible={feedback.show}
