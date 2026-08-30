@@ -16,6 +16,7 @@ export { AdminHomeBlockDescriptions } from "./AdminHomeBlockDescriptions";
 export { AdminHomeRecomendacoesPaulo } from "./AdminHomeRecomendacoesPaulo";
 export { AdminPortalNews } from "./AdminPortalNews";
 export { ConfirmDialog } from "./ConfirmDialog";
+export { ContentAccessRuleModal } from "./ContentAccessRuleModal";
 export { ContentForm } from "./ContentForm";
 export { ContentTable } from "./ContentTable";
 export { MoveContentModal } from "./MoveContentModal";

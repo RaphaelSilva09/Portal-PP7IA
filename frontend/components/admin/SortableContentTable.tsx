@@ -19,8 +19,9 @@ import {
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowRightLeft, FileText, GripVertical, Pencil, Trash2 } from "lucide-react";
+import { ArrowRightLeft, FileText, GripVertical, Lock, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AccessStatusBadge } from "./ContentTable";
 
 const MINI_LIVRO_EBOOK_TABS = [
     "Parte I — Liderança Híbrida",
@@ -32,6 +33,7 @@ interface SortableContentTableProps {
     items: ContentItem[];
     onEdit: (item: ContentItem) => void;
     onMove?: (item: ContentItem) => void;
+    onConfigureAccess?: (item: ContentItem) => void;
     onDelete: (item: ContentItem) => void;
     onReorder: (reorderedItems: ContentItem[]) => Promise<void>;
     lastUpdated?: Date | null;
@@ -45,6 +47,7 @@ interface SortableRowProps {
     position: number;
     onEdit: (item: ContentItem) => void;
     onMove?: (item: ContentItem) => void;
+    onConfigureAccess?: (item: ContentItem) => void;
     onDelete: (item: ContentItem) => void;
     isBiblioteca: boolean;
     isReordering: boolean;
@@ -55,7 +58,7 @@ function getTemaLabel(tema: string | null | undefined): string {
     return BIBLIOTECA_TEMAS.find(t => t.slug === tema)?.label ?? tema;
 }
 
-function SortableRow({ item, position, onEdit, onMove, onDelete, isBiblioteca, isReordering }: SortableRowProps) {
+function SortableRow({ item, position, onEdit, onMove, onConfigureAccess, onDelete, isBiblioteca, isReordering }: SortableRowProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
 
     const style = {
@@ -94,6 +97,11 @@ function SortableRow({ item, position, onEdit, onMove, onDelete, isBiblioteca, i
                     <span className="text-muted-foreground">—</span>
                 )}
             </td>
+            {onConfigureAccess && (
+                <td className="px-4 py-3">
+                    <AccessStatusBadge item={item} />
+                </td>
+            )}
             <td className="px-4 py-3">
                 <div className="flex items-center justify-center gap-1">
                     <button
@@ -112,6 +120,19 @@ function SortableRow({ item, position, onEdit, onMove, onDelete, isBiblioteca, i
                             <ArrowRightLeft className="size-3.5" />
                         </button>
                     )}
+                    {onConfigureAccess && (
+                        <button
+                            onClick={() => onConfigureAccess(item)}
+                            className={
+                                item.accessRule
+                                    ? "rounded-lg p-2 text-amber-500 transition-colors hover:bg-amber-500/10"
+                                    : "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                            }
+                            aria-label="Configurar acesso"
+                        >
+                            <Lock className="size-3.5" />
+                        </button>
+                    )}
                     <button
                         onClick={() => onDelete(item)}
                         className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-500"
@@ -125,7 +146,7 @@ function SortableRow({ item, position, onEdit, onMove, onDelete, isBiblioteca, i
     );
 }
 
-export function SortableContentTable({ items, onEdit, onMove, onDelete, onReorder, lastUpdated, type, selectedEbookIndex = 0, onEbookChange }: SortableContentTableProps) {
+export function SortableContentTable({ items, onEdit, onMove, onConfigureAccess, onDelete, onReorder, lastUpdated, type, selectedEbookIndex = 0, onEbookChange }: SortableContentTableProps) {
     const [localItems, setLocalItems] = useState<ContentItem[]>(items);
     const [isReordering, setIsReordering] = useState(false);
     const isBiblioteca = type === "biblioteca";
@@ -204,6 +225,9 @@ export function SortableContentTable({ items, onEdit, onMove, onDelete, onReorde
                                     <th className="px-4 py-3 text-left font-medium text-muted-foreground">Tema</th>
                                 )}
                                 <th className="px-4 py-3 text-center font-medium text-muted-foreground">HTML</th>
+                                {onConfigureAccess && (
+                                    <th className="px-4 py-3 text-left font-medium text-muted-foreground">Acesso</th>
+                                )}
                                 <th className="px-4 py-3 text-center font-medium text-muted-foreground">Ações</th>
                             </tr>
                         </thead>
@@ -216,6 +240,7 @@ export function SortableContentTable({ items, onEdit, onMove, onDelete, onReorde
                                         position={i + 1}
                                         onEdit={onEdit}
                                         onMove={onMove}
+                                        onConfigureAccess={onConfigureAccess}
                                         onDelete={onDelete}
                                         isBiblioteca={isBiblioteca}
                                         isReordering={isReordering}
