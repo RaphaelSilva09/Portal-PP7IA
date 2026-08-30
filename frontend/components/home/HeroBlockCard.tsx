@@ -154,9 +154,10 @@ export default function HeroBlockCard() {
                         onClick={() => setActive(i)}
                         className={`group relative flex items-center gap-2 rounded-full px-3 py-1.5 text-xs transition-colors ${
                             active === i
-                                ? "text-background"
+                                ? ""
                                 : "text-muted-foreground hover:text-foreground"
                         }`}
+                        style={active === i ? { color: b.colorOn } : undefined}
                     >
                         {active === i && (
                             <span
@@ -168,7 +169,7 @@ export default function HeroBlockCard() {
                             className="relative size-1.5 rounded-full"
                             style={{
                                 backgroundColor:
-                                    active === i ? "var(--background)" : b.color,
+                                    active === i ? b.colorOn : b.color,
                             }}
                         />
                         <span className="relative font-medium">{b.label}</span>

@@ -69,6 +69,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         }
     }
 
+    if (isNavigableType(type)) {
+        const navigation = await DIContainer.getContentViewNavigationUseCase()
+            .execute({ type, slug })
+            .catch(() => null);
+
+        if (navigation?.current?.title) {
+            const title = `${navigation.current.title} | Portal PP7+IA`;
+            const description = `Visualização de ${config.title} do Portal PP7+IA`;
+            return {
+                title,
+                description,
+                openGraph: { title, description, url: pageUrl, type: "article" },
+            };
+        }
+    }
+
     const title = `${config.title} #${slug} | Portal PP7+IA`;
     const description = `Visualização de ${config.title} do Portal PP7+IA`;
 
@@ -121,6 +137,9 @@ export default async function ViewPage({ params, searchParams }: Props) {
             const navigation = await DIContainer.getContentViewNavigationUseCase().execute({ type, slug });
             previous = navigation.previous;
             next = navigation.next;
+            if (navigation.current?.title) {
+                pageTitle = navigation.current.title;
+            }
         } catch {
             previous = null;
             next = null;
