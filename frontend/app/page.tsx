@@ -1,6 +1,7 @@
-import ChatBubble from "@/components/chat/ChatBubble";
+import ChatBubbleLazy from "@/components/chat/ChatBubbleLazy";
 import Navbar from "@/components/Header";
 import capaLivro from "@/assets/capa-livro.jpeg";
+import Image from "next/image";
 import ContinueReadingLink from "@/components/home/ContinueReadingLink";
 import HeroAnimatedWord from "@/components/home/HeroAnimatedWord";
 import HomeCarousel from "@/components/home/HomeCarousel";
@@ -133,9 +134,13 @@ function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: 
                                 <line x1="376" y1="38" x2="392" y2="38" stroke="white" strokeWidth="1" opacity="0.16" />
                                 <line x1="384" y1="30" x2="384" y2="46" stroke="white" strokeWidth="1" opacity="0.16" />
                             </svg>
-                            <img
-                                src={capaLivro.src}
+                            <Image
+                                src={capaLivro}
                                 alt={book?.title ?? "Enquanto é Tempo"}
+                                width={120}
+                                height={180}
+                                sizes="120px"
+                                loading="eager"
                                 className="w-[100px] shrink-0 self-stretch rounded-lg object-cover shadow-xl lg:w-[120px]"
                             />
                             <div className="flex flex-1 flex-col justify-between py-1">
@@ -222,9 +227,25 @@ const BLOCK_COLORS = [
     "var(--block-ensinar)",
 ];
 
+// Texto sólido sobre o preenchimento do bloco (dígito grande no card colorido).
+// `text-background/80` media 1.7-2.7:1 nas 7 cores (axe color-contrast,
+// achados C05-C10) — o branco/azul claro translúcido nunca alcança 3:1 em
+// texto grande sobre laranja/âmbar/ciano/turquesa/rosa. `-on` é preto puro,
+// validado ≥4.5:1 nas 7 cores em todos os temas (app/globals.css).
+const BLOCK_ON_COLORS = [
+    "var(--block-newsletter-on)",
+    "var(--block-reportagem-on)",
+    "var(--block-radar-on)",
+    "var(--block-livro-on)",
+    "var(--block-biblioteca-on)",
+    "var(--block-estudar-on)",
+    "var(--block-ensinar-on)",
+];
+
 function SetesCoresSection({ s }: { s: SectionConfig }) {
     const blocks = BLOCK_COLORS.map((color, i) => ({
         color,
+        onColor: BLOCK_ON_COLORS[i],
         num: String(i + 1).padStart(2, "0"),
         href: t(s, `block${i + 1}_href`, ""),
         label: t(s, `block${i + 1}_label`, ""),
@@ -294,7 +315,7 @@ function SetesCoresSection({ s }: { s: SectionConfig }) {
                             {blocks.map((b) => (
                                 <a key={b.num} href={b.href} className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-background/10 bg-background/5 transition-colors hover:bg-background/[0.08]">
                                     <div className="relative h-20 w-28 shrink-0 overflow-hidden transition-all duration-500 group-hover:w-40" style={{ backgroundColor: b.color }}>
-                                        <span className="absolute bottom-2 left-3 font-serif text-3xl text-background/80">{b.num}</span>
+                                        <span className="absolute bottom-2 left-3 font-serif text-3xl" style={{ color: b.onColor }}>{b.num}</span>
                                     </div>
                                     <div className="flex flex-1 items-center justify-between gap-4 pr-5">
                                         <div>
@@ -652,7 +673,7 @@ export default async function Home() {
                 </div>
             </footer>
 
-            {process.env.NEXT_PUBLIC_CHAT_ENABLED !== "false" && <ChatBubble />}
+            {process.env.NEXT_PUBLIC_CHAT_ENABLED !== "false" && <ChatBubbleLazy />}
         </main>
     );
 }

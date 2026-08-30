@@ -16,6 +16,44 @@ function isWebpackRule(rule: unknown): rule is WebpackRule {
     return typeof rule === "object" && rule !== null;
 }
 
+// CSP em modo Report-Only (fase C do plano de correção de segurança).
+// NÃO habilita enforcement — apenas coleta violações via console/relatório
+// para validar a política antes de virar `Content-Security-Policy` real.
+// Ver docs/quality/pp7ias/DECISIONS.md para o inventário de origens que
+// sustenta cada diretiva e o runbook de rollout faseado (Report-Only →
+// staging enforcement → produção, com aprovação em cada etapa).
+//
+// Diretivas por classe de rota:
+// - Páginas do portal (default): next/font faz self-host em build-time (sem
+//   fonts.googleapis/gstatic em runtime); @vercel/analytics injeta script e
+//   beacon para domínios vercel-insights/vercel-scripts quando habilitado
+//   (NEXT_PUBLIC_VERCEL_ANALYTICS=true); eruda (debug) só carrega com
+//   NEXT_PUBLIC_AUTH_DEBUG=true via cdn.jsdelivr.net — não usado em produção,
+//   mas mantido na política pois pode ser ligado via env em qualquer ambiente.
+// - /api/proxy-html/*: serve HTML curado pelo admin (sem sanitização) para
+//   ser embutido pelo próprio portal via <iframe sandbox=...>. `frame-ancestors`
+//   aqui precisa permitir 'self' (o próprio portal embute), não 'none'.
+const PORTAL_CSP_DIRECTIVES = [
+    "default-src 'self'",
+    // 'unsafe-inline' no script-src seria necessário apenas se Next injetar
+    // scripts inline sem nonce/hash; hoje não observamos isso nas páginas
+    // testadas localmente — mantido fora até prova em contrário durante a
+    // fase Report-Only. cdn.jsdelivr.net é exclusivo do console de debug
+    // eruda (atrás de NEXT_PUBLIC_AUTH_DEBUG).
+    "script-src 'self' https://cdn.jsdelivr.net https://va.vercel-scripts.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+    // O próprio portal embute /api/proxy-html/* em <iframe> nas páginas /view/*.
+    "frame-src 'self'",
+    "frame-ancestors 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+].join("; ");
+
 const nextConfig: NextConfig = {
     // Empty turbopack config to acknowledge Turbopack and silence the error
     // while we continue using webpack for SVG handling
@@ -66,6 +104,13 @@ const nextConfig: NextConfig = {
                     {
                         key: "Referrer-Policy",
                         value: "strict-origin-when-cross-origin",
+                    },
+                    // Report-Only: apenas observa/loga violações, não bloqueia nada.
+                    // Não substitui o item CSP do plano de correção — enforcement
+                    // exige validação em staging e aprovação (ver DECISIONS.md).
+                    {
+                        key: "Content-Security-Policy-Report-Only",
+                        value: PORTAL_CSP_DIRECTIVES,
                     },
                 ],
             },
