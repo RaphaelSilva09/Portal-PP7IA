@@ -14,13 +14,11 @@ interface FaqRow {
 
 export class PostgresFaqRepository implements IFaqRepository {
     async getAll(): Promise<FaqItem[]> {
-        try {
-            const { rows } = await pool.query(`SELECT * FROM faq_items ORDER BY sort_order ASC, created_at ASC`);
-            return (rows as FaqRow[]).map(row => this.mapToEntity(row));
-        } catch (err) {
-            console.error("Erro ao buscar FAQ:", err);
-            return [];
-        }
+        // Não silenciar erros aqui: uma falha de banco/permissão precisa
+        // propagar para a rota da API, que a distingue de "coleção vazia"
+        // (ver frontend/components/FaqClient.tsx).
+        const { rows } = await pool.query(`SELECT * FROM faq_items ORDER BY sort_order ASC, created_at ASC`);
+        return (rows as FaqRow[]).map(row => this.mapToEntity(row));
     }
 
     async getById(id: number): Promise<FaqItem | null> {

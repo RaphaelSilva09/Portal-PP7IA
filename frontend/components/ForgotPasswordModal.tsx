@@ -7,7 +7,6 @@ import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { useDialogA11y } from "../hooks/useDialogA11y";
 import { usePasswordRecovery } from "../hooks/usePasswordRecovery";
 import { isValidEmail, isValidPassword } from "../lib/validators";
-import Portal from "./Portal";
 
 export default function ForgotPasswordModal() {
     const { isOpen, closeModal } = useForgotPasswordModal();
@@ -152,7 +151,6 @@ export default function ForgotPasswordModal() {
     const isEmailBusy = state.phase === "email" && state.isSubmitting;
 
     return (
-        <Portal>
             <div
                 className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                 onClick={handleClose}
@@ -423,6 +421,5 @@ export default function ForgotPasswordModal() {
                     </div>
                 </div>
             </div>
-        </Portal>
     );
 }

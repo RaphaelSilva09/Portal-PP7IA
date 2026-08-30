@@ -213,6 +213,11 @@ export function buildWeeklyDigestEmail({
         renderEnsinarRow(blocks.length, siteUrl);
 
     const explorarUrl = escapeAttribute(absoluteUrl("/explorar", siteUrl));
+    const preferencesUrl = escapeAttribute(absoluteUrl("/user", siteUrl));
+    const miniLivrosUrl = escapeAttribute(absoluteUrl("/mini-livros", siteUrl));
+    const trilhasUrl = escapeAttribute(absoluteUrl("/trilhas", siteUrl));
+    const quemSomosUrl = escapeAttribute(absoluteUrl("/quem-somos", siteUrl));
+    const faqUrl = escapeAttribute(absoluteUrl("/faq", siteUrl));
 
     const textLines = blocks
         .filter((block) => block.count > 0)
@@ -275,21 +280,15 @@ ${detailRowsHtml}
    </td></tr></table></td></tr>
   </table></td></tr>
 
-          <tr>
-            <td style="padding-top:32px;">
-              <div class="eb-row" style="height:1px;background-color:rgba(99,132,181,0.2);margin:0 0 20px;font-size:0;line-height:0;">&nbsp;</div>
-            </td>
-          </tr>
-          <tr>
-            <td class="eb-muted" style="color:#56657b;font-size:12px;line-height:1.6;text-align:center;font-family:'Inter',sans-serif;">
-              Você recebeu este email porque optou por receber atualizações do Portal PP7+IAS.
-              Para alterar suas preferências, acesse
-              <a href="${escapeAttribute(absoluteUrl("/user", siteUrl))}" class="eb-link" style="color:#1d4ed8;text-decoration:none;font-weight:600;">seu perfil</a>.
-              <br><br>
-              Não quer mais receber as Novidades da semana?
-              <a href="${escapeAttribute(unsubscribeUrl)}" class="eb-link" style="color:#1d4ed8;text-decoration:none;font-weight:600;">Cancelar inscrição</a>.
-            </td>
-          </tr>
+ <tr><td bgcolor="#E9DAB0" class="stack2" style="background-color:#E9DAB0; padding:28px 40px 30px 40px;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+   <tr><td style="font-family:'Courier New',Courier,monospace; font-size:11px; line-height:20px; mso-line-height-rule:exactly; letter-spacing:0.8px; color:#6F5E31;"><a href="${explorarUrl}" style="color:#8B4A0F; text-decoration:none;">Explorar</a> &nbsp;·&nbsp; <a href="${miniLivrosUrl}" style="color:#8B4A0F; text-decoration:none;">Mini-livros</a> &nbsp;·&nbsp; <a href="${trilhasUrl}" style="color:#8B4A0F; text-decoration:none;">Trilhas</a> &nbsp;·&nbsp; <a href="${quemSomosUrl}" style="color:#8B4A0F; text-decoration:none;">Quem somos</a> &nbsp;·&nbsp; <a href="${faqUrl}" style="color:#8B4A0F; text-decoration:none;">FAQ</a></td></tr>
+   <tr><td height="18" style="height:18px; line-height:18px; font-size:0;">&nbsp;</td></tr>
+   <tr><td style="font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:20px; mso-line-height-rule:exactly; color:#6F5E31; border-top:1px solid #D9C793; padding-top:16px;">
+    Você recebeu este e-mail porque optou por receber atualizações do Portal PP7+IAS.<br>
+    <a href="${preferencesUrl}" style="color:#8B4A0F; text-decoration:underline;">Gerenciar preferências</a> &nbsp;·&nbsp; <a href="${escapeAttribute(unsubscribeUrl)}" style="color:#8B4A0F; text-decoration:underline;">Cancelar inscrição</a>
+   </td></tr>
+  </table></td></tr>
 
 </table>
 </td></tr></table>

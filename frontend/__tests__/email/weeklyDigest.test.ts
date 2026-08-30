@@ -88,8 +88,7 @@ describe("weekly digest email", () => {
         expect(email.html).toContain("https://pp7ias-portal.com.br/user");
         expect(email.html).toContain("https://pp7ias-portal.com.br/unsubscribe/weekly-news?token=abc");
         expect(email.html).toContain("Cancelar inscrição");
-        expect(email.html).toContain("text-align:center");
-        expect(email.html).toMatch(/seu perfil<\/a>\.\s*<br><br>\s*N[aã]o quer mais receber as Novidades da semana\?/);
+        expect(email.html).toContain("Gerenciar preferências");
         expect(email.text).toContain("Newsletter da semana");
         expect(email.text).toContain("https://pp7ias-portal.com.br/unsubscribe/weekly-news?token=abc");
     });

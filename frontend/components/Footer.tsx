@@ -71,7 +71,7 @@ export default function Footer() {
 
                     {/* Recursos */}
                     <div className="flex flex-col w-auto min-w-fit">
-                        <h4 className="text-foreground font-semibold text-base mb-6 uppercase tracking-wide">Recursos</h4>
+                        <h2 className="text-foreground font-semibold text-base mb-6 uppercase tracking-wide">Recursos</h2>
                         <ul className="space-y-3">
                             {resourceLinks.map(item => (
                                 <li key={item.label}>
@@ -88,7 +88,7 @@ export default function Footer() {
 
                     {/* Legal */}
                     <div className="flex flex-col w-auto min-w-fit">
-                        <h4 className="text-foreground font-semibold text-base mb-6 uppercase tracking-wide">Legal</h4>
+                        <h2 className="text-foreground font-semibold text-base mb-6 uppercase tracking-wide">Legal</h2>
                         <ul className="space-y-3">
                             {legalLinks.map(item => (
                                 <li key={item.label}>

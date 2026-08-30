@@ -3,6 +3,7 @@ import ModalsProvider from "@/components/ModalsProvider";
 import PortalTypographyEffect from "@/components/PortalTypographyEffect";
 import Providers from "@/components/Providers";
 import UserActivityTracker from "@/components/UserActivityTracker";
+import VLibrasWidget from "@/components/VLibrasWidget";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { ContentLockedModalProvider } from "@/context/ContentLockedModalContext";
@@ -117,6 +118,7 @@ export default function RootLayout({
                     </AuthProvider>
                 </Providers>
                 {showAnalytics && <Analytics />}
+                <VLibrasWidget />
             </body>
         </html>
     );
