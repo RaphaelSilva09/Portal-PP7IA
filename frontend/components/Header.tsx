@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { useAuthModal } from "@/context/AuthModalContext";
 import { useInviteModal } from "@/context/InviteModalContext";
 import { useSearchModal } from "@/context/SearchModalContext";
 import { THEME_ICONS, THEME_LABEL, useThemeCycle } from "@/hooks/useThemeCycle";
@@ -11,7 +12,6 @@ import { ArrowUpRight, Bookmark, ChevronDown, LogOut, Menu, Plus, Search, Type, 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import AuthModal from "./AuthModal";
 import AnnouncementBarWrapper from "./AnnouncementBarWrapper";
 import ThemeToggle from "./ThemeToggle";
 
@@ -122,8 +122,7 @@ export default function Navbar({ autoHideOnScroll = false, onAutoHiddenChange }:
     const [isAutoHidden, setIsAutoHidden] = useState(false);
     const { openModal } = useSearchModal();
     const { openModal: openInviteModal } = useInviteModal();
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [authInitialMode, setAuthInitialMode] = useState<"login" | "signup">("login");
+    const { openModal: openAuthModal } = useAuthModal();
     const { user, signOut, isLoading } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
@@ -413,13 +412,13 @@ export default function Navbar({ autoHideOnScroll = false, onAutoHiddenChange }:
                             ) : (
                                 <>
                                     <button
-                                        onClick={() => { setAuthInitialMode("login"); setIsAuthModalOpen(true); }}
+                                        onClick={() => openAuthModal({}, "login")}
                                         className="px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
                                     >
                                         Entrar
                                     </button>
                                     <button
-                                        onClick={() => { setAuthInitialMode("signup"); setIsAuthModalOpen(true); }}
+                                        onClick={() => openAuthModal({}, "signup")}
                                         className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
                                     >
                                         Quero fazer parte
@@ -503,19 +502,19 @@ export default function Navbar({ autoHideOnScroll = false, onAutoHiddenChange }:
                             ) : (
                                 <>
                                     <button
-                                        onClick={() => { setAuthInitialMode("login"); setIsAuthModalOpen(true); }}
+                                        onClick={() => openAuthModal({}, "login")}
                                         className="btn-mobile-auth sm:hidden rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground"
                                     >
                                         Entrar
                                     </button>
                                     <button
-                                        onClick={() => { setAuthInitialMode("login"); setIsAuthModalOpen(true); }}
+                                        onClick={() => openAuthModal({}, "login")}
                                         className="hidden sm:block px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
                                     >
                                         Entrar
                                     </button>
                                     <button
-                                        onClick={() => { setAuthInitialMode("signup"); setIsAuthModalOpen(true); }}
+                                        onClick={() => openAuthModal({}, "signup")}
                                         className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-background transition hover:bg-primary"
                                     >
                                         Quero fazer parte
@@ -579,12 +578,6 @@ export default function Navbar({ autoHideOnScroll = false, onAutoHiddenChange }:
                         </nav>
                     </div>
                 </div>
-
-                <AuthModal
-                    isOpen={isAuthModalOpen}
-                    onClose={() => setIsAuthModalOpen(false)}
-                    initialMode={authInitialMode}
-                />
             </header>
 
             {/* Scrim do menu mobile: clique fora fecha; fica sob o header (z-40 < z-50) */}

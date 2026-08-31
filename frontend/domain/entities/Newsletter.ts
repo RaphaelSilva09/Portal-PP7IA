@@ -12,6 +12,7 @@
  */
 
 import { publicFileUrl } from "@/lib/files";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 
 export interface NewsletterProps {
     id: number;
@@ -22,6 +23,8 @@ export interface NewsletterProps {
     pdfPath: string | null;
     readTime: number;
     index: number;
+    /** Regra de bloqueio deste item, se houver (anexada na listagem — ver GetContentAccessRulesForListingUseCase). */
+    accessRule?: AccessRuleView | null;
 }
 
 export class Newsletter {
@@ -113,6 +116,10 @@ export class Newsletter {
      */
     get updatedAt(): Date | null {
         return this.props.updatedAt ?? null;
+    }
+
+    get accessRule(): AccessRuleView | null {
+        return this.props.accessRule ?? null;
     }
 
     toObject(): NewsletterProps {

@@ -82,6 +82,13 @@ import { PostgresSavedContentRepository } from "../repositories/PostgresSavedCon
 import { PostgresReadingTrailRepository } from "../repositories/PostgresReadingTrailRepository";
 import { GetReadingTrailUseCase } from "../../application/usecases/GetReadingTrailUseCase";
 import { PostgresReferralRepository } from "../repositories/PostgresReferralRepository";
+import { PostgresCommunicationPreferenceRepository } from "../repositories/PostgresCommunicationPreferenceRepository";
+import { PostgresAccessibilityPreferenceRepository } from "../repositories/PostgresAccessibilityPreferenceRepository";
+import { PostgresContentAccessRuleRepository } from "../repositories/PostgresContentAccessRuleRepository";
+import { EvaluateContentAccessUseCase } from "../../application/usecases/EvaluateContentAccessUseCase";
+import { GetContentAccessRulesForListingUseCase } from "../../application/usecases/GetContentAccessRulesForListingUseCase";
+import { UpsertContentAccessRuleUseCase } from "../../application/usecases/UpsertContentAccessRuleUseCase";
+import { RemoveContentAccessRuleUseCase } from "../../application/usecases/RemoveContentAccessRuleUseCase";
 
 /**
  * Container de Dependências
@@ -117,6 +124,9 @@ class DIContainer {
     private static savedContentRepositoryInstance: PostgresSavedContentRepository | null = null;
     private static readingTrailRepositoryInstance: PostgresReadingTrailRepository | null = null;
     private static referralRepositoryInstance: PostgresReferralRepository | null = null;
+    private static communicationPreferenceRepositoryInstance: PostgresCommunicationPreferenceRepository | null = null;
+    private static accessibilityPreferenceRepositoryInstance: PostgresAccessibilityPreferenceRepository | null = null;
+    private static contentAccessRuleRepositoryInstance: PostgresContentAccessRuleRepository | null = null;
 
     /**
      * Obtém instância do repositório de autenticação
@@ -191,6 +201,43 @@ class DIContainer {
             this.referralRepositoryInstance = new PostgresReferralRepository();
         }
         return this.referralRepositoryInstance;
+    }
+
+    static getCommunicationPreferenceRepository(): PostgresCommunicationPreferenceRepository {
+        if (!this.communicationPreferenceRepositoryInstance) {
+            this.communicationPreferenceRepositoryInstance = new PostgresCommunicationPreferenceRepository();
+        }
+        return this.communicationPreferenceRepositoryInstance;
+    }
+
+    static getAccessibilityPreferenceRepository(): PostgresAccessibilityPreferenceRepository {
+        if (!this.accessibilityPreferenceRepositoryInstance) {
+            this.accessibilityPreferenceRepositoryInstance = new PostgresAccessibilityPreferenceRepository();
+        }
+        return this.accessibilityPreferenceRepositoryInstance;
+    }
+
+    static getContentAccessRuleRepository(): PostgresContentAccessRuleRepository {
+        if (!this.contentAccessRuleRepositoryInstance) {
+            this.contentAccessRuleRepositoryInstance = new PostgresContentAccessRuleRepository();
+        }
+        return this.contentAccessRuleRepositoryInstance;
+    }
+
+    static getEvaluateContentAccessUseCase(): EvaluateContentAccessUseCase {
+        return new EvaluateContentAccessUseCase(this.getContentAccessRuleRepository());
+    }
+
+    static getContentAccessRulesForListingUseCase(): GetContentAccessRulesForListingUseCase {
+        return new GetContentAccessRulesForListingUseCase(this.getContentAccessRuleRepository());
+    }
+
+    static getUpsertContentAccessRuleUseCase(): UpsertContentAccessRuleUseCase {
+        return new UpsertContentAccessRuleUseCase(this.getContentAccessRuleRepository());
+    }
+
+    static getRemoveContentAccessRuleUseCase(): RemoveContentAccessRuleUseCase {
+        return new RemoveContentAccessRuleUseCase(this.getContentAccessRuleRepository());
     }
 
     /**

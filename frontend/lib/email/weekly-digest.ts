@@ -2,6 +2,7 @@ import type { PoolClient } from "pg";
 
 import { pool as defaultPool } from "../db";
 import { EMAIL_FROM, assertEmailConfigured, resend as defaultResend } from "./resend";
+import { signUnsubscribeToken } from "./unsubscribeToken";
 
 const DEFAULT_SITE_URL = "https://pp7ias-portal.com.br";
 const DIGEST_TIME_ZONE = "America/Sao_Paulo";
@@ -15,16 +16,61 @@ const MAX_DIGEST_RATE_LIMIT_RETRIES = 3;
 const PRODUCTION_ENVIRONMENT_NAMES = new Set(["production", "prod"]);
 const PRODUCTION_BRANCH_NAMES = new Set(["main", "master"]);
 
+/**
+ * A recipient who unsubscribes between run-start and their own send-time
+ * (caught by isStillSubscribed's recheck) is not an operational failure —
+ * it's the feature working as intended, and far more likely now that every
+ * digest carries a one-click unsubscribe link. It's recorded as `status =
+ * 'failed'` (the schema has no separate terminal status for this — see
+ * docs/setup/WEEKLY_NEWS_UNSUBSCRIBE.md) but must be excluded from
+ * failedCount: counting it as a real failure would block markQueueSent and
+ * cause this week's already-sent content to be resent to everyone next week.
+ */
+const CANCELLED_BEFORE_SEND_ERROR = "Cancelado antes do envio";
+
 const TABLE_CONFIG: Record<string, { label: string; viewType: string; fallbackPath: string; accentLight: string; accentDark: string }> = {
     newsletters: { label: "Newsletter", viewType: "newsletter", fallbackPath: "/explorar?b=newsletter", accentLight: "#3b82f6", accentDark: "#60a5fa" },
     mini_livros: { label: "Mini-livros", viewType: "mini-livro", fallbackPath: "/explorar?b=livro", accentLight: "#f59e0b", accentDark: "#fbbf24" },
     biblioteca: { label: "Biblioteca", viewType: "biblioteca", fallbackPath: "/explorar?b=biblioteca", accentLight: "#14b8a6", accentDark: "#2dd4bf" },
-    especial_semana: { label: "Especial da Semana", viewType: "especial-semana", fallbackPath: "/explorar?b=reportagem", accentLight: "#f97316", accentDark: "#fb923c" },
+    especial_semana: { label: "Especial da Semana", viewType: "especial-semana", fallbackPath: "/explorar?b=inteligencia-artificial", accentLight: "#f97316", accentDark: "#fb923c" },
     estudar: { label: "Estudar", viewType: "estudar", fallbackPath: "/explorar?b=estudar", accentLight: "#6366f1", accentDark: "#818cf8" },
-    radar_oportunidades: { label: "Radar de Oportunidades", viewType: "radar_oportunidades", fallbackPath: "/explorar?b=radar", accentLight: "#06b6d4", accentDark: "#22d3ee" },
+    radar_oportunidades: { label: "Radar de Oportunidades", viewType: "radar_oportunidades", fallbackPath: "/explorar?b=editoriais-artigos", accentLight: "#06b6d4", accentDark: "#22d3ee" },
     ebooks: { label: "E-books", viewType: "ebook", fallbackPath: "/mini-livros", accentLight: "#ec4899", accentDark: "#f472b6" },
 };
 const SUPPORTED_TABLE_NAMES = Object.keys(TABLE_CONFIG);
+
+const MONTHS_PT_ABBR = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const MUTED_TEXT_COLOR = "#AA955E";
+const MUTED_BAR_COLOR = "#D9C793";
+const ENSINAR_ACCENT = "#A84A62";
+
+interface DigestBlockDef {
+    number: string;
+    heading: string;
+    tagline: string;
+    color: string;
+    path: string;
+    tables: string[];
+    kickerSingular: string;
+    kickerPlural: string;
+    preheaderLabel: string;
+}
+
+const DIGEST_BLOCK_DEFS: DigestBlockDef[] = [
+    { number: "01", heading: "Newsletter", tagline: "Segunda e quarta", color: "#3b82f6", path: "/explorar?b=newsletter", tables: ["newsletters"], kickerSingular: "nova edição", kickerPlural: "novas edições", preheaderLabel: "no Newsletter" },
+    { number: "02", heading: "Inteligência Artificial", tagline: "Atualização contínua", color: "#f97316", path: "/explorar?b=inteligencia-artificial", tables: ["especial_semana"], kickerSingular: "nova análise", kickerPlural: "novas análises", preheaderLabel: "em Inteligência Artificial" },
+    { number: "03", heading: "Editoriais e Artigos", tagline: "3 a 4 por publicação", color: "#06b6d4", path: "/explorar?b=editoriais-artigos", tables: ["radar_oportunidades"], kickerSingular: "novo texto", kickerPlural: "novos textos", preheaderLabel: "em Editoriais e Artigos" },
+    { number: "04", heading: "Enquanto é Tempo", tagline: "Novos capítulos", color: "#f59e0b", path: "/explorar?b=livro", tables: ["mini_livros", "ebooks"], kickerSingular: "novo capítulo", kickerPlural: "novos capítulos", preheaderLabel: "em Enquanto é Tempo" },
+    { number: "05", heading: "Biblioteca", tagline: "Atualizada toda semana", color: "#14b8a6", path: "/explorar?b=biblioteca", tables: ["biblioteca"], kickerSingular: "novo item", kickerPlural: "novos itens", preheaderLabel: "na Biblioteca" },
+    { number: "06", heading: "Estudar", tagline: "Em curadoria", color: "#6366f1", path: "/explorar?b=estudar", tables: ["estudar"], kickerSingular: "nova trilha", kickerPlural: "novas trilhas", preheaderLabel: "em Estudar" },
+];
+
+const ENSINAR_BLOCK = {
+    number: "07",
+    heading: "Ensinar",
+    tagline: "Em construção",
+    path: "/explorar?b=ensinar",
+};
 
 type Logger = Pick<Console, "log" | "warn" | "error">;
 
@@ -132,151 +178,244 @@ export function normalizeDigestItem(row: DigestQueueRow, siteUrl = DEFAULT_SITE_
 export function buildWeeklyDigestEmail({
     items,
     siteUrl = DEFAULT_SITE_URL,
+    unsubscribeUrl,
+    now = new Date(),
 }: {
     items: DigestItem[];
     siteUrl?: string;
+    unsubscribeUrl: string;
+    now?: Date;
 }): WeeklyDigestEmail {
     const grouped = groupByTable(items);
-    const usedTableNames = Array.from(grouped.keys());
-    const sectionDarkRules = usedTableNames
-        .map((tableName) => {
-            const accentDark = TABLE_CONFIG[tableName]?.accentDark ?? "#60a5fa";
-            return `.eb-sec-${tableName}{color:${accentDark} !important}.eb-dot-${tableName}{background-color:${accentDark} !important}`;
-        })
-        .join("");
-
-    const sectionsHtml = Array.from(grouped.entries())
-        .map(([tableName, groupItems]) => {
-            const config = TABLE_CONFIG[tableName];
-            const label = config?.label ?? tableName;
-            const accentLight = config?.accentLight ?? "#3b82f6";
-            const rows = groupItems
-                .map((item) => {
-                    const meta = item.readTime ? `${item.readTime} min de leitura` : "Novo conteúdo";
-                    const title = escapeHtml(item.title);
-                    const href = item.href ?? absoluteUrl("/", siteUrl);
-                    return `
-                      <tr>
-                        <td class="eb-row" style="padding:16px 0;border-bottom:1px solid rgba(99,132,181,0.2);">
-                          <a href="${escapeAttribute(href)}" class="eb-title" style="color:#162338;text-decoration:none;font-size:16px;font-weight:600;font-family:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">${title}</a>
-                          <div class="eb-muted" style="color:#56657b;font-size:13px;margin-top:4px;font-family:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">${escapeHtml(meta)}</div>
-                        </td>
-                      </tr>`;
-                })
-                .join("");
-
-            return `
-              <tr>
-                <td style="padding-top:28px;">
-                  <table role="presentation" cellpadding="0" cellspacing="0" style="padding-bottom:10px;">
-                    <tr>
-                      <td class="eb-dot-${tableName}" style="width:8px;height:8px;border-radius:9999px;background-color:${accentLight};font-size:0;line-height:0;">&nbsp;</td>
-                      <td style="width:8px;"></td>
-                      <td class="eb-sec-${tableName}" style="color:${accentLight};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">${escapeHtml(label)}</td>
-                    </tr>
-                  </table>
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>
-                </td>
-              </tr>`;
-        })
-        .join("");
-
-    const textLines = items.map((item) => {
-        const suffix = item.href ? ` - ${item.href}` : "";
-        return `- ${item.title}${suffix}`;
+    const blocks: Array<DigestBlockDef & { items: DigestItem[]; count: number }> = DIGEST_BLOCK_DEFS.map((def) => {
+        const blockItems = def.tables
+            .flatMap((table) => grouped.get(table) ?? [])
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return { ...def, items: blockItems, count: blockItems.length };
     });
 
+    const totalCount = items.length;
+    const totalBlocksCount = blocks.length + 1;
+    const activeBlocks = blocks.filter((block) => block.count > 0);
+
+    const dateParts = getTimeParts(now);
+    const dateLabel = `${dateParts.day} ${MONTHS_PT_ABBR[Number(dateParts.month) - 1]} ${dateParts.year}`;
+
+    const subject = `PP7+IAS · ${totalCount} novidade${totalCount === 1 ? "" : "s"} nos blocos`;
+    const preheader = buildDigestPreheader(totalCount, activeBlocks);
+
+    const summaryHtml = [...blocks, { ...ENSINAR_BLOCK, color: MUTED_BAR_COLOR, count: 0 }]
+        .map((block) => renderSummaryTile(block, siteUrl))
+        .join("");
+
+    const detailRowsHtml =
+        blocks.map((block, index) => renderBlockRow(block, index, siteUrl)).join("") +
+        renderEnsinarRow(blocks.length, siteUrl);
+
+    const explorarUrl = escapeAttribute(absoluteUrl("/explorar", siteUrl));
+    const preferencesUrl = escapeAttribute(absoluteUrl("/user", siteUrl));
+    const miniLivrosUrl = escapeAttribute(absoluteUrl("/mini-livros", siteUrl));
+    const trilhasUrl = escapeAttribute(absoluteUrl("/trilhas", siteUrl));
+    const quemSomosUrl = escapeAttribute(absoluteUrl("/quem-somos", siteUrl));
+    const faqUrl = escapeAttribute(absoluteUrl("/faq", siteUrl));
+
+    const textLines = blocks
+        .filter((block) => block.count > 0)
+        .flatMap((block) => [
+            `${block.heading} (${block.count})`,
+            ...block.items.map((item) => `- ${item.title}${item.href ? ` - ${item.href}` : ""}`),
+            "",
+        ]);
+
     return {
-        subject: "PP7+IAS: novidades da semana",
+        subject,
         html: `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light dark">
-  <meta name="supported-color-schemes" content="light dark">
-  <title>PP7+IAS: novidades da semana</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&display=swap');
-    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-    @media (prefers-color-scheme: dark) {
-      .eb-body { background-color: #111111 !important; }
-      .eb-card { background-color: #1a1a1a !important; border-color: rgba(255,255,255,0.1) !important; }
-      .eb-title { color: #dadada !important; }
-      .eb-text { color: #acacac !important; }
-      .eb-muted { color: #acacac !important; }
-      .eb-row { border-color: rgba(255,255,255,0.08) !important; }
-      .eb-link { color: #3b9eff !important; }
-      .eb-plus { color: #3b9eff !important; }
-      .eb-bar-ias { background-color: #3b9eff !important; }
-      ${sectionDarkRules}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>${escapeHtml(subject)}</title>
+<style>
+@media only screen and (max-width:620px){
+ .wrap{width:100%!important}
+ .pad{padding-left:0!important;padding-right:20px!important}
+ .stack{display:block!important;width:100%!important;box-sizing:border-box!important}
+ .stack2{padding-left:22px!important;padding-right:22px!important}
+ .huge{font-size:70px!important;line-height:64px!important}
+}
+</style>
 </head>
-<body class="eb-body" style="margin:0;padding:0;background-color:#eef4ff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="eb-body" style="background-color:#eef4ff;padding:32px 16px;">
-    <tr>
-      <td align="center">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" class="eb-card" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid rgba(99,132,181,0.2);border-radius:20px;padding:36px 32px;">
+<body style="margin:0; padding:0; background-color:#E9DAB0;">
+<span style="display:none; font-size:1px; color:#E9DAB0; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">${escapeHtml(preheader)}</span>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#E9DAB0;">
+<tr><td align="center" style="padding:28px 0 46px 0;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" class="wrap" style="width:600px; max-width:600px;">
 
-          <tr>
-            <td style="padding-bottom:26px;">
-              <table role="presentation" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="eb-title" style="color:#162338;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:28px;font-weight:600;letter-spacing:-0.02em;">PP7</td>
-                  <td class="eb-plus" style="color:#1d4ed8;font-family:'Inter',sans-serif;font-size:22px;font-weight:700;padding:0 4px;">+</td>
-                  <td class="eb-title" style="color:#162338;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:28px;font-weight:600;letter-spacing:0.04em;">IAS</td>
-                </tr>
-                <tr>
-                  <td style="height:3px;background-color:#d97706;border-radius:9999px;line-height:3px;font-size:0;">&nbsp;</td>
-                  <td></td>
-                  <td class="eb-bar-ias" style="height:3px;background-color:#1d4ed8;border-radius:9999px;line-height:3px;font-size:0;">&nbsp;</td>
-                </tr>
-              </table>
-            </td>
-          </tr>
+ <tr><td bgcolor="#F7EDC9" class="stack2" style="background-color:#F7EDC9; padding:38px 40px 34px 40px;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+   <tr>
+    <td align="left" style="font-family:Georgia,'Times New Roman',serif; font-size:22px; line-height:26px; mso-line-height-rule:exactly; color:#31260F; letter-spacing:-0.5px;"><span style="border-bottom:2px solid #DE9500; padding-bottom:3px;">PP7</span><span style="color:#8E6F33; padding:0 4px;">+</span><span style="border-bottom:2px solid #BE6C18; padding-bottom:3px;">IAS</span></td>
+    <td align="right" style="font-family:'Courier New',Courier,monospace; font-size:10px; line-height:16px; mso-line-height-rule:exactly; letter-spacing:1.4px; text-transform:uppercase; color:#AA955E;">${escapeHtml(dateLabel)}</td>
+   </tr>
+   <tr><td height="32" style="height:32px; line-height:32px; font-size:0;">&nbsp;</td></tr>
+   <tr><td colspan="2" class="huge" style="font-family:Arial,Helvetica,sans-serif; font-size:88px; line-height:78px; mso-line-height-rule:exactly; font-weight:bold; color:#31260F; letter-spacing:-5px;">${totalCount}</td></tr>
+   <tr><td height="12" style="height:12px; line-height:12px; font-size:0;">&nbsp;</td></tr>
+   <tr><td colspan="2" style="font-family:Georgia,'Times New Roman',serif; font-size:23px; line-height:31px; mso-line-height-rule:exactly; color:#8B4A0F;">publicaç${totalCount === 1 ? "ão nova" : "ões novas"} em ${activeBlocks.length} dos ${totalBlocksCount} blocos.</td></tr>
+   <tr><td height="30" style="height:30px; line-height:30px; font-size:0;">&nbsp;</td></tr>
+   <tr><td colspan="2" style="font-family:Arial,Helvetica,sans-serif; font-size:10px; line-height:14px; mso-line-height-rule:exactly; letter-spacing:1.6px; text-transform:uppercase; color:#AA955E; padding-bottom:12px; border-bottom:1px solid #D9C793;">Quantidade por bloco &nbsp;·&nbsp; toque para ir direto</td></tr>
+   <tr><td height="16" style="height:16px; line-height:16px; font-size:0;">&nbsp;</td></tr>
+   <tr><td colspan="2"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>${summaryHtml}</tr></table></td></tr>
+  </table></td></tr>
 
-          <tr>
-            <td class="eb-title" style="color:#162338;font-size:24px;font-weight:700;font-family:'Inter',sans-serif;padding-bottom:8px;">Novidades da semana</td>
-          </tr>
-          <tr>
-            <td class="eb-text" style="color:#334155;font-size:15px;line-height:1.6;font-family:'Inter',sans-serif;">
-              Uma curadoria direta do Portal PP7+IAS para você acompanhar o que entrou de novo.
-            </td>
-          </tr>
+${detailRowsHtml}
 
-          ${sectionsHtml}
+ <tr><td bgcolor="#F7EDC9" class="stack2" style="background-color:#F7EDC9; padding:30px 40px 34px 40px; border-top:1px solid #D9C793;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+   <tr><td style="font-family:Georgia,'Times New Roman',serif; font-size:17px; line-height:26px; mso-line-height-rule:exactly; color:#605021;">Quer ver tudo de uma vez, com filtro por bloco e por data?</td></tr>
+   <tr><td height="18" style="height:18px; line-height:18px; font-size:0;">&nbsp;</td></tr>
+   <tr><td><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#31260F" style="background-color:#31260F; border-radius:2px; padding:15px 30px;">
+    <a href="${explorarUrl}" style="display:block; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:16px; mso-line-height-rule:exactly; letter-spacing:1.4px; text-transform:uppercase; font-weight:bold; color:#F8EDC0; text-decoration:none;">Abrir Explorar &nbsp;&rarr;</a>
+   </td></tr></table></td></tr>
+  </table></td></tr>
 
-          <tr>
-            <td style="padding-top:32px;">
-              <div class="eb-row" style="height:1px;background-color:rgba(99,132,181,0.2);margin:0 0 20px;font-size:0;line-height:0;">&nbsp;</div>
-            </td>
-          </tr>
-          <tr>
-            <td class="eb-muted" style="color:#56657b;font-size:12px;line-height:1.6;font-family:'Inter',sans-serif;">
-              Você recebeu este email porque optou por receber atualizações do Portal PP7+IAS.
-              Para alterar suas preferências, acesse
-              <a href="${escapeAttribute(absoluteUrl("/user", siteUrl))}" class="eb-link" style="color:#1d4ed8;text-decoration:none;font-weight:600;">seu perfil</a>.
-            </td>
-          </tr>
+ <tr><td bgcolor="#E9DAB0" class="stack2" style="background-color:#E9DAB0; padding:28px 40px 30px 40px;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+   <tr><td style="font-family:'Courier New',Courier,monospace; font-size:11px; line-height:20px; mso-line-height-rule:exactly; letter-spacing:0.8px; color:#6F5E31;"><a href="${explorarUrl}" style="color:#8B4A0F; text-decoration:none;">Explorar</a> &nbsp;·&nbsp; <a href="${miniLivrosUrl}" style="color:#8B4A0F; text-decoration:none;">Mini-livros</a> &nbsp;·&nbsp; <a href="${trilhasUrl}" style="color:#8B4A0F; text-decoration:none;">Trilhas</a> &nbsp;·&nbsp; <a href="${quemSomosUrl}" style="color:#8B4A0F; text-decoration:none;">Quem somos</a> &nbsp;·&nbsp; <a href="${faqUrl}" style="color:#8B4A0F; text-decoration:none;">FAQ</a></td></tr>
+   <tr><td height="18" style="height:18px; line-height:18px; font-size:0;">&nbsp;</td></tr>
+   <tr><td style="font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:20px; mso-line-height-rule:exactly; color:#6F5E31; border-top:1px solid #D9C793; padding-top:16px;">
+    Você recebeu este e-mail porque optou por receber atualizações do Portal PP7+IAS.<br>
+    <a href="${preferencesUrl}" style="color:#8B4A0F; text-decoration:underline;">Gerenciar preferências</a> &nbsp;·&nbsp; <a href="${escapeAttribute(unsubscribeUrl)}" style="color:#8B4A0F; text-decoration:underline;">Cancelar inscrição</a>
+   </td></tr>
+  </table></td></tr>
 
-        </table>
-      </td>
-    </tr>
-  </table>
+</table>
+</td></tr></table>
 </body>
 </html>`,
         text: [
-            "PP7+IAS: novidades da semana",
+            subject,
             "",
-            "Uma curadoria direta do Portal PP7+IAS para você acompanhar o que entrou de novo.",
+            preheader,
             "",
             ...textLines,
-            "",
             `Preferências: ${absoluteUrl("/user", siteUrl)}`,
+            `Não quer mais receber as Novidades da semana? Cancelar inscrição: ${unsubscribeUrl}`,
         ].join("\n"),
     };
+}
+
+function buildDigestPreheader(
+    totalCount: number,
+    activeBlocks: Array<{ count: number; preheaderLabel: string }>,
+): string {
+    const top = [...activeBlocks].sort((a, b) => b.count - a.count).slice(0, 3);
+    const parts = top.map((block) => `${block.count} ${block.preheaderLabel}`);
+    const suffix = activeBlocks.length > top.length ? " e mais" : "";
+    const noun = totalCount === 1 ? "publicação nova" : "publicações novas";
+    return `${totalCount} ${noun}: ${parts.join(", ")}${suffix}.`;
+}
+
+function renderSummaryTile(
+    block: { number: string; color: string; path: string; count: number },
+    siteUrl: string,
+): string {
+    const active = block.count > 0;
+    const barColor = active ? block.color : MUTED_BAR_COLOR;
+    const valueColor = active ? block.color : MUTED_TEXT_COLOR;
+    const value = active ? String(block.count) : "—";
+    const href = escapeAttribute(absoluteUrl(block.path, siteUrl));
+    return `<td width="14.28%" align="center" style="padding:0 2px;">
+ <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td bgcolor="${barColor}" height="4" style="height:4px; font-size:0; line-height:4px;">&nbsp;</td></tr></table>
+ <div style="font-family:Arial,Helvetica,sans-serif; font-size:19px; line-height:22px; mso-line-height-rule:exactly; font-weight:bold; color:${valueColor}; padding-top:9px;"><a href="${href}" style="color:${valueColor}; text-decoration:none;">${value}</a></div>
+ <div style="font-family:'Courier New',Courier,monospace; font-size:10px; line-height:14px; mso-line-height-rule:exactly; letter-spacing:0.8px; color:${MUTED_TEXT_COLOR}; padding-top:3px;">${block.number}</div>
+</td>`;
+}
+
+function renderItemList(blockItems: DigestItem[], color: string, siteUrl: string): string {
+    const CAP = 4;
+    const PREVIEW = 2;
+    const visible = blockItems.length <= CAP ? blockItems : blockItems.slice(0, PREVIEW);
+    const rows = visible
+        .map((item) => {
+            const title = escapeHtml(item.title);
+            const href = escapeAttribute(item.href ?? absoluteUrl("/", siteUrl));
+            return `<tr><td valign="top" width="16" style="width:16px; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:23px; mso-line-height-rule:exactly; color:${color}; padding-bottom:8px;">&bull;</td><td valign="top" style="font-family:Georgia,'Times New Roman',serif; font-size:16px; line-height:23px; mso-line-height-rule:exactly; color:#605021; padding-bottom:8px;"><a href="${href}" style="color:#605021; text-decoration:none;">${title}</a></td></tr>`;
+        })
+        .join("");
+    const overflow =
+        blockItems.length > CAP
+            ? `<tr><td></td><td style="font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:22px; mso-line-height-rule:exactly; color:${MUTED_TEXT_COLOR};">+ ${blockItems.length - PREVIEW} outros itens</td></tr>`
+            : "";
+    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:16px;">${rows}${overflow}</table>`;
+}
+
+function renderCta(href: string, label: string, color: string): string {
+    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:18px;"><tr><td bgcolor="${color}" style="background-color:${color}; border-radius:2px; padding:13px 22px;">
+        <a href="${href}" style="display:block; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:16px; mso-line-height-rule:exactly; letter-spacing:1.2px; text-transform:uppercase; font-weight:bold; color:#FFFBE4; text-decoration:none;">${escapeHtml(label)} &nbsp;&rarr;</a>
+       </td></tr></table>`;
+}
+
+function renderBlockRow(
+    block: DigestBlockDef & { items: DigestItem[]; count: number },
+    index: number,
+    siteUrl: string,
+): string {
+    const bg = index % 2 === 0 ? "#F7EDC9" : "#EFE2BA";
+    const active = block.count > 0;
+    const href = escapeAttribute(absoluteUrl(block.path, siteUrl));
+    const kicker = !active ? "nenhum novo" : block.count === 1 ? block.kickerSingular : block.kickerPlural;
+    const statColor = active ? block.color : MUTED_TEXT_COLOR;
+    const statValue = active ? String(block.count) : "—";
+    const statFontSize = active ? "52px" : "36px";
+    const statLineHeight = active ? "52px" : "44px";
+    const body = active
+        ? `${renderItemList(block.items, block.color, siteUrl)}
+       ${renderCta(href, `Abrir bloco ${block.number}`, block.color)}`
+        : `<div style="font-family:Georgia,'Times New Roman',serif; font-size:16px; line-height:24px; mso-line-height-rule:exactly; color:#605021; padding-top:6px;">Nenhuma novidade nesta edição.</div>
+       ${renderCta(href, `Abrir bloco ${block.number}`, block.color)}`;
+
+    return `<tr><td bgcolor="${bg}" class="pad" style="background-color:${bg}; padding:0 40px 0 0; border-top:1px solid #D9C793;">
+   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+     <td width="8" bgcolor="${block.color}" style="width:8px; background-color:${block.color}; font-size:0; line-height:0;">&nbsp;</td>
+     <td width="130" class="stack" valign="top" style="width:130px; padding:28px 18px 28px 26px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="${block.color}" style="background-color:${block.color}; padding:5px 9px;"><span style="font-family:'Courier New',Courier,monospace; font-size:11px; line-height:14px; mso-line-height-rule:exactly; letter-spacing:1.4px; color:#FFFBE4; font-weight:bold;">${block.number}</span></td></tr></table>
+      <div style="font-family:Arial,Helvetica,sans-serif; font-size:${statFontSize}; line-height:${statLineHeight}; mso-line-height-rule:exactly; font-weight:bold; color:${statColor}; letter-spacing:-2.5px; padding-top:12px;">${statValue}</div>
+      <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:16px; mso-line-height-rule:exactly; letter-spacing:0.8px; text-transform:uppercase; color:#6F5E31; padding-top:6px;">${escapeHtml(kicker)}</div>
+     </td>
+     <td class="stack" valign="top" style="padding:30px 0 28px 0;">
+      <div style="font-family:Georgia,'Times New Roman',serif; font-size:25px; line-height:30px; mso-line-height-rule:exactly; color:#31260F; letter-spacing:-0.5px;"><a href="${href}" style="color:#31260F; text-decoration:none;">${escapeHtml(block.heading)}</a></div>
+      <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:16px; mso-line-height-rule:exactly; letter-spacing:0.8px; text-transform:uppercase; color:${MUTED_TEXT_COLOR}; padding-top:7px;">${escapeHtml(block.tagline)}</div>
+      ${body}
+     </td>
+    </tr>
+   </table></td></tr>`;
+}
+
+function renderEnsinarRow(index: number, siteUrl: string): string {
+    const bg = index % 2 === 0 ? "#F7EDC9" : "#EFE2BA";
+    const href = escapeAttribute(absoluteUrl(ENSINAR_BLOCK.path, siteUrl));
+    return `<tr><td bgcolor="${bg}" class="pad" style="background-color:${bg}; padding:0 40px 0 0; border-top:1px solid #D9C793;">
+   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+     <td width="8" bgcolor="${ENSINAR_ACCENT}" style="width:8px; background-color:${ENSINAR_ACCENT}; font-size:0; line-height:0;">&nbsp;</td>
+     <td width="130" class="stack" valign="top" style="width:130px; padding:28px 18px 28px 26px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="${ENSINAR_ACCENT}" style="background-color:${ENSINAR_ACCENT}; padding:5px 9px;"><span style="font-family:'Courier New',Courier,monospace; font-size:11px; line-height:14px; mso-line-height-rule:exactly; letter-spacing:1.4px; color:#FFFBE4; font-weight:bold;">${ENSINAR_BLOCK.number}</span></td></tr></table>
+      <div style="font-family:Arial,Helvetica,sans-serif; font-size:36px; line-height:44px; mso-line-height-rule:exactly; font-weight:bold; color:${MUTED_TEXT_COLOR}; letter-spacing:-2.5px; padding-top:12px;">—</div>
+      <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:16px; mso-line-height-rule:exactly; letter-spacing:0.8px; text-transform:uppercase; color:#6F5E31; padding-top:6px;">nenhum novo</div>
+     </td>
+     <td class="stack" valign="top" style="padding:30px 0 28px 0;">
+      <div style="font-family:Georgia,'Times New Roman',serif; font-size:25px; line-height:30px; mso-line-height-rule:exactly; color:#31260F; letter-spacing:-0.5px;"><a href="${href}" style="color:#31260F; text-decoration:none;">${ENSINAR_BLOCK.heading}</a></div>
+      <div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:16px; mso-line-height-rule:exactly; letter-spacing:0.8px; text-transform:uppercase; color:${MUTED_TEXT_COLOR}; padding-top:7px;">${ENSINAR_BLOCK.tagline}</div>
+      <div style="font-family:Georgia,'Times New Roman',serif; font-size:17px; line-height:25px; mso-line-height-rule:exactly; color:#31260F; padding-top:14px;">Nenhum conteúdo novo nesta edição.</div>
+      <div style="font-family:Georgia,'Times New Roman',serif; font-size:16px; line-height:24px; mso-line-height-rule:exactly; color:#605021; padding-top:8px;">O bloco segue em construção — mas o que já existe no portal sobre ensinar continua no ar: as trilhas de Estudar e o acervo da Biblioteca são o caminho natural até aqui.</div>
+        ${renderCta(href, "Ver conteúdo relacionado", ENSINAR_ACCENT)}
+      <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:21px; mso-line-height-rule:exactly; color:#6F5E31; padding-top:14px;"><a href="${href}" style="color:#8B4A0F; text-decoration:underline;">Avise-me quando o bloco 07 abrir</a></div>
+     </td>
+    </tr>
+   </table></td></tr>`;
 }
 
 export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promise<WeeklyDigestResult> {
@@ -312,6 +451,10 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
 
     if (!options.dryRun && !options.resendClient) {
         assertEmailConfigured();
+    }
+
+    if (!options.dryRun && !process.env.UNSUBSCRIBE_TOKEN_SECRET?.trim()) {
+        throw new Error("UNSUBSCRIBE_TOKEN_SECRET não configurado");
     }
 
     const client = await dbPool.connect();
@@ -360,14 +503,30 @@ export async function sendWeeklyDigest(options: WeeklyDigestOptions = {}): Promi
 
         await ensureDeliveries(client, runId, recipients);
         const pendingRecipients = await loadPendingRecipients(client, runId);
-        const email = buildWeeklyDigestEmail({ items, siteUrl });
 
         for (const recipient of pendingRecipients) {
             try {
+                if (!(await isStillSubscribed(client, recipient.id))) {
+                    await markDeliveryFailed(client, runId, recipient.id, CANCELLED_BEFORE_SEND_ERROR);
+                    continue;
+                }
+
+                const token = signUnsubscribeToken(recipient.id, "weekly_news");
+                const email = buildWeeklyDigestEmail({
+                    items,
+                    siteUrl,
+                    unsubscribeUrl: absoluteUrl(`/unsubscribe/weekly-news?token=${encodeURIComponent(token)}`, siteUrl),
+                });
+                const headerUnsubscribeUrl = absoluteUrl(
+                    `/api/email/unsubscribe/weekly-news?token=${encodeURIComponent(token)}`,
+                    siteUrl,
+                );
+
                 const providerMessageId = await sendDigestEmail({
                     resendClient,
                     recipient,
                     email,
+                    unsubscribeUrl: headerUnsubscribeUrl,
                     paceProviderSend,
                     rateLimitRetryDelayMs,
                     logger,
@@ -536,13 +695,24 @@ async function loadPendingDigestRows(client: PoolClient, maxItems: number): Prom
 
 async function loadRecipients(client: PoolClient): Promise<DigestRecipient[]> {
     const { rows } = await client.query<DigestRecipient>(
-        `SELECT id::text, email, nome
-         FROM "user"
-         WHERE COALESCE(accept_email_updates, false) = true
-           AND "emailVerified" = true
-         ORDER BY "createdAt" ASC`,
+        `SELECT u.id::text, u.email, u.nome
+         FROM "user" u
+         JOIN public.communication_preferences cp
+           ON cp.user_id = u.id AND cp.communication_type = 'weekly_news' AND cp.enabled = true
+         WHERE u."emailVerified" = true
+         ORDER BY u."createdAt" ASC`,
     );
     return rows;
+}
+
+/** Re-checks the preference right before actually sending — narrows the window for a just-cancelled user to still receive the email. */
+async function isStillSubscribed(client: PoolClient, userId: string): Promise<boolean> {
+    const { rows } = await client.query<{ enabled: boolean }>(
+        `SELECT enabled FROM public.communication_preferences
+         WHERE user_id = $1 AND communication_type = 'weekly_news'`,
+        [userId],
+    );
+    return rows[0]?.enabled === true;
 }
 
 async function updateRunCounts(client: PoolClient, runId: string, contentCount: number, recipientCount: number): Promise<void> {
@@ -595,18 +765,23 @@ async function markDeliveryFailed(client: PoolClient, runId: string, userId: str
     );
 }
 
-async function loadDeliveryTotals(client: PoolClient, runId: string): Promise<{ sentCount: number; failedCount: number }> {
-    const { rows } = await client.query<{ sent_count: string; failed_count: string }>(
+async function loadDeliveryTotals(
+    client: PoolClient,
+    runId: string,
+): Promise<{ sentCount: number; failedCount: number; cancelledCount: number }> {
+    const { rows } = await client.query<{ sent_count: string; failed_count: string; cancelled_count: string }>(
         `SELECT
            COUNT(*) FILTER (WHERE status = 'sent')::text AS sent_count,
-           COUNT(*) FILTER (WHERE status = 'failed')::text AS failed_count
+           COUNT(*) FILTER (WHERE status = 'failed' AND error IS DISTINCT FROM $2)::text AS failed_count,
+           COUNT(*) FILTER (WHERE status = 'failed' AND error = $2)::text AS cancelled_count
          FROM public.email_digest_deliveries
          WHERE run_id = $1`,
-        [runId],
+        [runId, CANCELLED_BEFORE_SEND_ERROR],
     );
     return {
         sentCount: Number(rows[0]?.sent_count ?? 0),
         failedCount: Number(rows[0]?.failed_count ?? 0),
+        cancelledCount: Number(rows[0]?.cancelled_count ?? 0),
     };
 }
 
@@ -624,6 +799,7 @@ async function sendDigestEmail({
     resendClient,
     recipient,
     email,
+    unsubscribeUrl,
     paceProviderSend,
     rateLimitRetryDelayMs,
     logger,
@@ -631,6 +807,7 @@ async function sendDigestEmail({
     resendClient: typeof defaultResend;
     recipient: DigestRecipient;
     email: WeeklyDigestEmail;
+    unsubscribeUrl: string;
     paceProviderSend: () => Promise<void>;
     rateLimitRetryDelayMs: number;
     logger: Logger;
@@ -643,6 +820,10 @@ async function sendDigestEmail({
             subject: email.subject,
             html: email.html,
             text: email.text,
+            headers: {
+                "List-Unsubscribe": `<${unsubscribeUrl}>`,
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            },
         });
 
         if (!error) return stringValue((data as { id?: unknown } | null)?.id);

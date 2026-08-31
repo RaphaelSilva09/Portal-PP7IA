@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.hoisted(() => {
     process.env.RESEND_API_KEY = "test_resend_key";
+    process.env.UNSUBSCRIBE_TOKEN_SECRET = "test_unsubscribe_secret";
 });
 
 import {
@@ -58,6 +59,7 @@ describe("weekly digest email", () => {
     it("renders a digest email with grouped content and preference link", () => {
         const email = buildWeeklyDigestEmail({
             siteUrl: "https://pp7ias-portal.com.br",
+            unsubscribeUrl: "https://pp7ias-portal.com.br/unsubscribe/weekly-news?token=abc",
             items: [
                 {
                     queueId: "q1",
@@ -80,11 +82,15 @@ describe("weekly digest email", () => {
             ],
         });
 
-        expect(email.subject).toBe("PP7+IAS: novidades da semana");
+        expect(email.subject).toBe("PP7+IAS · 2 novidades nos blocos");
         expect(email.html).toContain("Newsletter da semana");
         expect(email.html).toContain("Biblioteca");
         expect(email.html).toContain("https://pp7ias-portal.com.br/user");
+        expect(email.html).toContain("https://pp7ias-portal.com.br/unsubscribe/weekly-news?token=abc");
+        expect(email.html).toContain("Cancelar inscrição");
+        expect(email.html).toContain("Gerenciar preferências");
         expect(email.text).toContain("Newsletter da semana");
+        expect(email.text).toContain("https://pp7ias-portal.com.br/unsubscribe/weekly-news?token=abc");
     });
 
     it("sends queued content and marks the queue after all deliveries succeed", async () => {
@@ -227,6 +233,35 @@ describe("weekly digest email", () => {
         expect(client.queue[0].sent_at).toBeInstanceOf(Date);
     });
 
+    it("a recipient who cancels mid-run is skipped without being counted as a failure", async () => {
+        const client = new FakeDigestClient({
+            queue: [queueRow("88888888-8888-4888-8888-888888888888")],
+            recipients: [
+                recipient("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "ana@example.com"),
+                recipient("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", "bia@example.com"),
+            ],
+            unsubscribedBeforeSend: ["bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"],
+        });
+
+        const result = await sendWeeklyDigest({
+            force: true,
+            now: new Date("2026-07-08T13:00:00.000Z"),
+            pool: fakePool(client),
+            resendClient: fakeResendClient([{ data: { id: "email-1" } }]),
+            logger: silentLogger,
+        });
+
+        // Not "partial": a mid-run unsubscribe is not an operational failure.
+        expect(result).toMatchObject({ status: "completed", sentCount: 1, failedCount: 0 });
+        expect(client.run).toMatchObject({ status: "completed", error: null });
+        // Queue must still be marked sent — otherwise this content re-appears next week for everyone.
+        expect(client.queue[0].sent_at).toBeInstanceOf(Date);
+        expect(client.deliveries.find((d) => d.user_id === "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb")).toMatchObject({
+            status: "failed",
+            error: "Cancelado antes do envio",
+        });
+    });
+
     it("marks the run as failed when an unexpected error interrupts the job", async () => {
         const client = new FakeDigestClient({
             queue: [queueRow("33333333-3333-4333-8333-333333333333")],
@@ -291,12 +326,19 @@ class FakeDigestClient {
     readonly recipients: FakeRecipient[];
     readonly deliveries: FakeDelivery[] = [];
     readonly recipientError?: Error;
+    readonly unsubscribedBeforeSend: Set<string>;
     run: FakeRun | null = null;
 
-    constructor(options: { queue: FakeQueueRow[]; recipients: FakeRecipient[]; recipientError?: Error }) {
+    constructor(options: {
+        queue: FakeQueueRow[];
+        recipients: FakeRecipient[];
+        recipientError?: Error;
+        unsubscribedBeforeSend?: string[];
+    }) {
         this.queue = options.queue;
         this.recipients = options.recipients;
         this.recipientError = options.recipientError;
+        this.unsubscribedBeforeSend = new Set(options.unsubscribedBeforeSend ?? []);
     }
 
     async query<T = unknown>(sql: string, values: readonly unknown[] = []): Promise<QueryResult<T>> {
@@ -329,6 +371,11 @@ class FakeDigestClient {
         if (sql.includes('FROM "user"')) {
             if (this.recipientError) throw this.recipientError;
             return rows<T>(this.recipients);
+        }
+
+        if (sql.includes("FROM public.communication_preferences") && sql.includes("SELECT enabled")) {
+            const userId = String(values[0]);
+            return rows<T>([{ enabled: !this.unsubscribedBeforeSend.has(userId) }]);
         }
 
         if (sql.includes("SET content_count")) {
@@ -388,9 +435,11 @@ class FakeDigestClient {
         }
 
         if (sql.includes("COUNT(*) FILTER")) {
+            const cancelledError = String(values[1]);
             return rows<T>([{
                 sent_count: String(this.deliveries.filter((delivery) => delivery.run_id === values[0] && delivery.status === "sent").length),
-                failed_count: String(this.deliveries.filter((delivery) => delivery.run_id === values[0] && delivery.status === "failed").length),
+                failed_count: String(this.deliveries.filter((delivery) => delivery.run_id === values[0] && delivery.status === "failed" && delivery.error !== cancelledError).length),
+                cancelled_count: String(this.deliveries.filter((delivery) => delivery.run_id === values[0] && delivery.status === "failed" && delivery.error === cancelledError).length),
             }]);
         }
 

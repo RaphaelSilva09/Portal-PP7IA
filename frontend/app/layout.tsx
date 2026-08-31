@@ -1,9 +1,12 @@
+import AccessibilityPreferencesSync from "@/components/AccessibilityPreferencesSync";
 import ModalsProvider from "@/components/ModalsProvider";
 import PortalTypographyEffect from "@/components/PortalTypographyEffect";
 import Providers from "@/components/Providers";
 import UserActivityTracker from "@/components/UserActivityTracker";
+import VLibrasWidget from "@/components/VLibrasWidget";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
+import { ContentLockedModalProvider } from "@/context/ContentLockedModalContext";
 import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
 import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
 import { InviteModalProvider } from "@/context/InviteModalContext";
@@ -92,6 +95,7 @@ export default function RootLayout({
                     <AuthProvider>
                         <SearchModalProvider>
                             <AuthModalProvider>
+                              <ContentLockedModalProvider>
                                 <ForgotPasswordModalProvider>
                                     <FirstVisitModalProvider>
                                         <InviteModalProvider>
@@ -99,6 +103,7 @@ export default function RootLayout({
                                                 {children}
                                                 <ReferralCapture />
                                                 <PortalTypographyEffect />
+                                                <AccessibilityPreferencesSync />
                                                 <UserActivityTracker />
                                                 <Suspense fallback={null}>
                                                     <ModalsProvider />
@@ -107,11 +112,13 @@ export default function RootLayout({
                                         </InviteModalProvider>
                                     </FirstVisitModalProvider>
                                 </ForgotPasswordModalProvider>
+                              </ContentLockedModalProvider>
                             </AuthModalProvider>
                         </SearchModalProvider>
                     </AuthProvider>
                 </Providers>
                 {showAnalytics && <Analytics />}
+                <VLibrasWidget />
             </body>
         </html>
     );

@@ -1,10 +1,14 @@
 import DIContainer from "@/infrastructure/di/container";
 import type { ContentViewNavigationLink, ContentViewNavigationType } from "@/application/usecases/GetContentViewNavigationUseCase";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 import { findTrailStepNavigation, type TrailStepNavigation } from "@/domain/entities/ReadingTrail";
 import { getUser } from "@/infrastructure/auth/getUser";
 import ViewContentFrame from "@/components/ViewContentFrame";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+/** Tipos com bloqueio de acesso configurável pelo admin — os mesmos 6 com listagem pública (ver app/api/content/[type]/route.ts). */
+const LOCKABLE_TYPES = new Set(["newsletter", "mini-livro", "biblioteca", "especial-semana", "radar_oportunidades", "estudar"]);
 
 interface Props {
     params: Promise<{ type: string; slug: string }>;
@@ -69,6 +73,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         }
     }
 
+    if (isNavigableType(type)) {
+        const navigation = await DIContainer.getContentViewNavigationUseCase()
+            .execute({ type, slug })
+            .catch(() => null);
+
+        if (navigation?.current?.title) {
+            const title = `${navigation.current.title} | Portal PP7+IA`;
+            const description = `Visualização de ${config.title} do Portal PP7+IA`;
+            return {
+                title,
+                description,
+                openGraph: { title, description, url: pageUrl, type: "article" },
+            };
+        }
+    }
+
     const title = `${config.title} #${slug} | Portal PP7+IA`;
     const description = `Visualização de ${config.title} do Portal PP7+IA`;
 
@@ -95,12 +115,31 @@ export default async function ViewPage({ params, searchParams }: Props) {
     let next: ContentViewNavigationLink | null = null;
     let pageTitle = `${config.title} - ${slug}`;
     let trailNavigation: TrailStepNavigation | null = null;
+    let initialLockInfo: AccessRuleView | null = null;
+
+    // getUser() é lido uma vez e reaproveitado tanto pela navegação de
+    // trilha quanto pela checagem de acesso abaixo.
+    const user = trilha || LOCKABLE_TYPES.has(type) ? await getUser() : null;
 
     if (trilha) {
-        const user = await getUser();
         const trail = await DIContainer.getReadingTrailUseCase().execute(trilha, user?.id ?? null).catch(() => null);
         if (trail) {
             trailNavigation = findTrailStepNavigation(trail, type, slug);
+        }
+    }
+
+    // Checagem de UX (mostra a tela de bloqueio já no primeiro render, sem
+    // esperar o probe HEAD do client) — a checagem que realmente impede o
+    // HTML de ser servido está em /api/proxy-html, não aqui.
+    if (LOCKABLE_TYPES.has(type)) {
+        const access = await DIContainer.getEvaluateContentAccessUseCase().execute({
+            contentType: type,
+            slug,
+            userId: user?.id ?? null,
+            role: user?.role ?? null,
+        });
+        if (!access.allowed) {
+            initialLockInfo = access.view;
         }
     }
 
@@ -121,6 +160,9 @@ export default async function ViewPage({ params, searchParams }: Props) {
             const navigation = await DIContainer.getContentViewNavigationUseCase().execute({ type, slug });
             previous = navigation.previous;
             next = navigation.next;
+            if (navigation.current?.title) {
+                pageTitle = navigation.current.title;
+            }
         } catch {
             previous = null;
             next = null;
@@ -138,6 +180,7 @@ export default async function ViewPage({ params, searchParams }: Props) {
             sectionLabel={config.sectionLabel}
             backHref={config.backHref}
             trailNavigation={trailNavigation}
+            initialLockInfo={initialLockInfo}
         />
     );
 }

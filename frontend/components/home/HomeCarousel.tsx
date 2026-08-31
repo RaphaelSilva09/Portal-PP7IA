@@ -96,6 +96,15 @@ export default function HomeCarousel({ slides }: HomeCarouselProps) {
 
     if (slides.length === 0) return null;
 
+    /*
+     * O rótulo (eyebrow) usa a cor do bloco como texto direto sobre o cartão
+     * (superfície clara). A cor de acento decorativa (`--block-*`) não atinge
+     * 4.5:1 em texto pequeno para várias das 7 cores no tema claro (axe
+     * color-contrast, achados C02-C04). `-on-surface` é a variante escurecida
+     * por tema com contraste garantido — ver app/globals.css.
+     */
+    const onSurfaceColor = (color: string) => color.replace(/\)\s*$/, "-on-surface)");
+
     const renderSlide = (slide: HomeCarouselSlide, clone: boolean) => (
         <Link
             key={clone ? `${slide.key}-clone` : slide.key}
@@ -110,12 +119,12 @@ export default function HomeCarousel({ slides }: HomeCarouselProps) {
                 style={{ backgroundColor: slide.color }}
                 aria-hidden="true"
             />
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: slide.color }}>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: onSurfaceColor(slide.color) }}>
                 {slide.eyebrow}
             </p>
-            <h3 className="mt-2 line-clamp-2 font-serif text-lg leading-snug text-ink transition-colors group-hover:text-primary">
+            <h2 className="mt-2 line-clamp-2 font-serif text-lg leading-snug text-ink transition-colors group-hover:text-primary">
                 {slide.title}
-            </h3>
+            </h2>
             {slide.description && (
                 <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                     {slide.description}

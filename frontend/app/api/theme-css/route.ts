@@ -64,7 +64,16 @@ export async function GET() {
     return new NextResponse(css, {
         headers: {
             "Content-Type": "text/css; charset=utf-8",
-            "Cache-Control": "no-store",
+            // This is public, non-personalized site theming (block colors / bg),
+            // the same for every visitor — safe to cache briefly. It is loaded as
+            // a render-blocking <link rel="stylesheet"> in the root layout, so an
+            // uncached "no-store" response (two DB reads per request) was adding
+            // latency to the render-blocking critical path on every single page
+            // load. A short max-age plus stale-while-revalidate keeps admin color
+            // changes visible within ~30s while letting the browser/CDN reuse the
+            // response for the common case (same visitor navigating, or repeat
+            // visitors within the window).
+            "Cache-Control": "public, max-age=30, stale-while-revalidate=300",
         },
     });
 }

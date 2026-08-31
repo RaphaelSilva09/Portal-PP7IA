@@ -3,7 +3,13 @@
 The weekly digest sends pending items from `public.content_digest_queue` to users who:
 
 - have `"emailVerified" = true`
-- have `accept_email_updates = true`
+- have an enabled `weekly_news` row in `public.communication_preferences`
+
+Users who previously opted into `accept_email_updates` were backfilled into
+`communication_preferences` by migration `0022_communication_preferences.sql`.
+After that migration, `communication_preferences` is the source of truth for
+weekly digest delivery; `accept_email_updates` is only the legacy consent signal
+used for the initial backfill.
 
 ## Schedule
 

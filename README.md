@@ -29,7 +29,7 @@ O Portal-PP7IA é uma plataforma web que centraliza conteúdos, artigos, newslet
 - **Backend/Autenticação:** BetterAuth
 - **Database:** PostgreSQL no Railway
 - **Estilização:** Tailwind CSS v4
-- **Hospedagem:** Vercel
+- **Hospedagem:** Railway
 
 ## Estrutura de Pastas
 

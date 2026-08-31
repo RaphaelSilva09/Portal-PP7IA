@@ -11,12 +11,14 @@ import ReadingPrefsControl from "@/components/ReadingPrefsControl";
 import SaveForLaterButton from "@/components/SaveForLaterButton";
 import ShareButton from "@/components/ShareButton";
 import TrailStepNavigation from "@/components/TrailStepNavigation";
+import UnlockActionButton from "@/components/UnlockActionButton";
 import ViewContentNavigation from "@/components/ViewContentNavigation";
 import ViewIframe from "@/components/ViewIframe";
+import type { AccessRuleView } from "@/domain/access-rules/AccessRuleView";
 import type { TrailStepNavigation as TrailStepNavigationData } from "@/domain/entities/ReadingTrail";
 import { isSavableContentType } from "@/domain/entities/SavedContent";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Compass, RotateCcw, SearchX } from "lucide-react";
+import { ArrowLeft, Compass, Lock, RotateCcw, SearchX } from "lucide-react";
 import Link from "next/link";
 
 interface ViewContentFrameProps {
@@ -33,9 +35,22 @@ interface ViewContentFrameProps {
     backHref?: string;
     /** Navegação anterior/próximo dentro de uma trilha, quando o leitor chegou via ?trilha=slug. */
     trailNavigation?: TrailStepNavigationData | null;
+    /** Já calculado no servidor (page.tsx) — quando presente, pula o probe HEAD e nasce direto no estado bloqueado. */
+    initialLockInfo?: AccessRuleView | null;
 }
 
-type Availability = "checking" | "ok" | "missing" | "error";
+type Availability = "checking" | "ok" | "missing" | "error" | "locked";
+
+/** Só usado se um 403 chegar sem o header X-Access-Rule (não deveria acontecer — ver proxy-html/route.ts). */
+const GENERIC_LOCK_VIEW: AccessRuleView = {
+    ruleType: "unknown",
+    icon: "lock",
+    cardLabel: "Acesso restrito",
+    modalTitle: "Este conteúdo está com acesso restrito",
+    modalMessage: "Não foi possível confirmar seu acesso a este conteúdo agora. Tente novamente em instantes.",
+    unlockButtonLabel: "Tentar novamente",
+    unlockAction: { kind: "retry" },
+};
 
 function ContentSkeleton() {
     return (
@@ -104,6 +119,38 @@ function ContentError({ kind, backHref, sectionLabel, onRetry }: {
     );
 }
 
+/**
+ * Tela de acesso negado, em nível de página — não um pop-up: quem chega
+ * direto na URL (sem passar pelo card) precisa ver o mesmo motivo/ação de
+ * desbloqueio, com o header do portal continuando visível (renderizado
+ * incondicionalmente acima, por `ViewContentFrame`, não aqui).
+ */
+function ContentLocked({ view, backHref, sectionLabel }: {
+    view: AccessRuleView;
+    backHref: string;
+    sectionLabel: string;
+}) {
+    return (
+        <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 py-20 text-center">
+            <div className="flex size-12 items-center justify-center rounded-2xl bg-accent">
+                <Lock className="size-5 text-muted-foreground" aria-hidden="true" />
+            </div>
+            <h2 className="mt-5 font-serif text-3xl tracking-tight text-ink">{view.modalTitle}</h2>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{view.modalMessage}</p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <UnlockActionButton view={view} />
+                <Link
+                    href={backHref}
+                    className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-foreground/40"
+                >
+                    <ArrowLeft className="size-4" aria-hidden="true" />
+                    Voltar para {sectionLabel}
+                </Link>
+            </div>
+        </div>
+    );
+}
+
 export default function ViewContentFrame({
     htmlPath,
     title,
@@ -114,9 +161,11 @@ export default function ViewContentFrame({
     sectionLabel = "o portal",
     backHref = "/explorar",
     trailNavigation,
+    initialLockInfo = null,
 }: ViewContentFrameProps) {
     const [shellBackgroundColor, setShellBackgroundColor] = useState<string | null>(null);
-    const [availability, setAvailability] = useState<Availability>("checking");
+    const [availability, setAvailability] = useState<Availability>(initialLockInfo ? "locked" : "checking");
+    const [lockInfo, setLockInfo] = useState<AccessRuleView | null>(initialLockInfo);
     const [retryToken, setRetryToken] = useState(0);
     const [isHeaderHidden, setIsHeaderHidden] = useState(false);
 
@@ -126,20 +175,35 @@ export default function ViewContentFrame({
     const effectiveSectionLabel = trailNavigation ? trailNavigation.trailTitle : sectionLabel;
 
     useEffect(() => {
+        // O servidor (page.tsx) já sabe que está bloqueado — não precisa do
+        // probe HEAD, que só repetiria a mesma checagem de acesso.
+        if (initialLockInfo) return;
+
         let cancelled = false;
         setAvailability("checking");
-        // O proxy devolve JSON de erro em 404 — checar antes evita renderizar
-        // JSON cru dentro do iframe (auditoria UX-001).
+        // O proxy devolve JSON de erro em 404/403 — checar antes evita
+        // renderizar JSON cru dentro do iframe (auditoria UX-001).
         fetch(htmlPath, { method: "HEAD" })
             .then(res => {
                 if (cancelled) return;
+                if (res.status === 403) {
+                    // Alguém chegou direto nesta URL sem passar pela página
+                    // (que já teria embutido initialLockInfo) — ex.: sessão
+                    // expirou depois do primeiro render. O DTO completo
+                    // ainda chega via header, mesmo numa resposta HEAD sem
+                    // corpo.
+                    const header = res.headers.get("X-Access-Rule");
+                    setLockInfo(header ? (JSON.parse(decodeURIComponent(header)) as AccessRuleView) : null);
+                    setAvailability("locked");
+                    return;
+                }
                 setAvailability(res.ok ? "ok" : "missing");
             })
             .catch(() => {
                 if (!cancelled) setAvailability("error");
             });
         return () => { cancelled = true; };
-    }, [htmlPath, retryToken]);
+    }, [htmlPath, retryToken, initialLockInfo]);
 
     return (
         <div
@@ -208,6 +272,13 @@ export default function ViewContentFrame({
                         backHref={effectiveBackHref}
                         sectionLabel={effectiveSectionLabel}
                         onRetry={() => setRetryToken(t => t + 1)}
+                    />
+                )}
+                {availability === "locked" && (
+                    <ContentLocked
+                        view={lockInfo ?? GENERIC_LOCK_VIEW}
+                        backHref={effectiveBackHref}
+                        sectionLabel={effectiveSectionLabel}
                     />
                 )}
             </main>
