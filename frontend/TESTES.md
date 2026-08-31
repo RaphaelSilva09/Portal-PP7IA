@@ -1,6 +1,6 @@
 # Documentação de Testes — Portal Frontend
 
-> **89 testes · 13 arquivos · 0 falhas**
+> **84 testes · 12 arquivos · 0 falhas**
 > Stack: [Vitest 3.x](https://vitest.dev) · [@testing-library/react 16.x](https://testing-library.com) · jsdom
 
 ## Sumário
@@ -12,8 +12,7 @@
 | [Infraestrutura](#3-infraestrutura) | 2 | 12 |
 | [Context](#4-context) | 1 | 6 |
 | [Hooks](#5-hooks) | 1 | 6 |
-| [Componentes](#6-componentes) | 1 | 5 |
-| **Total** | **13** | **89** |
+| **Total** | **12** | **84** |
 
 ---
 
@@ -339,30 +338,6 @@ vi.mock('@/infrastructure/config/postgres', () => ({
 
 ---
 
-## 6. Componentes
-
----
-
-### `__tests__/components/PortalNewsWidget.test.tsx`
-
-**Arquivo de origem:** `components/PortalNewsWidget.tsx`
-**Tipo:** Teste de renderização de componente React
-**Dependências mockadas:**
-- `@/presentation/hooks/usePortalNews` — controla os dados exibidos sem disparar queries reais
-- `next/navigation` — fornece `useRouter` mock para evitar erros de contexto do Next.js
-
-**Helper:** `makeItem(overrides)` cria instâncias reais de `PortalNewsItem` com valores padrão, garantindo que todos os getters da entidade funcionem corretamente.
-
-| # | Cenário testado | Resultado esperado |
-|---|---|---|
-| 1 | Hook retorna 2 items, `isLoading=false` | Textos `'Item 1'` e `'Item 2'` presentes no DOM |
-| 2 | `isLoading=true` | Nenhum `role="button"` no DOM (skeletons exibidos em vez dos items) |
-| 3 | Item com `linkType='newsletter'` e `linkItemId=42` | Elemento com `role="button"` presente (item clicável) |
-| 4 | Item com `linkType=null` e `linkItemId=null` | Nenhum `role="button"` no DOM (item não clicável) |
-| 5 | Lista de items vazia, `isLoading=false` | Texto `"nenhuma novidade"` (case-insensitive) presente no DOM |
-
----
-
 ## Arquitetura dos Mocks
 
 ### Por que cada camada exige uma estratégia diferente
@@ -442,8 +417,6 @@ frontend/
     │   └── DIContainer.test.ts               # 4 testes
     ├── context/
     │   └── SessionContext.test.tsx           # 6 testes
-    ├── hooks/
-    │   └── useSearch.test.tsx                # 6 testes
-    └── components/
-        └── PortalNewsWidget.test.tsx         # 5 testes
+    └── hooks/
+        └── useSearch.test.tsx                # 6 testes
 ```

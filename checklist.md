@@ -136,7 +136,7 @@ Os dois bugs confirmados na avaliação original foram corrigidos e verificados 
 
 ### 6.1 — Onboarding ativo no primeiro acesso
 
-**Status: ❌ Não implementado.** Existe um `FirstVisitModal` no código (contexto `FirstVisitModalContext`), mas é um modal simples de primeira visita — não é o fluxo guiado por 7 blocos com exemplos reais descrito no requisito, nem tem o mecanismo de "conduzir por uma leitura em cada formato antes de liberar acesso livre".
+**Status: ❌ Não implementado.** Na época desta avaliação existia um `FirstVisitModal` no código (contexto `FirstVisitModalContext`) — um modal simples de primeira visita, não o fluxo guiado por 7 blocos com exemplos reais descrito no requisito, nem tinha o mecanismo de "conduzir por uma leitura em cada formato antes de liberar acesso livre". Esse componente estava órfão (não era renderizado por nenhuma rota) e foi removido numa limpeza de código morto; a funcionalidade completa do requisito segue não implementada.
 
 ### 6.2 — Seção de perguntas frequentes (FAQ)
 
@@ -200,6 +200,6 @@ Tudo que dependia só de código está feito e verificado (testes automatizados 
 
 1. **Validar o cold-start do PDF export num deploy de preview real da Vercel** — `puppeteer-core` + `@sparticuz/chromium` funcionam localmente, mas o tempo de start frio, uso de memória e compatibilidade com o plano contratado só se confirmam em produção/preview. `vercel.json` já reserva 2048MB/60s para essa rota.
 2. **Decidir o catálogo de benefícios por indicação** (6.4) — a fundação de rastreamento (convite → cadastro → primeiro conteúdo visto) está pronta e verificada; falta decidir quais recompensas existem e em que patamares, para então construir a lógica que concede o benefício.
-3. **Conversa de escopo sobre onboarding** (6.1) — decidir entre revivificar o `FirstVisitModal` órfão (hoje um formulário de captação, não um tour) ou construir um tour guiado pelos 7 blocos do zero; nenhuma implementação foi feita nesta rodada, por decisão explícita.
+3. **Conversa de escopo sobre onboarding** (6.1) — decidir se vale construir um tour guiado pelos 7 blocos do zero; o `FirstVisitModal` órfão mencionado na avaliação original (um formulário de captação, não um tour) foi removido numa limpeza de código morto, então não há mais nada para revivificar. Nenhuma implementação foi feita nesta rodada, por decisão explícita.
 4. **Rodar as migrações novas (0011–0015) e o seed `sync_homepage_texts.sql`/`sql/*.sql` em produção**, se o banco de produção for diferente do de desenvolvimento usado nesta sessão — todas as migrações são idempotentes, seguras de rodar mais de uma vez.
 5. Desvios menores documentados mas não corrigidos por serem mudanças de arquitetura maiores, não bugs: preferências de leitura salvas em `localStorage` em vez de "no perfil" (5.2), e tempo de leitura manual em vez de calculado por contagem de palavras (5.3, embora já exista um calculador pronto em `ReadingTimeCalculator.ts`, só não é chamado automaticamente no save).
