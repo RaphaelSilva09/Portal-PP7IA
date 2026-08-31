@@ -50,16 +50,6 @@ const BLOCK_COLOR: Record<BlockId, string> = {
     ensinar:    "var(--block-ensinar)",
 };
 
-const BLOCK_SOFT: Record<BlockId, string> = {
-    newsletter: "var(--block-newsletter-soft)",
-    reportagem: "var(--block-reportagem-soft)",
-    radar:      "var(--block-radar-soft)",
-    livro:      "var(--block-livro-soft)",
-    biblioteca: "var(--block-biblioteca-soft)",
-    estudar:    "var(--block-estudar-soft)",
-    ensinar:    "var(--block-ensinar-soft)",
-};
-
 const BLOCK_ON: Record<BlockId, string> = {
     newsletter: "var(--block-newsletter-on)",
     reportagem: "var(--block-reportagem-on)",
@@ -487,7 +477,6 @@ function SkExplorarCard({ color }: { color: string }) {
 
 function ExplorarCard({ card }: { card: CardItem }) {
     const color = BLOCK_COLOR[card.blockId];
-    const colorSoft = BLOCK_SOFT[card.blockId];
     const colorOn = BLOCK_ON[card.blockId];
     const primaryHref = card.htmlPath ?? card.pdfPath;
 

@@ -5,6 +5,7 @@ import capaParte1 from "@/assets/capa-parte-1.jpeg";
 import capaParte2 from "@/assets/capa-parte-2.jpeg";
 import capaParte3 from "@/assets/capa-parte-3.jpeg";
 import { contrastColor } from "@/lib/colorContrast";
+import Image, { type StaticImageData } from "next/image";
 
 import BibliotecaPromptsSection from "@/components/biblioteca/BibliotecaPromptsSection";
 import {
@@ -567,7 +568,7 @@ function BookHeroCard({ book, block, sectionTitle, sectionDescription }: {
         <>
         <article className="grid grid-cols-1 items-center gap-8 border-b border-border pb-8 md:grid-cols-[200px_1fr] md:gap-10">
             <button
-                className="relative mx-auto w-[180px] cursor-zoom-in md:w-full"
+                className="relative mx-auto aspect-[3/4] w-[180px] cursor-zoom-in md:w-full"
                 onClick={() => setCoverOpen(true)}
                 aria-label="Ver capa ampliada"
             >
@@ -576,11 +577,12 @@ function BookHeroCard({ book, block, sectionTitle, sectionDescription }: {
                     style={{ backgroundColor: block.color }}
                     aria-hidden="true"
                 />
-                <img
-                    src={capaLivro.src}
+                <Image
+                    src={capaLivro}
                     alt={`Capa ${book.title}`}
-                    className="relative w-full rounded-lg shadow-2xl"
-                    loading="lazy"
+                    fill
+                    sizes="(min-width: 768px) 33vw, 180px"
+                    className="rounded-lg object-cover shadow-2xl"
                 />
             </button>
             <div>
@@ -637,13 +639,13 @@ function BookHeroCard({ book, block, sectionTitle, sectionDescription }: {
         </article>
 
         {coverOpen && (
-            <CoverModal src={capaLivro.src} alt={`Capa ${book.title}`} onClose={() => setCoverOpen(false)} />
+            <CoverModal src={capaLivro} alt={`Capa ${book.title}`} onClose={() => setCoverOpen(false)} />
         )}
         </>
     );
 }
 
-function CoverModal({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+function CoverModal({ src, alt, onClose }: { src: StaticImageData; alt: string; onClose: () => void }) {
     const [closing, setClosing] = useState(false);
 
     const close = () => {
@@ -663,10 +665,10 @@ function CoverModal({ src, alt, onClose }: { src: string; alt: string; onClose: 
             aria-modal="true"
             aria-label="Capa ampliada"
         >
-            <img
+            <Image
                 src={src}
                 alt={alt}
-                className="max-h-[90vh] max-w-[min(90vw,480px)] rounded-xl shadow-2xl"
+                className="h-auto max-h-[90vh] w-auto max-w-[min(90vw,480px)] rounded-xl shadow-2xl"
                 style={{ animation: "cover-img-in 280ms cubic-bezier(0.34,1.4,0.64,1) forwards" }}
                 onClick={e => e.stopPropagation()}
             />
@@ -681,7 +683,7 @@ function CoverModal({ src, alt, onClose }: { src: string; alt: string; onClose: 
     );
 }
 
-const PART_COVERS = [capaParte1.src, capaParte3.src, capaParte2.src];
+const PART_COVERS = [capaParte1, capaParte3, capaParte2];
 
 function MiniLivroListCard({ item, block, globalIndex }: { item: Item; block: BlockColors; globalIndex: number }) {
     const href = item.htmlPath;
@@ -825,7 +827,7 @@ export function BlockLivro() {
     const { meta } = useMiniLivroSectionMeta();
     const cfg = useExplorarBlockConfig("livro");
     const block = C.livro;
-    const [openPartCover, setOpenPartCover] = useState<{ src: string; alt: string } | null>(null);
+    const [openPartCover, setOpenPartCover] = useState<{ src: StaticImageData; alt: string } | null>(null);
 
     const isLoading = bookLoading || mlLoading || ebLoading || sectionsLoading;
 
@@ -876,7 +878,7 @@ export function BlockLivro() {
                                     {/* Part header — capa, descrição do e-book e ações, tudo em um único bloco */}
                                     <div className="grid grid-cols-1 items-center gap-6 border-b border-border pb-8 md:grid-cols-[160px_1fr] md:gap-10">
                                         <button
-                                            className="relative mx-auto w-[140px] cursor-zoom-in md:mx-0 md:w-full"
+                                            className="relative mx-auto aspect-[3/4] w-[140px] cursor-zoom-in md:mx-0 md:w-full"
                                             onClick={() => setOpenPartCover({ src: PART_COVERS[part.order - 1], alt: part.subtitle })}
                                             aria-label={`Ver capa ${part.partLabel} ampliada`}
                                         >
@@ -885,10 +887,12 @@ export function BlockLivro() {
                                                 style={{ backgroundColor: part.color }}
                                                 aria-hidden="true"
                                             />
-                                            <img
+                                            <Image
                                                 src={PART_COVERS[part.order - 1]}
                                                 alt={part.subtitle}
-                                                className="relative w-full rounded-lg shadow-2xl"
+                                                fill
+                                                sizes="(min-width: 768px) 160px, 140px"
+                                                className="rounded-lg object-cover shadow-2xl"
                                             />
                                         </button>
                                         <div className="flex flex-col justify-center">
