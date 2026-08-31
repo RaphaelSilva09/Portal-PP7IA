@@ -29,7 +29,7 @@ Dentro de `frontend/`, por camada/pasta:
 | `infrastructure/` | Implementações Postgres dos repositórios (30 arquivos), auth (BetterAuth), providers de IA (Gemini, Groq), storage em filesystem, container de DI |
 | `presentation/` | Hooks de apresentação (23 arquivos, um por feature) e client de chat (SSE) |
 | `components/` | Componentes React por feature: admin, axioma, biblioteca, chat, explorar, home, onboarding, ui |
-| `context/` | Contexts React: Auth, Session, Onboarding, UserActions, e modais (Auth, ForgotPassword, Invite, Search, FirstVisit) |
+| `context/` | Contexts React: Auth, Session, Onboarding, UserActions, e modais (Auth, ForgotPassword, Invite, Search, ContentLocked) |
 | `hooks/` | Hooks utilitários soltos: `useThemeCycle`, `useBodyScrollLock`, `useBookProgress`, `usePasswordRecovery`, etc. |
 | `lib/` | Utilitários: auth, email, chat/axioma, `readingPrefs.ts`, `colorContrast.ts`, `portalTypography.ts`, `db.ts` |
 | `constants/` | Dados constantes (`editorials.ts`, `homeBlocks.ts`, `onboarding.ts`, `sections.ts`, `team.ts`) |

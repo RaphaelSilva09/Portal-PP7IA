@@ -27,9 +27,11 @@ async function main() {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL not set");
 
+    const isLocalDatabase = ["localhost", "127.0.0.1", "::1"].includes(new URL(url).hostname);
+
     const pool = new Pool({
         connectionString: url,
-        ssl: { rejectUnauthorized: false },
+        ssl: isLocalDatabase ? false : { rejectUnauthorized: false },
         max: 2,
     });
 

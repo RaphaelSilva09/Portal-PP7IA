@@ -7,7 +7,7 @@
     "node": ">=22 <26"
   },
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "tsx scripts/dev-with-local-db.ts",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",

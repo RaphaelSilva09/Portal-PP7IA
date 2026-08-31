@@ -621,6 +621,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                                         className="animate-[resultIn_200ms_ease_both]"
                                                         style={{ animationDelay: `${i * 30}ms` }}
                                                         role="option"
+                                                        aria-selected={false}
                                                     >
                                                         {item.viewUrl ? (
                                                             <Link

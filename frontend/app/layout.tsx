@@ -7,7 +7,6 @@ import VLibrasWidget from "@/components/VLibrasWidget";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { ContentLockedModalProvider } from "@/context/ContentLockedModalContext";
-import { FirstVisitModalProvider } from "@/context/FirstVisitModalContext";
 import { ForgotPasswordModalProvider } from "@/context/ForgotPasswordModalContext";
 import { InviteModalProvider } from "@/context/InviteModalContext";
 import { OnboardingProvider } from "@/context/OnboardingContext";
@@ -80,6 +79,10 @@ export default function RootLayout({
     return (
         <html lang="pt-BR" className={`${inter.variable} ${lora.variable} ${instrumentSerif.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
             <head>
+                {/* CSS gerado em runtime a partir de config no banco (cores de tema), servido
+                    por uma API route — não é um asset estático, então não pode virar next/font
+                    nem import estático. */}
+                {/* eslint-disable-next-line @next/next/no-css-tags */}
                 <link rel="stylesheet" href="/api/theme-css" />
                 {process.env.NEXT_PUBLIC_AUTH_DEBUG === 'true' && (
                     <>
@@ -97,20 +100,18 @@ export default function RootLayout({
                             <AuthModalProvider>
                               <ContentLockedModalProvider>
                                 <ForgotPasswordModalProvider>
-                                    <FirstVisitModalProvider>
-                                        <InviteModalProvider>
-                                            <OnboardingProvider>
-                                                {children}
-                                                <ReferralCapture />
-                                                <PortalTypographyEffect />
-                                                <AccessibilityPreferencesSync />
-                                                <UserActivityTracker />
-                                                <Suspense fallback={null}>
-                                                    <ModalsProvider />
-                                                </Suspense>
-                                            </OnboardingProvider>
-                                        </InviteModalProvider>
-                                    </FirstVisitModalProvider>
+                                    <InviteModalProvider>
+                                        <OnboardingProvider>
+                                            {children}
+                                            <ReferralCapture />
+                                            <PortalTypographyEffect />
+                                            <AccessibilityPreferencesSync />
+                                            <UserActivityTracker />
+                                            <Suspense fallback={null}>
+                                                <ModalsProvider />
+                                            </Suspense>
+                                        </OnboardingProvider>
+                                    </InviteModalProvider>
                                 </ForgotPasswordModalProvider>
                               </ContentLockedModalProvider>
                             </AuthModalProvider>

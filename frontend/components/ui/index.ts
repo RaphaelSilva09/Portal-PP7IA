@@ -2,11 +2,8 @@
  * UI Components - Barrel Export
  *
  * Centraliza exportação de todos os componentes UI primitivos.
- * Facilita imports: import { GradientButton, GlassCard } from '@/components/ui';
+ * Facilita imports: import { Button, GlassCard } from '@/components/ui';
  */
-
-export { default as GradientButton } from "./GradientButton";
-export type { GradientButtonProps, GradientButtonSize, GradientButtonVariant } from "./GradientButton";
 
 export { Button } from "./button";
 export type { ButtonProps } from "./button";

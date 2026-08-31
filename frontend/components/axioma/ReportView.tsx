@@ -54,8 +54,8 @@ export function ReportView({ result, tipo, studentName, questions, answers }: Pr
       sessionStorage.setItem("axioma:challenge", JSON.stringify(generated));
       toast.success("Prova personalizada pronta! Bora começar.");
       router.push("/axioma/desafio");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erro ao gerar prova personalizada");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erro ao gerar prova personalizada");
     } finally {
       setGenerating(false);
     }

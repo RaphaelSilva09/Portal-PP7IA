@@ -34,28 +34,12 @@ function t(section: SectionConfig, key: string, fallback: string): string {
     return section.texts[key] ?? fallback;
 }
 
-const HERO_BLOCKS = [
-    { id: "newsletter", label: "Newsletter",       color: "var(--block-newsletter)", href: "/newsletter" },
-    { id: "reportagem", label: "Inteligência Artificial", color: "var(--block-reportagem)", href: "/explorar?b=inteligencia-artificial" },
-    { id: "radar",      label: "Editoriais e Artigos",    color: "var(--block-radar)",      href: "/explorar?b=editoriais-artigos" },
-    { id: "livro",      label: "Enquanto é Tempo", color: "var(--block-livro)",      href: "/mini-livros" },
-    { id: "biblioteca", label: "Biblioteca",       color: "var(--block-biblioteca)", href: "/biblioteca" },
-    { id: "estudar",    label: "Estudar",          color: "var(--block-estudar)",    href: "/estudar" },
-    { id: "ensinar",    label: "Ensinar",          color: "var(--block-ensinar)",    href: "/explorar?b=ensinar" },
-];
-
-function HeroSection({ s, book, newsletter, totalChapters, bookChaptersTotal }: {
+function HeroSection({ s, book, totalChapters, bookChaptersTotal }: {
     s: SectionConfig;
     book: Book | null;
-    newsletter: Newsletter | null;
     totalChapters: number;
     bookChaptersTotal: number;
 }) {
-    const edition = newsletter?.index ?? null;
-    const now = new Date();
-    const dateStr = now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
-        .toUpperCase().replace(/\. DE /g, " ").replace(/\.$/, "");
-
     return (
         <section className="border-b border-border bg-background">
             <div className="mx-auto max-w-7xl px-6 py-14 lg:py-20">
@@ -609,7 +593,6 @@ export default async function Home() {
                         <HeroSection
                             s={s}
                             book={activeBook}
-                            newsletter={latestNewsletter}
                             totalChapters={totalChapters}
                             bookChaptersTotal={bookChaptersTotal}
                         />

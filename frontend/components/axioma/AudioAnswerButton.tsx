@@ -9,17 +9,45 @@ type Props = {
   onInterim?: (text: string) => void;
 };
 
+// Tipos mínimos para a Web Speech API (não padronizada, ausente do lib.dom.d.ts do TS)
+type SpeechRecognitionAlternativeLike = { transcript: string };
+type SpeechRecognitionResultLike = {
+  isFinal: boolean;
+  [index: number]: SpeechRecognitionAlternativeLike;
+};
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: { length: number; [index: number]: SpeechRecognitionResultLike };
+};
+type SpeechRecognitionErrorEventLike = { error: string };
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
+  onend: (() => void) | null;
+};
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+type SpeechRecognitionWindow = Window & {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+};
+
 // Usa Web Speech API (reconhecimento nativo do navegador)
 export function AudioAnswerButton({ onTranscript, onInterim }: Props) {
   const [recording, setRecording] = useState(false);
   const [supported, setSupported] = useState(true);
   const [interim, setInterim] = useState("");
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const manualStopRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const win = window as SpeechRecognitionWindow;
+    const SR = win.SpeechRecognition || win.webkitSpeechRecognition;
     if (!SR) {
       setSupported(false);
       return;
@@ -29,7 +57,7 @@ export function AudioAnswerButton({ onTranscript, onInterim }: Props) {
     rec.continuous = true;
     rec.interimResults = true;
 
-    rec.onresult = (event: any) => {
+    rec.onresult = (event: SpeechRecognitionEventLike) => {
       let finalText = "";
       let interimText = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -47,7 +75,7 @@ export function AudioAnswerButton({ onTranscript, onInterim }: Props) {
       }
     };
 
-    rec.onerror = (e: any) => {
+    rec.onerror = (e: SpeechRecognitionErrorEventLike) => {
       const err = e?.error ?? "desconhecido";
       if (err === "not-allowed" || err === "service-not-allowed") {
         toast.error("Permissão de microfone negada. Habilite o microfone para este site nas configurações do navegador.");
@@ -89,7 +117,7 @@ export function AudioAnswerButton({ onTranscript, onInterim }: Props) {
         // Libera imediatamente — a Web Speech API gerencia seu próprio stream
         stream.getTracks().forEach((t) => t.stop());
       }
-    } catch (err: any) {
+    } catch (_err: unknown) {
       toast.error("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
       return;
     }
@@ -99,7 +127,7 @@ export function AudioAnswerButton({ onTranscript, onInterim }: Props) {
       rec.start();
       setRecording(true);
       toast.success("Gravando — fale agora. Clique de novo para parar.");
-    } catch (e: any) {
+    } catch (_e: unknown) {
       // start() lança se já estiver rodando — tenta reiniciar
       try {
         rec.stop();
@@ -169,7 +197,7 @@ export function AudioAnswerButton({ onTranscript, onInterim }: Props) {
       </button>
       {recording && interim && (
         <div className="rounded-lg border border-border/50 bg-muted/40 px-2 py-1 text-xs italic text-muted-foreground">
-          ouvindo: "{interim}"
+          ouvindo: &ldquo;{interim}&rdquo;
         </div>
       )}
       {recording && !interim && (

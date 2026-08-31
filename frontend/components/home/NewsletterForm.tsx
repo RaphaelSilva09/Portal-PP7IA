@@ -6,13 +6,11 @@ import { isValidEmail } from "@/lib/validators";
 
 export default function NewsletterForm() {
     const [email, setEmail] = useState("");
-    const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [validationError, setValidationError] = useState<string | null>(null);
     const { openModal } = useAuthModal();
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        if (status === "loading") return;
         const trimmed = email.trim();
         if (!trimmed) {
             setValidationError("Informe seu e-mail para receber a newsletter.");
@@ -24,37 +22,6 @@ export default function NewsletterForm() {
         }
         setValidationError(null);
         openModal({ email: trimmed }, "signup");
-    }
-
-    if (status === "success") {
-        return (
-            <div className="space-y-3">
-                <label className="block text-[11px] uppercase tracking-[0.22em] text-background/50">
-                    Seu e-mail
-                </label>
-                <div className="flex items-center gap-3 rounded-2xl border border-background/15 bg-background/5 px-5 py-4">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-block-newsletter shrink-0"
-                        aria-hidden="true"
-                    >
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <path d="m9 11 3 3L22 4" />
-                    </svg>
-                    <p className="text-sm text-background/80">
-                        Inscrição confirmada! Você recebe na próxima edição.
-                    </p>
-                </div>
-            </div>
-        );
     }
 
     return (
@@ -99,37 +66,31 @@ export default function NewsletterForm() {
                 </div>
                 <button
                     type="submit"
-                    disabled={status === "loading"}
                     className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-background px-5 py-3 text-sm font-medium text-ink transition-colors hover:bg-block-newsletter disabled:opacity-60"
                 >
-                    {status === "loading" ? "Inscrevendo…" : "Inscrever"}
-                    {status !== "loading" && (
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="lucide lucide-arrow-up-right size-3.5"
-                            aria-hidden="true"
-                        >
-                            <path d="M7 7h10v10" />
-                            <path d="M7 17 17 7" />
-                        </svg>
-                    )}
+                    Inscrever
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-arrow-up-right size-3.5"
+                        aria-hidden="true"
+                    >
+                        <path d="M7 7h10v10" />
+                        <path d="M7 17 17 7" />
+                    </svg>
                 </button>
             </div>
             {validationError && (
                 <p id="newsletter-email-error" role="alert" className="text-xs text-red-400">
                     {validationError}
                 </p>
-            )}
-            {status === "error" && (
-                <p role="alert" className="text-xs text-red-400">Algo deu errado. Tente novamente.</p>
             )}
         </form>
     );

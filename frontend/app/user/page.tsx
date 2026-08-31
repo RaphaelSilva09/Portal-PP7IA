@@ -16,11 +16,8 @@ import {
     EyeOff,
     Key,
     Loader2,
-    Mail,
-    Phone,
     Shield,
     Trash2,
-    User,
     UserPlus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";

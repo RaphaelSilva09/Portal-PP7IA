@@ -49,7 +49,6 @@ export function QuestionnaireFlow({ tipo, title, questions: rawQuestions, intro,
       }
       return { ...q, options: newOptions, correct: newCorrect };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawQuestions]);
 
   const [studentName, setStudentName] = useState("");
@@ -111,8 +110,8 @@ export function QuestionnaireFlow({ tipo, title, questions: rawQuestions, intro,
       };
       const result = await analyzeAnswers(payload);
       setReport(result);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erro ao gerar relatório");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erro ao gerar relatório");
     } finally {
       setLoading(false);
     }

@@ -28,8 +28,9 @@ export default function UploadPage() {
       const text = await extractPdfText(file);
       setExtractedText(text);
       toast.success("PDF lido com sucesso. Revise e gere o relatório.");
-    } catch (e: any) {
-      toast.error("Erro ao ler PDF: " + (e?.message ?? ""));
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "";
+      toast.error("Erro ao ler PDF: " + message);
     } finally {
       setLoading(false);
     }
@@ -56,8 +57,8 @@ export default function UploadPage() {
         ],
       });
       setReport(result);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erro ao gerar relatório");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erro ao gerar relatório");
     } finally {
       setLoading(false);
     }
