@@ -4,8 +4,17 @@ declare global {
     var __pgPool: Pool | undefined;
 }
 
-const databaseUrl = process.env.DATABASE_URL ?? "";
-const isLocalDatabase = databaseUrl.includes("localhost") || databaseUrl.includes("127.0.0.1");
+const LOCAL_DB_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+
+function isLocalDatabaseUrl(url: string): boolean {
+    try {
+        return LOCAL_DB_HOSTS.has(new URL(url).hostname);
+    } catch {
+        return false;
+    }
+}
+
+const isLocalDatabase = isLocalDatabaseUrl(process.env.DATABASE_URL ?? "");
 
 export const pool: Pool =
     globalThis.__pgPool ??
