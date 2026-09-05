@@ -1,6 +1,6 @@
 # Fontes da Newsletter — PP7+IAS
 
-> Origem: anexo do documento PP7IAS-260630-0942-C-V01 (junho/2026), consolidado em 70 fontes.
+> Origem: anexo do documento PP7IAS-260630-0942-C-V01 (junho/2026), ampliado para 71 fontes.
 > **Mantenedora: Luiza** — complementar e atualizar de tempos em tempos (mínimo de 50 fontes fixas).
 > Itens marcados `[lista PP]` vieram da lista original do PP. Itens com ⚠️ têm canal a confirmar.
 
@@ -57,6 +57,7 @@
 | 33 | Future Tools (Matt Wolfe) | <https://www.futuretools.io/> | |
 | 34 | AI Tool Report | <https://www.aitoolreport.com/> | |
 | 35 | The AI Corner | [busca Google]( https://www.google.com/search?q=%22The+AI+Corner%22+AI+newsletter) | `[lista PP]` ⚠️ busca p/ confirmar |
+| 71 | AI Weekly | <https://aiweekly.co/> | Descubra o que especialistas em IA estao lendo e compartilhando agora; edicoes gratuitas 3x por semana. |
 
 ## C) Mídia tech global
 
